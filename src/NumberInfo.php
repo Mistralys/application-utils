@@ -3,8 +3,8 @@
  * File containing the {@link NumberInfo} class
  *
  * @access public
- * @package Application
- * @subpackage Core
+ * @package Application Utils
+ * @subpackage Misc
  * @see NumberInfo
  */
 
@@ -32,9 +32,9 @@ namespace AppUtils;
  * info to it.
  *
  * @access public
- * @package Application
- * @subpackage Core
- * @author Sebastian Mordziol <s.mordziol@mistralys.com>
+ * @package Application Utils
+ * @subpackage Misc
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  * @license https://www.gnu.org/licenses/lgpl-3.0.en.html
  */
 class NumberInfo

@@ -1,8 +1,8 @@
 <?php
 /**
  * File containing the {@link RequestHelper} class.
- * @package Helpers
- * @subpackage RequestHelper
+ * @package Application Utils
+ * @subpackage Request
  * @see RequestHelper
  */
 
@@ -13,8 +13,8 @@ namespace AppUtils;
  * Creates the raw request headers required for the request and sends them
  * using file_get_contents with the according context parameters.
  *
- * @package Helpers
- * @subpackage RequestHelper
+ * @package Application Utils
+ * @subpackage Request
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
 class RequestHelper

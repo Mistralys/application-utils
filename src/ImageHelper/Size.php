@@ -7,7 +7,7 @@ namespace AppUtils;
  * using the {@link ImageHelper::getImageSize()} method, to
  * easily access the size information.
  *
- * @package Helpers
+ * @package Application Utils
  * @subpackage ImageHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  * @see ImageHelper::getImageSize()

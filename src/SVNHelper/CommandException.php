@@ -4,8 +4,8 @@
  * Exception for SVN commands: only thrown in relation
  * to the current SVN commands being executed.
  *
- * @package SVNHelper
- * @subpackage Exceptions
+ * @package Application Utils
+ * @subpackage SVNHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  * @see SVNHelper_Exception
  */

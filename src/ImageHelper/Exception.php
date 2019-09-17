@@ -7,7 +7,7 @@ namespace AppUtils;
  * Allows setting and getting additional developer-
  * only error details, when available.
  *
- * @package Helpers
+ * @package Application Utils
  * @subpackage ImageHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */

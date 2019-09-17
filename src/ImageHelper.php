@@ -2,7 +2,7 @@
 /**
  * File containing the {@link ImageHelper} class.
  * 
- * @package Helpers
+ * @package Application Utils
  * @subpackage ImageHelper
  * @see ImageHelper
  */
@@ -13,7 +13,7 @@ namespace AppUtils;
  * Image helper class that can be used to transform images,
  * and retrieve information about them.
  * 
- * @package Helpers
+ * @package Application Utils
  * @subpackage ImageHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  * @version 2.0

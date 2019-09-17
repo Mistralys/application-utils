@@ -1,7 +1,7 @@
 <?php
 /**
  * File containing the {@link ZIPHelper} class.
- * @package Helpers
+ * @package Application Utils
  * @subpackage ZIPHelper
  * @see ZIPHelper
  */
@@ -18,7 +18,7 @@ namespace AppUtils;
  * $zip = new ZIPHelper('ziparchive.zip');
  * </pre>
  * 
- * @package Helpers
+ * @package Application Utils
  * @subpackage ZIPHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */

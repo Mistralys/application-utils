@@ -2,7 +2,8 @@
 /**
  * File containing the {@link SVNHelper} class.
  * 
- * @package SVNHelper
+ * @package Application Utils
+ * @subpackage SVNHelper
  * @see SVNHelper
  */
 
@@ -13,7 +14,8 @@ namespace AppUtils;
  * Implements only basic SVN commands, like update and
  * commit.
  *
- * @package SVNHelper
+ * @package Application Utils
+ * @subpackage SVNHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  * 
  * @see SVNHelper_Exception

@@ -6,8 +6,8 @@ namespace AppUtils;
  * General purpose SVNHelper exception for any errors
  * regarding the helper operations.
  *
- * @package SVNHelper
- * @subpackage Exceptions
+ * @package Application Utils
+ * @subpackage SVNHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  * @see SVNHelper_CommandException
  */

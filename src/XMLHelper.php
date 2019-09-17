@@ -1,7 +1,7 @@
 <?php
 /**
  * File containing the {@link XMLHelper} class.
- * @package Helpers
+ * @package Application Utils
  * @subpackage XMLHelper
  * @see XMLHelper
  */
@@ -14,7 +14,7 @@ namespace AppUtils;
  * code required to add common elements without going all
  * the way of being an abstraction layer.
  *
- * @package Helpers
+ * @package Application Utils
  * @subpackage XMLHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
