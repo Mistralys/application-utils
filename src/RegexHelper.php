@@ -82,4 +82,14 @@ class RegexHelper
      * @var string
      */
     const REGEX_DATE = '%([0-9]{1,2})/([0-9]{1,2})/([0-9]{2,4}) ([0-9]{1,2}):([0-9]{1,2})|([0-9]{1,2})/([0-9]{1,2})/([0-9]{2,4})%i';
+
+    /**
+     * Finds tags like this:
+     * - <ul
+     * - ul>
+     * - <br>
+     * - <br/>
+     * @var string
+     */
+    const REGEX_IS_HTML = '%<{0,1}[a-z\/][\s\S]*>|<[a-z\/][\s\S]*>{0,1}%i';
 }
