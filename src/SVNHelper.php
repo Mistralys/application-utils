@@ -366,7 +366,7 @@ class SVNHelper
     
     protected function createCommand($type, SVNHelper_Target $target)
     {
-        $class = 'SVNHelper_Command_'.$type;
+        $class = 'AppUtils\SVNHelper_Command_'.$type;
 
         $cmd = new $class($this, $target);
         return $cmd;
