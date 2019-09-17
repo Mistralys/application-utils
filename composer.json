@@ -12,6 +12,10 @@
 	],
 	"autoload" : 
 	{
+		"psr-4" : 
+		{
+			"AppUtils" : "src/"
+		},
         "files" : 
         [
             "src/NumberInfo.php"

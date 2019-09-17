@@ -368,8 +368,6 @@ class SVNHelper
     {
         $class = 'SVNHelper_Command_'.$type;
 
-        $this->requireClass($class);
-        
         $cmd = new $class($this, $target);
         return $cmd;
     }
