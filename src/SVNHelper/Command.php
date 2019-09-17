@@ -1,5 +1,7 @@
 <?php
 
+namespace AppUtils;
+
 abstract class SVNHelper_Command
 {
     const ERROR_INVALID_COMMAND_RESULT = 22601;
@@ -177,8 +179,6 @@ abstract class SVNHelper_Command
                 }
             }
         }
-        
-        require_once 'SVNHelper/CommandResult.php';
         
         $result = new SVNHelper_CommandResult($this, $cmd, $lines, $errorMessages);
         

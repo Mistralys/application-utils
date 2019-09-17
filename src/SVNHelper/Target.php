@@ -1,8 +1,6 @@
 <?php
 
-require_once 'SVNHelper/Target/File.php';
-
-require_once 'SVNHelper/Target/Folder.php';
+namespace AppUtils;
 
 abstract class SVNHelper_Target
 {

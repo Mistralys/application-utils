@@ -6,6 +6,8 @@
  * @see SVNHelper
  */
 
+namespace AppUtils;
+
 /**
  * Simple helper class to work with SVN repositories.
  * Implements only basic SVN commands, like update and
@@ -256,17 +258,11 @@ class SVNHelper
         }
         
         $typeClass = 'SVNHelper_Target_'.$type;
-        $this->requireClass($typeClass);
         
         $target = new $typeClass($this, $relativePath);
         $this->targets[$key] = $target;
         
         return $target;
-    }
-    
-    protected function requireClass($class)
-    {
-        require_once str_replace('_', '/', $class).'.php';
     }
     
     public function getPath()
@@ -479,121 +475,10 @@ class SVNHelper
     public static function registerExceptionLogger($callback)
     {
         self::$loggers[] = $callback;
-}
+    }
 
     public static function getExceptionLoggers()
     {
         return self::$loggers;
-    }
-}
-
-/**
- * General purpose SVNHelper exception for any errors
- * regarding the helper operations.
- *
- * @package SVNHelper
- * @subpackage Exceptions
- * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
- * @see SVNHelper_CommandException
- */
-class SVNHelper_Exception extends Exception
-{
-    protected $details;
-    
-    protected $id;
-    
-    protected $logging = true;
-    
-    public function __construct($message, $details=null, $code=null, $previous=null)
-    {
-        parent::__construct($message, $code, $previous);
-        
-        $this->details = $details;
-        $this->id = md5(microtime(true).'-svnexception-'.$code.'-'.$message);
-    }
-    
-    public function getID()
-    {
-        return $this->id;
-    }
-    
-    public function getDetails()
-    {
-        return $this->details;
-    }
-
-    public function __destruct()
-    {
-        if(!$this->logging) {
-            return;
-        }
-        
-        $loggers = SVNHelper::getExceptionLoggers();
-        
-        if(empty($loggers)) {
-            return;
-        }
-        
-        foreach($loggers as $callback) {
-            call_user_func($callback, $this);
-        }
-    }
-    
-    public function disableLogging()
-    {
-        $this->logging = false;
-    }
-}
-
-/**
- * Exception for SVN commands: only thrown in relation
- * to the current SVN commands being executed.
- *
- * @package SVNHelper
- * @subpackage Exceptions
- * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
- * @see SVNHelper_Exception
- */
-class SVNHelper_CommandException extends SVNHelper_Exception
-{
-   /**
-    * @var SVNHelper_CommandResult
-    */
-    protected $result;
-    
-    public function __construct($message, $details, $code, SVNHelper_CommandResult $result, $previous=null)
-    {
-        parent::__construct($message, $details, $code, $previous);
-        $this->result = $result;
-    }
-    
-   /**
-    * @return SVNHelper_CommandResult
-    */
-    public function getResult()
-    {
-        return $this->result;
-    }
-    
-   /**
-    * @return SVNHelper_Command
-    */
-    public function getCommand()
-    {
-        return $this->result->getCommand();
-    }
-    
-    public function getErrorMessages()
-    {
-        return $this->result->getErrorMessages();
-    }
-    
-   /**
-    * Retrieves the type of command, e.g. "Update", "Commit".
-    * @return string
-    */
-    public function getCommandType()
-    {
-        return $this->getCommand()->getType();
     }
 }

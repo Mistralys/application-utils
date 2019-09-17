@@ -6,6 +6,8 @@
  * @see RequestHelper
  */
 
+namespace AppUtils;
+
 /**
  * Handles sending POST requests with file attachments and regular variables.
  * Creates the raw request headers required for the request and sends them

@@ -1,5 +1,7 @@
 <?php
 
+namespace AppUtils;
+
 class ConvertHelper
 {
     const ERROR_STRIPCONTROLCHARS_NOT_STRING = 23301;
@@ -598,7 +600,6 @@ class ConvertHelper
      */
     public static function transliterate($string, $spaceChar = '-', $lowercase = true)
     {
-        require_once 'Transliteration.php';
         $translit = new Transliteration();
         $translit->setSpaceReplacement($spaceChar);
         if ($lowercase) {

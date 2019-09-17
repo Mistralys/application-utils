@@ -1,5 +1,7 @@
 <?php
 
+namespace AppUtils;
+
 class FileHelper
 {
     const ERROR_CANNOT_FIND_JSON_FILE = 340001;
@@ -241,7 +243,6 @@ class FileHelper
      */
     public static function detectMimeType($fileName)
     {
-        require_once 'FileHelper/MimeTypes.php';
         $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
         return FileHelper_MimeTypes::getMime($ext);
@@ -887,21 +888,5 @@ class FileHelper
         }
         
         return round($size);
-    }
-}
-
-class FileHelper_Exception extends Exception
-{
-    protected $details;
-    
-    public function __construct($message, $details=null, $code=null, $previous=null)
-    {
-        parent::__construct($message, $code, $previous);
-        $this->details = $details;
-    }
-    
-    public function getDetails()
-    {
-        return $this->details;
     }
 }

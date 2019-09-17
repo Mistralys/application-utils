@@ -6,6 +6,8 @@
  * @see ZIPHelper
  */
 
+namespace AppUtils;
+
 /**
  * ZIP helper class to simplify working with the native 
  * PHP ZIPArchive functions.
@@ -314,21 +316,5 @@ class ZIPHelper
             json_encode($data), 
             $zipPath
         );
-    }
-}
-
-class ZIPHelper_Exception extends Exception
-{
-    protected $details;
-    
-    public function __construct($message, $details=null, $code=null, $previous=null)
-    {
-        parent::__construct($message, $code, $previous);
-        $this->details = $details;
-    }
-    
-    public function getDetails()
-    {
-        return $this->details;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+namespace AppUtils;
+
 class FileHelper_MimeTypes
 {
     /**

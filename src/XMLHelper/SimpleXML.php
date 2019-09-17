@@ -1,5 +1,7 @@
 <?php
 
+namespace AppUtils;
+
 class XMLHelper_SimpleXML
 {
     /**

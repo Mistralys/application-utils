@@ -8,6 +8,8 @@
  * @see NumberInfo
  */
 
+namespace AppUtils;
+
 /**
  * Abstraction class for numeric values for elements: offers
  * an easy to use API to work with pixel values, percentual

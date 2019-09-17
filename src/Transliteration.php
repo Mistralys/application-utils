@@ -4,6 +4,8 @@
  * @see Transliteration
  */
 
+namespace AppUtils;
+
 /**
  * Transliteration class that can be used to convert a regular
  * string to an ascii-only text, while preserving as many characters

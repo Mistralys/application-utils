@@ -6,6 +6,8 @@
  * @see XMLHelper
  */
 
+namespace AppUtils;
+
 /**
  * Simple XML utility class that makes it easier to work
  * with the native PHP DOMDocument class. Simplifies the
@@ -326,8 +328,6 @@ class XMLHelper
      */
     public static function buildSuccessXML($message)
     {
-        require_once 'XMLHelper.php';
-
         $xml = new DOMDocument('1.0', 'UTF-8');
         $xml->formatOutput = true;
 
@@ -399,24 +399,6 @@ class XMLHelper
     */
     public static function createSimplexml()
     {
-        require_once 'XMLHelper/SimpleXML.php';
-        
         return new XMLHelper_SimpleXML();
-    }
-}
-
-class XMLHelper_Exception extends Exception
-{
-    protected $details;
-    
-    public function __construct($message, $details=null, $code=null, $previous=null)
-    {
-        parent::__construct($message, $code, $previous);
-        $this->details = $details;
-    }
-    
-    public function getDetails()
-    {
-        return $this->details;
     }
 }

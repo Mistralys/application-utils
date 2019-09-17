@@ -1,6 +1,6 @@
 <?php
 
-require_once 'SVNHelper/Command.php';
+namespace AppUtils;
 
 class SVNHelper_Command_Status extends SVNHelper_Command
 {
