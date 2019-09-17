@@ -491,6 +491,19 @@ class FileHelper
         return $name;
     }
     
+   /**
+    * Creates an instance of the file finder, which is an easier
+    * alternative to the other manual findFile methods, since all
+    * options can be set by chaining.
+    * 
+    * @param string $path
+    * @return FileHelper_FileFinder
+    */
+    public static function createFileFinder(string $path) : FileHelper_FileFinder
+    {
+        return new FileHelper_FileFinder($path);
+    }
+    
     public static function findHTMLFiles($targetFolder, $options=array())
     {
         return self::findFiles($targetFolder, array('html'), $options);
