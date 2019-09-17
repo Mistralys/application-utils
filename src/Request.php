@@ -417,4 +417,87 @@ class Request
         echo $html;
         exit;
     }
+    
+   /**
+    * Checks whether the specified URLs match, regardless of
+    * the order in which the query parameters are, if any.
+    * 
+    * @param string $sourceURL
+    * @param string $targetURL
+    * @param array $limitParams Wheter to limit the comparison to these specific parameter names (if present)
+    * @return bool
+    */
+    public function urlsMatch(string $sourceURL, string $targetURL, array $limitParams=array()) : bool
+    {
+        $sInfo = parse_url($sourceURL);
+        $tInfo = parse_url($targetURL);
+        
+        if($sInfo['scheme'] != $tInfo['scheme']) {
+            return false;
+        }
+        
+        if($sInfo['host'] != $tInfo['host']) {
+            return false;
+        }
+        
+        $sPath = '';
+        if(isset($sInfo['path'])) {
+            $sPath = ltrim($sInfo['path'], '/');
+        }
+        
+        $tPath = '';
+        if(isset($tInfo['path'])) {
+            $tPath = ltrim($tInfo['path'], '/');
+        }        
+        
+        if($sPath !== $tPath) {
+            return false;
+        }
+        
+        if($sPath && $sInfo['path'] != $tInfo['path']) {
+            return false;
+        }
+            
+        $sQuery = isset($sInfo['query']);
+        $tQuery = isset($tInfo['query']);
+        
+        if($sQuery !== $tQuery) {
+            return false;
+        }
+        
+        if($sQuery)
+        {
+            $sParams = null; parse_str($sInfo['query'], $sParams);
+            $tParams = null; parse_str($tInfo['query'], $tParams);
+            
+            ksort($sParams);
+            ksort($tParams);
+            
+            if(!empty($limitParams)) 
+            {
+                $sKeep = array();
+                $tKeep = array();
+                
+                foreach($limitParams as $name) 
+                {
+                    if(isset($sParams[$name])) {
+                        $sKeep[$name] = $sParams[$name];
+                    }
+                    
+                    if(isset($tParams[$name])) {
+                        $tKeep[$name] = $tParams[$name];
+                    }
+                }
+                
+                $sParams = $sKeep;
+                $tParams = $tKeep;
+            }
+            
+            if(serialize($sParams) != serialize($tParams)) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
 }
