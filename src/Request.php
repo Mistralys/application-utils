@@ -101,9 +101,14 @@ class Request
     {
         $params = $this->getRefreshParams($params, $exclude);
         
-        $dispatcher = Application_Driver::getInstance()->getApplication()->getBootScreen()->getDispatcher();
+        $dispatcher = $this->getDispatcher();
         
         return $this->buildURL($params, $dispatcher);
+    }
+    
+    public function getDispatcher()
+    {
+        return null;
     }
     
     public function getRefreshParams($params = array(), $exclude = array())
@@ -112,11 +117,11 @@ class Request
         if(empty($exclude)) { $exclude = array(); }
         
         $vars = $_REQUEST;
-        
+
         $exclude[] = session_name();
         $exclude[] = 'ZDEDebuggerPresent';
-        $exclude[] = 'simulate_user_id';
-        $exclude[] = 'lockmanager_enable';
+        
+        $exclude = array_merge($exclude, $this->getExcludeParams());
         
         foreach ($exclude as $name) {
             if (isset($vars[$name])) {
@@ -124,10 +129,12 @@ class Request
             }
         }
         
+        $names = array_keys($vars);
+        
         // remove the quickform form variable if present, to 
         // avoid redirect loops when using the refresh URL in
         // a page in which a form has been submitted.
-        foreach($vars as $name => $value) {
+        foreach($names as $name) {
             if(strstr($name, '_qf__')) {
                 unset($vars[$name]);
                 break;
@@ -140,9 +147,9 @@ class Request
         return $params;
     }
     
-    public function buildPrintURL($params = array())
+    public function getExcludeParams()
     {
-        return $this->buildRefreshURL(array('print' => 'yes'));
+        return array();
     }
     
     /**
@@ -328,15 +335,15 @@ class Request
         foreach($this->knownParams as $param) {
             $name = $param->getName();
             if($param->isRequired() && !$this->hasParam($name)) {
-                throw new Application_Exception(
+                throw new Request_Exception(
                     'Missing request parameter '.$name,
                     sprintf(
                         'The request parameter [%s] is required, and is either empty or invalid according to the specified format [%s].',
                         $name,
                         $param->getValidationType()
-                        ),
+                    ),
                     self::ERROR_MISSING_OR_INVALID_PARAMETER
-                    );
+                );
             }
         }
     }

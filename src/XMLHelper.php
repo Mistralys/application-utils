@@ -21,31 +21,33 @@ namespace AppUtils;
 class XMLHelper
 {
     const ERROR_CANNOT_APPEND_FRAGMENT = 491001; 
+    
+    const ERROR_PARENT_NOT_A_NODE = 491002;
 
     public static function create()
     {
-        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom = new \DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
 
         return new XMLHelper($dom);
     }
 
     /**
-     * @var DOMDocument
+     * @var \DOMDocument
      */
     private $dom;
 
     /**
      * Creates a new helper using an existing DOMDocument object.
-     * @param DOMDocument $dom
+     * @param \DOMDocument $dom
      */
-    public function __construct(DOMDocument $dom)
+    public function __construct(\DOMDocument $dom)
     {
         $this->dom = $dom;
     }
 
     /**
-     * @return DOMDocument
+     * @return \DOMDocument
      */
     public function getDOM()
     {
@@ -56,15 +58,19 @@ class XMLHelper
      * Adds an attribute to an existing tag with
      * the specified value.
      *
-     * @param DOMNode $parent
+     * @param \DOMNode $parent
      * @param string $name
      * @param mixed $value
-     * @return DOMNode
+     * @return \DOMNode
      */
     function addAttribute($parent, $name, $value)
     {
-        if(!$parent instanceof DOMNode) {
-            throw new Exception('Not a node.');
+        if(!$parent instanceof \DOMNode) {
+            throw new XMLHelper_Exception(
+                'The specified parent node is not a node instance.',
+                sprintf('Tried adding attribute [%s].', $name),
+                self::ERROR_PARENT_NOT_A_NODE
+            );
         }
         
         $node = $this->dom->createAttribute($name);
@@ -84,9 +90,9 @@ class XMLHelper
     /**
      * Adds a tag without content.
      *
-     * @param DOMNode $parent
+     * @param \DOMNode $parent
      * @param string $name
-     * @return DOMNode
+     * @return \DOMNode
      */
     public function addTag($parent, $name, $indent = 0)
     {
@@ -99,12 +105,12 @@ class XMLHelper
         );
     }
 
-    public function removeTag(DOMElement $tag)
+    public function removeTag(\DOMElement $tag)
     {
         $tag->parentNode->removeChild($tag);
     }
     
-    public function indent(DOMNode $parent, $amount)
+    public function indent(\DOMNode $parent, $amount)
     {
         $parent->appendChild($this->dom->createTextNode(str_repeat("\t", $amount)));
     }
@@ -114,10 +120,10 @@ class XMLHelper
      *
      * <tagname>text</tagname>
      *
-     * @param DOMNode $parent
+     * @param \DOMNode $parent
      * @param string $name
      * @param string $text
-     * @return DOMNode
+     * @return \DOMNode
      */
     function addTextTag($parent, $name, $text, $indent = 0)
     {
@@ -139,10 +145,10 @@ class XMLHelper
      *
      * and removes <p> tags
      *
-     * @param DOMNode $parent
+     * @param \DOMNode $parent
      * @param string $name
      * @param string $text
-     * @return DOMNode
+     * @return \DOMNode
      */
     function addEscapedTag($parent, $name, $text, $indent = 0)
     {
@@ -166,10 +172,10 @@ class XMLHelper
      *
      * Tags will not be escaped.
      *
-     * @param DOMNode $parent
+     * @param \DOMNode $parent
      * @param string $name
      * @param string $text
-     * @return DOMNode
+     * @return \DOMNode
      */
     function addFragmentTag($parent, $name, $text, $indent = 0)
     {
@@ -203,10 +209,10 @@ class XMLHelper
      *
      * <tagname><![CDATA[value]]></tagname>
      *
-     * @param DOMNode $parent
+     * @param \DOMNode $parent
      * @param string $name
      * @param string $content
-     * @return DOMNode
+     * @return \DOMNode
      */
     function addCDATATag($parent, $name, $content)
     {
@@ -221,7 +227,7 @@ class XMLHelper
      * Creates the root element of the document.
      * @param string $name
      * @param array $attributes
-     * @return DOMNode
+     * @return \DOMNode
      */
     function createRoot($name, $attributes=array())
     {
@@ -328,7 +334,7 @@ class XMLHelper
      */
     public static function buildSuccessXML($message)
     {
-        $xml = new DOMDocument('1.0', 'UTF-8');
+        $xml = new \DOMDocument('1.0', 'UTF-8');
         $xml->formatOutput = true;
 
         $helper = new XMLHelper($xml);
@@ -358,7 +364,7 @@ class XMLHelper
      */
     public static function buildErrorXML($code, $message, $title, $customInfo=array())
     {
-        $xml = new DOMDocument('1.0', 'UTF-8');
+        $xml = new \DOMDocument('1.0', 'UTF-8');
         $xml->formatOutput = true;
 
         $helper = new XMLHelper($xml);
@@ -377,7 +383,7 @@ class XMLHelper
         return $xml->saveXML();
     }
 
-    public function appendNewline(DOMNode $node)
+    public function appendNewline(\DOMNode $node)
     {
         $nl = $this->dom->createTextNode("\n");
         $node->appendChild($nl);

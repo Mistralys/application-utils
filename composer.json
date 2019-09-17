@@ -1,35 +1,40 @@
 {
-    "name":        "mistralys/application-utils",
-    "description": "Drop-in utilities for applications.",
-    "type":        "library",
-
-    "authors": [
-        {
-            "email": "s.mordziopl@mistralys.eu",
-            "name": "Sebastian Mordziol",
-            "role": "Lead"
-        }
-    ],
-	"autoload" : {
-		"classmap" : [
+	"name" : "mistralys/application-utils",
+	"description" : "Drop-in utilities for applications.",
+	"type" : "library",
+	"authors" : 
+	[
+		{
+			"email" : "s.mordziol@mistralys.eu",
+			"name" : "Sebastian Mordziol",
+			"role" : "Lead"
+		}
+	],
+	"autoload" : 
+	{
+		"classmap" : 
+		[
 			"src/"
 		]
 	},
-    "repositories":[
-        {
-            "type":"vcs",
-            "url":"https://github.com/Mistralys/HTML_QuickForm2.git"
-        }
-    ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "require": {
+	"repositories" : 
+	[
+		{
+			"type" : "vcs",
+			"url" : "https://github.com/Mistralys/HTML_QuickForm2.git"
+		}
+	],
+	"minimum-stability" : "dev",
+	"prefer-stable" : true,
+	"require" : 
+	{
 		"pear/html_quickform2" : "dev-trunk",
- 		"geshi/geshi" : "1.0.9",
+		"geshi/geshi" : "1.0.9",
 		"neitanod/forceutf8" : "2.0.1",
 		"parsecsv/php-parsecsv" : "0.4.5"
-    },
-    "require-dev": {
-        "phpunit/phpunit" : "8.2.5"
-   }
+	},
+	"require-dev" : 
+	{
+		"phpunit/phpunit" : "8.2.5"
+	}
 }

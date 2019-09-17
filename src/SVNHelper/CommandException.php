@@ -1,5 +1,7 @@
 <?php
 
+namespace AppUtils;
+
 /**
  * Exception for SVN commands: only thrown in relation
  * to the current SVN commands being executed.

@@ -118,7 +118,7 @@ class Request_Param
     public function setCallback($callback, $args=array())
     {
         if(!is_callable($callback)) {
-            throw new Application_Exception(
+            throw new SVNHelper_Exception(
                 'Not a valid callback',
                 'The specified callback is not a valid callable entity.',
                 self::ERROR_NOT_A_VALID_CALLBACK
@@ -140,7 +140,7 @@ class Request_Param
         array_unshift($args, $value);
         
         $result = call_user_func_array($this->validationParams['callback'], $args);
-        if(call_user_func_array($this->validationParams['callback'], $args) !== false) {
+        if($result !== false) {
             return $value;
         }
         
@@ -179,7 +179,7 @@ class Request_Param
             // and now, see if we have to validate the value as well
             $method = 'validate_' . $this->validationType;
             if (!method_exists($this, $method)) {
-                throw new Application_Exception(
+                throw new SVNHelper_Exception(
                     'Unknown validation type.',
                     sprintf(
                         'Cannot validate using type [%s], the target method [%s] does not exist in class [%s].',
@@ -280,8 +280,7 @@ class Request_Param
     */
     public function setAlias()
     {
-        require_once 'UI/Form.php';
-        return $this->setRegex(UI_Form::REGEX_ALIAS);
+        return $this->setRegex(RegexHelper::REGEX_ALIAS);
     }
 
     /**
@@ -292,8 +291,7 @@ class Request_Param
      */
     public function setNameOrTitle()
     {
-        require_once 'UI/Form.php';
-        return $this->setRegex(UI_Form::REGEX_NAME_OR_TITLE);
+        return $this->setRegex(RegexHelper::REGEX_NAME_OR_TITLE);
     }
     
     /**
@@ -304,8 +302,7 @@ class Request_Param
      */
     public function setLabel()
     {
-        require_once 'UI/Form.php';
-        return $this->setRegex(UI_Form::REGEX_LABEL);
+        return $this->setRegex(RegexHelper::REGEX_LABEL);
     }
 
     /**
@@ -351,11 +348,6 @@ class Request_Param
         return $this->setValidation(self::VALIDATION_TYPE_ENUM, $args);
     }
     
-    public function setContentLocale()
-    {
-        return $this->setEnum(Localization::getContentLocaleNames());
-    }
-
     public function setArray()
     {
         return $this->setValidation(self::VALIDATION_TYPE_ARRAY);
@@ -386,8 +378,7 @@ class Request_Param
     
     public function setMD5()
     {
-        require_once 'UI/Form.php';
-        return $this->setRegex(UI_Form::REGEX_MD5);
+        return $this->setRegex(RegexHelper::REGEX_MD5);
     }
 
     protected $validations = array();
@@ -404,7 +395,7 @@ class Request_Param
     public function setValidation($type, $params = null)
     {
         if (!in_array($type, self::$validationTypes)) {
-            throw new Application_Exception(
+            throw new SVNHelper_Exception(
                 'Invalid validation type',
                 sprintf(
                     'Tried setting the validation type to "%1$s". Possible validation types are: %2$s. Use the class constants VALIDATION_TYPE_XXX to set the desired validation type to avoid errors like this.',
@@ -604,7 +595,7 @@ class Request_Param
     public function addFilter($type, $params = null)
     {
         if (!in_array($type, self::$filterTypes)) {
-            throw new Application_Exception(
+            throw new SVNHelper_Exception(
                 'Invalid filter type',
                 sprintf(
                     'Tried setting the filter type to "%1$s". Possible validation types are: %2$s. Use the class constants FILTER_XXX to set the desired validation type to avoid errors like this.',

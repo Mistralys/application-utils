@@ -50,7 +50,7 @@ class FileHelper
             return true;
         }
         
-        $d = new DirectoryIterator($rootFolder);
+        $d = new \DirectoryIterator($rootFolder);
         foreach ($d as $item) {
             if ($item->isDot()) {
                 continue;
@@ -95,7 +95,7 @@ class FileHelper
     {
         self::createFolder($target);
 
-        $d = new DirectoryIterator($source);
+        $d = new \DirectoryIterator($source);
         foreach ($d as $item) 
         {
             if ($item->isDot()) {
@@ -179,7 +179,7 @@ class FileHelper
     * @param string $enclosure
     * @param string $escape
     * @param string $heading
-    * @return parseCSV
+    * @return \parseCSV
     */
     public static function createCSVParser($delimiter = ';', $enclosure = '"', $escape = '\\', $heading=false)
     {
@@ -187,7 +187,7 @@ class FileHelper
         if($enclosure===null) { $enclosure = '"'; }
         if($escape===null) { $escape = '\\'; }
         
-        $parser = new parseCSV(null, null, null, array());
+        $parser = new \parseCSV(null, null, null, array());
 
         $parser->delimiter = $delimiter;
         $parser->enclosure = $enclosure;
@@ -360,7 +360,7 @@ class FileHelper
     * to the file can be a path to a file as a string, or a 
     * DirectoryIterator object instance.
     * 
-    * @param string|DirectoryIterator $pathOrDirIterator
+    * @param string|\DirectoryIterator $pathOrDirIterator
     * @return boolean
     */
     public static function isPHPFile($pathOrDirIterator)
@@ -376,13 +376,13 @@ class FileHelper
     * Retrieves the extension of the specified file. Can be a path
     * to a file as a string, or a DirectoryIterator object instance.
     * 
-    * @param string|DirectoryIterator $pathOrDirIterator
+    * @param string|\DirectoryIterator $pathOrDirIterator
     * @param bool $lowercase
     * @return string
     */
     public static function getExtension($pathOrDirIterator, $lowercase = true)
     {
-        if($pathOrDirIterator instanceof DirectoryIterator) {
+        if($pathOrDirIterator instanceof \DirectoryIterator) {
             $filename = $pathOrDirIterator->getFilename();
         } else {
             $filename = basename($pathOrDirIterator);
@@ -401,14 +401,14 @@ class FileHelper
     * The path to the file can be a string, or a DirectoryIterator object
     * instance.
     * 
-    * @param string|DirectoryIterator $pathOrDirIterator
+    * @param string|\DirectoryIterator $pathOrDirIterator
     * @param bool $extension
     * @return string
     */
     public static function getFilename($pathOrDirIterator, $extension = true)
     {
         $path = $pathOrDirIterator;
-    	if($pathOrDirIterator instanceof DirectoryIterator) {
+    	if($pathOrDirIterator instanceof \DirectoryIterator) {
     		$path = $pathOrDirIterator->getFilename();
     	}
     	
@@ -545,7 +545,7 @@ class FileHelper
             );
         }
         
-        $d = new DirectoryIterator($targetFolder);
+        $d = new \DirectoryIterator($targetFolder);
         foreach($d as $item) {
             if($item->isDot()) {
                 continue;
@@ -758,13 +758,13 @@ class FileHelper
     * Note: If the target does not exist, returns null. 
     * 
     * @param string $path
-    * @return DateTime|NULL
+    * @return \DateTime|NULL
     */
     public static function getModifiedDate($path)
     {
         $time = filemtime($path);
         if($time !== false) {
-            $date = new DateTime();
+            $date = new \DateTime();
             $date->setTimestamp($time);
             return $date;
         }
@@ -812,7 +812,7 @@ class FileHelper
         
         $result = array();
         
-        $d = new DirectoryIterator($targetFolder);
+        $d = new \DirectoryIterator($targetFolder);
         
         foreach($d as $item) 
         {

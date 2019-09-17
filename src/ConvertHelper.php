@@ -165,17 +165,17 @@ class ConvertHelper
      * will be calculated between the two dates and not
      * the current time.
      *
-     * @param float|DateTime $datefrom
-     * @param float|DateTime $dateto
+     * @param float|\DateTime $datefrom
+     * @param float|\DateTime $dateto
      * @link http://www.sajithmr.com/php-time-ago-calculation/
      */
     public static function duration2string($datefrom, $dateto = -1)
     {
-        if($datefrom instanceof DateTime) {
+        if($datefrom instanceof \DateTime) {
             $datefrom = ConvertHelper::date2timestamp($datefrom);
         }
         
-        if($dateto instanceof DateTime) {
+        if($dateto instanceof \DateTime) {
             $dateto = ConvertHelper::date2timestamp($dateto);
         }
         
@@ -345,7 +345,7 @@ class ConvertHelper
      */
     public static function highlight_sql($sql)
     {
-        $geshi = new GeSHi($sql, 'sql');
+        $geshi = new  \GeSHi($sql, 'sql');
 
         return $geshi->parse_code();
     }
@@ -354,7 +354,7 @@ class ConvertHelper
     {
         if($formatSource) 
         {
-            $dom = new DOMDocument();
+            $dom = new \DOMDocument();
             $dom->loadXML($xml);
             $dom->preserveWhiteSpace = false;
             $dom->formatOutput = true;
@@ -362,14 +362,14 @@ class ConvertHelper
             $xml = $dom->saveXML();
         }
         
-        $geshi = new GeSHi($xml, 'xml');
+        $geshi = new \GeSHi($xml, 'xml');
         
         return $geshi->parse_code();
     }
 
     public static function highlight_php($php)
     {
-        $geshi = new GeSHi($php, 'php');
+        $geshi = new \GeSHi($php, 'php');
     
         return $geshi->parse_code();
     }
@@ -484,7 +484,7 @@ class ConvertHelper
         }
 
         if (!array_key_exists($string, self::$booleanStrings)) {
-            throw new InvalidArgumentException('Invalid string boolean representation');
+            throw new \InvalidArgumentException('Invalid string boolean representation');
         }
 
         return self::$booleanStrings[$string];
@@ -505,7 +505,7 @@ class ConvertHelper
 
     public static function text_makeXMLCompliant($text)
     {
-        $doc = new DOMDocument('1.0', 'UTF-8');
+        $doc = new \DOMDocument('1.0', 'UTF-8');
         libxml_use_internal_errors(true);
         $doc->loadHTML('<?xml version="1.0" encoding="UTF-8"?><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /></head><body>' . $text . '</body></html>');
         libxml_clear_errors();
@@ -521,12 +521,12 @@ class ConvertHelper
      * - 12 Dec 2012 17:45
      * - 5 Aug
      *
-     * @param DateTime $date
+     * @param \DateTime $date
      * @return string
      */
-    public static function date2listLabel(DateTime $date, $includeTime = false, $shortMonth = false)
+    public static function date2listLabel(\DateTime $date, $includeTime = false, $shortMonth = false)
     {
-        $today = new DateTime();
+        $today = new \DateTime();
         if($date->format('d.m.Y') == $today->format('d.m.Y')) {
             $label = t('Today');
         } else {
@@ -986,10 +986,10 @@ class ConvertHelper
     * Converts a DateTime object to a timestamp, which
     * is PHP 5.2 compatible.
     * 
-    * @param DateTime $date
+    * @param \DateTime $date
     * @return integer
     */
-    public static function date2timestamp(DateTime $date)
+    public static function date2timestamp(\DateTime $date)
     {
         return $date->format('U');
     }
@@ -997,11 +997,11 @@ class ConvertHelper
    /**
     * Converts a timestamp into a DateTime instance.
     * @param int $timestamp
-    * @return DateTime
+    * @return \DateTime
     */
     public static function timestamp2date($timestamp)
     {
-        $date = new DateTime();
+        $date = new \DateTime();
         $date->setTimestamp($timestamp);
         return $date;
     }
@@ -1115,7 +1115,7 @@ class ConvertHelper
     public static function string2utf8($string)
     {
         if(!self::isStringASCII($string)) {
-            return ForceUTF8\Encoding::toUTF8($string);
+            return \ForceUTF8\Encoding::toUTF8($string);
         }
         
         return $string;
@@ -1193,7 +1193,7 @@ class ConvertHelper
         return round(100 - $percent, $options['precision']);
     }
     
-    public static function interval2string(DateInterval $interval)
+    public static function interval2string(\DateInterval $interval)
     {
         $tokens = array('y', 'm', 'd', 'h', 'i', 's');
         
@@ -1257,11 +1257,11 @@ class ConvertHelper
     * Calculates the total amount of days / hours / minutes or seconds
     * of a date interval object and returns the value.
     * 
-    * @param DateInterval $interval
+    * @param \DateInterval $interval
     * @param string $unit
     * @return integer
     */
-    public static function interval2total(DateInterval $interval, $unit=self::INTERVAL_SECONDS)
+    public static function interval2total(\DateInterval $interval, $unit=self::INTERVAL_SECONDS)
     {
         $total = $interval->format('%a');
         if ($unit == self::INTERVAL_DAYS) {
@@ -1301,11 +1301,11 @@ class ConvertHelper
    /**
     * Converts a date to the corresponding day name.
     * 
-    * @param DateTime $date
+    * @param \DateTime $date
     * @param string $short
     * @return string|NULL
     */
-    public static function date2dayName(DateTime $date, $short=false)
+    public static function date2dayName(\DateTime $date, $short=false)
     {
         $day = $date->format('l');
         $invariant = self::getDayNamesInvariant();
@@ -1520,21 +1520,5 @@ class ConvertHelper
         }
         
         return $string;
-    }
-}
-
-class ConvertHelper_Exception extends Exception
-{
-    protected $details;
-    
-    public function __construct($message, $details=null, $code=null, $previous=null)
-    {
-        parent::__construct($message, $code, $previous);
-        $this->details = $details;
-    }
-    
-    public function getDetails()
-    {
-        return $this->details;
     }
 }
