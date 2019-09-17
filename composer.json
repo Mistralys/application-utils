@@ -12,6 +12,10 @@
 	],
 	"autoload" : 
 	{
+        "files" : 
+        [
+            "src/NumberInfo.php"
+        ],
 		"classmap" : 
 		[
 			"src/"
