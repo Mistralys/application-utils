@@ -33,7 +33,9 @@ class SVNHelper
     
     const ERROR_CANNOT_ADD_INEXISTENT_FILE = 22405;
     
-    const TARGET_PATH_NOT_FOUND = 22406;
+    const ERROR_TARGET_PATH_NOT_FOUND = 22406;
+    
+    const ERROR_INVALID_TARGET_TYPE = 22407;
     
    /**
     * @var SVNHelper_Target_Folder
@@ -239,7 +241,7 @@ class SVNHelper
                 $path,
                 $this->getPath()
             ),
-            self::TARGET_PATH_NOT_FOUND
+            self::ERROR_TARGET_PATH_NOT_FOUND
         );
     }
     
@@ -258,10 +260,30 @@ class SVNHelper
         if(isset($this->targets[$key])) {
             return $this->targets[$key];
         }
+
+        $target = null;
         
-        $typeClass = 'SVNHelper_Target_'.$type;
+        switch($type)
+        {
+            case 'File':
+                $target = new SVNHelper_Target_File($this, $relativePath);
+                break;
+                
+            case 'Folder':
+                $target = new SVNHelper_Target_Folder($this, $relativePath);
+                break;
+                
+            default:
+                throw new SVNHelper_Exception(
+                    'Unknown target type',
+                    sprintf(
+                        'The target type [%s] is not a valid type.',
+                        $type
+                    ),
+                    self::ERROR_INVALID_TARGET_TYPE
+                );
+        }
         
-        $target = new $typeClass($this, $relativePath);
         $this->targets[$key] = $target;
         
         return $target;
