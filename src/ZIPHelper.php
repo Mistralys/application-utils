@@ -39,7 +39,7 @@ class ZIPHelper
     protected $file;
     
    /**
-    * @var ZipArchive
+    * @var \ZipArchive
     */
     protected $zip;
     
@@ -125,12 +125,12 @@ class ZIPHelper
         }
         
         if(!isset($this->zip)) {
-            $this->zip = new ZipArchive();
+            $this->zip = new \ZipArchive();
         }
         
         $flag = null;
         if(!file_exists($this->file)) {
-            $flag = ZipArchive::CREATE;
+            $flag = \ZipArchive::CREATE;
         }
         
         if ($this->zip->open($this->file, $flag) !== true) {
@@ -293,7 +293,7 @@ class ZIPHelper
 
     
    /**
-    * @return ZipArchive
+    * @return \ZipArchive
     */
     public function getArchive()
     {

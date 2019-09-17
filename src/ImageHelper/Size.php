@@ -12,7 +12,7 @@ namespace AppUtils;
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  * @see ImageHelper::getImageSize()
  */
-class ImageHelper_Size implements ArrayAccess
+class ImageHelper_Size implements \ArrayAccess
 {
     protected $size;
     
