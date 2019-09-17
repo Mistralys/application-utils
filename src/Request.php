@@ -500,4 +500,13 @@ class Request
         
         return true;
     }
+    
+   /**
+    * Retrieves the full URL that was used to access the current page.
+    * @return string
+    */
+    public function getCurrentURL() : string
+    {
+        return $_SERVER['REQUEST_URI'];
+    }
 }
