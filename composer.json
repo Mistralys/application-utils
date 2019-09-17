@@ -14,7 +14,7 @@
 	{
 		"psr-4" : 
 		{
-			"AppUtils" : "src/"
+			"AppUtils\\" : "src/"
 		},
         "files" : 
         [
