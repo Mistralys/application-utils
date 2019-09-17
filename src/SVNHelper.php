@@ -447,7 +447,7 @@ class SVNHelper
     public static function log($message)
     {
         if(isset(self::$logCallback)) {
-            call_user_func(self::$logCallback, 'SVNHelper | '.$message, $this);
+            call_user_func(self::$logCallback, 'SVNHelper | '.$message);
         }
     }
 

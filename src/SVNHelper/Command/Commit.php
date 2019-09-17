@@ -20,8 +20,6 @@ class SVNHelper_Command_Commit extends SVNHelper_Command
             $this->throwExceptionUnexpected($result);
         }
         
-        $lines = $result->getOutput();
-
         return $result;
     }
     

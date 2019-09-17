@@ -520,7 +520,8 @@ class NumberInfo
         $units = null;
         
         $vlength = strlen($test);
-        foreach($this->knownUnits as $unit => $decimal)
+        $names = array_keys($this->knownUnits);
+        foreach($names as $unit)
         {
             $ulength = strlen($unit);
             $start = $vlength-$ulength;

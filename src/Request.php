@@ -219,9 +219,11 @@ class Request
         $acceptHeader = $_SERVER['HTTP_ACCEPT'];
         
         $accept = array();
-        foreach (preg_split('/\s*,\s*/', $acceptHeader) as $i => $term) {
+        foreach (preg_split('/\s*,\s*/', $acceptHeader) as $i => $term) 
+        {
             $o = array();
             $o['pos'] = $i;
+            $M = null;
             if (preg_match('/^(\S+)\s*;\s*(?:q|level)=([0-9\.]+)/i', $term, $M)) {
                 $o['type'] = $M[1];
                 $o['quality'] = (double)$M[2];
