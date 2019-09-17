@@ -31,6 +31,36 @@ class XMLHelper
 
         return new XMLHelper($dom);
     }
+    
+   /**
+    * Creates a converter instance from an XML file.
+    * @param string $xmlFile
+    * @return \AppUtils\XMLHelper_Converter
+    */
+    public static function convertFile(string $xmlFile)
+    {
+        return XMLHelper_Converter::fromFile($xmlFile);
+    }
+    
+   /**
+    * Creates a converter from an XML string.
+    * @param string $xmlString
+    * @return \AppUtils\XMLHelper_Converter
+    */
+    public static function convertString(string $xmlString)
+    {
+        return XMLHelper_Converter::fromString($xmlString);
+    }
+
+   /**
+    * Creates a converter from a SimpleXMLElement instance.
+    * @param \SimpleXMLElement $element
+    * @return \AppUtils\XMLHelper_Converter
+    */
+    public static function convertElement(\SimpleXMLElement $element)
+    {
+        return XMLHelper_Converter::fromElement($element);
+    }
 
     /**
      * @var \DOMDocument
