@@ -105,6 +105,11 @@ class Request_URLComparer
     
     protected function filter_path(string $path) : string
     {
+        // fix double slashes in URLs
+        while(stristr($path, '//')) {
+            $path = str_replace('//', '/', $path);
+        }
+        
         return ltrim($path, '/');
     }
     

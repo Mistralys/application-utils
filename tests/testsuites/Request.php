@@ -110,6 +110,12 @@ final class RequestTest extends TestCase
             'match' => false,
             'ignoreFragments' => false
         ),
+        array(
+            'label' => 'Same URLs, but one with double slashes in path',
+            'sourceUrl' => 'https://domain.com//path/to//page',
+            'targetUrl' => 'https://domain.com/path/to/page',
+            'match' => true,
+        ),
     );
     
     public function test_urlsMatch()
