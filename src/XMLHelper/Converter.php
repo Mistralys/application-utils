@@ -92,6 +92,18 @@ class XMLHelper_Converter
         $obj = new XMLHelper_Converter($element);
         return $obj;
     }
+
+   /**
+    * Factory method: creates a converter from an existing SimpleXMLElement instance.
+    *
+    * @param \DOMElement $element
+    * @return \AppUtils\XMLHelper_Converter
+    */
+    public static function fromDOMElement(\DOMElement $element)
+    {
+        $obj = new XMLHelper_Converter(simplexml_import_dom($element));
+        return $obj;
+    }
     
    /**
     * Converts the XML to JSON.

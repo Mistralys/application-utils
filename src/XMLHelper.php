@@ -61,6 +61,16 @@ class XMLHelper
     {
         return XMLHelper_Converter::fromElement($element);
     }
+   
+   /**
+    * Creates a converter from a DOMElement instance.
+    * @param \DOMElement $element
+    * @return \AppUtils\XMLHelper_Converter
+    */
+    public static function convertDOMElement(\DOMElement $element)
+    {
+        return XMLHelper_Converter::fromDOMElement($element);
+    }
 
     /**
      * @var \DOMDocument
