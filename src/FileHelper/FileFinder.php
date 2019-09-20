@@ -144,7 +144,7 @@ class FileHelper_FileFinder
         {
             if($item->isDir())
             {
-                if(!$item->isDot()) {
+                if($this->getOption('recursive') === true && !$item->isDot()) {
                     $this->find($item->getPathname());
                 }
             }
