@@ -468,6 +468,8 @@ class NumberInfo
     {
         static $cache = array();
         
+        $this->restoreFilters = false;
+        
         if(!is_string($value) && !is_numeric($value)) {
             $value = null;
         }
@@ -504,7 +506,7 @@ class NumberInfo
         // replace comma notation (which is only possible if it's a string)
         if(is_string($test))
         {
-            $test = str_replace(',', '.', $test);
+            $test = $this->preProcess($test, $cache, $value);
         }
         
         // convert to a number if it's numeric
@@ -537,8 +539,13 @@ class NumberInfo
             }
         }
         
+        // the filters have to restore the value
+        if($this->postProcess)
+        {
+            $number = $this->postProcess($number, $test);
+        }
         // empty number
-        if($number === '' || $number === null || is_bool($number))
+        else if($number === '' || $number === null || is_bool($number))
         {
             $number = null;
             $cache[$key]['empty'] = true;
@@ -566,6 +573,47 @@ class NumberInfo
         $cache[$key] = $this->filterInfo($cache[$key]);
         
         return $cache[$key];
+    }
+    
+    protected $postProcess = false;
+    
+   /**
+    * Called if explicitly enabled: allows filtering the 
+    * number after the detection process has completed.
+    * 
+    * @param mixed $number The adjusted number
+    * @param string $originalString The original value before it was parsed
+    * @return mixed
+    */
+    protected function postProcess($number, $originalString)
+    {
+        return $number;
+    }
+    
+   /**
+    * Filters the value before it is parsed, but only if it is a string.
+    * 
+    * @param string $string
+    * @param array $cache
+    * @return mixed
+    */
+    protected function preProcess(string $string, &$cache, $value)
+    {
+        return str_replace(',', '.', $string);
+    }
+    
+   /**
+    * Enables the post processing so the postProcess method gets called.
+    * This should be called in the {@link NumberInfo::preProcess()}
+    * method as needed.
+    * 
+    * @return NumberInfo
+    * @see NumberInfo::postProcess()
+    */
+    protected function enablePostProcess() : NumberInfo
+    {
+        $this->postProcess = true;
+        return $this;
     }
     
     protected function filterInfo($info)
