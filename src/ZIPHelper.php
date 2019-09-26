@@ -317,4 +317,15 @@ class ZIPHelper
             $zipPath
         );
     }
+    
+   /**
+    * Counts the amount of files currently present in the archive. 
+    * @return int
+    */
+    public function countFiles() : int
+    {
+        $this->open();
+        
+        return $this->zip->numFiles;
+    }
 }
