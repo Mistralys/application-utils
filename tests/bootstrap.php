@@ -1,6 +1,6 @@
 <?php
 /**
- * Main bootstrapper used to set up the tes suite environment.
+ * Main bootstrapper used to set up the testsuites environment.
  * 
  * @package Application Utils
  * @subpackage Tests
