@@ -408,7 +408,17 @@ class ConvertHelper
         return $bytes . ' ' . t('B');
     }
 
-    public static function text_cut($text, $targetLength, $append = '...')
+   /**
+    * Cuts a text to the specified length if it is longer than the
+    * target length. Appends a text to signify it has been cut at 
+    * the end of the string.
+    * 
+    * @param string $text
+    * @param int $targetLength
+    * @param string $append
+    * @return string
+    */
+    public static function text_cut(string $text, int $targetLength, string $append = '...') : string
     {
         $length = mb_strlen($text);
         if ($length <= $targetLength) {
@@ -420,46 +430,33 @@ class ConvertHelper
         return $text;
     }
 
-    public static function var_dump($var)
+    public static function var_dump($var, $html=true)
     {
-        if (is_string($var)) {
-            $var = str_replace(array("\t", "\n", "\r"), array('\t', '\n', '\r'), $var);
-
-            return 'string "' . htmlspecialchars($var, ENT_QUOTES, 'UTF-8') . '"';
+        $info = parseVariable($var);
+        
+        if($html) {
+            return $info->toHTML();
         }
-
-        ob_start();
-        var_dump($var);
-
-        return trim(ob_get_clean());
+        
+        return $info->toString();
     }
     
     public static function print_r($var, $return=false, $html=true)
     {
-        if($var === null) {
-            $code = 'NULL';
-        } else if($var === '') {
-            $code = '""';
-        } else if($var === true) {
-            $code = 'TRUE';
-        } else if($var === false) {
-            $code = 'FALSE';
-        } else {
-            $code = print_r($var, true);
-        }
+        $result = self::var_dump($var, $html);
         
         if($html) {
-            $code = 
+            $result = 
             '<pre style="background:#fff;color:#333;padding:16px;border:solid 1px #bbb;border-radius:4px">'.
-                $code.
+                $result.
             '</pre>';
         }
         
         if($return) {
-            return $code;
+            return $result;
         }
         
-        echo $code;
+        echo $result;
     }
     
     protected static $booleanStrings = array(
@@ -490,27 +487,30 @@ class ConvertHelper
         return self::$booleanStrings[$string];
     }
     
-    public static function isBooleanString($string)
+   /**
+    * Whether the specified string is a boolean string or boolean value.
+    * Alias for {@link ConvertHelper::isBoolean()}.
+    * 
+    * @param mixed $string
+    * @return bool
+    * @deprecated
+    * @see ConvertHelper::isBoolean()
+    */
+    public static function isBooleanString($string) : bool
     {
-        if(empty($string)) {
-            return false;
-        }
-        
-        if(is_bool($string)) {
-            return $string;
-        }
-
-        return array_key_exists($string, self::$booleanStrings);
+        return self::isBoolean($string);
     }
 
+   /**
+    * Alias for the {@\AppUtils\XMLHelper::string2xml()} method.
+    * 
+    * @param string $text
+    * @return string
+    * @deprecated
+    */
     public static function text_makeXMLCompliant($text)
     {
-        $doc = new \DOMDocument('1.0', 'UTF-8');
-        libxml_use_internal_errors(true);
-        $doc->loadHTML('<?xml version="1.0" encoding="UTF-8"?><html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /></head><body>' . $text . '</body></html>');
-        libxml_clear_errors();
-
-        return mb_substr($doc->saveXML($doc->getElementsByTagName('body')->item(0)), strlen('<body>'), -strlen('</body>'));
+        return XMLHelper::string2xml($text);
     }
 
     /**
@@ -947,23 +947,19 @@ class ConvertHelper
    /**
     * Checks if the specified string is a boolean value, which
     * includes string representations of boolean values, like 
-    * <code>yes</code> or <code>no</code>.
+    * <code>yes</code> or <code>no</code>, and <code>true</code>
+    * or <code>false</code>.
     * 
     * @param string|boolean $value
     * @return boolean
     */
     public static function isBoolean($value)
     {
-        $booleanValues = array(
-            'yes',
-            'no',
-            true,
-            false,
-            'true',
-            'false'
-        );
+        if(is_bool($value)) {
+            return true;
+        }
         
-        return in_array($value, $booleanValues);
+        return array_key_exists($value, self::$booleanStrings);
     }
     
    /**
@@ -1393,11 +1389,25 @@ class ConvertHelper
         return $last;
     }
     
+   /**
+    * Splits a string into an array of all characters it is composed of.
+    * Spaces and newlines (both \r and \n) are also considered single
+    * characters. UTF-8 character safe.
+    * 
+    * @param string $string
+    * @return string[]
+    */
     public static function string2array($string)
     {
         return preg_split('//u', $string, null, PREG_SPLIT_NO_EMPTY);
     }
     
+   /**
+    * Checks whether the specified string contains HTML code.
+    * 
+    * @param string $string
+    * @return boolean
+    */
     public static function isStringHTML($string)
     {
         if(preg_match('%<[a-z/][\s\S]*>%siU', $string)) {
@@ -1500,25 +1510,13 @@ class ConvertHelper
         return md5($string);
     }
     
-    public static function callback2string($callback)
+    public static function callback2string($callback) : string
     {
-        if(is_string($callback)) {
-            return $callback;
-        }
-        
-        $string = '';
-        
-        if(is_array($callback)) 
-        {
-            if(is_string($callback[0])) {
-                $string .= $callback[0].'::';
-            } else {
-                $string .= get_class($callback[0]).'->';
-            }
-            
-            $string .= $callback[1].'()';
-        }
-        
-        return $string;
+        return parseVariable($callback)->toString();
+    }
+
+    public function exception2info(\Throwable $e) : ConvertHelper_ThrowableInfo
+    {
+        return new ConvertHelper_ThrowableInfo($e);
     }
 }
