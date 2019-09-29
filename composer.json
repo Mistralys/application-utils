@@ -18,7 +18,7 @@
 		},
         "files" : 
         [
-            "src/NumberInfo.php"
+            "src/functions.php"
         ],
 		"classmap" : 
 		[

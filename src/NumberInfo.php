@@ -632,18 +632,3 @@ class NumberInfo
         return $info;
     }
 }
-
-/**
- * Parses the specified number, and returns a NumberInfo instance.
- *
- * @param mixed $value
- * @return NumberInfo
- */
-function parseNumber($value, $forceNew=false)
-{
-    if($value instanceof NumberInfo && $forceNew !== true) {
-        return $value;
-    }
-    
-    return new NumberInfo($value);
-}
