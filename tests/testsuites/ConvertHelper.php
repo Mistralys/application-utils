@@ -123,4 +123,75 @@ final class ConvertHelperTest extends TestCase
             $this->assertEquals($def[1], $actual, $def[2]);
         }
     }
+    
+    public function test_isBooleanString()
+    {
+        $tests = array(
+            1 => true,
+            0 => true,
+            '1' => true,
+            '0' => true,
+            'true' => true,
+            'false' => true,
+            'yes' => true,
+            'no' => true,
+            '' => false,
+            null => false,
+            'bla' => false
+        );
+        
+        foreach($tests as $value => $isBool)
+        {
+            $this->assertEquals(ConvertHelper::isBoolean($value), $isBool);
+        }
+    }
+    
+    public function test_string2array()
+    {
+        $tests = array(
+            array(
+                'string' => 'Hello',
+                'result' => array('H', 'e', 'l', 'l', 'o')
+            ),
+            array(
+                'string' => 'äöü',
+                'result' => array('ä', 'ö', 'ü')
+            ),
+            array(
+                'string' => "And spa\ns",
+                'result' => array('A', 'n', 'd', ' ', 's', 'p', 'a', "\n", 's')
+            ),
+        );
+        
+        foreach($tests as $def)
+        {
+            $this->assertEquals($def['result'], ConvertHelper::string2array($def['string']));
+        }
+    }
+    
+    public function test_text_cut()
+    {
+        $tests = array(
+            array(
+                'string' => 'Here is some text to test cutting on.',
+                'result' => 'Here is some tex...',
+                'length' => 16,
+                'char' => '...'
+            ),
+            array(
+                'string' => 'Here is some text to test cutting on.',
+                'result' => 'Here is some tex [...]',
+                'length' => 16,
+                'char' => ' [...]'
+            ),
+        );
+        
+        foreach($tests as $def)
+        {
+            $this->assertEquals(
+                $def['result'], 
+                ConvertHelper::text_cut($def['string'], $def['length'], $def['char'])
+            );
+        }
+    }
 }
