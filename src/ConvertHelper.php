@@ -1515,7 +1515,12 @@ class ConvertHelper
         return parseVariable($callback)->toString();
     }
 
-    public function exception2info(\Throwable $e) : ConvertHelper_ThrowableInfo
+    public static function exception2info(\Throwable $e) : ConvertHelper_ThrowableInfo
+    {
+        return self::throwable2info($e);
+    }
+    
+    public static function throwable2info(\Throwable $e) : ConvertHelper_ThrowableInfo
     {
         return new ConvertHelper_ThrowableInfo($e);
     }
