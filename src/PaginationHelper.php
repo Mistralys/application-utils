@@ -125,6 +125,17 @@ class PaginationHelper
         return $this->last;
     }
     
+   /**
+    * Whether there is more than one page, i.e. whether
+    * pagination is required at all.
+    *  
+    * @return bool
+    */
+    public function hasPages() : bool
+    {
+        return $this->last > 1;
+    }
+    
     protected function calculate()
     {
         $page = $this->current;
