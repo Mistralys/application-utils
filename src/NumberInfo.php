@@ -35,7 +35,6 @@ namespace AppUtils;
  * @package Application Utils
  * @subpackage Misc
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
- * @license https://www.gnu.org/licenses/lgpl-3.0.en.html
  */
 class NumberInfo
 {
