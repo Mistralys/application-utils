@@ -55,6 +55,21 @@ class PaginationHelper
     protected $last = 0; 
     
    /**
+    * @var int
+    */
+    protected $adjacentPages = 3;
+    
+   /**
+    * @var int
+    */
+    protected $offsetEnd = 0;
+    
+   /**
+    * @var int
+    */
+    protected $offsetStart = 0;
+    
+   /**
     * @param int $totalItems The total amount of items available.
     * @param int $itemsPerPage How many items to display per page.
     * @param int $currentPage The current page number (1-based)
@@ -66,6 +81,19 @@ class PaginationHelper
         $this->current = $currentPage;
         
         $this->calculate();
+    }
+    
+   /**
+    * Sets the amount of adjacent pages to display next to the
+    * current one when using the pages list.
+    *
+    * @param int $amount
+    * @return PaginationHelper
+    */
+    public function setAdjacentPages(int $amount) : PaginationHelper
+    {
+        $this->adjacentPages = $amount;
+        return $this;
     }
     
    /**
@@ -136,34 +164,193 @@ class PaginationHelper
         return $this->last > 1;
     }
     
-    protected function calculate()
+    public function getCurrentPage() : int
     {
-        $page = $this->current;
-        if($page < 1) {
-            $page = 1;
+        return $this->current;
+    }
+    
+   /**
+    * Retrieves a list of page numbers for a page
+    * navigator, to quickly jump between pages.
+    *
+    * @return int[]
+    */
+    public function getPageNumbers() : array
+    {
+        $adjacent = $this->adjacentPages;
+
+        // adjust the adjacent value if it exceeds the
+        // total amount of pages
+        $adjacentTotal = ($adjacent * 2) + 1;
+        if($adjacentTotal > $this->last) 
+        {
+            $adjacent = (int)floor($this->last / 2);
         }
         
-        $offset = ($page-1) * $this->perPage;
-        $pages = ceil($this->total / $this->perPage);
+        // determine the maximum amount of 
+        // pages that one can go forward or
+        // back from the current position.
+        $maxBack = $this->current - 1;
+        $maxFwd = $this->last - $this->current;
+        $back = 0;
+        $fwd = 0;
+        
+        if($maxBack >= $adjacent) {
+            $back = $adjacent; 
+        } else {
+            $back = $maxBack;
+        }
+        
+        if($maxFwd >= $adjacent)  {
+            $fwd = $adjacent;
+        } else {
+            $fwd = $maxFwd;
+        }
+        
+        // now calculate the amount of pages to add
+        // left or right, depending on whether we
+        // are at the beginning of the list, or at
+        // the end.
+        $backDiff = $adjacent - $back;
+        $fwdDiff = $adjacent - $fwd;
+        
+        $fwd += $backDiff;
+        $back += $fwdDiff;
+        
+        if($fwd > $maxFwd) { $fwd = $maxFwd; }
+        if($back > $maxBack) { $back = $maxBack; }
+        
+        // calculate the first and last page in the list
+        $prev = $this->current - $back;
+        $next = $this->current + $fwd;
+        
+        // failsafe so we stay within the bounds
+        if($prev < 1) { $prev = 1; }
+        if($next > $this->last) { $next = $this->last; }
+        
+        // create and return the page numbers list
+        $numbers = range($prev, $next);
+
+        /*
+        print_r(array(
+            'current' => $this->current,
+            'totalPages' => $this->last,
+            'adjacent' => $adjacent,
+            'maxBack' => $maxBack,
+            'maxFwd' => $maxFwd,
+            'back' => $back,
+            'fwd' => $fwd,
+            'backDiff' => $backDiff,
+            'fwdDiff' => $fwdDiff,
+            'prev' => $prev,
+            'next' => $next,
+            'numbers' => $numbers
+        ));*/
+        
+        return $numbers;
+    }
+    
+   /**
+    * Whether the specified page number is the current page.
+    * 
+    * @param int $pageNumber
+    * @return bool
+    */
+    public function isCurrentPage(int $pageNumber) : bool
+    {
+        return $pageNumber === $this->current;
+    }
+    
+   /**
+    * Retrieves the 1-based starting offset of
+    * items currently displayed in the page.
+    * 
+    * Note: Use this to create a text like 
+    * "showing entries x to y".
+    * 
+    * @return int
+    * @see PaginationHelper::getOffsetEnd()
+    */
+    public function getItemsStart() : int
+    {
+        return $this->getOffsetStart() + 1;
+    }
+
+   /**
+    * Retrieves the 1-based ending offset of
+    * items currently displayed in the page.
+    * 
+    * Note: Use this to create a text like 
+    * "showing entries x to y".
+    * 
+    * @return int
+    * @see PaginationHelper::getOffsetStart()
+    */
+    public function getItemsEnd() : int
+    {
+        return $this->getOffsetEnd() + 1;
+    }
+    
+   /**
+    * Retrieves the 0-based starting offset of
+    * items currently displayed in the page.
+    * 
+    * @return int
+    * @see PaginationHelper::getItemsStart()
+    */
+    public function getOffsetStart() : int
+    {
+        return $this->offsetStart;
+    }
+    
+   /**
+    * Retrieves the 0-based ending offset of
+    * items currently displayed in the page.
+    * 
+    * @return int
+    * @see PaginationHelper::getItemsEnd()
+    */
+    public function getOffsetEnd() : int
+    {
+        return $this->offsetEnd;
+    }
+    
+    protected function calculate()
+    {
+        $pages = (int)ceil($this->total / $this->perPage);
+        
+        if($this->current < 1)
+        {
+            $this->current = 1;
+        }
+        else if($this->current > $pages)
+        {
+            $this->current = $pages;
+        }
+        
+        $offset = ($this->current-1) * $this->perPage;
+        $this->last = $pages;
         
         $start = $offset;
         if($start === 0) {
             $start = 1;
         }
         
-        $nextPage = $page + 1;
+        $nextPage = $this->current + 1;
         if($nextPage <= $pages) {
             $this->next = $nextPage;
         }
         
-        $prevPage = $page - 1;
+        $prevPage = $this->current - 1;
         if($prevPage > 0) {
             $this->prev = $prevPage;
         }
         
-        $this->last = $page * $this->perPage;
-        if($this->last > $this->total) {
-            $this->last = $this->total;
+        $this->offsetStart = ($this->current - 1) * $this->perPage;
+        
+        $this->offsetEnd = $this->offsetStart + $this->perPage;
+        if($this->offsetEnd > ($this->total - 1)) {
+            $this->offsetEnd = ($this->total - 1);
         }
     }
 }
