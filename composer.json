@@ -1,6 +1,6 @@
 {
 	"name" : "mistralys/application-utils",
-	"description" : "Drop-in utilities for applications.",
+	"description" : "Drop-in utilities for PHP applications.",
 	"type" : "library",
 	"license" : "GPL-3.0-or-later",
 	"authors" : 
