@@ -26,18 +26,11 @@
 			"src/"
 		]
 	},
-	"repositories" : 
-	[
-		{
-			"type" : "vcs",
-			"url" : "https://github.com/Mistralys/HTML_QuickForm2.git"
-		}
-	],
 	"minimum-stability" : "dev",
 	"prefer-stable" : true,
 	"require" : 
 	{
-		"pear/html_quickform2" : "dev-trunk",
+		"mistralys/html_quickform2" : "dev-trunk",
 		"geshi/geshi" : "1.0.9",
 		"neitanod/forceutf8" : "2.0.1",
 		"parsecsv/php-parsecsv" : "0.4.5"
