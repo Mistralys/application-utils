@@ -125,6 +125,11 @@ class ConvertHelper_ThrowableInfo_Call
         return $this->class !== '';
     }
     
+    public function getClass() : string
+    {
+        return $this->class;
+    }
+    
     protected function parse()
     {
         if(isset($this->args)) {
