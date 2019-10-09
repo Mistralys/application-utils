@@ -8,3 +8,5 @@ matrix:
     
 before_script:
   - composer update
+  # for the FileHelper tests, specific ini settings are required
+  - phpenv config-add tests/tests.php.ini
