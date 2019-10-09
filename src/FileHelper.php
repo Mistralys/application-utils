@@ -34,16 +34,78 @@ class FileHelper
     
     const ERROR_UNKNOWN_FILE_MIME_TYPE = 340015;
     
-    public static function openUnserialized($file)
+    const ERROR_SERIALIZED_FILE_DOES_NOT_EXIST = 340016;
+    
+    const ERROR_SERIALIZED_FILE_CANNOT_BE_READ = 340017;
+    
+    const ERROR_SERIALIZED_FILE_UNSERIALZE_FAILED = 340018;
+    
+   /**
+    * Opens a serialized file and returns the unserialized data.
+    * 
+    * @param string $file
+    * @throws FileHelper_Exception
+    * @return array
+    * @deprecated Use parseSerializedFile() instead.
+    * @see FileHelper::parseSerializedFile()
+    */
+    public static function openUnserialized(string $file) : array
     {
-        $contents = file_get_contents($file);
-        if (!$contents) {
-            return false;
-        }
-
-        return unserialize($contents);
+        return self::parseSerializedFile($file);
     }
 
+   /**
+    * Opens a serialized file and returns the unserialized data.
+    *
+    * @param string $file
+    * @throws FileHelper_Exception
+    * @return array
+    * @see FileHelper::parseSerializedFile()
+    */
+    public static function parseSerializedFile(string $file)
+    {
+        if(!file_exists($file))
+        {
+            throw new FileHelper_Exception(
+                'Cannot unserialize file, it does not exist.',
+                sprintf(
+                    'Tried opening file at [%s].',
+                    $file
+                ),
+                self::ERROR_SERIALIZED_FILE_DOES_NOT_EXIST
+            );
+        }
+        
+        $contents = file_get_contents($file);
+        
+        if($contents === false) 
+        {
+            throw new FileHelper_Exception(
+                'Cannot load serialized content from file.',
+                sprintf(
+                    'Tried reading file contents at [%s].',
+                    $file
+                ),
+                self::ERROR_SERIALIZED_FILE_CANNOT_BE_READ
+            );
+        }
+        
+        $result = @unserialize($contents);
+        
+        if($result !== false) {
+            return $result;
+        }
+        
+        throw new FileHelper_Exception(
+            'Cannot unserialize the file contents.',
+            sprintf(
+                'Tried unserializing the data from file at [%s].',
+                $file
+            ),
+            self::ERROR_SERIALIZED_FILE_UNSERIALZE_FAILED
+        );
+    }
+    
     public static function deleteTree($rootFolder)
     {
         if(!file_exists($rootFolder)) {
@@ -711,15 +773,29 @@ class FileHelper
     
    /**
     * Checks whether the specified encoding is a valid
-    * unicode encoding, for example "UTF16-LE" or "UTF8"
+    * unicode encoding, for example "UTF16-LE" or "UTF8".
+    * Also accounts for alternate way to write the, like
+    * "UTF-8", and omitting little/big endian suffixes.
     * 
     * @param string $encoding
     * @return boolean
     */
-    public static function isValidUnicodeEncoding($encoding)
+    public static function isValidUnicodeEncoding(string $encoding) : bool
     {
         $encodings = self::getKnownUnicodeEncodings();
-        return in_array($encoding, $encodings);
+
+        $keep = array();
+        foreach($encodings as $string) 
+        {
+            $withHyphen = str_replace('UTF', 'UTF-', $string);
+            
+            $keep[] = $string;
+            $keep[] = $withHyphen; 
+            $keep[] = str_replace(array('-BE', '-LE'), '', $string);
+            $keep[] = str_replace(array('-BE', '-LE'), '', $withHyphen);
+        }
+        
+        return in_array($encoding, $keep);
     }
     
    /**
@@ -923,7 +999,8 @@ class FileHelper
    /**
     * Retrieves the maximum allowed upload file size, in bytes.
     * Takes into account the PHP ini settings <code>post_max_size</code>
-    * and <code>upload_max_filesize</code>.
+    * and <code>upload_max_filesize</code>. Since these cannot
+    * be modified at runtime, they are the hard limits for uploads.
     * 
     * NOTE: Based on binary values, where 1KB = 1024 Bytes.
     * 
