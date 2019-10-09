@@ -69,7 +69,7 @@ class ConvertHelper_ThrowableInfo
    /**
     * Improved textonly exception trace.
     */
-    public function toString()
+    public function toString() : string
     {
         $calls = $this->getCalls();
         
@@ -157,5 +157,10 @@ class ConvertHelper_ThrowableInfo
         $this->calls = array_reverse($this->calls, false);
         
         $this->callsCount = count($this->calls);
+    }
+    
+    public function __toString()
+    {
+        return $this->toString();
     }
 }
