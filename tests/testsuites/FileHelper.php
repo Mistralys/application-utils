@@ -82,4 +82,28 @@ final class FileHelperTest extends TestCase
             $this->assertEquals($def['result'], FileHelper::relativizePath($def['path'], $def['relativeTo']));
         }
     }
+    
+    /**
+     * @see FileHelper::removeExtension()
+     */
+    public function test_removeExtension()
+    {
+        $tests = array(
+            'somename.ext' => 'somename',
+            '/path/to/file.txt' => 'file',
+            'F:\\path\name.extension' => 'name',
+            'With.Several.Dots.file' => 'With.Several.Dots',
+            'noextension' => 'noextension',
+            'file ending in dot.' => 'file ending in dot',
+            '.ext' => ''
+        );
+        
+        foreach($tests as $string => $expected)
+        {
+            $actual = FileHelper::removeExtension($string);
+            
+            $this->assertEquals($expected, $actual);
+        }
+    }
+    
 }
