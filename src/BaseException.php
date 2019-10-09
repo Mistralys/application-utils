@@ -9,11 +9,41 @@ class BaseException extends \Exception
     public function __construct($message, $details=null, $code=null, $previous=null)
     {
         parent::__construct($message, $code, $previous);
+        
         $this->details = $details;
     }
     
-    public function getDetails()
+   /**
+    * Retrieves the detailed error description, if any.
+    * @return string
+    */
+    public function getDetails() : string
     {
-        return $this->details;
+        if($this->details !== null) {
+            return $this->details;
+        }
+        
+        return '';
+    }
+    
+   /**
+    * Displays pertinent information on the exception in
+    * the browser, and exits the script.
+    */
+    public function display()
+    {
+        echo $this->getInfo();
+        exit;
+    }
+    
+   /**
+    * Retrieves information on the exception that can be
+    * easily accessed.
+    * 
+    * @return ConvertHelper_ThrowableInfo
+    */
+    public function getInfo() : ConvertHelper_ThrowableInfo
+    {
+        return ConvertHelper::throwable2info($this);
     }
 }
