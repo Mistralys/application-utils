@@ -243,7 +243,10 @@ class FileHelper
      */
     public static function detectMimeType($fileName)
     {
-        $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+        $ext = self::getExtension($fileName);
+        if(empty($ext)) {
+            return null;
+        }
 
         return FileHelper_MimeTypes::getMime($ext);
     }
@@ -380,7 +383,7 @@ class FileHelper
     * @param bool $lowercase
     * @return string
     */
-    public static function getExtension($pathOrDirIterator, $lowercase = true)
+    public static function getExtension($pathOrDirIterator, bool $lowercase = true) : string
     {
         if($pathOrDirIterator instanceof \DirectoryIterator) {
             $filename = $pathOrDirIterator->getFilename();
@@ -401,6 +404,9 @@ class FileHelper
     * The path to the file can be a string, or a DirectoryIterator object
     * instance.
     * 
+    * In case of folders, behaves like the pathinfo function: returns
+    * the name of the folder.
+    * 
     * @param string|\DirectoryIterator $pathOrDirIterator
     * @param bool $extension
     * @return string
@@ -411,6 +417,8 @@ class FileHelper
     	if($pathOrDirIterator instanceof \DirectoryIterator) {
     		$path = $pathOrDirIterator->getFilename();
     	}
+    	
+    	$path = self::normalizePath($path);
     	
     	if(!$extension) {
     	    return pathinfo($path, PATHINFO_FILENAME);
@@ -917,9 +925,11 @@ class FileHelper
     * Takes into account the PHP ini settings <code>post_max_size</code>
     * and <code>upload_max_filesize</code>.
     * 
+    * NOTE: Based on binary values, where 1KB = 1024 Bytes.
+    * 
     * @return int Will return <code>-1</code> if no limit.
     */
-    public static function getMaxUploadFilesize()
+    public static function getMaxUploadFilesize() : int
     {
         static $max_size = -1;
         
@@ -946,6 +956,7 @@ class FileHelper
     {
         $unit = preg_replace('/[^bkmgtpezy]/i', '', $size); // Remove the non-unit characters from the size.
         $size = preg_replace('/[^0-9\.]/', '', $size); // Remove the non-numeric characters from the size.
+        
         if ($unit) {
             // Find the position of the unit in the ordered string which is the power of magnitude to multiply a kilobyte by.
             return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
