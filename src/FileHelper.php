@@ -471,17 +471,36 @@ class FileHelper
         return $json;
     }
     
-    public static function fixFileName($name)
+   /**
+    * Corrects common formatting mistakes when users enter
+    * file names, like too many spaces, dots and the like.
+    * 
+    * NOTE: if the file name contains a path, the path is
+    * stripped, leaving only the file name.
+    * 
+    * @param string $name
+    * @return string
+    */
+    public static function fixFileName(string $name) : string
     {
-        while(strstr($name, '  ')) {
-            $name = str_replace('  ', ' ', $name);
-        }
+        $name = trim($name);
+        $name = self::normalizePath($name);
+        $name = basename($name);
         
         $replaces = array(
+            "\t" => ' ',
+            "\r" => ' ',
+            "\n" => ' ',
             ' .' => '.',
             '. ' => '.',
         );
         
+        $name = str_replace(array_keys($replaces), array_values($replaces), $name);
+        
+        while(strstr($name, '  ')) {
+            $name = str_replace('  ', ' ', $name);
+        }
+
         $name = str_replace(array_keys($replaces), array_values($replaces), $name);
         
         while(strstr($name, '..')) {
@@ -504,11 +523,27 @@ class FileHelper
         return new FileHelper_FileFinder($path);
     }
     
+   /**
+    * Searches for all HTML files in the target folder.
+    * 
+    * @param string $targetFolder
+    * @param array $options
+    * @return string[]
+    * @see FileHelper::createFileFinder()
+    */
     public static function findHTMLFiles($targetFolder, $options=array())
     {
         return self::findFiles($targetFolder, array('html'), $options);
     }
-    
+
+   /**
+    * Searches for all PHP files in the target folder.
+    * 
+    * @param string $targetFolder
+    * @param array $options
+    * @return string[]
+    * @see FileHelper::createFileFinder()
+    */
     public static function findPHPFiles($targetFolder, $options=array())
     {
         return self::findFiles($targetFolder, array('php'), $options);
@@ -625,7 +660,7 @@ class FileHelper
     * @param string $filename
     * @return string|NULL
     */
-    public static function detectUTFBom($filename) 
+    public static function detectUTFBom(string $filename) 
     {
         $fp = fopen($filename, 'r');
         $text = fread($fp, 20);
@@ -731,7 +766,13 @@ class FileHelper
         }
     }
     
-    public static function canMakePHPCalls()
+   /**
+    * Checks whether it is possible to run PHP command 
+    * line commands.
+    * 
+    * @return boolean
+    */
+    public static function canMakePHPCalls() : bool
     {
         static $result = null;
         
