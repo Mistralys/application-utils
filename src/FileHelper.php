@@ -593,9 +593,19 @@ class FileHelper
         
         return $files;
     }
-    
-    public static function removeExtension($filename)
+
+   /**
+    * Removes the extension from the specified path or file name,
+    * if any, and returns the name without the extension.
+    * 
+    * @param string $filename
+    * @return sTring
+    */
+    public static function removeExtension(string $filename) : string
     {
+        // normalize paths to allow windows style slashes even on nix servers
+        $filename = self::normalizePath($filename);
+        
         return pathinfo($filename, PATHINFO_FILENAME);
     }
     
