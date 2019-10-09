@@ -224,6 +224,11 @@ final class FileHelperTest extends TestCase
                 'label' => 'Dot only notation',
                 'path' => '.txt',
                 'expected' => 'txt',
+            ),
+            array(
+                'label' => 'Lowercase special characters',
+                'path' => '.ÖÉÜ',
+                'expected' => 'öéü',
             )
         );
         
@@ -284,5 +289,132 @@ final class FileHelperTest extends TestCase
                 $this->assertEquals($def['expected'], $result, $def['label']);
             }
         }
+    }
+    
+    function test_detectMimeType()
+    {
+        $tests = array(
+            'mime.json' => 'application/json',
+            'mime.jpg' => 'image/jpeg',
+            'mime.jpeg' => 'image/jpeg',
+            'mime.csv' => 'text/csv',
+            'mime.xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'mime.mp4' => 'video/mp4',
+            'mime.pdf' => 'application/pdf',
+            'noextension' => null,
+            'mime.unknown' => null
+        );
+        
+        foreach($tests as $filename => $expected)
+        {
+            $result = FileHelper::detectMimeType($filename);
+            
+            $this->assertEquals($expected, $result, 'Mime type does not match file extension.');
+        }
+    }
+    
+    function test_getFileName()
+    {
+        $tests = array(
+            array(
+                'label' => 'File name with path, default with extension',
+                'path' => '/path/to/file.ext',
+                'expected' => 'file.ext'
+            ),
+            array(
+                'label' => 'File name with path, explicitly with extension',
+                'path' => '/path/to/file.ext',
+                'expected' => 'file.ext',
+                'extension' => true
+            ),
+            array(
+                'label' => 'File name with path, explicitly without extension',
+                'path' => '/path/to/file.ext',
+                'expected' => 'file',
+                'extension' => false
+            ),
+            array(
+                'label' => 'File name with Windows style path',
+                'path' => 'c:\path\to\file.ext',
+                'expected' => 'file.ext'
+            ),
+            array(
+                'label' => 'File name with Windows style path without extension',
+                'path' => 'c:\path\to\file.ext',
+                'expected' => 'file',
+                'extension' => false
+            ),
+            array(
+                'label' => 'Windows style path without file name, with trailing slash',
+                'path' => 'c:\path\to\\',
+                'expected' => 'to'
+            ),
+            array(
+                'label' => 'Windows style path without file name, without trailing slash',
+                'path' => 'c:\path\to',
+                'expected' => 'to'
+            ),
+            array(
+                'label' => 'Regular path without file name, with trailing slash',
+                'path' => '/path/to/',
+                'expected' => 'to'
+            ),
+            array(
+                'label' => 'Regular path without file name, without trailing slash',
+                'path' => '/path/to',
+                'expected' => 'to'
+            ),
+            array(
+                'label' => 'Simple filename without path',
+                'path' => 'file.ext',
+                'expected' => 'file.ext'
+            ),
+            array(
+                'label' => 'Simple filename without path, with several dots',
+                'path' => 'file.with.several.dots.ext',
+                'expected' => 'file.with.several.dots.ext'
+            ),
+            array(
+                'label' => 'Simple filename without path, with several dots, extension OFF',
+                'path' => 'file.with.several.dots.ext',
+                'expected' => 'file.with.several.dots',
+                'extension' => false
+            ),
+            array(
+                'label' => 'Simple filename without path, with mixed case',
+                'path' => 'File.EXT',
+                'expected' => 'File.EXT'
+            )
+        );
+        
+        foreach($tests as $def)
+        {
+            if(!isset($def['extension'])) {
+                $result = FileHelper::getFilename($def['path']);
+            } else {
+                $result = FileHelper::getFilename($def['path'], $def['extension']);
+            }
+            
+            $this->assertEquals($def['expected'], $result, $def['label']);
+        }
+    }
+    
+    function test_getUploadMaxFilesize()
+    {
+        // configured for the tests in the tests batch file, or
+        // in the travis yaml setup.
+        $mb = 6; 
+        $string = $mb.'M';
+        
+        if(ini_get('upload_max_filesize') !== $string || ini_get('post_max_size') !== $string) {
+            $this->markTestSkipped('The ini settings do not match the expected value.');
+            return;
+        }
+        
+        $expected = $mb * 1048576; // binary notation (1KB = 1024B)
+        
+        $result = FileHelper::getMaxUploadFilesize();
+        
+        $this->assertEquals($expected, $result);
     }
 }
