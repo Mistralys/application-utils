@@ -786,17 +786,7 @@ class ConvertHelper
      */
     public static function filenameRemoveExtension($filename)
     {
-        if(!strstr($filename, '.')) {
-            return $filename;
-        }
-        
-        $tokens = explode('.', basename($filename));
-        
-        if(count($tokens) > 1) {
-            array_pop($tokens);
-        }
-
-        return implode('.', $tokens);
+        return FileHelper::removeExtension($filename);
     }
     
     public static function areVariablesEqual($a, $b)
