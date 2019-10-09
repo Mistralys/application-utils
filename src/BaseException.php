@@ -32,6 +32,10 @@ class BaseException extends \Exception
     */
     public function display()
     {
+        if(!headers_sent()) {
+            header('Content-type:text/plain; charset=utf-8');
+        }
+        
         echo $this->getInfo();
         exit;
     }
