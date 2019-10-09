@@ -138,7 +138,7 @@ class ImageHelper
     
     public function __construct($sourceFile=null, $resource=null, $type=null)
     {
-        // ensure that the GD library is installec
+        // ensure that the GD library is installed
         if(!function_exists('imagecreate')) 
         {
             throw new ImageHelper_Exception(
