@@ -39,6 +39,7 @@ class FileHelper_MimeTypes
         'crt' => 'application/x-x509-ca-cert',
         'csh' => 'application/x-csh',
         'css' => 'text/css',
+        'csv' => 'text/csv',
         'dcr' => 'application/x-director',
         'der' => 'application/x-x509-ca-cert',
         'dir' => 'application/x-director',
@@ -97,6 +98,7 @@ class FileHelper_MimeTypes
         'movie' => 'video/x-sgi-movie',
         'mp2' => 'video/mpeg',
         'mp3' => 'audio/mpeg',
+        'mp4' => 'video/mp4',
         'mpa' => 'video/mpeg',
         'mpe' => 'video/mpeg',
         'mpeg' => 'video/mpeg',
@@ -173,6 +175,7 @@ class FileHelper_MimeTypes
         'tgz' => 'application/x-compressed',
         'tif' => 'image/tiff',
         'tiff' => 'image/tiff',
+        'ttf' => 'font/ttf',
         'tr' => 'application/x-troff',
         'trm' => 'application/x-msterminal',
         'tsv' => 'text/tab-separated-values',
@@ -182,6 +185,7 @@ class FileHelper_MimeTypes
         'vcf' => 'text/x-vcard',
         'vrml' => 'x-world/x-vrml',
         'wav' => 'audio/x-wav',
+        'webm' => 'video/webm',
         'wcm' => 'application/vnd.ms-works',
         'wdb' => 'application/vnd.ms-works',
         'wks' => 'application/vnd.ms-works',
@@ -204,6 +208,7 @@ class FileHelper_MimeTypes
         'xwd' => 'image/x-xwindowdump',
         'xml' => 'text/xml',
         'z' => 'application/x-compress',
+        '7z' => 'application/x-7z-compressed',
         'zip' => 'application/zip'
     );
 
