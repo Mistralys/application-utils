@@ -3,6 +3,7 @@
 use PHPUnit\Framework\TestCase;
 
 use AppUtils\FileHelper;
+use AppUtils\FileHelper_Exception;
 
 final class FileHelperTest extends TestCase
 {
@@ -74,6 +75,9 @@ final class FileHelperTest extends TestCase
         }
     }
     
+   /**
+    * @see FileHelper::relativizePath()
+    */
     public function test_relativizePath()
     {
         $tests = array(
@@ -91,6 +95,11 @@ final class FileHelperTest extends TestCase
                 'path' => 'g:\file.txt',
                 'relativeTo' => 'f:\file.txt',
                 'result' => 'g:/file.txt',
+            ),
+            array(
+                'path' => '/path/to/some/file.txt',
+                'relativeTo' => '/path',
+                'result' => 'to/some/file.txt',
             ),
         );
         
@@ -145,6 +154,31 @@ final class FileHelperTest extends TestCase
     }
     
    /**
+    * @see FileHelper::isValidUnicodeEncoding()
+    */
+    public function test_isValidUnicodeEncoding()
+    {
+        $tests = array(
+            'UTF16-LE' => true,
+            'UTF32-BE' => true,
+            'UTF-32-LE' => true,
+            'UTF32' => true,
+            'UTF-16' => true,
+            'UTF8' => true,
+            'UTF-8' => true,
+            'somestring' => false,
+            '' => false
+        );
+        
+        foreach($tests as $encoding => $expected)
+        {
+            $result = FileHelper::isValidUnicodeEncoding($encoding);
+            
+            $this->assertEquals($expected, $result, 'Encoding ['.$encoding.'] does not match expected result.');
+        }
+    }
+    
+   /**
     * @see FileHelper::fixFileName()
     */
     public function test_fixFileName()
@@ -170,6 +204,9 @@ final class FileHelperTest extends TestCase
         }
     }
     
+   /**
+    * @see FileHelper::getExtension()
+    */
     public function test_getExtension()
     {
         $tests = array(
@@ -244,6 +281,9 @@ final class FileHelperTest extends TestCase
         }
     }
    
+   /**
+    * @see FileHelper::getExtension()
+    */
     public function test_getExtension_directoryIterator()
     {
         $files = array(
@@ -291,6 +331,9 @@ final class FileHelperTest extends TestCase
         }
     }
     
+   /**
+    * @see FileHelper::detectMimeType()
+    */
     function test_detectMimeType()
     {
         $tests = array(
@@ -313,6 +356,9 @@ final class FileHelperTest extends TestCase
         }
     }
     
+   /**
+    * @see FileHelper::getFilename()
+    */
     function test_getFileName()
     {
         $tests = array(
@@ -399,6 +445,9 @@ final class FileHelperTest extends TestCase
         }
     }
     
+   /**
+    * @see FileHelper::getMaxUploadFilesize() 
+    */
     function test_getUploadMaxFilesize()
     {
         // configured for the tests in the tests batch file, or
@@ -416,5 +465,65 @@ final class FileHelperTest extends TestCase
         $result = FileHelper::getMaxUploadFilesize();
         
         $this->assertEquals($expected, $result);
+    }
+    
+   /**
+    * @see FileHelper::normalizePath()
+    */
+    public function test_normalizePath()
+    {
+        $tests = array(
+            '/path/to/somewhere' => '/path/to/somewhere',
+            'c:\windows\style\path' => 'c:/windows/style/path',
+            'path/with/slash/' => 'path/with/slash/',
+            'd:\mixed/style\here' => 'd:/mixed/style/here',
+            '/with/file.txt' => '/with/file.txt'
+         );
+        
+        foreach($tests as $path => $expected) 
+        {
+            $result = FileHelper::normalizePath($path);
+            
+            $this->assertEquals($expected, $result);
+        }
+    }
+    
+   /**
+    * @see FileHelper::parseSerializedFile()
+    */
+    public function test_parseSerializedFile()
+    {
+        $file = $this->assetsFolder.'/serialized.ser';
+        
+        $refData = array('key' => 'value', 'utf8' => 'öäüé');
+        $expected = json_encode($refData);
+        
+        $result = FileHelper::parseSerializedFile($file);
+        
+        $this->assertEquals($expected, json_encode($result));
+    }
+    
+   /**
+    * @see FileHelper::parseSerializedFile()
+    */
+    public function test_parseSerializedFile_fileNotExists()
+    {
+        $file = $this->assetsFolder.'/unknown.ser';
+
+        $this->expectException(FileHelper_Exception::class);
+        
+        $result = FileHelper::parseSerializedFile($file);
+    }
+    
+   /**
+    * @see FileHelper::parseSerializedFile()
+    */
+    public function test_parseSerializedFile_fileNotUnserializable()
+    {
+        $file = $this->assetsFolder.'/serialized-broken.ser';
+        
+        $this->expectException(FileHelper_Exception::class);
+        
+        $result = FileHelper::parseSerializedFile($file);
     }
 }
