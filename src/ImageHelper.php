@@ -65,6 +65,8 @@ class ImageHelper
     const ERROR_SAVE_IMAGE_RESOURCE_FALSE = 513022;
     
     const ERROR_CANNOT_CREATE_IMAGE_CROP = 513023;
+    
+    const ERROR_GD_LIBRARY_NOT_INSTALLED = 513024;
 
    /**
     * @var string
@@ -136,6 +138,16 @@ class ImageHelper
     
     public function __construct($sourceFile=null, $resource=null, $type=null)
     {
+        // ensure that the GD library is installec
+        if(!function_exists('imagecreate')) 
+        {
+            throw new ImageHelper_Exception(
+                'The PHP GD extension is not installed or not enabled.',
+                null,
+                self::ERROR_GD_LIBRARY_NOT_INSTALLED
+            );
+        }
+        
         if(is_resource($resource)) 
         {
             $this->sourceImage = $resource;
