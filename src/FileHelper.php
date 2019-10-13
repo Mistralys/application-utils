@@ -40,6 +40,8 @@ class FileHelper
     
     const ERROR_SERIALIZED_FILE_UNSERIALZE_FAILED = 340018;
     
+    const ERROR_UNSUPPORTED_OS_CLI_COMMAND = 340019;
+    
    /**
     * Opens a serialized file and returns the unserialized data.
     * 
@@ -858,25 +860,88 @@ class FileHelper
     */
     public static function canMakePHPCalls() : bool
     {
-        static $result = null;
+        return self::cliCommandExists('php');
+    }
+    
+    /**
+     * Determines if a command exists on the current environment's command line interface.
+     *
+     * @param string $command The name of the command to check, e.g. "php"
+     * @return bool True if the command has been found, false otherwise.
+     * @throws FileHelper_Exception 
+     */
+    public static  function cliCommandExists($command)
+    {
+        static $checked = array();
         
-        if(!isset($result)) {
-            $command = 'php -v 2>&1';
-            $output = array();
-            
-            exec($command, $output);
-            
-            $result = !empty($output);
+        if(isset($checked[$command])) {
+            return $checked[$command];
         }
+        
+        // command to use to search for available commands
+        // on the target OS
+        $osCommands = array(
+            'windows' => 'where',
+            'linux' => 'which'
+        );
+        
+        $os = strtolower(PHP_OS_FAMILY);
+        
+        if(!isset($osCommands[$os])) 
+        {
+            throw new FileHelper_Exception(
+                'Unsupported OS for CLI commands',
+                sprintf(
+                    'The command to search for available CLI commands is not known for the OS [%s].',
+                    $os
+                ),
+                self::ERROR_UNSUPPORTED_OS_CLI_COMMAND
+            );
+        }
+        
+        $whereCommand = $osCommands[$os];
+        
+        $pipes = array();
+        
+        $process = proc_open(
+            $whereCommand.' '.$command,
+            array(
+                0 => array("pipe", "r"), //STDIN
+                1 => array("pipe", "w"), //STDOUT
+                2 => array("pipe", "w"), //STDERR
+            ),
+            $pipes
+        );
+        
+        if($process === false) {
+            $checked[$command] = false;
+            return false;
+        }
+        
+        $stdout = stream_get_contents($pipes[1]);
+        
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        
+        proc_close($process);
+        
+        $result = $stdout != '';
+        
+        $checked[$command] = $result;
         
         return $result;
     }
     
-    /**
-     * Validates a PHP file's syntax.
-     * @param string $path
-     * @return boolean|array A boolean true if the file is valid, an array with validation messages otherwise.
-     */
+   /**
+    * Validates a PHP file's syntax.
+    * 
+    * NOTE: This will fail silently if the PHP command line
+    * is not available. Use {@link FileHelper::canMakePHPCalls()}
+    * to check this beforehand as needed.
+    * 
+    * @param string $path
+    * @return boolean|array A boolean true if the file is valid, an array with validation messages otherwise.
+    */
     public static function checkPHPFileSyntax($path)
     {
         if(!self::canMakePHPCalls()) {

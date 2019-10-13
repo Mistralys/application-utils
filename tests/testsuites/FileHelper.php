@@ -526,4 +526,17 @@ final class FileHelperTest extends TestCase
         
         $result = FileHelper::parseSerializedFile($file);
     }
+
+   /**
+    * @see FileHelper::cliCommandExists()
+    */
+    public function test_cliCommandExists()
+    {
+        $output = array();
+        exec('php -v 2>&1', $output);
+        
+        $available = $result = !empty($output);
+        
+        $this->assertEquals($available, FileHelper::cliCommandExists('php'));
+    }
 }
