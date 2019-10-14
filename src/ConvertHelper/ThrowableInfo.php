@@ -86,8 +86,12 @@ class ConvertHelper_ThrowableInfo
             $string .= $call->toString().PHP_EOL;
         }
         
-        if($this->hasPrevious()) {
-            
+        if($this->hasPrevious())
+        {
+            $info = ConvertHelper::throwable2info($this->previous);
+            $string .= PHP_EOL.PHP_EOL.
+            'Previous error:'.PHP_EOL.PHP_EOL.
+            $info->toString();
         }
         
         return $string;
