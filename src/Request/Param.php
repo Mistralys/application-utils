@@ -274,9 +274,10 @@ class Request_Param
     
    /**
     * Sets the variable to be an alias, as defined by the
-    * {@link UI_Form::REGEX_ALIAS} regular expression.
+    * {@link RegexHelper::REGEX_ALIAS} regular expression.
     * 
     * @return Request_Param
+    * @see RegexHelper::REGEX_ALIAS
     */
     public function setAlias()
     {
@@ -285,9 +286,10 @@ class Request_Param
 
     /**
      * Sets the variable to be a name or title, as defined by the
-     * {@link UI_Form::REGEX_NAME_OR_TITLE} regular expression.
+     * {@link RegexHelper::REGEX_NAME_OR_TITLE} regular expression.
      *
      * @return Request_Param
+     * @see RegexHelper::REGEX_NAME_OR_TITLE
      */
     public function setNameOrTitle()
     {
@@ -296,9 +298,10 @@ class Request_Param
     
     /**
      * Sets the variable to be a name or title, as defined by the
-     * {@link UI_Form::REGEX_LABEL} regular expression.
+     * {@link RegexHelper::REGEX_LABEL} regular expression.
      *
      * @return Request_Param
+     * @see RegexHelper::REGEX_LABEL
      */
     public function setLabel()
     {
