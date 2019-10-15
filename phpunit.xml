@@ -6,11 +6,11 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="false"
-         stopOnFailure="false">
+         stopOnFailure="false"
+         bootstrap="tests/bootstrap.php">
     <testsuites>
         <testsuite name="Application Utils Tests">
-            <directory suffix=".php">./tests/</directory>
-            <exclude>./tests/assets</exclude>
+            <directory suffix=".php">./tests/testsuites</directory>
         </testsuite>
     </testsuites>
 </phpunit>
