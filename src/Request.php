@@ -32,6 +32,8 @@ class Request
 {
     const ERROR_MISSING_OR_INVALID_PARAMETER = 97001;
     
+    const ERROR_PARAM_NOT_REGISTERED = 97002;
+    
     /**
      * @var Request
      */
@@ -192,6 +194,41 @@ class Request
         return $this->knownParams[$name];
     }
     
+   /**
+    * Retrieves a previously registered parameter instance.
+    * 
+    * @param string $name
+    * @throws Request_Exception
+    * @return Request_Param
+    */
+    public function getRegisteredParam(string $name) : Request_Param
+    {
+        if(isset($this->knownParams[$name])) {
+            return $this->knownParams[$name];
+        }
+        
+        throw new Request_Exception(
+            'Unknown registered request parameter.',
+            sprintf(
+                'The request parameter [%s] has not been registered.',
+                $name
+            ),
+            self::ERROR_PARAM_NOT_REGISTERED
+        );
+    }
+    
+   /**
+    * Checks whether a parameter with the specified name 
+    * has been registered.
+    * 
+    * @param string $name
+    * @return bool
+    */
+    public function hasRegisteredParam(string $name) : bool
+    {
+        return isset($this->knownParams[$name]);
+    }
+    
     protected static $acceptHeaders;
     
     /**
@@ -271,7 +308,7 @@ class Request
      * @param string $value
      * @return Request
      */
-    public function setParam($name, $value)
+    public function setParam(string $name, $value) : Request
     {
         $_REQUEST[$name] = $value;
         
@@ -289,28 +326,50 @@ class Request
      *
      * @return boolean
      */
-    public function hasParam($name)
+    public function hasParam(string $name) : bool
     {
         $value = $this->getParam($name);
-        if ($value != null) {
+        if ($value !== null) {
             return true;
         }
         
         return false;
     }
     
-    public function removeParam($name)
+   /**
+    * Removes a single parameter from the request.
+    * If the parameter has been registered, also
+    * removes the registration info.
+    * 
+    * @param string $name
+    * @return Request
+    */
+    public function removeParam(string $name) : Request
     {
         if(isset($_REQUEST[$name])) {
             unset($_REQUEST[$name]);
         }
+        
+        if(isset($this->knownParams[$name])) {
+            unset($this->knownParams[$name]);
+        }
+        
+        return $this;
     }
     
-    public function removeParams($names)
+   /**
+    * Removes several parameters from the request.
+    * 
+    * @param string[] $names
+    * @return Request
+    */
+    public function removeParams(array $names) : Request
     {
         foreach($names as $name) {
             $this->removeParam($name);
         }
+        
+        return $this;
     }
     
     /**
@@ -325,7 +384,7 @@ class Request
     public function getBool($name, $default=false)
     {
         $value = $this->getParam($name, $default);
-        if(ConvertHelper::isBooleanString($value)) {
+        if(ConvertHelper::isBoolean($value)) {
             return ConvertHelper::string2bool($value);
         }
         
@@ -377,7 +436,7 @@ class Request
      * @param bool $assoc
      * @return array|NULL
      */
-    public function getJSON($name, $assoc=true)
+    public function getJSON(string $name, bool $assoc=true) :?array
     {
         $value = $this->getParam($name);
         if(!empty($value)) {
