@@ -162,10 +162,6 @@ class Request_Param
      */
     public function validate($value)
     {
-        if($this->validated) {
-            return $this->validatedValue;
-        }
-        
         // first off, apply filtering
         $value = $this->filter($value);
 
@@ -210,9 +206,6 @@ class Request_Param
             }
         }
 
-        $this->validated = true;
-        $this->validatedValue = $value;
-        
         return $value;
     }
 
@@ -419,11 +412,11 @@ class Request_Param
     public function get($default=null)
     {
         $value = $this->validate($this->request->getParam($this->paramName));
-        if($value != null && $value != '') {
+        if($value !== null && $value !== '') {
             return $value;
         }
         
-        return $default;
+        return $this->validate($default);
     }
 
     /**
