@@ -284,27 +284,32 @@ class FileHelper
     }
     
    /**
-    * Deletes the target file. Igored if it cannot be found.
+    * Deletes the target file. Ignored if it cannot be found,
+    * and throws an exception if it fails.
     * 
     * @param string $filePath
     * @throws FileHelper_Exception
+    * 
+    * @see FileHelper::ERROR_CANNOT_DELETE_FILE
     */
-    public static function deleteFile($filePath)
+    public static function deleteFile(string $filePath) : void
     {
         if(!file_exists($filePath)) {
             return;
         }
         
-        if(!unlink($filePath)) {
-            throw new FileHelper_Exception(
-                'Cannot delete file',
-                sprintf(
-                    'The file [%s] cannot be deleted.',
-                    $filePath
-                ),
-                self::ERROR_CANNOT_DELETE_FILE
-            );
+        if(unlink($filePath)) {
+            return;
         }
+        
+        throw new FileHelper_Exception(
+            sprintf('Cannot delete file [%s].', basename($filePath)),
+            sprintf(
+                'The file [%s] cannot be deleted.',
+                $filePath
+            ),
+            self::ERROR_CANNOT_DELETE_FILE
+        );
     }
 
     /**
