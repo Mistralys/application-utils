@@ -48,6 +48,12 @@ class FileHelper
     
     const ERROR_TARGET_COPY_FOLDER_NOT_WRITABLE = 340022;
     
+    const ERROR_SAVE_FOLDER_NOT_WRITABLE = 340023;
+    
+    const ERROR_SAVE_FILE_NOT_WRITABLE = 340024;
+    
+    const ERROR_SAVE_FILE_WRITE_FAILED = 340025;
+    
    /**
     * Opens a serialized file and returns the unserialized data.
     * 
@@ -914,6 +920,71 @@ class FileHelper
                 self::ERROR_JSON_CANNOT_WRITE_FILE
             );
         }
+    }
+   
+   /**
+    * Saves the specified content to the target file, creating
+    * the file and the folder as necessary.
+    * 
+    * @param string $filePath
+    * @param string $content
+    * @throws FileHelper_Exception
+    * 
+    * @see FileHelper::ERROR_SAVE_FOLDER_NOT_WRITABLE
+    * @see FileHelper::ERROR_SAVE_FILE_NOT_WRITABLE
+    * @see FileHelper::ERROR_SAVE_FILE_WRITE_FAILED
+    * @see FileHelper::ERROR_CANNOT_CREATE_FOLDER
+    */
+    public static function saveFile(string $filePath, string $content='') : void
+    {
+        // target file already exists
+        if(file_exists($filePath))
+        {
+            if(!is_writable($filePath))
+            {
+                throw new FileHelper_Exception(
+                    sprintf('Cannot save file: target file [%s] exists, but is not writable.', basename($filePath)),
+                    sprintf(
+                        'Tried accessing the file in path [%s].',
+                        $filePath
+                    ),
+                    self::ERROR_SAVE_FILE_NOT_WRITABLE
+                );
+            }
+        }
+        // target file does not exist yet
+        else
+        {
+            $targetFolder = dirname($filePath);
+            
+            // create the folder as needed
+            self::createFolder($targetFolder);
+            
+            if(!is_writable($targetFolder)) 
+            {
+                throw new FileHelper_Exception(
+                    sprintf('Cannot save file: target folder [%s] is not writable.', basename($targetFolder)),
+                    sprintf(
+                        'Tried accessing the folder in path [%s].',
+                        $targetFolder
+                    ),
+                    self::ERROR_SAVE_FOLDER_NOT_WRITABLE
+                );
+            }
+        }
+        
+        if(file_put_contents($filePath, $content)) {
+            return;
+        }
+        
+        throw new FileHelper_Exception(
+            sprintf('Cannot save file: writing content to the file [%s] failed.', basename($filePath)),
+            sprintf(
+                'Tried saving content to file in path [%s].',
+                $filePath
+            ),
+            self::ERROR_SAVE_FILE_WRITE_FAILED
+        );
     }
     
    /**
