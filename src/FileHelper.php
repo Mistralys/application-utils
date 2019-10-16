@@ -42,6 +42,12 @@ class FileHelper
     
     const ERROR_UNSUPPORTED_OS_CLI_COMMAND = 340019;
     
+    const ERROR_SOURCE_FILE_NOT_FOUND = 340020;
+    
+    const ERROR_SOURCE_FILE_NOT_READABLE = 340021;
+    
+    const ERROR_TARGET_COPY_FOLDER_NOT_WRITABLE = 340022;
+    
    /**
     * Opens a serialized file and returns the unserialized data.
     * 
@@ -142,6 +148,13 @@ class FileHelper
         return rmdir($rootFolder);
     }
     
+   /**
+    * Create a folder, if it does not exist yet.
+    *  
+    * @param string $path
+    * @throws FileHelper_Exception
+    * @see FileHelper::ERROR_CANNOT_CREATE_FOLDER
+    */
     public static function createFolder($path)
     {
         if(is_dir($path) || mkdir($path, 0777, true)) {
@@ -149,7 +162,7 @@ class FileHelper
         }
         
         throw new FileHelper_Exception(
-            'Could not create target folder.',
+            sprintf('Could not create target folder [%s].', basename($path)),
             sprintf('Tried to create the folder in path [%s].', $path),
             self::ERROR_CANNOT_CREATE_FOLDER
         );
@@ -189,20 +202,71 @@ class FileHelper
     }
     
    /**
-    * Copies a file to the target location.
+    * Copies a file to the target location. Includes checks
+    * for most error sources, like the source file not being
+    * readable. Automatically creates the target folder if it
+    * does not exist yet.
     * 
     * @param string $sourcePath
     * @param string $targetPath
     * @throws FileHelper_Exception
+    * 
+    * @see FileHelper::ERROR_CANNOT_CREATE_FOLDER
+    * @see FileHelper::ERROR_SOURCE_FILE_NOT_FOUND
+    * @see FileHelper::ERROR_SOURCE_FILE_NOT_READABLE
+    * @see FileHelper::ERROR_TARGET_COPY_FOLDER_NOT_WRITABLE
+    * @see FileHelper::ERROR_CANNOT_COPY_FILE
     */
     public static function copyFile($sourcePath, $targetPath)
     {
-        if (copy($sourcePath, $targetPath)) {
+        if(!file_exists($sourcePath))
+        {
+            throw new FileHelper_Exception(
+                sprintf('Source file [%s] to copy was not found.', basename($sourcePath)),
+                sprintf(
+                    'Tried finding it in the path [%s].',
+                    $sourcePath
+                ),
+                self::ERROR_SOURCE_FILE_NOT_FOUND
+            );
+        }
+        
+        if(!is_readable($sourcePath))
+        {
+            throw new FileHelper_Exception(
+                sprintf('Source file [%s] to copy is not readable.', basename($sourcePath)),
+                sprintf(
+                    'Tried copying from path [%s].',
+                    $sourcePath
+                ),
+                self::ERROR_SOURCE_FILE_NOT_READABLE
+            );
+        }
+        
+        $targetFolder = dirname($targetPath);
+        
+        if(!file_exists($targetFolder))
+        {
+            self::createFolder($targetFolder);
+        }
+        else if(!is_writable($targetFolder)) 
+        {
+            throw new FileHelper_Exception(
+                sprintf('Target folder [%s] is not writable.', basename($targetFolder)),
+                sprintf(
+                    'Tried copying to target folder [%s].',
+                    $targetFolder
+                ),
+                self::ERROR_TARGET_COPY_FOLDER_NOT_WRITABLE
+            );
+        }
+        
+        if(copy($sourcePath, $targetPath)) {
             return;
         }
         
         throw new FileHelper_Exception(
-            'Cannot copy file',
+            sprintf('Cannot copy file [%s].', basename($sourcePath)),
             sprintf(
                 'The file [%s] could not be copied from [%s] to [%s].',
                 basename($sourcePath),
