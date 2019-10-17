@@ -7,6 +7,7 @@ matrix:
     - php: "7.3"
     
 before_script:
-  - composer update
+  # so composer knows which version of the package to use, since it is a cyclic dependency of the application-locaization package.
+  - COMPOSER_ROOT_VERSION=dev-master composer install
   # for the FileHelper tests, specific ini settings are required
   - phpenv config-add tests/tests.php.ini
