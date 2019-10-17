@@ -208,6 +208,5 @@ final class ConvertHelperTest extends TestCase
         {
             $this->assertEquals($def['expected'], ConvertHelper::time2string($def['time']));
         }
-        
     }
 }
