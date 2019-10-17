@@ -194,4 +194,20 @@ final class ConvertHelperTest extends TestCase
             );
         }
     }
+    
+    public function test_time2string()
+    {
+        $tests = array(
+            array(
+                'time' => 20,
+                'expected' => '20 seconds'
+            )
+        );
+        
+        foreach($tests as $def)
+        {
+            $this->assertEquals($def['expected'], ConvertHelper::time2string($def['time']));
+        }
+        
+    }
 }
