@@ -28,3 +28,24 @@ function parseVariable($variable)
 {
     return new VariableInfo($variable);
 }
+
+/**
+ * Translation function used to translate some of the internal
+ * strings: if the localization is installed, it will use this
+ * to do the translation.
+ * 
+ * @return string
+ */
+function t()
+{
+    $args = func_get_args();
+    
+    // is the localization package installed?
+    if(class_exists('\AppLocalize\Localization')) 
+    {
+        return call_user_func_array('\AppLocalize\t', $args);
+    }
+    
+    // simulate the translation function
+    return call_user_func_array('sprintf', $args);
+}
