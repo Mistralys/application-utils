@@ -27,7 +27,7 @@ Simply require the package via composer:
 * RequestHelper: build raw request headers from scratch.
 * SVNHelper: working with a local SVN repository. Update, commit, etc.
 * VariableInfo: accessing information on any variable.
-* XMLHelper: simplyfies working with some of the XML libraries like DOM or SimpleXML.
+* XMLHelper: simplifies working with some of the XML libraries like DOM or SimpleXML.
 * ZIPHelper: abstracts working with the ZIPArchive class.
 
 ## Origin
