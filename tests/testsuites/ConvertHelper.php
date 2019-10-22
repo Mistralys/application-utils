@@ -209,4 +209,77 @@ final class ConvertHelperTest extends TestCase
             $this->assertEquals($def['expected'], ConvertHelper::time2string($def['time']));
         }
     }
+    
+    public function test_isBool()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => false
+            ),
+            array(
+                'label' => 'Empty string',
+                'value' => '',
+                'expected' => false
+            ),
+            array(
+                'label' => 'String zero',
+                'value' => '0',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Numeric zero',
+                'value' => 0,
+                'expected' => true
+            ),
+            array(
+                'label' => 'String one',
+                'value' => '1',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Numeric one',
+                'value' => 1,
+                'expected' => true
+            ),
+            array(
+                'label' => 'String true',
+                'value' => 'true',
+                'expected' => true
+            ),
+            array(
+                'label' => 'String yes',
+                'value' => 'yes',
+                'expected' => true
+            ),
+            array(
+                'label' => 'String false',
+                'value' => 'false',
+                'expected' => true
+            ),
+            array(
+                'label' => 'String true',
+                'value' => 'true',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Boolean true',
+                'value' => true,
+                'expected' => true
+            ),
+            array(
+                'label' => 'Boolean false',
+                'value' => false,
+                'expected' => true
+            )
+        );
+        
+        foreach($tests as $def)
+        {
+            $isBool = ConvertHelper::isBoolean($def['value']);
+            
+            $this->assertEquals($def['expected'], $isBool, $def['label']);
+        }
+    }
 }
