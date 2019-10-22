@@ -949,6 +949,10 @@ class ConvertHelper
             return true;
         }
         
+        if(!is_scalar($value)) {
+            return false;
+        }
+        
         return array_key_exists($value, self::$booleanStrings);
     }
     
