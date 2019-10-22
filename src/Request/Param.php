@@ -262,6 +262,9 @@ class Request_Param
     public function setIDList()
     {
         $this->valueType = self::VALUE_TYPE_COMMA_SEPARATED;
+        
+        $this->addStripWhitespaceFilter();
+        
         return $this->setRegex('/\A(?:[0-9]+,)+[0-9]+|[0-9]+\z/six');
     }
     
@@ -372,6 +375,20 @@ class Request_Param
         return false;
     }
     
+    protected function applyFilter_stripWhitespace($value)
+    {
+        return preg_replace('/\s/', '', $value);
+    }
+    
+   /**
+    * Validates the request parameter as an MD5 string,
+    * so that only values resembling md5 values are accepted.
+    * 
+    * NOTE: This can only guarantee the format, not whether
+    * it is an actual valid hash of something.
+    * 
+    * @return \AppUtils\Request_Param
+    */
     public function setMD5()
     {
         return $this->setRegex(RegexHelper::REGEX_MD5);
@@ -409,6 +426,14 @@ class Request_Param
         return $this;
     }
     
+   /**
+    * Retrieves the value of the request parameter,
+    * applying all filters (if any) and validation
+    * (if any).
+    * 
+    * @param mixed $default
+    * @return mixed
+    */
     public function get($default=null)
     {
         $value = $this->validate($this->request->getParam($this->paramName));
@@ -609,6 +634,12 @@ class Request_Param
         return $this;
     }
     
+   /**
+    * Adds a filter that trims whitespace from the request
+    * parameter using the PHP <code>trim</code> function.
+    * 
+    * @return \AppUtils\Request_Param
+    */
     public function addFilterTrim()
     {
         return $this->addCallbackFilter('trim');
@@ -653,7 +684,24 @@ class Request_Param
     {
         return $this->addCallbackFilter('strip_tags', array($allowedTags));
     }
-
+    
+   /**
+    * Adds a filter that strips all whitespace from the
+    * request parameter, from spaces to tabs and newlines.
+    * 
+    * @return \AppUtils\Request_Param
+    */
+    public function addStripWhitespaceFilter()
+    {
+        return $this->addCallbackFilter(array($this, 'applyFilter_stripWhitespace'));
+    }   
+    
+   /**
+    * Adds a filter that encodes all HTML special characters
+    * using the PHP <code>htmlspecialchars</code> function.
+    * 
+    * @return \AppUtils\Request_Param
+    */
     public function addHTMLSpecialcharsFilter()
     {
         return $this->addCallbackFilter('htmlspecialchars', array(ENT_QUOTES, 'UTF-8'));
