@@ -505,6 +505,7 @@ final class RequestTest extends TestCase
         foreach($tests as $def)
         {
             $name = 'foo'.$count;
+            
             $_REQUEST[$name] = $def['value'];
             
             $default = null;
@@ -515,6 +516,129 @@ final class RequestTest extends TestCase
             $value = $request->registerParam($name)
             ->setEnum($def['accepted'])
             ->get($default);
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+            
+            $count++;
+        }
+    }
+    
+    public function test_filter_stripWhitespace()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Empty string',
+                'value' => '',
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Single space',
+                'value' => ' ',
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Texts with several spaces between',
+                'value' => 'foo       bar',
+                'expected' => 'foobar'
+            ),
+            array(
+                'label' => 'Text with spaces around it',
+                'value' => '   foo   ',
+                'expected' => 'foo'
+            ),
+            array(
+                'label' => 'Text with tabs and newlines',
+                'value' => "\t foo \r \n", 
+                'expected' => 'foo'
+            )
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        $count = 1;
+        
+        foreach($tests as $def)
+        {
+            $name = 'foo'.$count;
+            
+            $_REQUEST[$name] = $def['value'];
+            
+            $value = $request->registerParam($name)
+            ->addStripWhitespaceFilter()
+            ->get('');
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+    
+    public function test_getRegisteredParam_idsList()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Empty string value',
+                'value' => '',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Invalid string value',
+                'value' => 'invalid',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Single ID value',
+                'value' => '5',
+                'expected' => array(5)
+            ),
+            array(
+                'label' => 'Single ID value with spaces around it',
+                'value' => '   5   ',
+                'expected' => array(5)
+            ),
+            array(
+                'label' => 'Multiple ID values',
+                'value' => '5,14,20,79',
+                'expected' => array(5, 14, 20, 79)
+            ),
+            array(
+                'label' => 'Stripping whitespace',
+                'value' => '5,    89    , 21',
+                'expected' => array(5, 89, 21)
+            ),
+            array(
+                'label' => 'Mixing valid and invalid values',
+                'value' => '5, invalid, something, 50',
+                'expected' => array(5, 50)
+            ),
+            array(
+                'label' => 'List with newlines and tabs',
+                'value' => "\t5,\n\t50\n",
+                'expected' => array(5, 50)
+            ),
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        $count = 1;
+        
+        foreach($tests as $def)
+        {
+            $name = 'foo'.$count;
+            
+            $_REQUEST[$name] = $def['value'];
+            
+            $value = $request->registerParam($name)
+            ->setIDList()
+            ->get();
             
             $this->assertEquals($def['expected'], $value, $def['label']);
             
