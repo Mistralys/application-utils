@@ -32,7 +32,7 @@
 	{
 		"mistralys/html_quickform2" : "dev-trunk",
 		"mistralys/application-localization" : "dev-master",
-		"geshi/geshi" : "1.0.9",
+		"geshi/geshi" : "1.0.9.1",
 		"neitanod/forceutf8" : "2.0.1",
 		"parsecsv/php-parsecsv" : "0.4.5"
 	},
