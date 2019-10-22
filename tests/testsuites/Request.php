@@ -389,16 +389,11 @@ final class RequestTest extends TestCase
             )
         );
         
-        $count = 1;
-        
         foreach($tests as $def)
         {
-            $name = 'foo'.$count;
-            $_REQUEST[$name] = $def['value'];
+            $name = $this->setUniqueParam($def['value']);
             
             $this->assertEquals($def['expected'], $request->registerParam($name)->get(), $def['label']);
-            
-            $count++;
         }
     }
     
@@ -500,13 +495,9 @@ final class RequestTest extends TestCase
         
         $request = new \AppUtils\Request();
         
-        $count = 1;
-        
         foreach($tests as $def)
         {
-            $name = 'foo'.$count;
-            
-            $_REQUEST[$name] = $def['value'];
+            $name = $this->setUniqueParam($def['value']);
             
             $default = null;
             if(isset($def['default'])) {
@@ -518,8 +509,6 @@ final class RequestTest extends TestCase
             ->get($default);
             
             $this->assertEquals($def['expected'], $value, $def['label']);
-            
-            $count++;
         }
     }
     
@@ -560,13 +549,9 @@ final class RequestTest extends TestCase
         
         $request = new \AppUtils\Request();
         
-        $count = 1;
-        
         foreach($tests as $def)
         {
-            $name = 'foo'.$count;
-            
-            $_REQUEST[$name] = $def['value'];
+            $name = $this->setUniqueParam($def['value']);
             
             $value = $request->registerParam($name)
             ->addStripWhitespaceFilter()
@@ -628,21 +613,207 @@ final class RequestTest extends TestCase
         
         $request = new \AppUtils\Request();
         
-        $count = 1;
-        
         foreach($tests as $def)
         {
-            $name = 'foo'.$count;
-            
-            $_REQUEST[$name] = $def['value'];
+            $name = $this->setUniqueParam($def['value']);
             
             $value = $request->registerParam($name)
             ->setIDList()
             ->get();
             
             $this->assertEquals($def['expected'], $value, $def['label']);
-            
-            $count++;
         }
+    }
+    
+    public function test_filterStripTags()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => NULL,
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Empty string',
+                'value' => '',
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Simple tag',
+                'value' => '<b>Text',
+                'expected' => 'Text'
+            ),
+            array(
+                'label' => 'Self-closed tag',
+                'value' => '<br/>Text',
+                'expected' => 'Text'
+            ),
+            array(
+                'label' => 'Non-HTML brackets',
+                'value' => 'Click here >',
+                'expected' => 'Click here >'
+            ),
+            array(
+                'label' => 'Several tags',
+                'value' => '<b>Text</b> And a link <a href="http://github.com">hoho</a>',
+                'expected' => 'Text And a link hoho'
+            )
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+            
+            $value = $request->registerParam($name)
+            ->addStripTagsFilter()
+            ->get();
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+    
+    public function test_getRegisteredParam_boolean()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => false
+            ),
+            array(
+                'label' => 'Empty string value',
+                'value' => '',
+                'expected' => false
+            ),
+            array(
+                'label' => 'Invalid string value',
+                'value' => 'invalid',
+                'expected' => false
+            ),
+            array(
+                'label' => 'Valid string false value',
+                'value' => 'false',
+                'expected' => false
+            ),
+            array(
+                'label' => 'Valid string true value',
+                'value' => 'true',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Valid string true value, alternate yes/no',
+                'value' => 'yes',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array(),
+                'expected' => false
+            ),
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+            
+            $value = $request->registerParam($name)
+            ->setBoolean()
+            ->get();
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+    
+    public function test_getBool()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => false
+            ),
+            array(
+                'label' => 'Empty string value',
+                'value' => '',
+                'expected' => false
+            ),
+            array(
+                'label' => 'Invalid string value',
+                'value' => 'invalid',
+                'expected' => false
+            ),
+            array(
+                'label' => 'Valid string false value',
+                'value' => 'false',
+                'expected' => false
+            ),
+            array(
+                'label' => 'Valid string true value',
+                'value' => 'true',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Valid string true value, alternate yes/no',
+                'value' => 'yes',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array(),
+                'expected' => false
+            ),
+            array(
+                'label' => 'Valid string zero (0)',
+                'value' => '0',
+                'expected' => false
+            ),
+            array(
+                'label' => 'Valid numeric zero (0)',
+                'value' => 0,
+                'expected' => false
+            ),
+            array(
+                'label' => 'Valid string one (1)',
+                'value' => '1',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Valid numeric one (1)',
+                'value' => 1,
+                'expected' => true
+            ),
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+            
+            $value = $request->getBool($name);
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+    
+    protected function setUniqueParam($value) : string
+    {
+        $name = $this->generateUniqueParamName();
+        $_REQUEST[$name] = $value;
+        
+        return $name;
+    }
+    
+    protected $paramCounter = 0;
+    
+    protected function generateUniqueParamName() : string
+    {
+        $this->paramCounter++;
+        
+        return 'foo'.$this->paramCounter;
     }
 }
