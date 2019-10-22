@@ -30,8 +30,8 @@
 	"prefer-stable" : true,
 	"require" : 
 	{
-		"mistralys/html_quickform2" : "dev-trunk",
-		"mistralys/application-localization" : "dev-master",
+		"mistralys/html_quickform2" : ">=2.1",
+		"mistralys/application-localization" : ">=1.0",
 		"geshi/geshi" : "1.0.9.1",
 		"neitanod/forceutf8" : "2.0.1",
 		"parsecsv/php-parsecsv" : "0.4.5"
