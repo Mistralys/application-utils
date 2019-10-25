@@ -66,8 +66,10 @@ class Request_Param
 
     const VALIDATION_TYPE_URL = 'url';
     
+    const VALIDATION_TYPE_VALUESLIST = 'valueslist';
+    
     const FILTER_TYPE_CALLBACK = 'callback';
-
+    
     /**
      * Constructor for the specified parameter name. Note that this
      * is instantiated automatically by the request class itself. You
@@ -95,7 +97,8 @@ class Request_Param
                 self::VALIDATION_TYPE_REGEX,
                 self::VALIDATION_TYPE_ARRAY,
                 self::VALIDATION_TYPE_CALLBACK,
-                self::VALIDATION_TYPE_URL
+                self::VALIDATION_TYPE_URL,
+                self::VALIDATION_TYPE_VALUESLIST
             );
             self::$filterTypes = array(
                 self::FILTER_TYPE_CALLBACK
@@ -118,7 +121,7 @@ class Request_Param
     public function setCallback($callback, $args=array())
     {
         if(!is_callable($callback)) {
-            throw new SVNHelper_Exception(
+            throw new Request_Exception(
                 'Not a valid callback',
                 'The specified callback is not a valid callable entity.',
                 self::ERROR_NOT_A_VALID_CALLBACK
@@ -164,7 +167,7 @@ class Request_Param
     {
         // first off, apply filtering
         $value = $this->filter($value);
-
+        
         // go through all enqueued validations in turn, each time
         // replacing the value with the adjusted, validated value.
         foreach($this->validations as $validateDef) 
@@ -175,7 +178,7 @@ class Request_Param
             // and now, see if we have to validate the value as well
             $method = 'validate_' . $this->validationType;
             if (!method_exists($this, $method)) {
-                throw new SVNHelper_Exception(
+                throw new Request_Exception(
                     'Unknown validation type.',
                     sprintf(
                         'Cannot validate using type [%s], the target method [%s] does not exist in class [%s].',
@@ -327,7 +330,8 @@ class Request_Param
     }
 
     /**
-     * Sets the parameter value as a list of possible values.
+     * Validates that the parameter value is one of the specified values.
+     * 
      * Note: specify possible values as parameters to this function.
      * If you do not specify any values, the validation will always
      * fail.
@@ -345,6 +349,24 @@ class Request_Param
         }
 
         return $this->setValidation(self::VALIDATION_TYPE_ENUM, $args);
+    }
+    
+   /**
+    * Only available for array values: the parameter must be
+    * an array value, and the array may only contain values 
+    * specified in the values array.
+    * 
+    * Submitted values that are not in the allowed list of
+    * values are stripped from the value.
+    *  
+    * @param array $values List of allowed values
+    * @return \AppUtils\Request_Param
+    */
+    public function setValuesList(array $values)
+    {
+        $this->setArray();
+        
+        return $this->setValidation(self::VALIDATION_TYPE_VALUESLIST, $values);
     }
     
     public function setArray()
@@ -380,6 +402,40 @@ class Request_Param
         return preg_replace('/\s/', '', $value);
     }
     
+    protected function applyFilter_commaSeparated($value, bool $trimEntries, bool $stripEmptyEntries)
+    {
+        if(is_array($value)) {
+            return $value;
+        }
+        
+        if($value === '' || $value === null || !is_string($value)) {
+            return array();
+        }
+        
+        $result = explode(',', $value);
+        
+        if(!$trimEntries && !$stripEmptyEntries) {
+            return $result;
+        }
+        
+        $keep = array();
+        
+        foreach($result as $entry) 
+        {
+            if($trimEntries === true) {
+                $entry = trim($entry);
+            }
+            
+            if($stripEmptyEntries === true && $entry === '') {
+                continue;
+            }
+            
+            $keep[] = $entry;
+        }
+        
+        return $keep;
+    }
+    
    /**
     * Validates the request parameter as an MD5 string,
     * so that only values resembling md5 values are accepted.
@@ -408,7 +464,7 @@ class Request_Param
     public function setValidation($type, $params = null)
     {
         if (!in_array($type, self::$validationTypes)) {
-            throw new SVNHelper_Exception(
+            throw new Request_Exception(
                 'Invalid validation type',
                 sprintf(
                     'Tried setting the validation type to "%1$s". Possible validation types are: %2$s. Use the class constants VALIDATION_TYPE_XXX to set the desired validation type to avoid errors like this.',
@@ -527,6 +583,22 @@ class Request_Param
 
         return null;
     }
+    
+    protected function validate_valueslist($value)
+    {
+        if(!is_array($value)) {
+            return array();
+        }
+        
+        $keep = array();
+        foreach($value as $item) {
+            if(in_array($item, $this->validationParams)) {
+                $keep[] = $item;
+            }
+        }
+        
+        return $keep;
+    }
 
     /**
      * Validates a string containing only letters, lowercase and uppercase, and numbers.
@@ -616,7 +688,7 @@ class Request_Param
     public function addFilter($type, $params = null)
     {
         if (!in_array($type, self::$filterTypes)) {
-            throw new SVNHelper_Exception(
+            throw new Request_Exception(
                 'Invalid filter type',
                 sprintf(
                     'Tried setting the filter type to "%1$s". Possible validation types are: %2$s. Use the class constants FILTER_XXX to set the desired validation type to avoid errors like this.',
@@ -695,6 +767,27 @@ class Request_Param
     {
         return $this->addCallbackFilter(array($this, 'applyFilter_stripWhitespace'));
     }   
+    
+   /**
+    * Adds a filter that transforms comma separated values
+    * into an array of values.
+    * 
+    * @param bool $trimEntries Trim whitespace from each entry?
+    * @param bool $stripEmptyEntries Remove empty entries from the array?
+    * @return \AppUtils\Request_Param
+    */
+    public function addCommaSeparatedFilter(bool $trimEntries=true, bool $stripEmptyEntries=true)
+    {
+        $this->setArray();
+        
+        return $this->addCallbackFilter(
+            array($this, 'applyFilter_commaSeparated'), 
+            array(
+                $trimEntries,
+                $stripEmptyEntries
+            )
+        );
+    }
     
    /**
     * Adds a filter that encodes all HTML special characters
