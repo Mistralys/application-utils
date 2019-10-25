@@ -625,6 +625,129 @@ final class RequestTest extends TestCase
         }
     }
     
+    public function test_filterTrim()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Empty string value',
+                'value' => '',
+                'expected' => ''
+            ),
+            array(
+                'label' => 'String with spaces',
+                'value' => '   bar   ',
+                'expected' => 'bar'
+            ),
+            array(
+                'label' => 'String with newlines',
+                'value' => "\rbar\n",
+                'expected' => 'bar'
+            ),
+            array(
+                'label' => 'String with tabs and spaces',
+                'value' => "\tbar   ",
+                'expected' => 'bar'
+            ),
+            array(
+                'label' => 'String without spaces',
+                'value' => "foo bar",
+                'expected' => 'foo bar'
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array(),
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Object value',
+                'value' => new \AppUtils\Request(),
+                'expected' => ''
+            )
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+            
+            $value = $request->registerParam($name)
+            ->addFilterTrim()
+            ->get();
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+    
+    public function test_filterString()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Empty string value',
+                'value' => '',
+                'expected' => ''
+            ),
+            array(
+                'label' => 'String with spaces',
+                'value' => 'bar',
+                'expected' => 'bar'
+            ),
+            array(
+                'label' => 'String with newlines',
+                'value' => "\rbar\n",
+                'expected' => "\rbar\n"
+            ),
+            array(
+                'label' => 'String with tabs and spaces',
+                'value' => "\t  bar   ",
+                'expected' => "\t  bar   "
+            ),
+            array(
+                'label' => 'Integer value',
+                'value' => 10,
+                'expected' => '10'
+            ),
+            array(
+                'label' => 'Float value',
+                'value' => 10.85,
+                'expected' => '10.85'
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array('foo'),
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Object value',
+                'value' => new \AppUtils\Request(),
+                'expected' => ''
+            )
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+            
+            $value = $request->registerParam($name)
+            ->addStringFilter()
+            ->get();
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+    
     public function test_filterStripTags()
     {
         $tests = array(
