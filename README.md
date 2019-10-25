@@ -23,8 +23,8 @@ Simply require the package via composer:
 * NumberInfo: access and modify numbers with or without units.
 * PaginationHelper: calculates all required numbers for a pagination widget.
 * RegexHelper: collection of typical validation Regexes.
-* Request: class to validate, filter and access request variables.
-* [RequestHelper](https://github.com/Mistralys/application-utils/wiki/Request): build raw request headers from scratch.
+* [Request](https://github.com/Mistralys/application-utils/wiki/Request): class to validate, filter and access request variables.
+* RequestHelper: build raw request headers from scratch.
 * SVNHelper: working with a local SVN repository. Update, commit, etc.
 * VariableInfo: accessing information on any variable.
 * XMLHelper: simplifies working with some of the XML libraries like DOM or SimpleXML.
