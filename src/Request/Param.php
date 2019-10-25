@@ -29,6 +29,8 @@ class Request_Param
     
     const ERROR_NOT_A_VALID_CALLBACK = 16302;
     
+    const ERROR_INVALID_FILTER_TYPE = 16303;
+    
     /**
      * @var Request
      */
@@ -402,6 +404,15 @@ class Request_Param
         return preg_replace('/\s/', '', $value);
     }
     
+    protected function applyFilter_string($value)
+    {
+        if(!is_scalar($value)) {
+            return '';
+        }
+        
+        return (string)$value;
+    }
+    
     protected function applyFilter_commaSeparated($value, bool $trimEntries, bool $stripEmptyEntries)
     {
         if(is_array($value)) {
@@ -684,8 +695,11 @@ class Request_Param
      * @param string $type
      * @param mixed $params
      * @return Request_Param
+     * @throws Request_Exception
+     * 
+     * @see Request_Param::ERROR_INVALID_FILTER_TYPE
      */
-    public function addFilter($type, $params = null)
+    public function addFilter($type, $params = null) : Request_Param
     {
         if (!in_array($type, self::$filterTypes)) {
             throw new Request_Exception(
@@ -694,7 +708,8 @@ class Request_Param
                     'Tried setting the filter type to "%1$s". Possible validation types are: %2$s. Use the class constants FILTER_XXX to set the desired validation type to avoid errors like this.',
                     $type,
                     implode(', ', self::$filterTypes)
-                )
+                ),
+                self::ERROR_INVALID_FILTER_TYPE
             );
         }
 
@@ -712,9 +727,24 @@ class Request_Param
     * 
     * @return \AppUtils\Request_Param
     */
-    public function addFilterTrim()
+    public function addFilterTrim() : Request_Param
     {
+        // to guarantee we only work with strings
+        $this->addStringFilter();
+        
         return $this->addCallbackFilter('trim');
+    }
+
+   /**
+    * Converts the value to a string, even if it is not
+    * a string value. Complex types like arrays and objects
+    * are converted to an empty string.
+    * 
+    * @return \AppUtils\Request_Param
+    */
+    public function addStringFilter() : Request_Param
+    {
+        return $this->addCallbackFilter(array($this, 'applyFilter_string'));
     }
 
     /**
@@ -734,7 +764,7 @@ class Request_Param
      * @param array $params
      * @return Request_Param
      */
-    public function addCallbackFilter($callback, $params = array())
+    public function addCallbackFilter($callback, $params = array()) : Request_Param
     {
         return $this->addFilter(
             self::FILTER_TYPE_CALLBACK,
@@ -751,8 +781,9 @@ class Request_Param
      * like this: "<b><a><ul>", or leave it empty for none.
      *
      * @param string $allowedTags
+     * @return \AppUtils\Request_Param
      */
-    public function addStripTagsFilter($allowedTags = '')
+    public function addStripTagsFilter($allowedTags = '') : Request_Param
     {
         return $this->addCallbackFilter('strip_tags', array($allowedTags));
     }
@@ -763,7 +794,7 @@ class Request_Param
     * 
     * @return \AppUtils\Request_Param
     */
-    public function addStripWhitespaceFilter()
+    public function addStripWhitespaceFilter() : Request_Param
     {
         return $this->addCallbackFilter(array($this, 'applyFilter_stripWhitespace'));
     }   
@@ -776,7 +807,7 @@ class Request_Param
     * @param bool $stripEmptyEntries Remove empty entries from the array?
     * @return \AppUtils\Request_Param
     */
-    public function addCommaSeparatedFilter(bool $trimEntries=true, bool $stripEmptyEntries=true)
+    public function addCommaSeparatedFilter(bool $trimEntries=true, bool $stripEmptyEntries=true) : Request_Param
     {
         $this->setArray();
         
@@ -795,12 +826,12 @@ class Request_Param
     * 
     * @return \AppUtils\Request_Param
     */
-    public function addHTMLSpecialcharsFilter()
+    public function addHTMLSpecialcharsFilter() : Request_Param
     {
         return $this->addCallbackFilter('htmlspecialchars', array(ENT_QUOTES, 'UTF-8'));
     }
 
-    public function getName()
+    public function getName() : string
     {
         return $this->paramName;
     }
@@ -815,13 +846,13 @@ class Request_Param
     * @return Request_Param
     * @see Request::validate()
     */
-    public function makeRequired()
+    public function makeRequired() : Request_Param
     {
         $this->required = true;
         return $this;
     }
     
-    public function isRequired()
+    public function isRequired() : bool
     {
         return $this->required;
     }
