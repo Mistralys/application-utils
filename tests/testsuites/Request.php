@@ -526,6 +526,16 @@ final class RequestTest extends TestCase
                 'expected' => ''
             ),
             array(
+                'label' => 'Array value',
+                'value' => array('foo'),
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Object value',
+                'value' => new stdClass(),
+                'expected' => ''
+            ),
+            array(
                 'label' => 'Single space',
                 'value' => ' ',
                 'expected' => ''
@@ -759,6 +769,16 @@ final class RequestTest extends TestCase
             array(
                 'label' => 'Empty string',
                 'value' => '',
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array('foo'),
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Object value',
+                'value' => new stdClass(),
                 'expected' => ''
             ),
             array(
