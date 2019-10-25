@@ -800,6 +800,142 @@ final class RequestTest extends TestCase
         }
     }
     
+    public function test_filter_commaSeparated()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Empty string value',
+                'value' => '',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Boolean value',
+                'value' => true,
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Array values get passed through unchanged',
+                'value' => array('something', 'schmomthing', 50),
+                'expected' => array('something', 'schmomthing', 50)
+            ),
+            array(
+                'label' => 'Single space value',
+                'value' => ' ',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Single space value with trim OFF',
+                'value' => ' ',
+                'expected' => array(' '),
+                'trim' => false
+            ),
+            array(
+                'label' => 'Comma separated values, no spaces',
+                'value' => 'foo,bar',
+                'expected' => array('foo', 'bar')
+            ),
+            array(
+                'label' => 'Comma separated values, with spaces',
+                'value' => '  foo  ,  bar   ',
+                'expected' => array('foo', 'bar')
+            ),
+            array(
+                'label' => 'Comma separated values, with spaces, trim OFF',
+                'value' => ' foo , bar ',
+                'expected' => array(' foo ', ' bar '),
+                'trim' => false
+            ),
+            array(
+                'label' => 'Comma separated values, empty entries',
+                'value' => 'foo,,,bar',
+                'expected' => array('foo', 'bar')
+            ),
+            array(
+                'label' => 'Comma separated values, empty entries, strip OFF',
+                'value' => 'foo,,,bar',
+                'expected' => array('foo', '', '', 'bar'),
+                'strip' => false
+            ),
+            array(
+                'label' => 'Comma separated values, empty entries, strip and trim OFF',
+                'value' => ' foo , bar ,,',
+                'expected' => array(' foo ', ' bar ', '', ''),
+                'trim' => false,
+                'strip' => false
+            )
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+            
+            $trim = true; if(isset($def['trim'])) { $trim = $def['trim']; }
+            $strip = true; if(isset($def['strip'])) { $strip = $def['strip']; }
+            
+            $value = $request->registerParam($name)
+            ->addCommaSeparatedFilter($trim, $strip)
+            ->get();
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+
+    public function test_getRegisteredParam_commaSeparated()
+    {
+        $tests = array(
+            array(
+                'label' => 'Comma separated values',
+                'value' => 'foo,bar,lopos',
+                'allowed' => array('foo', 'bar'),
+                'expected' => array('foo', 'bar'),
+            ),
+            array(
+                'label' => 'Comma separated values, with empty entries',
+                'value' => 'foo,bar,lopos,,,',
+                'allowed' => array('foo', 'bar'),
+                'expected' => array('foo', 'bar'),
+            ),
+            array(
+                'label' => 'Comma separated values, with trim OFF',
+                'value' => 'foo,  bar,  lopos',
+                'allowed' => array('foo', 'bar'),
+                'expected' => array('foo'),
+                'trim' => false
+            ),
+            array(
+                'label' => 'Comma separated values, with strip OFF',
+                'value' => 'foo,bar, ,lopos',
+                'allowed' => array('foo', 'bar'),
+                'expected' => array('foo', 'bar'),
+                'strip' => false
+            )
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+
+            $trim = true; if(isset($def['trim'])) { $trim = $def['trim']; }
+            $strip = true; if(isset($def['strip'])) { $strip = $def['strip']; }
+            
+            $value = $request->registerParam($name)
+            ->addCommaSeparatedFilter($trim, $strip)
+            ->setValuesList($def['allowed'])
+            ->get();
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+    
     protected function setUniqueParam($value) : string
     {
         $name = $this->generateUniqueParamName();
