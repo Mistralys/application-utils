@@ -21,18 +21,12 @@ class SVNHelper_Exception extends BaseException
     {
         parent::__construct($message, $details, $code, $previous);
         
-        $this->details = $details;
         $this->id = md5(microtime(true).'-svnexception-'.$code.'-'.$message);
     }
     
     public function getID()
     {
         return $this->id;
-    }
-    
-    public function getDetails()
-    {
-        return $this->details;
     }
     
     public function __destruct()
