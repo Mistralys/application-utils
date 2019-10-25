@@ -192,19 +192,23 @@ class Request_Param
                 );
             }
          
-            if($this->valueType === self::VALUE_TYPE_COMMA_SEPARATED) {
+            if($this->valueType === self::VALUE_TYPE_ID_LIST) 
+            {
                 if(!is_array($value)) {
                     $value = explode(',', $value);
                 }
                 
                 $keep = array();
-                foreach($value as $subval) {
+                foreach($value as $subval) 
+                {
+                    $subval = trim($subval);
                     $subval = $this->$method($subval);
+                    
                     if($subval !== null) {
-                        $keep[] = $subval;
+                        $keep[] = intval($subval);
                     }
                 }
-                
+
                 $value = $keep;
             } else {
                 $value = $this->$method($value);
@@ -253,7 +257,7 @@ class Request_Param
     
     const VALUE_TYPE_STRING = 'string';
     
-    const VALUE_TYPE_COMMA_SEPARATED = 'comma_separated';
+    const VALUE_TYPE_ID_LIST = 'ids_list';
     
     protected $valueType = self::VALUE_TYPE_STRING;
 
@@ -266,11 +270,10 @@ class Request_Param
     */
     public function setIDList()
     {
-        $this->valueType = self::VALUE_TYPE_COMMA_SEPARATED;
+        $this->valueType = self::VALUE_TYPE_ID_LIST;
+        $this->setInteger();
         
-        $this->addStripWhitespaceFilter();
-        
-        return $this->setRegex('/\A(?:[0-9]+,)+[0-9]+|[0-9]+\z/six');
+        return $this;
     }
     
    /**
@@ -507,7 +510,7 @@ class Request_Param
         if($value !== null && $value !== '') {
             return $value;
         }
-        
+
         return $this->validate($default);
     }
 
@@ -785,6 +788,9 @@ class Request_Param
      */
     public function addStripTagsFilter($allowedTags = '') : Request_Param
     {
+        // to ensure we work only with string values.
+        $this->addStringFilter();
+        
         return $this->addCallbackFilter('strip_tags', array($allowedTags));
     }
     
@@ -796,6 +802,9 @@ class Request_Param
     */
     public function addStripWhitespaceFilter() : Request_Param
     {
+        // to ensure we only work with strings.
+        $this->addStringFilter();
+        
         return $this->addCallbackFilter(array($this, 'applyFilter_stripWhitespace'));
     }   
     
