@@ -34,8 +34,6 @@ class FileHelper
     
     const ERROR_UNKNOWN_FILE_MIME_TYPE = 340015;
     
-    const ERROR_SERIALIZED_FILE_DOES_NOT_EXIST = 340016;
-    
     const ERROR_SERIALIZED_FILE_CANNOT_BE_READ = 340017;
     
     const ERROR_SERIALIZED_FILE_UNSERIALZE_FAILED = 340018;
@@ -53,6 +51,8 @@ class FileHelper
     const ERROR_SAVE_FILE_NOT_WRITABLE = 340024;
     
     const ERROR_SAVE_FILE_WRITE_FAILED = 340025;
+    
+    const ERROR_FILE_DOES_NOT_EXIST = 340026;
     
    /**
     * Opens a serialized file and returns the unserialized data.
@@ -75,20 +75,14 @@ class FileHelper
     * @throws FileHelper_Exception
     * @return array
     * @see FileHelper::parseSerializedFile()
+    * 
+    * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
+    * @see FileHelper::ERROR_SERIALIZED_FILE_CANNOT_BE_READ
+    * @see FileHelper::ERROR_SERIALIZED_FILE_UNSERIALZE_FAILED
     */
     public static function parseSerializedFile(string $file)
     {
-        if(!file_exists($file))
-        {
-            throw new FileHelper_Exception(
-                'Cannot unserialize file, it does not exist.',
-                sprintf(
-                    'Tried opening file at [%s].',
-                    $file
-                ),
-                self::ERROR_SERIALIZED_FILE_DOES_NOT_EXIST
-            );
-        }
+        self::requireFileExists($file);
         
         $contents = file_get_contents($file);
         
@@ -225,17 +219,7 @@ class FileHelper
     */
     public static function copyFile($sourcePath, $targetPath)
     {
-        if(!file_exists($sourcePath))
-        {
-            throw new FileHelper_Exception(
-                sprintf('Source file [%s] to copy was not found.', basename($sourcePath)),
-                sprintf(
-                    'Tried finding it in the path [%s].',
-                    $sourcePath
-                ),
-                self::ERROR_SOURCE_FILE_NOT_FOUND
-            );
-        }
+        self::requireFileExists($sourcePath, self::ERROR_SOURCE_FILE_NOT_FOUND);
         
         if(!is_readable($sourcePath))
         {
@@ -400,20 +384,13 @@ class FileHelper
      * @param string $fileName The name of the file for the client
      * @param bool $asAttachment Whether to force the client to download the file
      * @throws FileHelper_Exception
+     * 
+     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
+     * @see FileHelper::ERROR_UNKNOWN_FILE_MIME_TYPE
      */
     public static function sendFile($filePath, $fileName = null, $asAttachment=true)
     {
-        if(!file_exists($filePath)) {
-            throw new FileHelper_Exception(
-                'File does not exist',
-                sprintf(
-                    'Cannot send the file [%s] to the browser: the file does not exist in the target path. Full path is [%s].',
-                    basename($filePath),
-                    $filePath
-                ),
-                self::ERROR_CANNOT_SEND_MISSING_FILE
-            );
-        }
+        self::requireFileExists($filePath);
         
         if (is_null($fileName)) {
             $fileName = basename($filePath);
@@ -457,6 +434,9 @@ class FileHelper
      * @param string $url
      * @throws FileHelper_Exception
      * @return string
+     * 
+     * @see FileHelper::ERROR_CURL_EXTENSION_NOT_INSTALLED
+     * @see FileHelper::ERROR_CANNOT_OPEN_URL
      */
     public static function downloadFile($url)
     {
@@ -470,7 +450,7 @@ class FileHelper
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_REFERER, APP_URL);
+        curl_setopt($ch, CURLOPT_REFERER, $url);
         curl_setopt($ch, CURLOPT_USERAGENT, "Google Chrome/1.0");
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -573,19 +553,13 @@ class FileHelper
     * @param string $file
     * @throws FileHelper_Exception
     * @return array
+    * 
+    * @see FileHelper::ERROR_CANNOT_FIND_JSON_FILE
+    * @see FileHelper::ERROR_CANNOT_DECODE_JSON_FILE
     */ 
-    public static function parseJSONFile($file, $targetEncoding=null, $sourceEncoding=null)
+    public static function parseJSONFile(string $file, $targetEncoding=null, $sourceEncoding=null)
     {
-        if(!file_exists($file)) {
-            throw new FileHelper_Exception(
-                'Cannot find file',
-                sprintf(
-                    'Tried finding the file [%s], but it does not exist.',
-                    $file    
-                ),
-                self::ERROR_CANNOT_FIND_JSON_FILE
-            );
-        }
+        self::requireFileExists($file, self::ERROR_CANNOT_FIND_JSON_FILE);
         
         $content = file_get_contents($file);
         if(!$content) {
@@ -1320,5 +1294,101 @@ class FileHelper
         $relative = trim($relative, '/');
         
         return $relative;
+    }
+    
+   /**
+    * Checks that the target file exists, and throws an exception
+    * if it does not. 
+    * 
+    * @param string $path
+    * @param int|NULL $errorCode Optional custom error code
+    * @throws FileHelper_Exception
+    * 
+    * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
+    */
+    public static function requireFileExists(string $path, $errorCode=null)
+    {
+        if(file_exists($path)) {
+            return;
+        }
+        
+        if($errorCode === null) {
+            $errorCode = self::ERROR_FILE_DOES_NOT_EXIST;
+        }
+        
+        throw new FileHelper_Exception(
+            sprintf('File [%s] does not exist.', basename($path)),
+            sprintf('Tried finding the file in path [%s].', $path),
+            $errorCode
+        );
+    }
+    
+   /**
+    * Reads a specific line number from the target file and returns its
+    * contents, if the file has such a line. Does so with little memory
+    * usage, as the file is not read entirely into memory.
+    * 
+    * @param string $path
+    * @param int $lineNumber Note: 1-based; the first line is number 1.
+    * @return string|NULL Will return null if the requested line does not exist.
+    * @throws FileHelper_Exception
+    * 
+    * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
+    */
+    public static function getLineFromFile(string $path, int $lineNumber) : ?string
+    {
+        self::requireFileExists($path);
+        
+        $file = new \SplFileObject($path);
+        
+        if($file->eof()) {
+            return '';
+        }
+        
+        $targetLine = $lineNumber-1;
+        
+        $file->seek($targetLine);
+        
+        if($file->key() !== $targetLine) {
+             return null;
+        }
+        
+        return $file->current(); 
+    }
+    
+   /**
+    * Retrieves the total amount of lines in the file, without 
+    * reading the whole file into memory.
+    * 
+    * @param string $path
+    * @return int
+    */
+    public static function countFileLines(string $path) : int
+    {
+        self::requireFileExists($path);
+        
+        $spl = new \SplFileObject($path);
+        
+        // tries seeking as far as possible
+        $spl->seek(PHP_INT_MAX);
+        
+        $number = $spl->key();
+        
+        // if seeking to the end the cursor is still at 0, there are no lines. 
+        if($number === 0) 
+        {
+            // since it's a very small file, to get reliable results,
+            // we read its contents and use that to determine what
+            // kind of contents we are dealing with. Tests have shown 
+            // that this is not pactical to solve with the SplFileObject.
+            $content = file_get_contents($path);
+            
+            if(empty($content)) {
+                return 0;
+            }
+        }
+        
+        // return the line number we were able to reach + 1 (key is zero-based)
+        return $number+1;
     }
 }
