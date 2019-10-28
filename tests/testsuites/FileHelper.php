@@ -539,4 +539,90 @@ final class FileHelperTest extends TestCase
         
         $this->assertEquals($available, FileHelper::cliCommandExists('php'));
     }
+    
+   /**
+    * Try fetching a specific line from a file.
+    */
+    public function test_getLineFromFile()
+    {
+        $file = $this->assetsFolder.'/line-seeking.txt';
+        
+        $line3 = trim(FileHelper::getLineFromFile($file, 3));
+        
+        $this->assertEquals('3', $line3, 'Should read line nr 3');
+    }
+    
+   /**
+    * Try reading a line number that does not exist.
+    */
+    public function test_getLineFromFile_outOfBounds()
+    {
+        $file = $this->assetsFolder.'/line-seeking.txt';
+        
+        $line = FileHelper::getLineFromFile($file, 30);
+        
+        $this->assertEquals(null, $line, 'Should be NULL when line number does not exist.');
+    }
+    
+   /**
+    * Try reading from a file that does not exist.
+    */
+    public function test_getLineFromFile_fileNotExists()
+    {
+        $file = '/path/to/unknown/file.txt';
+        
+        $this->expectException(FileHelper_Exception::class);
+        
+        FileHelper::getLineFromFile($file, 3);
+    }
+    
+   /**
+    * Test a simple line count.
+    */
+    public function test_countFileLines()
+    {
+        $file = $this->assetsFolder.'/line-seeking.txt';
+        
+        $result = FileHelper::countFileLines($file);
+        
+        $this->assertEquals(10, $result, 'Should be 10 lines in the file.');
+    }
+    
+   /**
+    * Test counting the lines in a zero length file,
+    * meaning without any contents at all.
+    */
+    public function test_countFileLines_zeroLength()
+    {
+        $file = $this->assetsFolder.'/zero-length.txt';
+        
+        $result = FileHelper::countFileLines($file);
+        
+        $this->assertEquals(0, $result, 'Should not be any lines at all in the file.');
+    }
+   
+   /**
+    * Test counting lines in a file with a single line, with
+    * no newline at the end.
+    */ 
+    public function test_countFileLines_singleLine()
+    {
+        $file = $this->assetsFolder.'/single-line.txt';
+        
+        $result = FileHelper::countFileLines($file);
+        
+        $this->assertEquals(1, $result, 'Should be a single line in the file.');
+    }
+
+   /**
+    * Test counting lines in a file with a single space as content.
+    */
+    public function test_countFileLines_whitespace()
+    {
+        $file = $this->assetsFolder.'/whitespace.txt';
+        
+        $result = FileHelper::countFileLines($file);
+        
+        $this->assertEquals(1, $result, 'Should be a single line in the file.');
+    }
 }
