@@ -78,6 +78,12 @@ final class RequestTest extends TestCase
                 'match' => true
             ),
             array(
+                'label' => 'Same params, spaces and dots in param names',
+                'sourceUrl' => 'http://domain.com?param.1=yes&param 2=yes&param_1=yes&param_2=yes',
+                'targetUrl' => 'http://domain.com?param 2=yes&param.1=yes&param_2=yes&param_1=yes',
+                'match' => true
+            ),
+            array(
                 'label' => 'Same params, one with fragment',
                 'sourceUrl' => 'http://domain.com?param1=yes&param2=yes#fragment',
                 'targetUrl' => 'http://domain.com?param1=yes&param2=yes',
