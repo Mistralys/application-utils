@@ -338,6 +338,33 @@ final class ConvertHelperTest extends TestCase
                 'expected' => array(
                     'f.oo bar' => 'result'
                 )
+            ),
+            array(
+                // with parse_str, this would not be possible since foo.bar would be converted to foo_bar.
+                'label' => 'Mixed underscores and dots (conflict test)',
+                'value' => 'foo.bar=result1&foo_bar=result2',
+                'expected' => array(
+                    'foo.bar' => 'result1',
+                    'foo_bar' => 'result2'
+                )
+            ),
+            array(
+                // with parse_str, this would not be possible since foo.bar would be converted to foo_bar.
+                'label' => 'Mixed underscores and spaces (conflict test)',
+                'value' => 'foo bar=result1&foo_bar=result2',
+                'expected' => array(
+                    'foo bar' => 'result1',
+                    'foo_bar' => 'result2'
+                )
+            ),
+            array(
+                // check that the replacement mechanism does not confuse parameter names
+                'label' => 'Parameter names starting like other parameter names',
+                'value' => 'foo=bar&foo.bar=ditto',
+                'expected' => array(
+                    'foo' => 'bar',
+                    'foo.bar' => 'ditto'
+                )
             )
         );
         
