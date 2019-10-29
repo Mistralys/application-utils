@@ -379,6 +379,13 @@ final class ConvertHelperTest extends TestCase
                 'expected' => array(
                     'foobar' => '&foo=bar'
                 )
+            ),
+            array(
+                'label' => 'Direct from parse_url',
+                'value' => parse_url('https://domain.com?foo=bar', PHP_URL_QUERY),
+                'expected' => array(
+                    'foo' => 'bar'
+                )
             )
         );
         
