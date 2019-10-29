@@ -1518,4 +1518,71 @@ class ConvertHelper
     {
         return new ConvertHelper_ThrowableInfo($e);
     }
+    
+   /**
+    * Parses the specified query string like the native 
+    * function <code>parse_str</code>, without the key
+    * naming limitations.
+    * 
+    * Using parse_str, dots or spaces in key names are 
+    * replaced by underscores. This method keeps all names
+    * intact.
+    * 
+    * It still uses the parse_str implementation as it 
+    * is tested and tried, but fixes the parameter names
+    * after parsing, as needed.
+    * 
+    * @param string $queryString
+    * @return array
+    * @see https://www.php.net/manual/en/function.parse-str.php
+    */
+    public static function parseQueryString(string $queryString) : array
+    {
+        // allow HTML entities notation
+        $queryString = str_replace('&amp;', '&', $queryString);
+        
+        // extract parameter names from the query string
+        $paramNames = array();
+        $result = array();
+        preg_match_all('/&?([^&]+)=.*/sixU', $queryString, $result, PREG_PATTERN_ORDER);
+        if(isset($result[1])) {
+            $paramNames = $result[1];
+        }
+        
+        // to avoid iterating over the param names, we simply concatenate it
+        $search = implode('', $paramNames);
+        
+        // store whether we need to adjust any of the names: 
+        // this is true if we find dots or spaces in any of them.
+        $fixRequired = stristr($search, '.') || stristr($search, ' ');
+        
+        // parse the query string natively
+        $parsed = array();
+        parse_str($queryString, $parsed);
+        
+        // do any of the parameter names need to be fixed?
+        if(!$fixRequired) {
+            return $parsed;
+        }
+        
+        $table = array();
+        
+        // create a replacement table for easy replacement
+        foreach($paramNames as $paramName)
+        {
+            // the broken names have spaces and dots replaced by underscores
+            $broken = str_replace(array('.', ' '), '_', $paramName);
+            $table[$broken] = $paramName;
+        }
+        
+        $keep = array();
+        
+        // rebuild the resulting array with the correct parameter names
+        foreach($parsed as $queryName => $value)
+        {
+            $keep[$table[$queryName]] = $value;
+        }
+        
+        return $keep;
+    }
 }
