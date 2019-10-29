@@ -16,7 +16,7 @@ Simply require the package via composer:
 
 ## Overview
 
-* ConvertHelper: converting dates, strings, transliterating and more.
+* [ConvertHelper](https://github.com/Mistralys/application-utils/wiki/ConvertHelper): converting dates, strings, transliterating and more.
 * CSVHelper: read and generate CSV files.
 * [FileHelper](https://github.com/Mistralys/application-utils/wiki/FileHelper): file system utility methods and file finder.
 * ImageHelper: image manipulation using native GD functions with alpha support.
