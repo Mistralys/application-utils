@@ -119,8 +119,7 @@ class Request_URLComparer
             return '';
         }
         
-        $params = null; 
-        parse_str($query, $params);
+        $params = ConvertHelper::parseQueryString($query);
         
         ksort($params);
         
