@@ -282,4 +282,70 @@ final class ConvertHelperTest extends TestCase
             $this->assertEquals($def['expected'], $isBool, $def['label']);
         }
     }
+    
+    public function test_parseQueryString()
+    {
+        $tests = array(
+            array(
+                'label' => 'Empty string value',
+                'value' => '',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Whitespace value',
+                'value' => '  ',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Single parameter',
+                'value' => 'foo=bar',
+                'expected' => array('foo' => 'bar')
+            ),
+            array(
+                'label' => 'Multiple parameters',
+                'value' => 'foo=bar&bar=foo&something=more',
+                'expected' => array(
+                    'foo' => 'bar',
+                    'bar' => 'foo',
+                    'something' => 'more'
+                )
+            ),
+            array(
+                'label' => 'Parameters with HTML encoded ampersand',
+                'value' => 'foo=bar&amp;bar=foo',
+                'expected' => array(
+                    'foo' => 'bar',
+                    'bar' => 'foo'
+                )
+            ),
+            array(
+                'label' => 'Parameter name with dot',
+                'value' => 'foo.bar=result',
+                'expected' => array(
+                    'foo.bar' => 'result'
+                )
+            ),
+            array(
+                'label' => 'Parameter name with space',
+                'value' => 'foo bar=result',
+                'expected' => array(
+                    'foo bar' => 'result'
+                )
+            ),
+            array(
+                'label' => 'Parameter name with space and dot',
+                'value' => 'f.oo bar=result',
+                'expected' => array(
+                    'f.oo bar' => 'result'
+                )
+            )
+        );
+        
+        foreach($tests as $def)
+        {
+            $result = ConvertHelper::parseQueryString($def['value']);
+            
+            $this->assertEquals($def['expected'], $result, $def['label']);
+        }
+    }
 }
