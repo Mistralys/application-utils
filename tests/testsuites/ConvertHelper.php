@@ -365,6 +365,20 @@ final class ConvertHelperTest extends TestCase
                     'foo' => 'bar',
                     'foo.bar' => 'ditto'
                 )
+            ),
+            array(
+                'label' => 'Parameter name with colon',
+                'value' => 'foo:bar=result',
+                'expected' => array(
+                    'foo:bar' => 'result'
+                )
+            ),
+            array(
+                'label' => 'Parameter name URL encoded should not conflict',
+                'value' => 'foobar='.urlencode('&foo=bar'),
+                'expected' => array(
+                    'foobar' => '&foo=bar'
+                )
             )
         );
         
