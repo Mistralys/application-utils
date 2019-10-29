@@ -1541,8 +1541,9 @@ class ConvertHelper
         // allow HTML entities notation
         $queryString = str_replace('&amp;', '&', $queryString);
         
-        // extract parameter names from the query string
         $paramNames = array();
+        
+        // extract parameter names from the query string
         $result = array();
         preg_match_all('/&?([^&]+)=.*/sixU', $queryString, $result, PREG_PATTERN_ORDER);
         if(isset($result[1])) {
@@ -1555,6 +1556,46 @@ class ConvertHelper
         // store whether we need to adjust any of the names: 
         // this is true if we find dots or spaces in any of them.
         $fixRequired = stristr($search, '.') || stristr($search, ' ');
+
+        unset($search);
+        
+        // A fix is required: replace all parameter names with placeholders,
+        // which do not conflict with parse_str and which will be restored
+        // with the actual parameter names after the parsing.
+        //
+        // It is necessary to do this even before the parsing, to resolve
+        // possible naming conflicts like having both parameters "foo.bar" 
+        // and "foo_bar" in the query string: since "foo.bar" would be converted
+        // to "foo_bar", one of the two would be replaced.
+        if($fixRequired) 
+        {
+            $counter = 1;
+            $table = array();
+            $placeholders = array();
+            foreach($paramNames as $paramName)
+            {
+                 // create a unique placeholder name
+                 $placeholder = '__PLACEHOLDER'.$counter.'__';
+                 
+                 // store the placeholder name to replace later
+                 $table[$placeholder] = $paramName;
+                 
+                 // add the placeholder to replace in the query string before parsing
+                 $placeholders[$paramName.'='] = $placeholder.'=';
+                 
+                 $counter++;
+            }
+            
+            // next challenge: replacing the parameter names by placeholders
+            // safely. We sort the list by longest name first, to avoid shorter 
+            // parameter names being replaced first that can be part of longer ones.
+            uksort($placeholders, function($a, $b) {
+                return strlen($b) - strlen($a);
+            });
+            
+            // replace all instances with the placeholder
+            $queryString = str_replace(array_keys($placeholders), array_values($placeholders), $queryString);
+        }
         
         // parse the query string natively
         $parsed = array();
@@ -1565,23 +1606,13 @@ class ConvertHelper
             return $parsed;
         }
         
-        $table = array();
-        
-        // create a replacement table for easy replacement
-        foreach($paramNames as $paramName)
-        {
-            // the broken names have spaces and dots replaced by underscores
-            $broken = str_replace(array('.', ' '), '_', $paramName);
-            $table[$broken] = $paramName;
-        }
-        
         $keep = array();
         
-        // rebuild the resulting array with the correct parameter names
-        foreach($parsed as $queryName => $value)
+        foreach($parsed as $name => $value)
         {
-            $keep[$table[$queryName]] = $value;
+             $keep[$table[$name]] = $value;
         }
+        
         
         return $keep;
     }
