@@ -39,6 +39,7 @@ final class FileHelper_PHPClassInfoTest extends TestCase
                 'file' => 'single-class',
                 'classes' => array(
                     'SingleClass' => array(
+                        'name' => 'SingleClass',
                         'extends' => '',
                         'implements' => array(),
                         'declaration' => 'class SingleClass'
@@ -50,6 +51,7 @@ final class FileHelper_PHPClassInfoTest extends TestCase
                 'file' => 'single-class-extended',
                 'classes' => array(
                     'SingleClassExtended' => array(
+                        'name' => 'SingleClassExtended',
                         'extends' => 'FooClass',
                         'implements' => array(),
                         'declaration' => 'class SingleClassExtended extends FooClass'
@@ -61,9 +63,22 @@ final class FileHelper_PHPClassInfoTest extends TestCase
                 'file' => 'single-class-implements',
                 'classes' => array(
                     'SingleClassImplements' => array(
+                        'name' => 'SingleClassImplements',
                         'extends' => '',
                         'implements' => array('Foo1Interface'),
                         'declaration' => 'class SingleClassImplements implements Foo1Interface' 
+                    )
+                ),
+            ),
+            array(
+                'label' => 'A single class, namespaced',
+                'file' => 'single-class-namespaced',
+                'classes' => array(
+                    'SingleClassNamespaced\SingleClass' => array(
+                        'name' => 'SingleClass',
+                        'extends' => '',
+                        'implements' => array(),
+                        'declaration' => 'class SingleClass'
                     )
                 ),
             ),
@@ -72,6 +87,7 @@ final class FileHelper_PHPClassInfoTest extends TestCase
                 'file' => 'single-class-multiple',
                 'classes' => array(
                     'SingleClassMultiple' => array(
+                        'name' => 'SingleClassMultiple',
                         'extends' => 'FooClass',
                         'implements' => array('Foo1Interface', 'Foo2Interface', 'Foo3Interface'),
                         'declaration' => 'class SingleClassMultiple extends FooClass implements Foo1Interface, Foo2Interface, Foo3Interface'
@@ -83,6 +99,7 @@ final class FileHelper_PHPClassInfoTest extends TestCase
                 'file' => 'single-class-multiple-freespacing',
                 'classes' => array(
                     'SingleClassMultipleFreespacing' => array(
+                        'name' => 'SingleClassMultipleFreespacing',
                         'extends' => 'FooClass',
                         'implements' => array('Foo1Interface', 'Foo2Interface', 'Foo3Interface'),
                         'declaration' => 'class SingleClassMultipleFreespacing extends FooClass implements Foo1Interface, Foo2Interface, Foo3Interface'
@@ -116,12 +133,13 @@ final class FileHelper_PHPClassInfoTest extends TestCase
 
             foreach($classes as $class) 
             {
-                $name = $class->getName();
+                $name = $class->getNameNS();
                 
-                $this->assertTrue(isset($test['classes'][$name]), 'The name should exist in the array.');
+                $this->assertTrue(isset($test['classes'][$name]), 'The class name ['.$name.'] should exist in the array.');
                 
                 $def = $test['classes'][$name];
                 
+                $this->assertEquals($def['name'], $class->getName(), $test['label']);
                 $this->assertEquals($def['extends'], $class->getExtends(), $test['label']);
                 $this->assertEquals($def['implements'], $class->getImplements(), $test['label']);
                 $this->assertEquals($def['declaration'], $class->getDeclaration(), $test['label']);
