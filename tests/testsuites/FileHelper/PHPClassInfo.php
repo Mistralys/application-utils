@@ -35,6 +35,11 @@ final class FileHelper_PHPClassInfoTest extends TestCase
     {
         $tests = array(
             array(
+                'label' => 'No classes in file',
+                'file' => 'no-classes',
+                'classes' => array(),
+            ),
+            array(
                 'label' => 'A single class',
                 'file' => 'single-class',
                 'classes' => array(
@@ -103,6 +108,30 @@ final class FileHelper_PHPClassInfoTest extends TestCase
                         'extends' => 'FooClass',
                         'implements' => array('Foo1Interface', 'Foo2Interface', 'Foo3Interface'),
                         'declaration' => 'class SingleClassMultipleFreespacing extends FooClass implements Foo1Interface, Foo2Interface, Foo3Interface'
+                    )
+                ),
+            ),
+            array(
+                'label' => 'Multiple classes',
+                'file' => 'multi-class',
+                'classes' => array(
+                    'MultiClassOne' => array(
+                        'name' => 'MultiClassOne',
+                        'extends' => '',
+                        'implements' => array(),
+                        'declaration' => 'class MultiClassOne'
+                    ),
+                    'MultiClassTwo' => array(
+                        'name' => 'MultiClassTwo',
+                        'extends' => 'FooClass',
+                        'implements' => array(),
+                        'declaration' => 'class MultiClassTwo extends FooClass'
+                    ),
+                    'MultiClassThree' => array(
+                        'name' => 'MultiClassThree',
+                        'extends' => 'MultiClassOne',
+                        'implements' => array('Foo1Interface', 'Foo2Interface'),
+                        'declaration' => 'class MultiClassThree extends MultiClassOne implements Foo1Interface, Foo2Interface'
                     )
                 ),
             )

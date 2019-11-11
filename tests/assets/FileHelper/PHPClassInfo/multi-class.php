@@ -10,7 +10,7 @@ class MultiClassTwo extends FooClass
     
 }
 
-class MultiClassThree extends MultiClassOne implements FooInterface, Foo2Interface
+class MultiClassThree extends MultiClassOne implements Foo1Interface, Foo2Interface
 {
     
 }
