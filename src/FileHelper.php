@@ -1391,4 +1391,17 @@ class FileHelper
         // return the line number we were able to reach + 1 (key is zero-based)
         return $number+1;
     }
+    
+   /**
+    * Parses the target file to detect any PHP classes contained
+    * within, and retrieve information on them. Does not use the 
+    * PHP reflection API.
+    * 
+    * @param string $filePath
+    * @return FileHelper_PHPClassInfo
+    */
+    public static function findPHPClasses(string $filePath) : FileHelper_PHPClassInfo
+    {
+        return new FileHelper_PHPClassInfo($filePath);
+    }
 }
