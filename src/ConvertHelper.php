@@ -1,7 +1,21 @@
 <?php
+/**
+ * File containing the {@link ConvertHelper} class.
+ * @package AppUtils;
+ * @subpackage ConvertHelper
+ */
 
 namespace AppUtils;
 
+/**
+ * Static conversion helper class: offers a number of utility methods
+ * to convert variable types, as well as specialized methods for working
+ * with specific types like dates.
+ * 
+ * @package AppUtils
+ * @subpackage ConvertHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class ConvertHelper
 {
     const ERROR_STRIPCONTROLCHARS_NOT_STRING = 23301;
@@ -1613,6 +1627,65 @@ class ConvertHelper
              $keep[$table[$name]] = $value;
         }
         
+        
+        return $keep;
+    }
+
+   /**
+    * Searches for needle in the specified string, and returns a list
+    * of all occurrences, including the matched string. The matched 
+    * string is useful when doing a case insensitive search, as it 
+    * shows the exact matched case of needle.
+    *   
+    * @param string $needle
+    * @param string $haystack
+    * @param bool $caseInsensitive
+    * @return ConvertHelper_StringMatch[]
+    */
+    public static function findString(string $needle, string $haystack, bool $caseInsensitive=false)
+    {
+        $function = 'mb_strpos';
+        if($caseInsensitive) {
+            $function = 'mb_stripos';
+        }
+        
+        $pos = 0;
+        $positions = array();
+        $length = mb_strlen($needle);
+        
+        while( ($pos = $function($haystack, $needle, $pos)) !== false) 
+        {
+            $match = mb_substr($haystack, $pos, $length);
+            $positions[] = new ConvertHelper_StringMatch($pos, $match);
+            $pos += $length;
+        }
+        
+        return $positions;
+    }
+    
+   /**
+    * Like explode, but trims all entries, and removes 
+    * empty entries from the resulting array.
+    * 
+    * @param string $delimiter
+    * @param string $string
+    * @return string[]
+    */
+    public static function explodeTrim(string $delimiter, string $string) : array
+    {
+        if(empty($string) || empty($delimiter)) {
+            return array();
+        }
+        
+        $tokens = explode($delimiter, $string);
+        $tokens = array_map('trim', $tokens);
+        
+        $keep = array();
+        foreach($tokens as $token) {
+            if($token !== '') {
+                $keep[] = $token;
+            }
+        }
         
         return $keep;
     }
