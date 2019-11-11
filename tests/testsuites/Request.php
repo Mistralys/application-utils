@@ -1084,6 +1084,27 @@ final class RequestTest extends TestCase
             $this->assertEquals($def['expected'], $value, $def['label']);
         }
     }
+
+    public function test_getAcceptHeaders()
+    {
+        // simulate the accept header string
+        $_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3';
+        
+        $headers = \AppUtils\Request::getAcceptHeaders();
+        
+        $this->assertEquals(
+            array(
+                'application/xml',
+                '*/*',
+                'text/html',
+                'application/xhtml+xml',
+                'image/webp',
+                'image/apng',
+                'application/signed-exchange'
+            ), 
+            $headers
+        );
+    }
     
     protected function setUniqueParam($value) : string
     {
