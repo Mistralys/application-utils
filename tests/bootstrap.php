@@ -15,3 +15,12 @@
 
     require_once TESTS_ROOT.'/../vendor/autoload.php';
     
+    /**
+     * Dummy test interfaces for the PHPClassInfo tests.
+     */
+    require_once TESTS_ROOT.'/classes/FooInterface.php';
+    
+    /**
+     * Dummy test classes for the PHPClassInfo tests.
+     */
+    require_once TESTS_ROOT.'/classes/FooClass.php';

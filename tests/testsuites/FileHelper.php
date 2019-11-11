@@ -15,7 +15,7 @@ final class FileHelperTest extends TestCase
             return;
         }
         
-        $this->assetsFolder = realpath(__DIR__.'/../assets/FileHelper');
+        $this->assetsFolder = realpath(TESTS_ROOT.'/assets/FileHelper');
         
         if($this->assetsFolder === false) {
             throw new Exception(
