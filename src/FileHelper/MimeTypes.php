@@ -41,6 +41,7 @@ class FileHelper_MimeTypes
         'css' => 'text/css',
         'csv' => 'text/csv',
         'dcr' => 'application/x-director',
+        'dds' => 'image/vnd-ms.dds',
         'der' => 'application/x-x509-ca-cert',
         'dir' => 'application/x-director',
         'dll' => 'application/x-msdownload',
