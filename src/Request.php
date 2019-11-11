@@ -258,21 +258,37 @@ class Request
         $accept = array();
         foreach (preg_split('/\s*,\s*/', $acceptHeader) as $i => $term) 
         {
-            $o = array();
-            $o['pos'] = $i;
-            $M = null;
-            if (preg_match('/^(\S+)\s*;\s*(?:q|level)=([0-9\.]+)/i', $term, $M)) {
-                $o['type'] = $M[1];
-                $o['quality'] = (double)$M[2];
-            } else {
-                $o['type'] = $term;
-                $o['quality'] = 1;
+            $entry = array(
+                'pos' => $i,
+                'params' => array(),
+                'quality' => 0,
+                'type' => null
+            );
+            
+            $matches = null;
+            if (preg_match('/^(\S+)\s*;(.*)/six', $term, $matches)) 
+            {
+                $entry['type'] = $matches[1];
+                
+                if(isset($matches[2]) && !empty($matches[2])) 
+                {
+                    $params = ConvertHelper::parseQueryString($matches[2]);
+                    $entry['params'] = $params;
+                     
+                    if(isset($params['q'])) {
+                        $entry['quality'] = (double)$params['q'];
+                    }
+                }
+            }
+            else
+            {
+                $entry['type'] = $term;
             }
             
-            $accept[] = $o;
+            $accept[] = $entry;
         }
         
-        usort($accept, array('Request', 'sortAcceptHeaders'));
+        usort($accept, array(Request::class, 'sortAcceptHeaders'));
         
         foreach ($accept as $a) {
             self::$acceptHeaders[] = $a['type'];
