@@ -396,4 +396,198 @@ final class ConvertHelperTest extends TestCase
             $this->assertEquals($def['expected'], $result, $def['label']);
         }
     }
+
+    public function test_findString()
+    {
+        $tests = array(
+            array(
+                'label' => 'No matches present',
+                'haystack' => '',
+                'needle' => 'foo',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'One match present',
+                'haystack' => 'We were walking, and a foo appeared just like that.',
+                'needle' => 'foo',
+                'expected' => array(
+                    array(
+                        'pos' => 23,
+                        'match' => 'foo'
+                    )
+                )
+            ),
+            array(
+                'label' => 'One match present, different case',
+                'haystack' => 'We were walking, and a Foo appeared just like that.',
+                'needle' => 'foo',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'One match present, different case, case insensitive',
+                'haystack' => 'We were walking, and a Foo appeared just like that.',
+                'needle' => 'foo',
+                'caseInsensitive' => true,
+                'expected' => array(
+                    array(
+                        'pos' => 23,
+                        'match' => 'Foo'
+                    )
+                )
+            ),
+            array(
+                'label' => 'Several matches',
+                'haystack' => 'We were walking, and a foo with another foo ran by, whith a foo trailing behind.',
+                'needle' => 'foo',
+                'expected' => array(
+                    array(
+                        'pos' => 23,
+                        'match' => 'foo'
+                    ),
+                    array(
+                        'pos' => 40,
+                        'match' => 'foo'
+                    ),
+                    array(
+                        'pos' => 60,
+                        'match' => 'foo'
+                    )
+                )
+            ),
+            array(
+                'label' => 'Several matches, different cases',
+                'haystack' => 'We were walking, and a foo with another Foo ran by, whith a fOo trailing behind.',
+                'needle' => 'foo',
+                'expected' => array(
+                    array(
+                        'pos' => 23,
+                        'match' => 'foo'
+                    )
+                )
+            ),
+            array(
+                'label' => 'Several matches, different cases, case insensitive',
+                'haystack' => 'We were walking, and a foo with another Foo ran by, whith a fOo trailing behind.',
+                'needle' => 'foo',
+                'caseInsensitive' => true,
+                'expected' => array(
+                    array(
+                        'pos' => 23,
+                        'match' => 'foo'
+                    ),
+                    array(
+                        'pos' => 40,
+                        'match' => 'Foo'
+                    ),
+                    array(
+                        'pos' => 60,
+                        'match' => 'fOo'
+                    )
+                )
+            ),
+            array(
+                'label' => 'One match using unicode characters',
+                'haystack' => 'And a föö.',
+                'needle' => 'föö',
+                'expected' => array(
+                    array(
+                        'pos' => 6,
+                        'match' => 'föö'
+                    )
+                )
+            ),
+            array(
+                'label' => 'One match with a newline',
+                'haystack' => 'And a\n foo.',
+                'needle' => 'foo',
+                'expected' => array(
+                    array(
+                        'pos' => 8,
+                        'match' => 'foo'
+                    )
+                )
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $caseInsensitive = false;
+            if(isset($test['caseInsensitive'])) {
+                $caseInsensitive = $test['caseInsensitive'];
+            }
+            
+            $matches = ConvertHelper::findString($test['needle'], $test['haystack'], $caseInsensitive);
+            
+            $this->assertEquals(count($test['expected']), count($matches), 'Amount of matches should match.');
+            
+            foreach($matches as $idx => $match)
+            {
+                $testMatch = $test['expected'][$idx];
+                
+                $this->assertEquals($testMatch['pos'], $match->getPosition(), 'The position of needle should match.');
+                $this->assertEquals($testMatch['match'], $match->getMatchedString(), 'The matched string should match.');
+            }
+        }
+    }
+    
+    public function test_explodeTrim()
+    {
+        $tests = array(
+            array(
+                'label' => 'Empty string value',
+                'delimiter' => ',',
+                'string' => '',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Empty delimiter',
+                'delimiter' => '',
+                'string' => 'Some text here',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Comma delimiter, no spaces',
+                'delimiter' => ',',
+                'string' => 'foo,bar',
+                'expected' => array(
+                    'foo',
+                    'bar'
+                )
+            ),
+            array(
+                'label' => 'Comma delimiter, with spaces',
+                'delimiter' => ',',
+                'string' => '  foo  ,  bar   ',
+                'expected' => array(
+                    'foo',
+                    'bar'
+                )
+            ),
+            array(
+                'label' => 'Comma delimiter, with newlines',
+                'delimiter' => ',',
+                'string' => "  foo  \n,\n  bar\n   ",
+                'expected' => array(
+                    'foo',
+                    'bar'
+                )
+            ),
+            array(
+                'label' => 'Comma delimiter, empty entries',
+                'delimiter' => ',',
+                'string' => ',foo,,bar,',
+                'expected' => array(
+                    'foo',
+                    'bar'
+                )
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::explodeTrim($test['delimiter'], $test['string']);
+            
+             $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
 }
