@@ -789,7 +789,7 @@ class ConvertHelper
         return FileHelper::removeExtension($filename);
     }
     
-    public static function areVariablesEqual($a, $b)
+    public static function areVariablesEqual($a, $b) : bool
     {
         $a = self::convertScalarForComparison($a);
         $b = self::convertScalarForComparison($b);
@@ -830,7 +830,7 @@ class ConvertHelper
      * @param string $b
      * @return boolean
      */
-    public static function areStringsEqual($a, $b)
+    public static function areStringsEqual($a, $b) : bool
     {
         return self::areVariablesEqual($a, $b);
     }
@@ -843,7 +843,7 @@ class ConvertHelper
      * @param number $b
      * @return boolean
      */
-    public static function areNumbersEqual($a, $b)
+    public static function areNumbersEqual($a, $b) : bool
     {
         return self::areVariablesEqual($a, $b);
     }
