@@ -154,7 +154,7 @@ class FileHelper_PHPClassInfo
         }
         
         $result = array();
-        preg_match_all('/(abstract|final)[\s]+class[\s]+([^{]+){|class[\s]+([^{]+){/six', $code, $result, PREG_PATTERN_ORDER);
+        preg_match_all('/(abstract|final)[\s]+class[\s]+([\sa-z0-9\\\\_,]+){|class[\s]+([\sa-z0-9\\\\_,]+){/six', $code, $result, PREG_PATTERN_ORDER);
 
         if(!isset($result[0]) || !isset($result[0][0])) {
             return;
