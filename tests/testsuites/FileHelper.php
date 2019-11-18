@@ -9,9 +9,23 @@ final class FileHelperTest extends TestCase
 {
     protected $assetsFolder;
     
+    protected $deleteFiles = array(
+        'savetest.txt'
+    );
+    
     protected function setUp() : void
     {
-        if(isset($this->assetsFolder)) {
+        if(isset($this->assetsFolder)) 
+        {
+            // remove any test files from the last test
+            foreach($this->deleteFiles as $fileName) 
+            {
+                $path = $this->assetsFolder.'/'.$fileName;
+                if(file_exists($path)) {
+                    $this->assertTrue(unlink($this->assetsFolder.'/savetest.txt'), 'Cannot remove test file.');
+                }
+            }
+            
             return;
         }
         
@@ -624,5 +638,23 @@ final class FileHelperTest extends TestCase
         $result = FileHelper::countFileLines($file);
         
         $this->assertEquals(1, $result, 'Should be a single line in the file.');
+    }
+    
+    public function test_saveFile()
+    {
+         $file = $this->assetsFolder.'/savetest.txt';
+         
+         FileHelper::saveFile($file, 'Hoho');
+         
+         $this->assertEquals('Hoho', file_get_contents($file));
+    }
+
+    public function test_saveFile_empty()
+    {
+        $file = $this->assetsFolder.'/savetest.txt';
+        
+        FileHelper::saveFile($file);
+        
+        $this->assertEquals('', file_get_contents($file));
     }
 }
