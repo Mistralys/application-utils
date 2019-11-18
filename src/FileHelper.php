@@ -952,7 +952,7 @@ class FileHelper
             }
         }
         
-        if(file_put_contents($filePath, $content)) {
+        if(file_put_contents($filePath, $content) !== false) {
             return;
         }
         
