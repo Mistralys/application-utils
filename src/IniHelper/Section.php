@@ -88,7 +88,7 @@ class IniHelper_Section
             $lines[] = $line->toString();
         }
         
-        return implode(PHP_EOL, $lines);
+        return implode("\n", $lines);
     }
     
     public function createValueLine(string $name, $value) : IniHelper_Line
