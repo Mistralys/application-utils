@@ -912,7 +912,6 @@ class FileHelper
     * @see FileHelper::ERROR_SAVE_FOLDER_NOT_WRITABLE
     * @see FileHelper::ERROR_SAVE_FILE_NOT_WRITABLE
     * @see FileHelper::ERROR_SAVE_FILE_WRITE_FAILED
-    * @see FileHelper::ERROR_CANNOT_CREATE_FOLDER
     */
     public static function saveFile(string $filePath, string $content='') : void
     {
