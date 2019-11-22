@@ -141,14 +141,14 @@ class IniHelper
     */
     public function saveToString() : string
     {
-        $string = '';
+        $parts = array();
         
         foreach($this->sections as $section)
         {
-            $string .= $section->toString();
+            $parts[] = $section->toString();
         }
         
-        return $string;
+        return implode("\n", $parts);
     }
     
     public function setValue(string $path, $value) : IniHelper
