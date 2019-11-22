@@ -182,7 +182,7 @@ class IniHelper_Line
     
     public function setValue($value) : IniHelper_Line
     {
-        $this->parseValue($value);
+        $this->parseValue((string)$value);
         return $this;
     }
     
