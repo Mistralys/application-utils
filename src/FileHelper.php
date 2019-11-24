@@ -54,6 +54,8 @@ class FileHelper
     
     const ERROR_FILE_DOES_NOT_EXIST = 340026;
     
+    const ERROR_CANNOT_OPEN_FILE_TO_READ_LINES = 340027;
+    
    /**
     * Opens a serialized file and returns the unserialized data.
     * 
@@ -1302,13 +1304,15 @@ class FileHelper
     * @param string $path
     * @param int|NULL $errorCode Optional custom error code
     * @throws FileHelper_Exception
+    * @return string The real path to the file
     * 
     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
     */
-    public static function requireFileExists(string $path, $errorCode=null)
+    public static function requireFileExists(string $path, $errorCode=null) : string
     {
-        if(file_exists($path)) {
-            return;
+        $result = realpath($path);
+        if($result !== false) {
+            return $result;
         }
         
         if($errorCode === null) {
@@ -1402,5 +1406,86 @@ class FileHelper
     public static function findPHPClasses(string $filePath) : FileHelper_PHPClassInfo
     {
         return new FileHelper_PHPClassInfo($filePath);
+    }
+    
+   /**
+    * Detects the end of line style used in the target file, if any.
+    * Can be used with large files, because it only reads part of it.
+    * 
+    * @param string $filePath The path to the file.
+    * @return NULL|ConvertHelper_EOL The end of line character information, or NULL if none is found.
+    */
+    public static function detectEOLCharacter(string $filePath) : ?ConvertHelper_EOL
+    {
+        // 20 lines is enough to get a good picture of the newline style in the file.
+        $amount = 20;
+        
+        $lines = self::readLines($filePath, $amount);
+        
+        $string = implode('', $lines);
+        
+        return ConvertHelper::detectEOLCharacter($string);
+    }
+    
+   /**
+    * Reads the specified amount of lines from the target file.
+    * Unicode BOM compatible: any byte order marker is stripped
+    * from the resulting lines.
+    * 
+    * @param string $filePath
+    * @param int $amount
+    * @return array
+    * 
+    * @see FileHelper::ERROR_CANNOT_OPEN_FILE_TO_READ_LINES
+    * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
+    */
+    public static function readLines(string $filePath, int $amount) : array
+    {
+        self::requireFileExists($filePath);
+        
+        $fn = fopen($filePath, "r");
+        
+        if($fn === false) 
+        {
+            throw new FileHelper_Exception(
+                'Could not open file for reading.',
+                sprintf(
+                    'Tried accessing file at [%s].',
+                    $filePath
+                ),
+                self::ERROR_CANNOT_OPEN_FILE_TO_READ_LINES
+            );
+        }
+        
+        $result = array();
+        $counter = 0;
+        $first = true;
+        
+        while(!feof($fn)) 
+        {
+            $counter++;
+            
+            $line = fgets($fn);
+            
+            // can happen with zero length files
+            if($line === false) {
+                continue;
+            }
+            
+            // the first line may contain a unicode BOM marker.
+            if($first) {
+                $line = ConvertHelper::stripUTFBom($line);
+            }
+            
+            $result[] = $line;
+            
+            if($counter == $amount) {
+                break;
+            }
+        }
+        
+        fclose($fn);
+        
+        return $result;
     }
 }
