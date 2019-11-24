@@ -274,13 +274,13 @@ class IniHelper
         {
             return array(
                 'section' => self::SECTION_DEFAULT,
-                'name' => array_pop($path)
+                'name' => trim(array_pop($path))
             );
         }
 
         return array(
-            'section' => array_shift($path),
-            'name' => array_pop($path)
+            'section' => trim(array_shift($path)),
+            'name' => trim(array_pop($path))
         );
     }
 }
