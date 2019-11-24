@@ -84,7 +84,7 @@ class IniHelper_Line
             return;
         }
         
-        $startChar = substr($text, 0, 1);
+        $startChar = substr($this->trimmed, 0, 1);
         
         if($startChar === ';')
         {
@@ -94,6 +94,7 @@ class IniHelper_Line
         {
             $this->type = self::TYPE_SECTION_DECLARATION;
             $this->sectionName = trim($this->trimmed, '[]');
+            $this->sectionName = trim($this->sectionName); // remove any whitespace
         }
         else
         {
