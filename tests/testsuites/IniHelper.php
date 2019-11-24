@@ -4,6 +4,7 @@ use PHPUnit\Framework\TestCase;
 
 use AppUtils\IniHelper;
 use AppUtils\IniHelper_Exception;
+use AppUtils\IniHelper_Section;
 
 final class IniHelperTest extends TestCase
 {
@@ -264,5 +265,27 @@ foo=bar";
         );
         
         $this->assertEquals($expected, $ini->toArray());
+    }
+    
+    public function test_getSection_dynamic()
+    {
+        $ini = IniHelper::createNew();
+        
+        $this->assertNull($ini->getSection('section'));
+        
+        $ini->setValue('section.foo', 'bar');
+        
+        $this->assertInstanceOf(IniHelper_Section::class, $ini->getSection('section'));
+    }
+    
+    public function test_getSection_iniString()
+    {
+        $iniContent =
+"[section]
+foo=bar";
+        
+        $ini = IniHelper::createFromString($iniContent);
+        
+        $this->assertInstanceOf(IniHelper_Section::class, $ini->getSection('section'));
     }
 }
