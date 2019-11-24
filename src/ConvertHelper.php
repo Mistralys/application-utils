@@ -1,7 +1,7 @@
 <?php
 /**
  * File containing the {@link ConvertHelper} class.
- * @package AppUtils;
+ * @package AppUtils
  * @subpackage ConvertHelper
  */
 
@@ -1688,5 +1688,69 @@ class ConvertHelper
         }
         
         return $keep;
+    }
+    
+    protected static $eolChars;
+
+   /**
+    * Detects the most used end-of-line character in the subject string.
+    * 
+    * @param string $str The string to check.
+    * @return NULL|ConvertHelper_EOL The detected EOL instance, or NULL if none has been detected.
+    */
+    public static function detectEOLCharacter(string $subjectString) : ?ConvertHelper_EOL
+    {
+        if(empty($subjectString)) {
+            return null;
+        }
+        
+        if(!isset(self::$eolChars))
+        {
+           self::$eolChars = array(
+               array(
+                   'char' => chr(hexdec('0d')).chr(hexdec('0a')),
+                   'type' => ConvertHelper_EOL::TYPE_CRLF,
+                   'description' => t('Carriage return followed by a line feed'),
+               ),
+               array(
+                   'char' => chr(hexdec('0a')).chr(hexdec('0d')),
+                   'type' => ConvertHelper_EOL::TYPE_LFCR,
+                   'description' => t('Line feed followed by a carriage return'),
+               ),
+               array(
+                  'char' => chr(hexdec('0a')),
+                  'type' => ConvertHelper_EOL::TYPE_LF,
+                  'description' => t('Line feed'),
+               ),
+               array(
+                  'char' => chr(hexdec('0d')),
+                  'type' => ConvertHelper_EOL::TYPE_CR,
+                  'description' => t('Carriage Return'),
+               ),
+            );
+        }
+        
+        $max = 0;
+        $result = null;
+        foreach(self::$eolChars as $def) 
+        {
+            $amount = substr_count($subjectString, $def['char']);
+            
+            if($amount > $max)
+            {
+                $max = $amount;
+                $result = $def;
+            }
+        }
+        
+        if($result === null) {
+            return null;
+        }
+        
+        return new ConvertHelper_EOL(
+            $result['char'], 
+            $result['type'],
+            $result['description']
+        );
     }
 }
