@@ -1,26 +1,50 @@
 <?php
+/**
+ * File containing the {@link IniHelper} class.
+ * @package AppUtils
+ * @subpackage IniHelper
+ * @see IniHelper
+ */
 
 declare(strict_types=1);
 
 namespace AppUtils;
 
+/**
+ * INI file reader and editor. Supports duplicate keys like
+ * in the php.ini (list of extensions), and preserves the
+ * formatting of the original file (including comments).
+ * 
+ * @package AppUtils
+ * @subpackage IniHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class IniHelper
 {
     const SECTION_DEFAULT = '__inihelper_section_default';
-    
-    const ERROR_TARGET_FILE_NOT_FOUND = 41801;
     
     const ERROR_TARGET_FILE_NOT_READABLE = 41802;
     
     protected $sections = array();
     
-    function __construct(string $iniString)
+    protected $eol = "\n";
+    
+    protected function __construct(string $iniString)
     {
-        $lines = explode("\n", $iniString);
+        $section = $this->addSection(self::SECTION_DEFAULT);
+        
+        if(empty($iniString)) {
+            return;
+        }
+        
+        $eol = ConvertHelper::detectEOLCharacter($iniString);
+        if($eol !== null) {
+            $this->eol = $eol->getCharacter();
+        }
+        
+        $lines = explode($this->eol, $iniString);
         
         $total = count($lines);
-        
-        $section = $this->addSection(self::SECTION_DEFAULT);
         
         for($i=0; $i < $total; $i++) 
         {
@@ -34,20 +58,26 @@ class IniHelper
         }
     }
     
-    public static function fromFile(string $iniPath)
+   /**
+    * The end of line character used in the INI source string.
+    * @return string
+    */
+    public function getEOLChar() : string
     {
-        $path = realpath($iniPath);
-        if($path === false) 
-        {
-            throw new IniHelper_Exception(
-                'Source ini file not found',
-                sprintf(
-                    'Tried to find the file at [%s].',
-                    $iniPath
-                ),
-                self::ERROR_TARGET_FILE_NOT_FOUND
-            );
-        }
+        return $this->eol;
+    }
+    
+   /**
+    * Factory method: creates a new helper instance loading the
+    * ini content from the specified file.
+    * 
+    * @param string $iniPath
+    * @throws IniHelper_Exception
+    * @return \AppUtils\IniHelper
+    */
+    public static function createFromFile(string $iniPath)
+    {
+        $iniPath = FileHelper::requireFileExists($iniPath);
         
         $content = file_get_contents($iniPath);
         if($content !== false) {
@@ -65,14 +95,24 @@ class IniHelper
     }
     
    /**
-    * Creates a new ini helper instance from an ini string.
+    * Factory method: Creates a new ini helper instance from an ini string.
     * 
     * @param string $iniContent
     * @return \AppUtils\IniHelper
     */
-    public static function fromString(string $iniContent)
+    public static function createFromString(string $iniContent)
     {
         return new IniHelper($iniContent);
+    }
+    
+   /**
+    * Factory method: Creates a new empty ini helper.
+    *  
+    * @return \AppUtils\IniHelper
+    */
+    public static function createNew()
+    {
+        return self::createFromString('');
     }
     
    /**
@@ -86,7 +126,7 @@ class IniHelper
     public function addSection(string $name) : IniHelper_Section
     {
         if(!isset($this->sections[$name])) {
-            $this->sections[$name] = new IniHelper_Section($name);
+            $this->sections[$name] = new IniHelper_Section($this, $name);
         }
         
         return $this->sections[$name];
@@ -148,34 +188,84 @@ class IniHelper
             $parts[] = $section->toString();
         }
         
-        return implode("\n", $parts);
+        return implode($this->eol, $parts);
     }
     
+   /**
+    * Sets or adds the value of a setting in the INI content.
+    * If the setting does not exist, it is added. Otherwise,
+    * the existing value is overwritten.
+    * 
+    * @param string $path A variable path, either <code>varname</code> or <code>section.varname</code>.
+    * @param mixed $value
+    * @return IniHelper
+    */
     public function setValue(string $path, $value) : IniHelper
     {
-        $path = explode('.', $path);
-        $name = '';
+        $path = $this->parsePath($path);
+       
+        $this->addSection($path['section'])->setValue($path['name'], $value);
+    
+        return $this;
+    }
+    
+    public function addValue(string $path, $value) : IniHelper
+    {
+        $path = $this->parsePath($path);
         
-        if(count($path) === 1) 
-        {
-            $section = $this->getDefaultSection();
-            $name = array_pop($path);
-        }
-        else 
-        {
-            $sectionName = array_shift($path);
-            $name = array_pop($path);
-            
-            $section = $this->addSection($sectionName);
-        }
-        
-        $section->setValue($name, $value);
+        $this->addSection($path['section'])->addValue($path['name'], $value);
         
         return $this;
+    }
+    
+    public function sectionExists(string $name)
+    {
+        foreach($this->sections as $section) {
+            if($section->getName() === $name) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     public function getDefaultSection() : IniHelper_Section
     {
         return $this->addSection(self::SECTION_DEFAULT);
+    }
+    
+   /**
+    * Retrieves all variable lines for the specified path.
+    * 
+    * @param string $path A variable path. Either <code>varname</code> or <code>section.varname</code>.
+    * @return array|\AppUtils\IniHelper_Line[]
+    */
+    public function getLinesByVariable(string $path)
+    {
+        $path = $this->parsePath($path);
+        
+        if(!$this->sectionExists($path['section'])) {
+            return array();
+        }
+        
+        return $this->addSection($path['section'])->getLinesByVariable($path['name']);
+    }
+    
+    protected function parsePath(string $path) : array
+    {
+        $path = explode('.', $path);
+        
+        if(count($path) === 1)
+        {
+            return array(
+                'section' => self::SECTION_DEFAULT,
+                'name' => array_pop($path)
+            );
+        }
+
+        return array(
+            'section' => array_shift($path),
+            'name' => array_pop($path)
+        );
     }
 }

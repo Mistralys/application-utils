@@ -1,4 +1,10 @@
 <?php
+/**
+ * File containing the {@link IniHelper_Exception} class.
+ * @package AppUtils
+ * @subpackage IniHelper
+ * @see IniHelper_Exception
+ */
 
 namespace AppUtils;
 

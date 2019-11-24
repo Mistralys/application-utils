@@ -1,9 +1,22 @@
 <?php
+/**
+ * File containing the {@link IniHelper_Line} class.
+ * @package AppUtils
+ * @subpackage IniHelper
+ * @see IniHelper_Line
+ */
 
 declare(strict_types=1);
 
 namespace AppUtils;
 
+/**
+ * Single INI line container.
+ *
+ * @package AppUtils
+ * @subpackage IniHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class IniHelper_Line
 {
     const TYPE_SECTION_DECLARATION = 'section';
@@ -17,6 +30,8 @@ class IniHelper_Line
     const TYPE_VALUE = 'value';
     
     const ERROR_UNHANDLED_LINE_TYPE = 41901;
+    
+    const ERROR_NON_SCALAR_VALUE = 41902;
     
     /**
      * @var string
@@ -182,7 +197,21 @@ class IniHelper_Line
     
     public function setValue($value) : IniHelper_Line
     {
+        if(!is_scalar($value)) 
+        {
+            throw new IniHelper_Exception(
+                'Cannot use non-scalar values.',
+                sprintf(
+                    'Tried setting the value of [%s] to [%s]',
+                    $this->getVarName(),
+                    parseVariable($value)->toString()
+                ),
+                self::ERROR_NON_SCALAR_VALUE
+            );
+        }
+        
         $this->parseValue((string)$value);
+        
         return $this;
     }
     
