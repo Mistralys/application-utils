@@ -702,6 +702,7 @@ final class FileHelperTest extends TestCase
             array(
                 'label' => 'CRLF',
                 'file' => 'eol-crlf.txt',
+                'char' => "\r\n",
                 'type' => ConvertHelper_EOL::TYPE_CRLF,
                 'isCRLF' => true,
                 'isLF' => false,
@@ -710,6 +711,7 @@ final class FileHelperTest extends TestCase
             array(
                 'label' => 'LF',
                 'file' => 'eol-lf.txt',
+                'char' => "\n",
                 'type' => ConvertHelper_EOL::TYPE_LF,
                 'isCRLF' => false,
                 'isLF' => true,
@@ -718,6 +720,7 @@ final class FileHelperTest extends TestCase
             array(
                 'label' => 'CR',
                 'file' => 'eol-cr.txt',
+                'char' => "\r",
                 'type' => ConvertHelper_EOL::TYPE_CR,
                 'isCRLF' => false,
                 'isLF' => false,
@@ -728,6 +731,8 @@ final class FileHelperTest extends TestCase
         foreach($tests as $test)
         {
             $file = $this->assetsFolder.'/'.$test['file'];
+            
+            FileHelper::saveFile($file, str_repeat($test['char'], 10));
         
             $result = FileHelper::detectEOLCharacter($file);
             
