@@ -20,6 +20,7 @@ Simply require the package via composer:
 * CSVHelper: read and generate CSV files.
 * [FileHelper](https://github.com/Mistralys/application-utils/wiki/FileHelper): file system utility methods and file finder.
 * ImageHelper: image manipulation using native GD functions with alpha support.
+* [IniHelper](https://github.com/Mistralys/application-utils/wiki/IniHelper): INI file reader and editor.
 * NumberInfo: access and modify numbers with or without units.
 * PaginationHelper: calculates all required numbers for a pagination widget.
 * RegexHelper: collection of typical validation Regexes.
