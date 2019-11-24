@@ -29,6 +29,8 @@ class IniHelper
     
     protected $eol = "\n";
     
+    protected $pathSeparator = '/';
+    
     protected function __construct(string $iniString)
     {
         $section = $this->addSection(self::SECTION_DEFAULT);
@@ -268,7 +270,7 @@ class IniHelper
     
     protected function parsePath(string $path) : array
     {
-        $path = explode('.', $path);
+        $path = explode($this->pathSeparator, $path);
         
         if(count($path) === 1)
         {
