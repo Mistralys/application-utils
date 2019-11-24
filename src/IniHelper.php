@@ -133,6 +133,21 @@ class IniHelper
     }
     
    /**
+    * Retrieves a section by its name, if it exists.
+    * 
+    * @param string $name
+    * @return IniHelper_Section|NULL
+    */
+    public function getSection(string $name) : ?IniHelper_Section
+    {
+        if(isset($this->sections[$name])) {
+            return $this->sections[$name];
+        }
+        
+        return null;
+    }
+    
+   /**
     * Gets the data from the INI file as an associative array.
     * 
     * @return array
