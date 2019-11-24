@@ -288,4 +288,76 @@ foo=bar";
         
         $this->assertInstanceOf(IniHelper_Section::class, $ini->getSection('section'));
     }
+    
+    public function test_setValue_quoted_double()
+    {
+        $ini = IniHelper::createNew();
+        
+        $ini->setValue('foo', '"    bar    "');
+        
+        $expected = array(
+            'foo' => '    bar    '
+        );
+        
+        $this->assertEquals($expected, $ini->toArray());
+    }
+
+    public function test_setValue_quoted_single()
+    {
+        $ini = IniHelper::createNew();
+        
+        $ini->setValue('foo', "'    bar    '");
+        
+        $expected = array(
+            'foo' => '    bar    '
+        );
+        
+        $this->assertEquals($expected, $ini->toArray());
+    }
+    
+    public function test_sectionName_trim()
+    {
+        $ini = IniHelper::createNew();
+        
+        $ini->setValue('   foo   ', 'bar');
+        
+        $expected = array(
+            'foo' => 'bar'
+        );
+        
+        $this->assertEquals($expected, $ini->toArray());
+    }
+    
+    public function test_sectionName_trimIniString()
+    {
+        $iniContent =
+"   [   section   ]   
+foo=bar";
+        
+        $ini = IniHelper::createFromString($iniContent);
+        
+        $expected = array(
+            'section' => array(
+                'foo' => 'bar'
+            )
+        );
+        
+        $this->assertEquals($expected, $ini->toArray());
+    }
+    
+    public function test_sectionName_trimValues()
+    {
+        $iniContent =
+"    foo    =    bar     
+    bar = foo";
+        
+        $ini = IniHelper::createFromString($iniContent);
+        
+        $expected = array(
+            'foo' => 'bar',
+            'bar' => 'foo'
+        );
+        
+        $this->assertEquals($expected, $ini->toArray());
+    }
 }
