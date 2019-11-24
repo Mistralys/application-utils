@@ -1731,7 +1731,7 @@ class ConvertHelper
         }
         
         $max = 0;
-        $result = null;
+        $results = array();
         foreach(self::$eolChars as $def) 
         {
             $amount = substr_count($subjectString, $def['char']);
@@ -1739,18 +1739,18 @@ class ConvertHelper
             if($amount > $max)
             {
                 $max = $amount;
-                $result = $def;
+                $results[] = $def;
             }
         }
         
-        if($result === null) {
+        if(empty($results)) {
             return null;
         }
         
         return new ConvertHelper_EOL(
-            $result['char'], 
-            $result['type'],
-            $result['description']
+            $results[0]['char'], 
+            $results[0]['type'],
+            $results[0]['description']
         );
     }
 }
