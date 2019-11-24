@@ -81,7 +81,7 @@ class IniHelper
         
         $content = file_get_contents($iniPath);
         if($content !== false) {
-            return self::fromString($content);
+            return self::createFromString($content);
         }
         
         throw new IniHelper_Exception(
