@@ -4,6 +4,7 @@ use PHPUnit\Framework\TestCase;
 
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
+use AppUtils\ConvertHelper_EOL;
 
 final class FileHelperTest extends TestCase
 {
@@ -656,5 +657,87 @@ final class FileHelperTest extends TestCase
         FileHelper::saveFile($file);
         
         $this->assertEquals('', file_get_contents($file));
+    }
+    
+    public function test_readLines()
+    {
+        $file = $this->assetsFolder.'/line-seeking.txt';
+        
+        $lines = FileHelper::readLines($file, 5);
+        $lines = array_map('trim', $lines); // to make the comparison easier
+        
+        $this->assertEquals($lines, array('1', '2', '3', '4', '5'));
+    }
+    
+    public function test_readLines_emptyFile()
+    {
+        $file = $this->assetsFolder.'/zero-length.txt';
+        
+        $lines = FileHelper::readLines($file, 5);
+        
+        $this->assertEquals($lines, array());
+    }
+    
+    public function test_readLines_bomFile()
+    {
+        $file = $this->assetsFolder.'/bom-utf8.txt';
+        
+        $lines = FileHelper::readLines($file, 5);
+        
+        $this->assertEquals($lines, array('Test text.'));
+    }
+    
+    public function test_readLines_fileNotExists()
+    {
+        $file = $this->assetsFolder.'/unknown-file.txt';
+        
+        $this->expectException(FileHelper_Exception::class);
+        
+        $lines = FileHelper::readLines($file, 5);
+    }
+    
+    public function test_detectEOL()
+    {
+        $tests = array(
+            array(
+                'label' => 'CRLF',
+                'file' => 'eol-crlf.txt',
+                'type' => ConvertHelper_EOL::TYPE_CRLF,
+                'isCRLF' => true,
+                'isLF' => false,
+                'isCR' => false
+            ),
+            array(
+                'label' => 'LF',
+                'file' => 'eol-lf.txt',
+                'type' => ConvertHelper_EOL::TYPE_LF,
+                'isCRLF' => false,
+                'isLF' => true,
+                'isCR' => false
+            ),
+            array(
+                'label' => 'CR',
+                'file' => 'eol-cr.txt',
+                'type' => ConvertHelper_EOL::TYPE_CR,
+                'isCRLF' => false,
+                'isLF' => false,
+                'isCR' => true
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $file = $this->assetsFolder.'/'.$test['file'];
+        
+            $result = FileHelper::detectEOLCharacter($file);
+            
+            $label = $test['label'].' in file '.$test['file'];
+            
+            $this->assertInstanceof(\AppUtils\ConvertHelper_EOL::class, $result, $label);
+            $this->assertEquals($test['type'], $result->getType(), $label);
+            $this->assertEquals($test['isCRLF'], $result->isCRLF(), $label);
+            $this->assertEquals($test['isCR'], $result->isCR(), $label);
+            $this->assertEquals($test['isLF'], $result->isLF(), $label);
+        }
     }
 }
