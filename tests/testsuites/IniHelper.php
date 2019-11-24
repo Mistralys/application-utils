@@ -142,7 +142,7 @@ bar=foo';
         "foo=bar";
         
         $parse = IniHelper::createFromString($iniString);
-        $parse->setValue('section.bar', 'foo');
+        $parse->setValue('section/bar', 'foo');
         $result = $parse->toArray();
         
         $expected = array(
@@ -163,7 +163,7 @@ bar=foo';
 bar=foo";
         
         $parse = IniHelper::createFromString($iniString);
-        $parse->setValue('section.bar', 'foobar');
+        $parse->setValue('section/bar', 'foobar');
         $result = $parse->toArray();
         
         $expected = array(
@@ -273,7 +273,7 @@ foo=bar";
         
         $this->assertNull($ini->getSection('section'));
         
-        $ini->setValue('section.foo', 'bar');
+        $ini->setValue('section/foo', 'bar');
         
         $this->assertInstanceOf(IniHelper_Section::class, $ini->getSection('section'));
     }
@@ -356,6 +356,58 @@ foo=bar";
         $expected = array(
             'foo' => 'bar',
             'bar' => 'foo'
+        );
+        
+        $this->assertEquals($expected, $ini->toArray());
+    }
+    
+    public function test_sectionName_dots_iniString()
+    {
+        $iniContent =
+"foo.bar=foobar
+[section]
+foo.bar.bar=foobar";
+        
+        $ini = IniHelper::createFromString($iniContent);
+        
+        $expected = array(
+            'foo.bar' => 'foobar',
+            'section' => array(
+                'foo.bar.bar' => 'foobar'
+            )
+        );
+        
+        $this->assertEquals($expected, $ini->toArray());
+    }
+
+    public function test_sectionName_dots_dynamic()
+    {
+        $ini = IniHelper::createNew();
+        
+        $ini->setValue('foo.bar', 'foobar');
+        
+        $ini->setValue('section/foo.bar.bar', 'foobar');
+        
+        $expected = array(
+            'foo.bar' => 'foobar',
+            'section' => array(
+                'foo.bar.bar' => 'foobar'
+            )
+        );
+        
+        $this->assertEquals($expected, $ini->toArray());
+    }
+    
+    public function test_sectionName_withDots()
+    {
+        $ini = IniHelper::createNew();
+        
+        $ini->setValue('section.with.dots/foo', 'bar');
+        
+        $expected = array(
+            'section.with.dots' => array(
+                'foo' => 'bar'
+            )
         );
         
         $this->assertEquals($expected, $ini->toArray());
