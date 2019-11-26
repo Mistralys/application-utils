@@ -1,8 +1,13 @@
 <?php
 /**
- * File containing the Transliteration class.
+ * File containing the {@link Transliteration} class.
+ * 
+ * @package Application Utils
+ * @subpackage Transliteration
  * @see Transliteration
  */
+
+declare(strict_types=1);
 
 namespace AppUtils;
 
@@ -12,20 +17,25 @@ namespace AppUtils;
  * as possible. Characters are replaced by their ascci equivalents
  * with the closest visual representation.
  *
+ * @package Application Utils
+ * @subpackage Transliteration
  * @author Sebastian Mordziol <s.mordziol@gmail.com>
- * @license LGPL http://www.gnu.org/licenses/lgpl.html
- * @version 1.5
  */
-class Transliteration
+class Transliteration implements Interface_Optionable
 {
+    use Traits_Optionable;
+    
     /**
      * Transliteration options
      * @var array
      */
-    protected $options = array(
-        'space' => '_',
-        'lowercase' => false
-    );
+    public function getDefaultOptions() : array
+    {
+        return array(
+            'space' => '_',
+            'lowercase' => false
+        );
+    }
 
     public function __construct()
     {
@@ -39,9 +49,9 @@ class Transliteration
      * @param string $char
      * @return Transliteration
      */
-    public function setSpaceReplacement($char)
+    public function setSpaceReplacement(string $char) : Transliteration
     {
-        $this->options['space'] = $char;
+        $this->setOption('space', $char);
 
         return $this;
     }
@@ -50,9 +60,9 @@ class Transliteration
      * The converted string will be all lowercase.
      * @return Transliteration
      */
-    public function setLowercase()
+    public function setLowercase(bool $lowercase=true) : Transliteration
     {
-        $this->options['lowercase'] = true;
+        $this->setOption('lowercase', true);
 
         return $this;
     }
@@ -63,15 +73,17 @@ class Transliteration
      * @param string $string
      * @return string
      */
-    public function convert($string)
+    public function convert(string $string) : string
     {
+        $space = $this->getStringOption('space');
+        
         $result = str_replace(array_keys(self::$charTable), array_values(self::$charTable), $string);
-        $result = str_replace('_', $this->options['space'], $result);
+        $result = str_replace('_', $space, $result);
 
         $regex = '/\A[a-zA-Z0-9_%s]+\Z/';
         $additionalChar = '';
-        if ($this->options['space'] != '_') {
-            $additionalChar = $this->options['space'];
+        if ($space != '_') {
+            $additionalChar = $space;
         }
 
         $regex = sprintf($regex, $additionalChar);
@@ -85,13 +97,13 @@ class Transliteration
 
         $result = implode('', $keep);
 
-        while (strstr($result, $this->options['space'] . $this->options['space'])) {
-            $result = str_replace($this->options['space'] . $this->options['space'], $this->options['space'], $result);
+        while (strstr($result, $space . $space)) {
+            $result = str_replace($space . $space, $space, $result);
         }
 
-        $result = trim($result, $this->options['space']);
+        $result = trim($result, $space);
 
-        if ($this->options['lowercase']) {
+        if ($this->getBoolOption('lowercase')) {
             $result = strtolower($result);
         }
 
@@ -113,7 +125,7 @@ class Transliteration
         'Á' => 'A',
         'Â' => 'A',
         'Ã' => 'A',
-        'Ä' => 'A',
+        'Ä' => 'AE',
         'Å' => 'A',
         'Æ' => 'AE',
         'Ç' => 'C',
@@ -131,13 +143,13 @@ class Transliteration
         'Ó' => 'O',
         'Ô' => 'O',
         'Õ' => 'O',
-        'Ö' => 'O',
+        'Ö' => 'OE',
         '×' => 'x',
         'Ø' => 'O',
         'Ù' => 'U',
         'Ú' => 'U',
         'Û' => 'U',
-        'Ü' => 'U',
+        'Ü' => 'UE',
         'Ý' => 'Y',
         'Þ' => '',
         'ß' => 'SS',
@@ -145,7 +157,7 @@ class Transliteration
         'á' => 'a',
         'â' => 'a',
         'ã' => 'a',
-        'ä' => 'a',
+        'ä' => 'ae',
         'å' => 'a',
         'æ' => 'ae',
         'ç' => 'c',
@@ -163,13 +175,13 @@ class Transliteration
         'ó' => 'o',
         'ô' => 'o',
         'õ' => 'o',
-        'ö' => 'o',
+        'ö' => 'oe',
         '÷' => '',
         'ø' => 'o',
         'ù' => 'u',
         'ú' => 'u',
         'û' => 'u',
-        'ü' => 'u',
+        'ü' => 'ue',
         'ý' => 'y',
         'þ' => '',
         'ÿ' => 'y',
@@ -1138,7 +1150,7 @@ class Transliteration
         '*' => '',
         '~' => '',
         '+' => '_plus_',
-        '#' => '',
+        '#' => '_hash_',
         '\'' => '',
         '|' => '',
         ';' => '_',
