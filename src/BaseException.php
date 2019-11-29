@@ -58,7 +58,7 @@ class BaseException extends \Exception
     {
         try
         {
-            throw new BaseException();
+            throw new BaseException('');
         }
         catch(BaseException $e) 
         {
@@ -73,7 +73,7 @@ class BaseException extends \Exception
     {
         try
         {
-            throw new BaseException();
+            throw new BaseException('');
         }
         catch(BaseException $e)
         {
