@@ -50,4 +50,48 @@ class BaseException extends \Exception
     {
         return ConvertHelper::throwable2info($this);
     }
+    
+   /**
+    * Dumps a current PHP function trace, as a textonly string.
+    */
+    public static function dumpTraceAsString()
+    {
+        try
+        {
+            throw new BaseException();
+        }
+        catch(BaseException $e) 
+        {
+            echo self::createInfo($e)->toString();
+        }
+    }
+
+    /**
+     * Dumps a current PHP function trace, with HTML styling.
+     */
+    public static function dumpTraceAsHTML()
+    {
+        try
+        {
+            throw new BaseException();
+        }
+        catch(BaseException $e)
+        {
+            echo '<pre style="background:#fff;font-family:monospace;font-size:14px;color:#444;padding:16px;border:solid 1px #999;border-radius:4px;">';
+            echo self::createInfo($e)->toString();
+            echo '</pre>';
+        }
+    }
+    
+   /**
+    * Creates an exception info instance from a throwable instance.
+    * 
+    * @param \Throwable $e
+    * @return ConvertHelper_ThrowableInfo
+    * @see ConvertHelper::throwable2info()
+    */
+    public static function createInfo(\Throwable $e) : ConvertHelper_ThrowableInfo
+    {
+        return ConvertHelper::throwable2info($e);
+    }
 }
