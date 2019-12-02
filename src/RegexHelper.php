@@ -92,4 +92,14 @@ class RegexHelper
      * @var string
      */
     const REGEX_IS_HTML = '%<{0,1}[a-z\/][\s\S]*>|<[a-z\/][\s\S]*>{0,1}%i';
+    
+   /**
+    * Hexadecimal color codes. Allows the following formats:
+    * 
+    * FFFFFF
+    * FFF
+    * 
+    * @var string
+    */
+    const REGEX_HEX_COLOR_CODE = '/\A(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\z/iU';
 }
