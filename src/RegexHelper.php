@@ -41,7 +41,11 @@ class RegexHelper
     const REGEX_LABEL = '/^[\w\s\'*.\-\(\)\[\]{}?=´`$!%+#_,;:|]+$/iu';
     
     const REGEX_MD5 = '/^[a-f0-9]{32}$/i';
-    
+
+   /**
+    * @var string
+    * @see https://en.wikipedia.org/wiki/Email_address#Local-part
+    */
     const REGEX_EMAIL = '/[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&\'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/i';
     
     const REGEX_PHONE = '/\A[+0-9][0-9 +\-()]+\z/m';
