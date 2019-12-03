@@ -30,6 +30,19 @@ function parseVariable($variable)
 }
 
 /**
+ * Like the native PHP function <code>parse_url</code>,
+ * but with a friendly API and some enhancements and fixes 
+ * for a few things that the native function handles poorly.
+ * 
+ * @param string $url The URL to parse.
+ * @return \AppUtils\URLInfo
+ */
+function parseURL(string $url) : URLInfo
+{
+    return new URLInfo($url);
+}
+
+/**
  * Translation function used to translate some of the internal
  * strings: if the localization is installed, it will use this
  * to do the translation.
