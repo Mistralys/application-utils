@@ -21,13 +21,15 @@ Simply require the package via composer:
 * [FileHelper](https://github.com/Mistralys/application-utils/wiki/FileHelper): file system utility methods and file finder.
 * ImageHelper: image manipulation using native GD functions with alpha support.
 * [IniHelper](https://github.com/Mistralys/application-utils/wiki/IniHelper): INI file reader and editor.
+* JSHelper: generate JavaScript statements from PHP with automatic PHP > JS conversion of variables.
 * NumberInfo: access and modify numbers with or without units.
 * PaginationHelper: calculates all required numbers for a pagination widget.
 * RegexHelper: collection of typical validation Regexes.
 * [Request](https://github.com/Mistralys/application-utils/wiki/Request): class to validate, filter and access request variables.
 * RequestHelper: build raw request headers from scratch.
 * SVNHelper: working with a local SVN repository. Update, commit, etc.
-* VariableInfo: accessing information on any variable.
+* URLInfo: An object oriented parse_url with fixes for a number of pitfalls.
+* VariableInfo: accessing information on PHP variables.
 * XMLHelper: simplifies working with some of the XML libraries like DOM or SimpleXML.
 * ZIPHelper: abstracts working with the ZIPArchive class.
 
