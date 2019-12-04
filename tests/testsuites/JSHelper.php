@@ -163,6 +163,13 @@ final class JSHelperTest extends TestCase
         }
     }
     
+    public function test_buildStatementAttribute()
+    {
+        $result = JSHelper::buildStatementAttribute('test', 'foo');
+            
+        $this->assertEquals("test('foo');", $result, 'Should use single quotes.');
+    }
+    
     public function test_buildVariable()
     {
         $tests = array(
