@@ -70,19 +70,44 @@ class JSHelper
     */
     public static function buildStatement() : string
     {
+        $args = func_get_args();
+        array_unshift($args, self::QUOTE_STYLE_DOUBLE);
+        return call_user_func_array(array(self::class, 'buildStatementQuoteStyle'), $args);
+    }
+    
+   /**
+    * Like {@link JSHelper::buildStatement()}, but using single quotes
+    * to make it possible to use the statement in an HTML tag attribute.
+    * 
+    * @return string
+    * @see JSHelper::buildStatement()
+    */
+    public static function buildStatementAttribute() : string
+    {
+        $args = func_get_args();
+        array_unshift($args, self::QUOTE_STYLE_SINGLE);
+        return call_user_func_array(array(self::class, 'buildStatementQuoteStyle'), $args);
+    }
+    
+    protected static function buildStatementQuoteStyle()
+    {
         $params = func_get_args();
-        $call = $params[0] . '(';
-
+        $quoteStyle = array_shift($params);
+        $method = array_shift($params);
+        
+        $call = $method . '(';
+        
         $total = count($params);
-        if($total > 1) {
-            for ($i=1; $i < $total; $i++) {
-                $call .= self::phpVariable2JS($params[$i]);
+        if($total > 0) {
+            for($i=0; $i < $total; $i++) 
+            {
+                $call .= self::phpVariable2JS($params[$i], $quoteStyle);
                 if($i < ($total-1)) {
                     $call .= ',';
                 }
             }
         }
-
+        
         return $call . ');';
     }
 
