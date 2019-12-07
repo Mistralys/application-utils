@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
-class URLInfo
+class URLInfo implements \ArrayAccess
 {
     const ERROR_MISSING_SCHEME = 42101;
     
     const ERROR_INVALID_SCHEME = 42102;
 
     const ERROR_MISSING_HOST = 42103;
+    
+    const ERROR_CANNOT_FIND_CSS_FOLDER = 42104;
     
     const TYPE_EMAIL = 'email';
     const TYPE_FRAGMENT = 'fragment';
@@ -44,7 +46,9 @@ class URLInfo
         'http',
         'https',
         'mailto',
-        'tel'
+        'tel',
+        'data',
+        'file'
     );
 
    /**
@@ -78,6 +82,17 @@ class URLInfo
     * @var bool
     */
     protected $highlightExcluded = false;
+    
+    protected $infoKeys = array(
+        'scheme',
+        'host',
+        'port',
+        'user',
+        'pass',
+        'path',
+        'query',
+        'fragment'
+    );
     
     public function __construct(string $url)
     {
@@ -194,17 +209,15 @@ class URLInfo
    /**
     * Goes through all information in the parse_url result
     * array, and attempts to fix any user errors in formatting
-    * that can be recovered from, mostly regarging stray spaces.
+    * that can be recovered from, mostly regarding stray spaces.
     */
     protected function filterParsed()
     {
         foreach($this->info as $key => $val)
         {
-            $this->info[$key] = trim($val);
-        }
-        
-        if(isset($this->info['scheme'])) {
-            $this->info['scheme'] = trim($this->info['scheme']);
+            if(is_string($val)) {
+                $this->info[$key] = trim($val);
+            }
         }
         
         if(isset($this->info['host'])) {
@@ -281,9 +294,16 @@ class URLInfo
         return $this->isPhone;
     }
     
+   /**
+    * Whether the URL is a regular URL, not one of the 
+    * other types like a phone number or email address.
+    * 
+    * @return bool
+    */
     public function isURL() : bool
     {
-        return isset($this->info['host']);
+        $host = $this->getHost();
+        return !empty($host);
     }
     
     public function isValid()
@@ -291,10 +311,124 @@ class URLInfo
         return $this->isValid;
     }
     
+   /**
+    * Retrieves the host name, or an empty string if none is present.
+    * 
+    * @return string
+    */
     public function getHost() : string
     {
-        if(isset($this->info['host'])) {
-            return $this->info['host'];
+        return $this->getInfoKey('host');
+    }
+    
+   /**
+    * Retrieves the path, or an empty string if none is present.
+    * @return string
+    */
+    public function getPath() : string
+    {
+        return $this->getInfoKey('path');
+    }
+    
+    public function getFragment() : string
+    {
+        return $this->getInfoKey('fragment');
+    }
+    
+    public function getScheme() : string
+    {
+        return $this->getInfoKey('scheme');
+    }
+    
+   /**
+    * Retrieves the port specified in the URL, or -1 if none is preseent.
+    * @return int
+    */
+    public function getPort() : int
+    {
+        $port = $this->getInfoKey('port');
+        if(!empty($port)) {
+            return (int)$port;
+        }
+        
+        return -1;
+    }
+    
+   /**
+    * Retrieves the raw query string, or an empty string if none is present.
+    * 
+    * @return string
+    * 
+    * @see URLInfo::getParams()
+    */
+    public function getQuery() : string
+    {
+        return $this->getInfoKey('query');
+    }
+    
+    public function getUsername() : string
+    {
+        return $this->getInfoKey('user');
+    }
+    
+    public function getPassword() : string
+    {
+        return $this->getInfoKey('pass');
+    }
+    
+   /**
+    * Whether the URL contains a port number.
+    * @return bool
+    */
+    public function hasPort() : bool
+    {
+        return $this->getPort() !== -1;
+    }
+    
+   /**
+    * Alias for the hasParams() method.
+    * @return bool
+    * @see URLInfo::hasParams()
+    */
+    public function hasQuery() : bool
+    {
+        return $this->hasParams();
+    }
+    
+    public function hasHost() : bool
+    {
+        return $this->getHost() !== ''; 
+    }
+    
+    public function hasPath() : bool
+    {
+        return $this->getPath() !== '';
+    }
+    
+    public function hasFragment() : bool
+    {
+        return $this->getFragment() !== '';
+    }
+    
+    public function hasUsername() : bool
+    {
+        return $this->getUsername() !== '';
+    }
+    
+    public function hasPassword() : bool
+    {
+        return $this->getPassword() !== '';
+    }
+    
+    public function hasScheme() : bool
+    {
+        return $this->getScheme() !== '';
+    }
+    
+    protected function getInfoKey(string $name) : string
+    {
+        if(isset($this->info[$name])) {
+            return (string)$this->info[$name];
         }
         
         return '';
@@ -308,15 +442,15 @@ class URLInfo
         
         if($this->isFragment === true)
         {
-            return '#'.$this->info['fragment'];
+            return '#'.$this->getFragment();
         }
         else if($this->isPhone === true)
         {
-            return 'tel://'.$this->info['host'];
+            return 'tel://'.$this->getHost();
         }
         else if($this->isEmail === true)
         {
-            return 'mailto:'.$this->info['path'];
+            return 'mailto:'.$this->getPath();
         }
         
         $normalized = $this->info['scheme'].'://'.$this->info['host'];
@@ -336,11 +470,25 @@ class URLInfo
         return $normalized;
     }
     
+   /**
+    * Creates a hash of the URL, which can be used for comparisons.
+    * Since any parameters in the URL's query are sorted alphabetically,
+    * the same links with a different parameter order will have the 
+    * same hash.
+    * 
+    * @return string
+    */
     public function getHash()
     {
         return \AppUtils\ConvertHelper::string2shortHash($this->getNormalized());
     }
 
+   /**
+    * Highlights the URL using HTML tags with specific highlighting
+    * class names.
+    * 
+    * @return string Will return an empty string if the URL is not valid.
+    */
     public function getHighlighted() : string
     {
         if(!$this->isValid) {
@@ -349,7 +497,7 @@ class URLInfo
         
         if($this->isEmail) {
             return sprintf(
-                '<span class="link-scheme-mailto">mailto:</span>'.
+                '<span class="link-scheme scheme-mailto">mailto:</span>'.
                 '<span class="link-host">%s</span>',
                 $this->replaceVars($this->info['path'])
             );
@@ -358,35 +506,61 @@ class URLInfo
         if($this->isFragment) {
             return sprintf(
                 '<span class="link-fragment-sign">#</span>'.
-                '<span class="link-fragment">%s</span>',
+                '<span class="link-fragment-value">%s</span>',
                 $this->replaceVars($this->info['fragment'])
             );
         }
         
-        $result = sprintf(
-            '<span class="link-scheme-%s">'.
-            '%s://'.
-            '</span>',
-            $this->info['scheme'],
-            $this->info['scheme']
-        );
+        if($this->hasScheme())
+        {
+            $result = sprintf(
+                '<span class="link-scheme scheme-%1$s">'.
+                    '%1$s:'.
+                '</span>',
+                $this->getScheme()
+            );
+        }
+
+        $result .= '<span class="link-component double-slashes">//</span>';
         
-        if(isset($this->info['host'])) {
-            $result .=
-            sprintf(
-                '<span class="link-host">%s</span><wbr>',
-                $this->info['host']
+        if($this->hasUsername())
+        {
+            $result .= sprintf(
+                '<span class="link-credentials">%s</span>'.
+                '<span class="link-component credentials-separator">:</span>'.
+                '<span class="link-credentials">%s</span>'.
+                '<span class="link-component credentials-at">@</span>',
+                $this->getUsername(),
+                $this->getPassword()
             );
         }
         
-        if(isset($this->info['path'])) 
+        if($this->hasHost()) 
         {
-            $path = str_replace(array(';', '='), array(';<wbr>', '=<wbr>'), $this->info['path']);
+            $result .=
+            sprintf(
+                '<span class="link-host">%s</span><wbr>',
+                $this->getHost()
+            );
+        }
+        
+        if($this->hasPort()) 
+        {
+            $result .= sprintf(
+                '<span class="link-component port-separator">:</span>'.
+                '<span class="link-port">%s</span>',
+                $this->getPort()
+            );
+        }
+        
+        if($this->hasPath()) 
+        {
+            $path = str_replace(array(';', '='), array(';<wbr>', '=<wbr>'), $this->getPath());
             $tokens = explode('/', $path);
-            $path = implode('<span class="link-component">/</span><wbr>', $tokens);
+            $path = implode('<span class="link-component path-separator">/</span><wbr>', $tokens);
             $result .= sprintf(
                 '<span class="link-path">%s</span><wbr>',
-                $this->replaceVars($path)
+                $path
             );
         }
         
@@ -398,7 +572,7 @@ class URLInfo
             {
                 $parts = sprintf(
                     '<span class="link-param-name">%s</span>'.
-                    '<span class="link-equals-sign">=</span>'.
+                    '<span class="link-component param-equals">=</span>'.
                     '<span class="link-param-value">%s</span>'.
                     '<wbr>',
                     $param,
@@ -442,7 +616,7 @@ class URLInfo
             }
             
             $result .=
-            '<span class="link-query-sign">?</span>'.implode('<span class="link-component">&amp;</span>', $tokens);
+            '<span class="link-component query-sign">?</span>'.implode('<span class="link-component param-separator">&amp;</span>', $tokens);
         }
         
         if(isset($this->info['fragment'])) {
@@ -705,5 +879,50 @@ class URLInfo
     {
         $names = $this->getParamNames();
         return in_array($name, $names);
+    }
+
+    public function offsetSet($offset, $value) 
+    {
+        if(in_array($offset, $this->infoKeys)) {
+            $this->info[$offset] = $value;
+        }
+    }
+    
+    public function offsetExists($offset) 
+    {
+        return isset($this->info[$offset]);
+    }
+    
+    public function offsetUnset($offset) 
+    {
+        unset($this->info[$offset]);
+    }
+    
+    public function offsetGet($offset) 
+    {
+        if($offset === 'port') {
+            return $this->getPort();
+        }
+        
+        if(in_array($offset, $this->infoKeys)) {
+            return $this->getInfoKey($offset);
+        }
+        
+        return '';
+    }
+    
+    public static function getHighlightCSS() : string
+    {
+        $cssFolder = realpath(__DIR__.'/../css');
+        
+        if($cssFolder === false) {
+            throw new BaseException(
+                'Cannot find package CSS folder.',
+                null,
+                self::ERROR_CANNOT_FIND_CSS_FOLDER
+            );
+        }
+        
+        return FileHelper::readContents($cssFolder.'/urlinfo-highlight.css');
     }
 }
