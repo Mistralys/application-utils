@@ -13,7 +13,17 @@
      */
     define('TESTS_ROOT', __DIR__ );
 
-    require_once TESTS_ROOT.'/../vendor/autoload.php';
+    $autoloader = realpath(TESTS_ROOT.'/../vendor/autoload.php');
+    
+    if($autoloader === false) 
+    {
+        die('ERROR: The autoloader is not present. Run composer install first.');
+    }
+
+   /**
+    * The composer autoloader
+    */
+    require_once $autoloader;
     
     /**
      * Dummy test interfaces for the PHPClassInfo tests.
