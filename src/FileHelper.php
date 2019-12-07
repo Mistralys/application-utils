@@ -56,6 +56,8 @@ class FileHelper
     
     const ERROR_CANNOT_OPEN_FILE_TO_READ_LINES = 340027;
     
+    const ERROR_CANNOT_READ_FILE_CONTENTS = 340028;
+    
    /**
     * Opens a serialized file and returns the unserialized data.
     * 
@@ -1487,5 +1489,35 @@ class FileHelper
         fclose($fn);
         
         return $result;
+    }
+    
+   /**
+    * Reads all content from a file.
+    * 
+    * @param string $filePath
+    * @throws FileHelper_Exception
+    * @return string
+    * 
+    * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
+    * @see FileHelper::ERROR_CANNOT_READ_FILE_CONTENTS
+    */
+    public static function readContents(string $filePath) : string
+    {
+        self::requireFileExists($filePath);
+        
+        $result = file_get_contents($filePath);
+        
+        if($result !== false) {
+            return $result;
+        }
+        
+        throw new FileHelper_Exception(
+            sprintf('Cannot read contents of file [%s].', basename($filePath)),
+            sprintf(
+                'Tried opening file for reading at: [%s].',
+                $filePath
+            ),
+            self::ERROR_CANNOT_READ_FILE_CONTENTS
+        );
     }
 }
