@@ -3,7 +3,7 @@
  * Translation UI for the localizable strings in the package.
  *
  * @package Application Utils
- * @subpackage Examples
+ * @subpackage Localization
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
     
@@ -12,7 +12,8 @@
     $autoload = realpath($root.'/../vendor/autoload.php');
     
     // we need the autoloader to be present
-    if(!file_exists($autoload)) {
+    if($autoload === false) 
+    {
         die('<b>ERROR:</b> Autoloader not present. Run composer update first.');
     }
     
