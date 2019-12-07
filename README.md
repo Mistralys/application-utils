@@ -28,7 +28,7 @@ Simply require the package via composer:
 * [Request](https://github.com/Mistralys/application-utils/wiki/Request): class to validate, filter and access request variables.
 * RequestHelper: build raw request headers from scratch.
 * SVNHelper: working with a local SVN repository. Update, commit, etc.
-* URLInfo: An object oriented parse_url with fixes for a number of pitfalls.
+* [URLInfo](https://github.com/Mistralys/application-utils/wiki/URLInfo): An object oriented parse_url with fixes for a number of pitfalls.
 * VariableInfo: accessing information on PHP variables.
 * XMLHelper: simplifies working with some of the XML libraries like DOM or SimpleXML.
 * ZIPHelper: abstracts working with the ZIPArchive class.
