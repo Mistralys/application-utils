@@ -1644,6 +1644,10 @@ class ConvertHelper
     */
     public static function findString(string $needle, string $haystack, bool $caseInsensitive=false)
     {
+        if($needle === '') {
+            return array();
+        }
+        
         $function = 'mb_strpos';
         if($caseInsensitive) {
             $function = 'mb_stripos';
