@@ -401,6 +401,12 @@ final class ConvertHelperTest extends TestCase
     {
         $tests = array(
             array(
+                'label' => 'Empty needle',
+                'haystack' => 'We were walking, and a foo appeared just like that.',
+                'needle' => '',
+                'expected' => array()
+            ),
+            array(
                 'label' => 'No matches present',
                 'haystack' => '',
                 'needle' => 'foo',
