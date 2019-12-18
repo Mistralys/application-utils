@@ -658,6 +658,14 @@ final class FileHelperTest extends TestCase
         
         $this->assertEquals('', file_get_contents($file));
     }
+
+    public function test_readLines_all()
+    {
+        $file = $this->assetsFolder.'/line-seeking.txt';
+        
+        $lines = FileHelper::readLines($file);
+        $this->assertEquals(10, count($lines), 'Should have read all 10 lines from the file.');
+    }
     
     public function test_readLines()
     {
