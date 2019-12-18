@@ -1435,13 +1435,13 @@ class FileHelper
     * from the resulting lines.
     * 
     * @param string $filePath
-    * @param int $amount
+    * @param int $amount Set to 0 to read all lines.
     * @return array
     * 
     * @see FileHelper::ERROR_CANNOT_OPEN_FILE_TO_READ_LINES
     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
     */
-    public static function readLines(string $filePath, int $amount) : array
+    public static function readLines(string $filePath, int $amount=0) : array
     {
         self::requireFileExists($filePath);
         
@@ -1481,7 +1481,7 @@ class FileHelper
             
             $result[] = $line;
             
-            if($counter == $amount) {
+            if($amount > 0 && $counter == $amount) {
                 break;
             }
         }
