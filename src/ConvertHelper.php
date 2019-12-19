@@ -1530,7 +1530,7 @@ class ConvertHelper
     
     public static function throwable2info(\Throwable $e) : ConvertHelper_ThrowableInfo
     {
-        return new ConvertHelper_ThrowableInfo($e);
+        return ConvertHelper_ThrowableInfo::fromThrowable($e);
     }
     
    /**
