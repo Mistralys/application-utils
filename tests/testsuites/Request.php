@@ -298,50 +298,85 @@ final class RequestTest extends TestCase
     */
     public function test_getJSON()
     {
-        $request = new \AppUtils\Request();
-        
-        $data = array(
-            'foo' => 'bar'
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => array() 
+            ),
+            array(
+                'label' => 'Empty string value',
+                'value' => '',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array('foo' => 'bar'),
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Array JSON',
+                'value' => '["foo", "bar"]',
+                'expected' => array('foo', 'bar')
+            ),
+            array(
+                'label' => 'Object JSON',
+                'value' => '{"foo":"bar"}',
+                'expected' => array('foo' => 'bar')
+            ),
+            array(
+                'label' => 'Invalid JSON',
+                'value' => '{foo:"bar"}',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Return value as object',
+                'value' => '{"foo":"bar"}',
+                'assoc' => false,
+                'expected' => (object) array('foo' => 'bar')
+            ),
+            array(
+                'label' => 'Empty value as object',
+                'value' => '',
+                'assoc' => false,
+                'expected' => new stdClass()
+            ),
+            array(
+                'label' => 'Numeric value',
+                'value' => '500',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Quoted string',
+                'value' => '"foo"',
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Numeric value',
+                'value' => '500',
+                'assoc' => false,
+                'expected' => new stdClass()
+            ),
+            array(
+                'label' => 'Quoted string',
+                'value' => '"foo"',
+                'assoc' => false,
+                'expected' => new stdClass()
+            )
         );
         
-        $_REQUEST['foo'] = json_encode($data);
-        
-        $testData = $request->getJSON('foo');
-        
-        $this->assertEquals($data, $testData, 'Get parameter as decoded JSON.');
-    }
-    
-   /**
-    * Trying to fetch a parameter as JSON when it 
-    * is empty or does not exist.
-    * 
-    * @see \AppUtils\Request::getJSON()
-    */
-    public function test_getJSON_empty()
-    {
         $request = new \AppUtils\Request();
-        
-        $_REQUEST['foo'] = '';
-        
-        $this->assertEquals(null, $request->getJSON('bar'), 'Empty if parameter does not exist.');
-        $this->assertEquals(null, $request->getJSON('foo'), 'Empty if parameter is empty.');
-    }
-
-   /**
-    * Trying to fetch a request parameter as JSON 
-    * when it is not a valid JSON string.
-    * 
-    * @see \AppUtils\Request::getJSON()
-    */
-    public function test_getJSON_broken()
-    {
-        $request = new \AppUtils\Request();
-        
-        $_REQUEST['foo'] = 'bar'; 
-        
-        $result = $request->getJSON('foo');
-        
-        $this->assertEquals(null, $result, 'Empty if parameter is not a JSON string.');
+       
+        foreach($tests as $test) 
+        {
+            $name = $this->setUniqueParam($test['value']);
+            
+            $assoc = true; if(isset($test['assoc'])) { $assoc = $test['assoc']; }
+            
+            $value = $request->getJSON($name, $assoc);
+            
+            $this->assertEquals($test['expected'], $value, $test['label']);
+        }
     }
     
    /**
@@ -1229,6 +1264,56 @@ final class RequestTest extends TestCase
             
             $value = $request->registerParam($name)
             ->setRegex($def['regex'])
+            ->get();
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+    
+    public function test_getRegisteredParam_url()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Empty string value',
+                'value' => '',
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array('foo' => 'bar'),
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Invalid url value',
+                'value' => 'invalid',
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Valid url value',
+                'value' => 'http://www.foo.com',
+                'expected' => 'http://www.foo.com'
+            )
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        $value = $request->registerParam(uniqid())
+        ->setURL()
+        ->get();
+        
+        $this->assertSame('', $value, 'Parameter not present at all');
+        
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+            
+            $value = $request->registerParam($name)
+            ->setURL()
             ->get();
             
             $this->assertEquals($def['expected'], $value, $def['label']);
