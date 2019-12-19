@@ -43,6 +43,31 @@ function parseURL(string $url) : URLInfo
 }
 
 /**
+ * Creates a throwable info instance for the specified error,
+ * which enables accessing additional information on it,
+ * as well as serializing it to be able to persist it in storage.
+ * 
+ * @param \Throwable $e
+ * @return ConvertHelper_ThrowableInfo
+ */
+function parseThrowable(\Throwable $e) : ConvertHelper_ThrowableInfo
+{
+    return ConvertHelper_ThrowableInfo::fromThrowable($e);
+}
+
+/**
+ * Restores a throwable info instance from a previously 
+ * serialized array.
+ * 
+ * @param array $serialized
+ * @return ConvertHelper_ThrowableInfo
+ */
+function restoreThrowable(array $serialized) : ConvertHelper_ThrowableInfo
+{
+    return ConvertHelper_ThrowableInfo::fromSerialized($serialized);
+}
+
+/**
  * Translation function used to translate some of the internal
  * strings: if the localization is installed, it will use this
  * to do the translation.
