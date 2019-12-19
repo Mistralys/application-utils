@@ -70,6 +70,8 @@ class Request_Param
     
     const VALIDATION_TYPE_VALUESLIST = 'valueslist';
     
+    const VALIDATION_TYPE_JSON = 'json';
+    
     const FILTER_TYPE_CALLBACK = 'callback';
     
     /**
@@ -100,7 +102,8 @@ class Request_Param
                 self::VALIDATION_TYPE_ARRAY,
                 self::VALIDATION_TYPE_CALLBACK,
                 self::VALIDATION_TYPE_URL,
-                self::VALIDATION_TYPE_VALUESLIST
+                self::VALIDATION_TYPE_VALUESLIST,
+                self::VALIDATION_TYPE_JSON
             );
             self::$filterTypes = array(
                 self::FILTER_TYPE_CALLBACK
@@ -380,6 +383,31 @@ class Request_Param
     }
     
    /**
+    * Specifies that a JSON-encoded string is expected.
+    * 
+    * NOTE: Numbers or quoted strings are technically valid
+    * JSON, but are not accepted, because it is assumed
+    * at least an array or object are expected.
+    * 
+    * @return \AppUtils\Request_Param
+    */
+    public function setJSON() : Request_Param
+    {
+        return $this->setValidation(self::VALIDATION_TYPE_JSON, array('arrays' => true));
+    }
+    
+   /**
+    * Like {@link Request_Param::setJSON()}, but accepts
+    * only JSON objects. Arrays will not be accepted.
+    * 
+    * @return \AppUtils\Request_Param
+    */
+    public function setJSONObject() : Request_Param
+    {
+        return $this->setValidation(self::VALIDATION_TYPE_JSON, array('arrays' => false));
+    }
+    
+   /**
     * The parameter is a string boolean representation. This means
     * it can be any of the following: "yes", "true", "no", "false".
     * The value is automatically converted to a boolean when retrieving
@@ -387,7 +415,7 @@ class Request_Param
     * 
     * @return Request_Param
     */
-    public function setBoolean()
+    public function setBoolean() : Request_Param
     {
         $this->addCallbackFilter(array($this, 'applyFilter_boolean'));
         return $this->setEnum('yes', 'no', 'true', 'false');
@@ -459,7 +487,7 @@ class Request_Param
     * 
     * @return \AppUtils\Request_Param
     */
-    public function setMD5()
+    public function setMD5() : Request_Param
     {
         return $this->setRegex(RegexHelper::REGEX_MD5);
     }
@@ -474,8 +502,11 @@ class Request_Param
      * @param string $type
      * @param mixed $params
      * @return Request_Param
+     * @throws Request_Exception
+     * 
+     * @see Request_Param::ERROR_UNKNOWN_VALIDATION_TYPE
      */
-    public function setValidation($type, $params = null)
+    public function setValidation(string $type, ?array $params = null) : Request_Param
     {
         if (!in_array($type, self::$validationTypes)) {
             throw new Request_Exception(
@@ -484,7 +515,8 @@ class Request_Param
                     'Tried setting the validation type to "%1$s". Possible validation types are: %2$s. Use the class constants VALIDATION_TYPE_XXX to set the desired validation type to avoid errors like this.',
                     $type,
                     implode(', ', self::$validationTypes)
-                )
+                ),
+                self::ERROR_UNKNOWN_VALIDATION_TYPE
             );
         }
 
@@ -655,6 +687,40 @@ class Request_Param
         }
 
         return null;
+    }
+    
+   /**
+    * Makes sure that the value is a JSON-encoded string.
+    * @param string $value
+    */
+    protected function validate_json($value)
+    {
+        if(!is_string($value)) {
+            return '';
+        }
+        
+        $value = trim($value);
+        
+        if(empty($value)) {
+            return '';
+        }
+        
+        // strictly validate for objects?
+        if($this->validationParams['arrays'] === false) 
+        {
+            if(is_object(json_decode($value))) {
+               return $value; 
+            }
+        } 
+        else 
+        {
+            if(is_array(json_decode($value, true))) {
+                return $value;
+            }
+        }
+        
+        
+        return '';
     }
 
     /**
