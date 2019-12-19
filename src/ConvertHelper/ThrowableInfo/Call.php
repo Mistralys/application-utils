@@ -6,6 +6,12 @@ namespace AppUtils;
 
 class ConvertHelper_ThrowableInfo_Call
 {
+    const TYPE_FUNCTION_CALL = 'function';
+    
+    const TYPE_METHOD_CALL = 'method';
+    
+    const TYPE_SCRIPT_START = 'start';
+    
    /**
     * @var ConvertHelper_ThrowableInfo
     */
@@ -19,7 +25,7 @@ class ConvertHelper_ThrowableInfo_Call
    /**
     * @var VariableInfo[]
     */
-    protected $args;
+    protected $args = array();
     
    /**
     * The source file, if any
@@ -27,34 +33,75 @@ class ConvertHelper_ThrowableInfo_Call
     */
     protected $file = '';
     
+   /**
+    * @var string
+    */
     protected $class = '';
+    
+   /**
+    * @var integer
+    */
+    protected $line = 0;
     
    /**
     * @var int
     */
-    protected $position;
+    protected $position = 1;
     
-    public function __construct(ConvertHelper_ThrowableInfo $info, int $position, array $trace)
+   /**
+    * @var string
+    */
+    protected $function = '';
+    
+   /**
+    * @var string
+    */
+    protected $type = self::TYPE_SCRIPT_START;
+    
+    protected function __construct(ConvertHelper_ThrowableInfo $info, array $data)
     {
         $this->info = $info;
-        $this->trace = $trace;
-        $this->position = $position;
+        
+        if(isset($data['serialized'])) 
+        {
+            $this->parseSerialized($data['serialized']);
+        }
+        else
+        {
+            $this->parseTrace($data['trace']);
+            $this->position = $data['position'];
+        }
+        
+        if($this->hasClass()) 
+        {
+            $this->type = self::TYPE_METHOD_CALL;
+        }
+        else if($this->hasFunction()) 
+        {
+            $this->type = self::TYPE_FUNCTION_CALL;
+        }
     }
     
+   /**
+    * 1-based position of the call in the calls list.
+    * @return int
+    */
     public function getPosition() : int
     {
         return $this->position;
     }
     
-    public function getLine()
+    public function getLine() : int
     {
-        return $this->trace['line'];
+        return $this->line;
     }
     
+   /**
+    * Whether the call had any arguments.
+    * @return bool
+    */
     public function hasArguments() : bool
     {
-        $this->parse();
-        
         return !empty($this->args);
     }
     
@@ -63,43 +110,31 @@ class ConvertHelper_ThrowableInfo_Call
     */
     public function getArguments()
     {
-        $this->parse();
-        
         return $this->args;
     }
     
     public function hasFile() : bool
     {
-        $this->parse();
-        
         return $this->file !== '';
     }
     
     public function hasFunction() : bool
     {
-        return isset($this->trace['function']);
+        return !empty($this->function);
     }
     
     public function getFunction() : string
     {
-        if(isset($this->trace['function'])) {
-            return $this->trace['function'];
-        }
-        
-        return '';
+        return $this->function;
     }
     
     public function getFilePath() : string
     {
-        $this->parse();
-        
         return $this->file;
     }
     
     public function getFileName() : string
     {
-        $this->parse();
-        
         if($this->hasFile()) {
             return basename($this->file);
         }
@@ -109,8 +144,6 @@ class ConvertHelper_ThrowableInfo_Call
     
     public function getFileRelative() : string
     {
-        $this->parse();
-        
         if($this->hasFile()) {
             return FileHelper::relativizePathByDepth($this->file, $this->info->getFolderDepth());
         }
@@ -120,8 +153,6 @@ class ConvertHelper_ThrowableInfo_Call
     
     public function hasClass() : bool
     {
-        $this->parse();
-        
         return $this->class !== '';
     }
     
@@ -130,27 +161,46 @@ class ConvertHelper_ThrowableInfo_Call
         return $this->class;
     }
     
-    protected function parse()
+    protected function parseSerialized(array $data)
     {
-        if(isset($this->args)) {
-            return;
+        $this->type = $data['type'];
+        $this->line = $data['line'];
+        $this->function = $data['function'];
+        $this->file = $data['file'];
+        $this->class = $data['class'];
+        $this->position = $data['position'];
+        
+        foreach($data['arguments'] as $arg)
+        {
+            $this->args[] = VariableInfo::fromSerialized($arg);
+        }
+    }
+    
+    protected function parseTrace(array $trace)
+    {
+        if(isset($trace['line']))
+        {
+            $this->line = intval($trace['line']);
         }
         
-        if(isset($this->trace['file']))
+        if(isset($trace['function'])) 
         {
-            $this->file = FileHelper::normalizePath($this->trace['file']);
+            $this->function = $trace['function'];
         }
         
-        if(isset($this->trace['class'])) 
+        if(isset($trace['file']))
         {
-            $this->class = $this->trace['class'];
+            $this->file = FileHelper::normalizePath($trace['file']);
+        }
+        
+        if(isset($trace['class'])) 
+        {
+            $this->class = $trace['class'];
         }
      
-        $this->args = array();
-        
-        if(isset($this->trace['args']) && !empty($this->trace['args']))
+        if(isset($trace['args']) && !empty($trace['args']))
         {
-            foreach($this->trace['args'] as $arg) 
+            foreach($trace['args'] as $arg) 
             {
                 $this->args[] = parseVariable($arg);
             }
@@ -188,5 +238,71 @@ class ConvertHelper_ThrowableInfo_Call
         }
         
         return implode(', ', $tokens); 
+    }
+    
+   /**
+    * Retrieves the type of call: typcially a function 
+    * call, or a method call of an object. Note that the
+    * first call in a script does not have either.
+    * 
+    * @return string
+    * 
+    * @see ConvertHelper_ThrowableInfo_Call::TYPE_FUNCTION_CALL
+    * @see ConvertHelper_ThrowableInfo_Call::TYPE_METHOD_CALL
+    * @see ConvertHelper_ThrowableInfo_Call::TYPE_SCRIPT_START
+    * @see ConvertHelper_ThrowableInfo_Call::hasFunction()
+    * @see ConvertHelper_ThrowableInfo_Call::hasClass()
+    */
+    public function getType() : string
+    {
+        return $this->type;
+    }
+     
+   /**
+    * Serializes the call to an array, with all
+    * necessary information. Can be used to restore
+    * the call later using {@link ConvertHelper_ThrowableInfo_Call::fromSerialized()}.
+    * 
+    * @return array
+    */
+    public function serialize() : array
+    {
+        $result = array(
+            'type' => $this->getType(),
+            'class' => $this->getClass(),
+            'file' => $this->getFilePath(),
+            'function' => $this->getFunction(),
+            'line' => $this->getLine(),
+            'position' => $this->getPosition(),
+            'arguments' => array()
+        );
+        
+        foreach($this->args as $argument)
+        {
+            $result['arguments'][] = $argument->serialize();
+        }
+        
+        return $result;
+    }
+
+    public static function fromTrace(ConvertHelper_ThrowableInfo $info, int $position, array $trace)
+    {
+        return new ConvertHelper_ThrowableInfo_Call(
+            $info, 
+            array(
+                'position' => $position,
+                'trace' => $trace
+            )
+        );
+    }
+    
+    public static function fromSerialized(ConvertHelper_ThrowableInfo $info, array $serialized)
+    {
+        return new ConvertHelper_ThrowableInfo_Call(
+            $info,
+            array(
+                'serialized' => $serialized
+            )
+        );
     }
 }

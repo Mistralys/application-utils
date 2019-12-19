@@ -33,6 +33,11 @@ class VariableInfo implements Interface_Optionable
     );
     
    /**
+    * @var string
+    */
+    protected $string;
+    
+   /**
     * @var array
     */
     protected $value;
@@ -45,7 +50,37 @@ class VariableInfo implements Interface_Optionable
    /**
     * @param mixed $value
     */
-    public function __construct($value)
+    public function __construct($value, $serialized=null)
+    {
+        if(is_array($serialized))
+        {
+            $this->parseSerialized($serialized);
+        }
+        else
+        {
+            $this->parseValue($value);
+        }
+    }
+    
+    public static function fromVariable($variable)
+    {
+        return new VariableInfo($variable);
+    }
+    
+    public static function fromSerialized(array $serialized)
+    {
+        return new VariableInfo(null, $serialized);
+    }
+    
+    protected function parseSerialized(array $serialized)
+    {
+        $this->string = $serialized['string'];
+        $this->type = $serialized['type'];
+        
+        $this->setOptions($serialized['options']);
+    }
+    
+    protected function parseValue($value)
     {
         $this->value = $value;
         $this->type = strtolower(gettype($value));
@@ -53,6 +88,8 @@ class VariableInfo implements Interface_Optionable
         if(is_array($value) && is_callable($value)) {
             $this->type = self::TYPE_CALLABLE;
         }
+        
+        $this->string = $this->_toString();
     }
     
     public function getType()
@@ -82,17 +119,38 @@ class VariableInfo implements Interface_Optionable
     
     public function toString() : string
     {
-        return $this->toFormat('String');
+        $converted = $this->string;
+        
+        if($this->getOption('prepend-type') === true && !$this->isNull())
+        {
+            if($this->isString())
+            {
+                $converted = '"'.$converted.'"';
+            }
+            
+            $converted = $this->type.' '.$converted;
+        }
+        
+        return $converted;
+    }
+    
+    protected function _toString() : string
+    {
+        $type = str_replace(' ', '_', $this->type);
+        $varMethod = 'toString_'.$type;
+        return $this->$varMethod();
+    }
+    
+    protected function _toHTML() : string
+    {
+        $type = str_replace(' ', '_', $this->type);
+        $varMethod = 'toHTML_'.$type;
+        return $this->$varMethod();
     }
     
     protected function toFormat(string $format)
     {
-        $type = $this->type;
-        
-        if($this->type === self::TYPE_UNKNOWN) {
-            $type = 'unknown';
-        }
-        
+        $type = str_replace(' ', '_', $this->type);
         $varMethod = 'to'.$format.'_'.$type;
         
         $converted = $this->$varMethod();
@@ -178,14 +236,10 @@ class VariableInfo implements Interface_Optionable
     
     protected function toString_string() : string
     {
-        if($this->getOption('prepend-type')) {
-            return '"'.$this->value.'"';
-        }
-        
         return $this->value;
     }
     
-    protected function toString_unknown() : string
+    protected function toString_unknown_type() : string
     {
         return 'unknown type';
     }
@@ -198,6 +252,11 @@ class VariableInfo implements Interface_Optionable
     public function isInteger() : bool
     {
         return $this->isType(self::TYPE_INTEGER);
+    }
+    
+    public function isString() : bool
+    {
+        return $this->isType(self::TYPE_STRING);
     }
     
     public function isBoolean() : bool
@@ -242,19 +301,39 @@ class VariableInfo implements Interface_Optionable
         return ConvertHelper::text_cut($string, $cutAt, ' [...]');
     }
     
+    public function getTypeColor() : string
+    {
+        return self::$colors[$this->type];
+    }
+    
     public function toHTML() : string
     {
-        return $this->toFormat('HTML');
+        $converted = sprintf(
+            '<span style="color:#%1$s" class="variable-value-%3$s">'.
+                '%2$s'.
+            '</span>',
+            $this->getTypeColor(),
+            $this->_toHTML(),
+            str_replace(' ', '-', $this->type)
+        );
+        
+        if($this->getOption('prepend-type') === true && !$this->isNull())
+        {
+            $typeLabel = '<span style="color:#1c2eb1" class="variable-type">'.$this->type.'</span> ';
+            $converted = $typeLabel.' '.$converted;
+        }
+        
+        return $converted;
     }
     
     protected function toHTML_integer() : string
     {
-        return $this->toString_integer();
+        return $this->toString();
     }
     
     protected function toHTML_array() : string
     {
-        $json = $this->toString_array();
+        $json = $this->toString();
         $json = $this->cutString($json);
         $json = nl2br($json);
         
@@ -263,22 +342,22 @@ class VariableInfo implements Interface_Optionable
 
     protected function toHTML_callable() : string
     {
-        return $this->toString_object();
+        return $this->toString();
     }
     
     protected function toHTML_object() : string
     {
-        return $this->toString_object();
+        return $this->toString();
     }
     
     protected function toHTML_resource() : string
     {
-        return $this->toString_resource();
+        return $this->toString();
     }
     
     protected function toHTML_string() : string
     {
-        $string = $this->toString_string();
+        $string = $this->toString();
         $string = $this->cutString($string);
         $string = nl2br(htmlspecialchars($string));
         
@@ -287,16 +366,25 @@ class VariableInfo implements Interface_Optionable
        
     protected function toHTML_boolean() : string
     {
-        return $this->toString_boolean();
+        return $this->toString();
     }
       
     protected function toHTML_null() : string
     {
-        return $this->toString_null();
+        return $this->toString();
     }
     
-    protected function toHTML_unknown() : string
+    protected function toHTML_unknown_type() : string
     {
-        return $this->toString_unknown();
+        return $this->toString();
+    }
+    
+    public function serialize()
+    {
+        return array(
+            'type' => $this->type,
+            'string' => $this->toString(), 
+            'options' => $this->getOptions()
+        );
     }
 }
