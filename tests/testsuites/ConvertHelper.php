@@ -596,4 +596,49 @@ final class ConvertHelperTest extends TestCase
              $this->assertEquals($test['expected'], $result, $test['label']);
         }
     }
+    
+    public function test_arrayRemoveKeys()
+    {
+        $tests = array(
+            array(
+                'label' => 'Keys not present in target array',
+                'value' => array('bar' => 'foo'),
+                'remove' => array('foo'),
+                'expected' => array('bar' => 'foo')
+            ),
+            array(
+                'label' => 'Remove assoc keys',
+                'value' => array('foo' => 'bar', 'bar' => 'foo'),
+                'remove' => array('foo', 'bar'),
+                'expected' => array()
+            ),
+            array(
+                'label' => 'Remove numeric keys',
+                'value' => array('foo' => 'bar', 20 => 'foo'),
+                'remove' => array(20),
+                'expected' => array('foo' => 'bar')
+            ),
+            array(
+                'label' => 'Loose key typing',
+                'value' => array('foo' => 'bar', '20' => 'foo'),
+                'remove' => array(20),
+                'expected' => array('foo' => 'bar')
+            ),
+            array(
+                'label' => 'Empty remove array',
+                'value' => array('foo' => 'bar'),
+                'remove' => array(),
+                'expected' => array('foo' => 'bar')
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $array = $test['value'];
+            
+            ConvertHelper::arrayRemoveKeys($array, $test['remove']);
+            
+            $this->assertEquals($test['expected'], $array, $test['label']);
+        }
+    }
 }
