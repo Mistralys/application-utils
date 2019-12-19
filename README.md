@@ -16,20 +16,22 @@ Simply require the package via composer:
 
 ## Overview
 
+* BaseException: exception class with extended functionality.
 * [ConvertHelper](https://github.com/Mistralys/application-utils/wiki/ConvertHelper): converting dates, strings, transliterating and more.
 * CSVHelper: read and generate CSV files.
+* JSHelper: generate JavaScript statements from PHP with automatic PHP > JS conversion of variables.
 * [FileHelper](https://github.com/Mistralys/application-utils/wiki/FileHelper): file system utility methods and file finder.
 * ImageHelper: image manipulation using native GD functions with alpha support.
 * [IniHelper](https://github.com/Mistralys/application-utils/wiki/IniHelper): INI file reader and editor.
-* JSHelper: generate JavaScript statements from PHP with automatic PHP > JS conversion of variables.
 * NumberInfo: access and modify numbers with or without units.
 * PaginationHelper: calculates all required numbers for a pagination widget.
 * RegexHelper: collection of typical validation Regexes.
 * [Request](https://github.com/Mistralys/application-utils/wiki/Request): class to validate, filter and access request variables.
 * RequestHelper: build raw request headers from scratch.
 * SVNHelper: working with a local SVN repository. Update, commit, etc.
+* [ThrowableInfo](https://github.com/Mistralys/application-utils/wiki/ThrowableInfo): OOP access for error information, and persisting it to storage.
 * [URLInfo](https://github.com/Mistralys/application-utils/wiki/URLInfo): An object oriented parse_url with fixes for a number of pitfalls.
-* VariableInfo: accessing information on PHP variables.
+* VariableInfo: OOP access for information on PHP variables.
 * XMLHelper: simplifies working with some of the XML libraries like DOM or SimpleXML.
 * ZIPHelper: abstracts working with the ZIPArchive class.
 
