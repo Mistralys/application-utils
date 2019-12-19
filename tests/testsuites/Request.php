@@ -1,6 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use AppUtils\RegexHelper;
 
 final class RequestTest extends TestCase
 {
@@ -1203,6 +1204,31 @@ final class RequestTest extends TestCase
             
             $value = $request->registerParam($name)
             ->setJSONObject()
+            ->get();
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+    
+    public function test_getRegisteredParam_regex()
+    {
+        $tests = array(
+            array(
+                'label' => 'Simple alnum regex',
+                'value' => 'FooBar2',
+                'expected' => 'FooBar2',
+                'regex' => '/[a-zA-Z0-9]+/'
+            ),
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+            
+            $value = $request->registerParam($name)
+            ->setRegex($def['regex'])
             ->get();
             
             $this->assertEquals($def['expected'], $value, $def['label']);
