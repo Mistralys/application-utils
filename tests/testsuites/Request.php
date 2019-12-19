@@ -1106,6 +1106,109 @@ final class RequestTest extends TestCase
         );
     }
     
+    public function test_validateJSON()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => '',
+            ),
+            array(
+                'label' => 'Integer value',
+                'value' => 50,
+                'expected' => '',
+            ),
+            array(
+                'label' => 'String integer value',
+                'value' => '100',
+                'expected' => '',
+            ),
+            array(
+                'label' => 'Quoted string',
+                'value' => '"foo"',
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Valid JSON object',
+                'value' => '{"foo":"bar"}',
+                'expected' => '{"foo":"bar"}'
+            ),
+            array(
+                'label' => 'Valid JSON array',
+                'value' => '["foo","bar"]',
+                'expected' => '["foo","bar"]'
+            ),
+            array(
+                'label' => 'Trimming whitespace around the string',
+                'value' => '     ["foo","bar"]     ',
+                'expected' => '["foo","bar"]'
+            )
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+            
+            $value = $request->registerParam($name)
+            ->setJSON()
+            ->get();
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+    
+    public function test_validateJSONObject()
+    {
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => '',
+            ),
+            array(
+                'label' => 'Integer value',
+                'value' => 50,
+                'expected' => '',
+            ),
+            array(
+                'label' => 'String integer value',
+                'value' => '100',
+                'expected' => '',
+            ),
+            array(
+                'label' => 'Quoted string',
+                'value' => '"foo"',
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Valid JSON object',
+                'value' => '{"foo":"bar"}',
+                'expected' => '{"foo":"bar"}'
+            ),
+            array(
+                'label' => 'Valid JSON array',
+                'value' => '["foo","bar"]',
+                'expected' => ''
+            )
+        );
+        
+        $request = new \AppUtils\Request();
+        
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+            
+            $value = $request->registerParam($name)
+            ->setJSONObject()
+            ->get();
+            
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+    
     protected function setUniqueParam($value) : string
     {
         $name = $this->generateUniqueParamName();
