@@ -569,12 +569,12 @@ class Request_Param
    /**
     * Validates the syntax of an URL, but not its actual validity. 
     * @param string $value
-    * @return NULL|string
+    * @return string
     */
-    protected function validate_url($value)
+    protected function validate_url($value) : string
     {
         if(!is_string($value)) {
-            return null;
+            return '';
         }
         
         $info = parse_url($value);
@@ -582,7 +582,7 @@ class Request_Param
             return $value;
         }
         
-        return null;
+        return '';
     }
 
     /**
