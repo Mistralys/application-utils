@@ -73,16 +73,16 @@ class Request
      */
     public function getParam($name, $default = null)
     {
-        if (isset($_REQUEST[$name])) {
+        $value = $default;
+        if(isset($_REQUEST[$name])) {
             $value = $_REQUEST[$name];
-            if (isset($this->knownParams[$name])) {
-                $value = $this->knownParams[$name]->validate($value);
-            }
-            
-            return $value;
         }
         
-        return $default;
+        if(isset($this->knownParams[$name])) {
+            $value = $this->knownParams[$name]->validate($value);
+        }
+        
+        return $value;
     }
     
     public function getParams()
@@ -443,26 +443,64 @@ class Request
         return $val;
     }
     
-    /**
-     * Treats the request parameter as a JSON string, and
-     * if it exists and contains valid JSON, returns the
-     * decoded JSON value as an array (default).
-     *
-     * @param string $name
-     * @param bool $assoc
-     * @return array|NULL
-     */
-    public function getJSON(string $name, bool $assoc=true) :?array
+   /**
+    * Treats the request parameter as a JSON string, and
+    * if it exists and contains valid JSON, returns the
+    * decoded JSON value as an array (default).
+    *
+    * @param string $name
+    * @param bool $assoc
+    * @return array|object
+    * 
+    * @see Request::getJSONAssoc()
+    * @see Request::getJSONObject()
+    */
+    public function getJSON(string $name, bool $assoc=true)
     {
         $value = $this->getParam($name);
-        if(!empty($value)) {
+        
+        if(!empty($value) && is_string($value)) 
+        {
             $data = json_decode($value, $assoc);
-            if($data !== false) {
+            
+            if($assoc && is_array($data)) {
+                return $data;
+            }
+            
+            if(is_object($data)) {
                 return $data;
             }
         }
         
-        return null;
+        if($assoc) {
+            return array();
+        }
+        
+        return new \stdClass();
+    }
+    
+   /**
+    * Like {@link Request::getJSON()}, but omitting the second
+    * parameter. Use this for more readable code.
+    * 
+    * @param string $name
+    * @return array
+    */
+    public function getJSONAssoc(string $name) : array
+    {
+        return $this->getJSON($name);
+    }
+    
+   /**
+    * Like {@link Request::getJSON()}, but omitting the second
+    * parameter. Use this for more readable code.
+    *
+    * @param string $name
+    * @return array
+    */
+    public function getJSONObject(string $name) : object
+    {
+        return $this->getJSON($name, false);
     }
     
     /**
