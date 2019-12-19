@@ -1757,4 +1757,21 @@ class ConvertHelper
             $results[0]['description']
         );
     }
+
+   /**
+    * Removes the specified keys from the target array,
+    * if they exist.
+    * 
+    * @param array $array
+    * @param array $keys
+    */
+    public static function arrayRemoveKeys(array &$array, array $keys) : void
+    {
+        foreach($keys as $key) 
+        {
+            if(array_key_exists($key, $array)) {
+                unset($array[$key]); 
+            }
+        }
+    }
 }
