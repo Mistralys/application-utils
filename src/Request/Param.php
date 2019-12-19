@@ -250,7 +250,7 @@ class Request_Param
      */
     public function setRegex($regex)
     {
-        return $this->setValidation(self::VALIDATION_TYPE_REGEX, $regex);
+        return $this->setValidation(self::VALIDATION_TYPE_REGEX, array('regex' => $regex));
     }
     
     public function setURL()
@@ -500,13 +500,13 @@ class Request_Param
      * directly as shorthand.
      *
      * @param string $type
-     * @param mixed $params
+     * @param array $params
      * @return Request_Param
      * @throws Request_Exception
      * 
      * @see Request_Param::ERROR_UNKNOWN_VALIDATION_TYPE
      */
-    public function setValidation(string $type, ?array $params = null) : Request_Param
+    public function setValidation(string $type, array $params = array()) : Request_Param
     {
         if (!in_array($type, self::$validationTypes)) {
             throw new Request_Exception(
@@ -608,7 +608,7 @@ class Request_Param
      */
     protected function validate_regex($value)
     {
-        if (preg_match($this->validationParams, $value)) {
+        if (preg_match($this->validationParams['regex'], $value)) {
             return $value;
         }
 
