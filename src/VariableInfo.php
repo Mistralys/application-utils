@@ -38,7 +38,7 @@ class VariableInfo implements Interface_Optionable
     protected $string;
     
    /**
-    * @var array
+    * @var mixed
     */
     protected $value;
     
@@ -49,6 +49,7 @@ class VariableInfo implements Interface_Optionable
     
    /**
     * @param mixed $value
+    * @param array|null $serialized
     */
     public function __construct($value, $serialized=null)
     {
@@ -62,12 +63,27 @@ class VariableInfo implements Interface_Optionable
         }
     }
     
-    public static function fromVariable($variable)
+   /**
+    * Creates a new variable info instance from a PHP variable
+    * of any type.
+    * 
+    * @param mixed $variable
+    * @return VariableInfo
+    */
+    public static function fromVariable($variable) : VariableInfo
     {
         return new VariableInfo($variable);
     }
     
-    public static function fromSerialized(array $serialized)
+   /**
+    * Restores a variable info instance using a previously serialized
+    * array using the serialize() method.
+    * 
+    * @param array $serialized
+    * @return VariableInfo
+    * @see VariableInfo::serialize()
+    */
+    public static function fromSerialized(array $serialized) : VariableInfo
     {
         return new VariableInfo(null, $serialized);
     }
@@ -92,7 +108,13 @@ class VariableInfo implements Interface_Optionable
         $this->string = $this->_toString();
     }
     
-    public function getType()
+   /**
+    * The variable type - this is the same string that
+    * is returned by the PHP function `gettype`.
+    * 
+    * @return string
+    */
+    public function getType() : string
     {
         return $this->type;
     }
