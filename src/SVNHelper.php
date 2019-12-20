@@ -1,6 +1,6 @@
 <?php
 /**
- * File containing the {@link SVNHelper} class.
+ * File containing the {@see AppUtils\SVNHelper} class.
  * 
  * @package Application Utils
  * @subpackage SVNHelper
@@ -23,18 +23,39 @@ namespace AppUtils;
  */
 class SVNHelper
 {
+   /**
+    * @var integer
+    */
     const ERROR_LOCAL_PATH_DOES_NOT_EXIST = 22401;
     
+   /**
+    * @var integer
+    */
     const ERROR_INVALID_REP_URL = 22402;
     
+   /**
+    * @var integer
+    */
     const ERROR_PATH_IS_OUTSIDE_REPOSITORY = 22403;
     
+   /**
+    * @var integer
+    */
     const ERROR_TARGET_FOLDER_IS_A_FILE = 22404;
     
+   /**
+    * @var integer
+    */
     const ERROR_CANNOT_ADD_INEXISTENT_FILE = 22405;
     
+   /**
+    * @var integer
+    */
     const ERROR_TARGET_PATH_NOT_FOUND = 22406;
     
+   /**
+    * @var integer
+    */
     const ERROR_INVALID_TARGET_TYPE = 22407;
     
    /**
@@ -42,26 +63,52 @@ class SVNHelper
     */
     protected $target;
     
+   /**
+    * @var string
+    */
     protected $path;
     
+   /**
+    * @var string
+    */
     protected $url;
     
+   /**
+    * @var string
+    */
     protected $user;
     
+   /**
+    * @var string
+    */
     protected $pass;
     
+   /**
+    * @var array
+    */
     protected $options = array(
         'binaries-path' => ''
     );
     
+   /**
+    * @var boolean
+    */
     protected $isWindows = false;
     
+   /**
+    * @var array
+    */
     protected $normalize = array(
         'from' => '\\',
         'to' => '/'
     );
     
-    public function __construct($repPath, $repURL)
+   /**
+    * @param string $repPath The path to the repository
+    * @param string $repURL The SVN URL to the repository
+    * @throws SVNHelper_Exception
+    */
+    public function __construct(string $repPath, string $repURL)
     {
         $this->isWindows = substr(PHP_OS, 0, 3) == 'WIN';
         
