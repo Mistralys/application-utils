@@ -1,10 +1,10 @@
 <?php
 /**
- * File containing the {@link ConvertHelper_StringOccurrence} class.
+ * File containing the {@see AppUtils\ConvertHelper_StringMatch} class.
  * 
- * @package AppUtils
+ * @package Application Utils
  * @subpackage ConvertHelper
- * @see ConvertHelper_StringOccurrence
+ * @see ConvertHelper_StringMatch
  */
 
 declare(strict_types=1);
@@ -16,7 +16,7 @@ namespace AppUtils;
  * that was found in a haystack using the method
  * {@link ConvertHelper::findString()}.
  *  
- * @package AppUtils
+ * @package Application Utils
  * @subpackage ConvertHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  * @see ConvertHelper::findString()
