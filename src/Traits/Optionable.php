@@ -203,7 +203,7 @@ interface Interface_Optionable
     function getOption(string $name, $default=null);
     function setOptions(array $options) : Interface_Optionable;
     function getOptions() : array;
-    function isOption($name, $value) : bool;
-    function hasOption($name) : bool;
+    function isOption(string $name, $value) : bool;
+    function hasOption(string $name) : bool;
     function getDefaultOptions() : array;
 }
