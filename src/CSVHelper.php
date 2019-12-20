@@ -14,7 +14,7 @@ namespace AppUtils;
  *
  * Usage:
  * 
- * <pre>
+ * ```php
  * $csv = new CSVHelper();
  * $csv->setHeadersTop(); // has to be set before anything else.
  * 
@@ -27,7 +27,7 @@ namespace AppUtils;
  * // retrieve data
  * $headers = $csv->getHeaders();
  * $row = $csv->getRow(4);
- * </pre>
+ * ```
  *
  * @package Application Utils
  * @subpackage CSVHelper
@@ -35,8 +35,6 @@ namespace AppUtils;
  */
 class CSVHelper
 {
-    const ERROR_CANNOT_READ_CSV_FILE = 561001;
-    
     const ERROR_INVALID_HEADERS_POSITION = 561002;
     
     const ERROR_INVALID_FILE_ENCODING = 561003;
@@ -63,6 +61,9 @@ class CSVHelper
         return new CSVHelper_Builder();
     }
 
+   /**
+    * @var string
+    */
     protected $csv = '';
     
     protected $data = array();
@@ -102,22 +103,15 @@ class CSVHelper
     * afterwards.
     * 
     * @param string $file
-    * @throws CSVHelper_Exception
-    * @return boolean
+    * @throws FileHelper_Exception
+    * @return CSVHelper
+    * 
+    * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
+    * @see FileHelper::ERROR_CANNOT_READ_FILE_CONTENTS
     */
-    public function loadFile($file)
+    public function loadFile(string $file) : CSVHelper
     {
-        $csv = file_get_contents($file);
-        if(!$csv) {
-            throw new CSVHelper_Exception(
-                'Cannot read csv file',
-                sprintf(
-                    'The file [%s] could not be read.',
-                    $file    
-                ),
-                self::ERROR_CANNOT_READ_CSV_FILE
-            );
-        }
+        $csv = FileHelper::readContents($file);
         
         return $this->loadString($csv);
     }
@@ -366,7 +360,7 @@ class CSVHelper
         $parser->heading = false; // we want to handle this ourselves
         $parser->delimiter = $this->detectSeparator();
         
-        $result = $parser->parse_string($this->csv);
+        $result = $parser->parse_string(/** @scrutinizer ignore-type */ $this->csv);
         if(!$result) {
             $this->addError('The CSV string could not be parsed.');
             return;
