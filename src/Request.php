@@ -108,9 +108,15 @@ class Request
         return $this->buildURL($params, $dispatcher);
     }
     
-    public function getDispatcher()
+   /**
+    * Retrieves the name of the current dispatcher script / page.
+    * This is made to be extended and implemented in a subclass.
+    * 
+    * @return string
+    */
+    public function getDispatcher() : string
     {
-        return null;
+        return '';
     }
     
     public function getRefreshParams($params = array(), $exclude = array())
@@ -164,7 +170,7 @@ class Request
      * @param string $dispatcher Relative path to script to use for the URL. Append trailing slash if needed.
      * @return string
      */
-    public function buildURL($params = array(), $dispatcher=null)
+    public function buildURL($params = array(), string $dispatcher='')
     {
         $url = rtrim(APP_URL, '/') . '/' . $dispatcher;
         
@@ -488,7 +494,12 @@ class Request
     */
     public function getJSONAssoc(string $name) : array
     {
-        return $this->getJSON($name);
+        $result = $this->getJSON($name);
+        if(is_array($result)) {
+            return $result;
+        }
+        
+        return array();
     }
     
    /**
@@ -496,19 +507,25 @@ class Request
     * parameter. Use this for more readable code.
     *
     * @param string $name
-    * @return array
+    * @return object
     */
     public function getJSONObject(string $name) : object
     {
-        return $this->getJSON($name, false);
+        $result = $this->getJSON($name, false);
+        if(is_object($result)) {
+            return $result;
+        }
+        
+        return new \stdClass();
     }
     
-    /**
-     * Sends a JSON response with the correct headers.
-     *
-     * @param array|string $data
-     */
-    public static function sendJSON($data)
+   /**
+    * Sends a JSON response with the correct headers.
+    *
+    * @param array|string $data
+    * @param bool $exit Whether to exit the script afterwards.
+    */
+    public static function sendJSON($data, bool $exit=true)
     {
         $payload = $data;
         if(!is_string($payload)) {
@@ -518,17 +535,33 @@ class Request
         header('Cache-Control: no-cache, must-revalidate');
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
         header('Content-type: application/json');
+        
         echo $payload;
-        exit;
+        
+        if($exit) 
+        {
+            exit;
+        }
     }
     
-    public static function sendHTML($html)
+   /**
+    * Sends HTML to the browser with the correct headers.
+    * 
+    * @param string $html
+    * @param bool $exit Whether to exit the script afterwards.
+    */
+    public static function sendHTML(string $html, bool $exit=true)
     {
         header('Cache-Control: no-cache, must-revalidate');
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
         header('Content-type: text/html; charset=utf-8');
+        
         echo $html;
-        exit;
+        
+        if($exit)
+        {
+            exit;
+        }
     }
     
    /**
