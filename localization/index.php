@@ -22,6 +22,15 @@
      */
     require_once $autoload;
     
+    if(!class_exists('\AppLocalize\Localization')) 
+    {
+        die(
+            '<b>ERROR:</b> The translation user interface requires the 
+            <a href="https://packagist.org/packages/mistralys/application-localization">mistralys/application-localization</a> 
+            package to be installed via composer.'
+        );
+    }
+    
     // add the locales we wish to manage (en_UK is always present)
     \AppLocalize\Localization::addAppLocale('de_DE');
     \AppLocalize\Localization::addAppLocale('fr_FR');
