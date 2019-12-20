@@ -641,4 +641,14 @@ final class ConvertHelperTest extends TestCase
             $this->assertEquals($test['expected'], $array, $test['label']);
         }
     }
+    
+    public function test_date2timestamp()
+    {
+        $timestamp = mktime(10, 15, 0, 2, 2, 2006);
+        $date = ConvertHelper::timestamp2date($timestamp);
+        
+        $back = ConvertHelper::date2timestamp($date);
+        
+        $this->assertEquals($timestamp, $back);
+    }
 }
