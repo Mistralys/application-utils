@@ -1,8 +1,10 @@
 <?php
 /**
- * File containing the {@link ConvertHelper_EOL} class.
- * @package AppUtils
+ * File containing the {@see AppUtils\ConvertHelper_EOL} class.
+ * 
+ * @package Application Utils
  * @subpackage ConvertHelper
+ * @see AppUtils\ConvertHelper_EOL
  */
 
 declare(strict_types=1);
@@ -11,8 +13,10 @@ namespace AppUtils;
 
 /**
  * Container class for an end of line (EOL) character.
+ * Used as result when detecting EOL characters in a
+ * string or file.
  *
- * @package AppUtils
+ * @package Application Utils
  * @subpackage ConvertHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  * 
@@ -56,17 +60,6 @@ class ConvertHelper_EOL
         return $this->char;
     }
     
-   /**
-    * Checks if the encoding matches the specified encoding string.
-    * 
-    * @param string $encoding
-    * @return bool
-    */
-    public function isEncoding(string $encoding) : bool
-    {
-        return $this->encoding === $encoding;
-    }
-
    /**
     * A more detailed, human readable description of the character.
     * @return string
