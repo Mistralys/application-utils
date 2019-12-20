@@ -2,7 +2,7 @@
 /**
  * File containing the {@link FileHelper_PHPClassInfo} class.
  * 
- * @package AppUtils
+ * @package Application Utils
  * @subpackage FileHelper
  * @see FileHelper_PHPClassInfo
  */
@@ -18,7 +18,7 @@ namespace AppUtils;
  * classes, and which classes they extend or interfaces are 
  * implemented.
  * 
- * @package AppUtils
+ * @package Application Utils
  * @subpackage FileHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  * @see FileHelper::findPHPClasses()
