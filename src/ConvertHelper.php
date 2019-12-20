@@ -277,7 +277,7 @@ class ConvertHelper
         switch ($interval) 
         {
             case "m":
-                $months_difference = floor($difference / 60 / 60 / 24 / 29);
+                $months_difference = (int)floor($difference / 60 / 60 / 24 / 29);
                 $hour = (int)date("H", $datefrom);
                 $min = (int)date("i", $datefrom);
                 $sec = (int)date("s", $datefrom);
@@ -1401,11 +1401,13 @@ class ConvertHelper
     
    /**
     * Splits a string into an array of all characters it is composed of.
-    * Spaces and newlines (both \r and \n) are also considered single
-    * characters. Unicode character safe.
+    * Unicode character safe.
+    * 
+    * NOTE: Spaces and newlines (both \r and \n) are also considered single
+    * characters.
     * 
     * @param string $string
-    * @return string[]
+    * @return array
     */
     public static function string2array(string $string) : array
     {
