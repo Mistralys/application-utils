@@ -1,7 +1,21 @@
 <?php
+/**
+ * File containing the {@see AppUtils\FileHelper} class.
+ * 
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @see FileHelper
+ */
 
 namespace AppUtils;
 
+/**
+ * Collection of file system related methods.
+ * 
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class FileHelper
 {
     const ERROR_CANNOT_FIND_JSON_FILE = 340001;
@@ -57,6 +71,12 @@ class FileHelper
     const ERROR_CANNOT_OPEN_FILE_TO_READ_LINES = 340027;
     
     const ERROR_CANNOT_READ_FILE_CONTENTS = 340028;
+    
+    const ERROR_PARSING_CSV = 340029;
+    
+    const ERROR_CURL_INIT_FAILED = 340030;
+    
+    const ERROR_CURL_OUTPUT_NOT_STRING = 340031;
     
    /**
     * Opens a serialized file and returns the unserialized data.
@@ -302,17 +322,18 @@ class FileHelper
 
     /**
     * Creates a new CSV parser instance and returns it.
+    * 
     * @param string $delimiter
     * @param string $enclosure
     * @param string $escape
-    * @param string $heading
+    * @param bool $heading
     * @return \parseCSV
+    * @todo Move this to the CSV helper.
     */
-    public static function createCSVParser($delimiter = ';', $enclosure = '"', $escape = '\\', $heading=false)
+    public static function createCSVParser(string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $heading=false) : \parseCSV
     {
-        if($delimiter===null) { $delimiter = ';'; }
-        if($enclosure===null) { $enclosure = '"'; }
-        if($escape===null) { $escape = '\\'; }
+        if($delimiter==='') { $delimiter = ';'; }
+        if($enclosure==='') { $enclosure = '"'; }
         
         $parser = new \parseCSV(null, null, null, array());
 
@@ -323,21 +344,36 @@ class FileHelper
         return $parser;
     }
 
-    /**
-     * Parses all lines in the specified string and returns an
-     * indexed array with all csv values in each line.
-     *
-     * @param string $csv
-     * @param string $delimiter
-     * @param string $enclosure
-     * @param string $escape
-     * @return array
-     * @see parseCSVFile()
-     */
-    public static function parseCSVString($csv, $delimiter = ';', $enclosure = '"', $escape = '\\', $heading=false)
+   /**
+    * Parses all lines in the specified string and returns an
+    * indexed array with all csv values in each line.
+    *
+    * @param string $csv
+    * @param string $delimiter
+    * @param string $enclosure
+    * @param string $escape
+    * @param bool $heading
+    * @return array
+    * @throws FileHelper_Exception
+    * 
+    * @todo Move this to the CSVHelper.
+    *
+    * @see parseCSVFile()
+    * @see FileHelper::ERROR_PARSING_CSV
+    */
+    public static function parseCSVString(string $csv, string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $heading=false) : array
     {
         $parser = self::createCSVParser($delimiter, $enclosure, $escape, $heading);
-        return $parser->parse_string($csv);
+        $result = $parser->parse_string(/** @scrutinizer ignore-type */ $csv);
+        if(is_array($result)) {
+            return $result;
+        }
+        
+        throw new FileHelper_Exception(
+            'Could not parse CSV string, possible formatting error.',
+            'The parseCSV library returned an error, but exact details are not available.',
+            self::ERROR_PARSING_CSV
+        );
     }
 
     /**
@@ -349,14 +385,17 @@ class FileHelper
      * @param string $enclosure
      * @param string $escape
      * @return array
+     * @throws FileHelper_Exception
+     * 
+     * @todo Move this to the CSVHelper.
+     * 
      * @see parseCSVString()
+     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
+     * @see FileHelper::ERROR_CANNOT_READ_FILE_CONTENTS
      */
-    public static function parseCSVFile($filePath, $delimiter = ';', $enclosure = '"', $escape = '\\', $heading=false)
+    public static function parseCSVFile(string $filePath, string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $heading=false) : array
     {
-        $content = file_get_contents($filePath);
-        if (!$content) {
-            return false;
-        }
+        $content = self::readContents($filePath);
 
         return self::parseCSVString($content, $delimiter, $enclosure, $escape, $heading);
     }
@@ -368,7 +407,7 @@ class FileHelper
      * @param string $fileName
      * @return string|NULL
      */
-    public static function detectMimeType($fileName)
+    public static function detectMimeType(string $fileName) : ?string
     {
         $ext = self::getExtension($fileName);
         if(empty($ext)) {
@@ -383,20 +422,23 @@ class FileHelper
      * sends the required headers to trigger a download and
      * outputs the file. Returns false if the mime type could
      * not be determined.
+     * 
+     * NOTE: Exits the script by default.
      *
      * @param string $filePath
-     * @param string $fileName The name of the file for the client
-     * @param bool $asAttachment Whether to force the client to download the file
+     * @param string|null $fileName The name of the file for the client.
+     * @param bool $asAttachment Whether to force the client to download the file.
+     * @param bool $exit Whether to exit the script after sending the file.
      * @throws FileHelper_Exception
      * 
      * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
      * @see FileHelper::ERROR_UNKNOWN_FILE_MIME_TYPE
      */
-    public static function sendFile($filePath, $fileName = null, $asAttachment=true)
+    public static function sendFile(string $filePath, $fileName = null, bool $asAttachment=true, bool $exit=true)
     {
         self::requireFileExists($filePath);
         
-        if (is_null($fileName)) {
+        if(empty($fileName)) {
             $fileName = basename($filePath);
         }
 
@@ -428,7 +470,11 @@ class FileHelper
         ), true);
         
         readfile($filePath);
-        exit;
+        
+        if($exit) 
+        {
+            exit;
+        }
     }
 
     /**
@@ -444,7 +490,8 @@ class FileHelper
      */
     public static function downloadFile($url)
     {
-        if (!function_exists('curl_init')) {
+        if(!function_exists('curl_init')) 
+        {
             throw new FileHelper_Exception(
                 'The cURL extension is not installed.',
                 null,
@@ -453,6 +500,15 @@ class FileHelper
         }
 
         $ch = curl_init();
+        if($ch === false) 
+        {
+            throw new FileHelper_Exception(
+                'Could not initialize a new cURL instance.',
+                'Calling curl_init returned false. Additional information is not available.',
+                self::ERROR_CURL_INIT_FAILED
+            );
+        }
+        
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_REFERER, $url);
         curl_setopt($ch, CURLOPT_USERAGENT, "Google Chrome/1.0");
@@ -462,9 +518,10 @@ class FileHelper
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 100000);
+        
         $output = curl_exec($ch);
 
-        if ($output === false) {
+        if($output === false) {
             throw new FileHelper_Exception(
                 'Unable to open URL',
                 sprintf(
@@ -478,7 +535,16 @@ class FileHelper
 
         curl_close($ch);
 
-        return $output;
+        if(is_string($output)) 
+        {
+            return $output;
+        }
+        
+        throw new FileHelper_Exception(
+            'Unexpected cURL output.',
+            'The cURL output is not a string, although the CURLOPT_RETURNTRANSFER option is set.',
+            self::ERROR_CURL_OUTPUT_NOT_STRING
+        );
     }
     
    /**
@@ -653,10 +719,12 @@ class FileHelper
     * 
     * @param string $targetFolder
     * @param array $options
-    * @return string[]
+    * @return array An indexed array with files.
     * @see FileHelper::createFileFinder()
+    * 
+    * @todo Convert this to use the file finder.
     */
-    public static function findHTMLFiles($targetFolder, $options=array())
+    public static function findHTMLFiles(string $targetFolder, array $options=array()) : array
     {
         return self::findFiles($targetFolder, array('html'), $options);
     }
@@ -666,15 +734,28 @@ class FileHelper
     * 
     * @param string $targetFolder
     * @param array $options
-    * @return string[]
+    * @return array An indexed array of PHP files.
     * @see FileHelper::createFileFinder()
+    * 
+    * @todo Convert this to use the file finder.
     */
-    public static function findPHPFiles($targetFolder, $options=array())
+    public static function findPHPFiles(string $targetFolder, array $options=array()) : array
     {
         return self::findFiles($targetFolder, array('php'), $options);
     }
     
-    public static function findFiles($targetFolder, $extensions=array(), $options=array(), $files=array())
+   /**
+    * 
+    * @param string $targetFolder
+    * @param array $extensions
+    * @param array $options
+    * @param array $files
+    * @throws FileHelper_Exception
+    * @return array
+    * @deprecated Will be replaced by the file finder in the future.
+    * @see FileHelper::createFileFinder()
+    */
+    public static function findFiles(string $targetFolder, array $extensions=array(), array $options=array(), array $files=array()) : array
     {
         if(!isset($options['strip-extension'])) {
             $options['strip-extension'] = false;
@@ -869,13 +950,9 @@ class FileHelper
     * @param string $path
     * @return string
     */
-    public static function normalizePath($path)
+    public static function normalizePath(string $path) : string
     {
-        if(is_string($path)) {
-            $path = str_replace(array('\\', '//'), array('/', '/'), $path);
-        }
-        
-        return $path;
+        return str_replace(array('\\', '//'), array('/', '/'), $path);
     }
     
     public static function saveAsJSON($data, $file, $pretty=false)
