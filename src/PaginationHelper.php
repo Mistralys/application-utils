@@ -328,13 +328,7 @@ class PaginationHelper
             $this->current = $pages;
         }
         
-        $offset = ($this->current-1) * $this->perPage;
         $this->last = $pages;
-        
-        $start = $offset;
-        if($start === 0) {
-            $start = 1;
-        }
         
         $nextPage = $this->current + 1;
         if($nextPage <= $pages) {
