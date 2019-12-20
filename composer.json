@@ -31,7 +31,6 @@
 	"require" : 
 	{
 		"mistralys/html_quickform2" : ">=2.1",
-		"mistralys/application-localization" : ">=1.1",
 		"geshi/geshi" : "1.0.9.1",
 		"neitanod/forceutf8" : "2.0.1",
 		"parsecsv/php-parsecsv" : "0.4.5"
@@ -39,5 +38,9 @@
 	"require-dev" : 
 	{
 		"phpunit/phpunit" : "8.2.5"
+	},
+	"suggest" : 
+	{
+		"mistralys/application-localization" : "Required to translate available texts, from date related methods or file size labels for example."
 	}
 }
