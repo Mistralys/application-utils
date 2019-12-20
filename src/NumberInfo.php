@@ -4,7 +4,7 @@
  *
  * @access public
  * @package Application Utils
- * @subpackage Misc
+ * @subpackage NumberInfo
  * @see NumberInfo
  */
 
@@ -33,17 +33,29 @@ namespace AppUtils;
  *
  * @access public
  * @package Application Utils
- * @subpackage Misc
+ * @subpackage NumberInfo
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
 class NumberInfo
 {
+   /**
+    * @var mixed
+    */
     protected $rawValue;
     
+   /**
+    * @var array
+    */
     protected $info;
     
+   /**
+    * @var bool
+    */
     protected $empty = false;
     
+   /**
+    * @var array
+    */
     protected $knownUnits = array(
         '%' => true,
         'rem' => true,
@@ -67,10 +79,10 @@ class NumberInfo
     /**
      * Sets the value of the number, including the units.
      *
-     * @param string $value e.g. "10", "45px", "100%", ...
+     * @param string|NumberInfo $value e.g. "10", "45px", "100%", ... or an existing NumberInfo instance.
      * @return NumberInfo
      */
-    public function setValue($value)
+    public function setValue($value) : NumberInfo
     {
         if($value instanceof NumberInfo) {
             $value = $value->getValue();
@@ -89,21 +101,21 @@ class NumberInfo
     *  
     * @return array
     */
-    public function getRawInfo()
+    public function getRawInfo() : array
     {
         return $this->info;
     }
     
-    /**
-     * Whether the number was empty (null or empty string).
-     * @return boolean
-     */
-    public function isEmpty()
+   /**
+    * Whether the number was empty (null or empty string).
+    * @return boolean
+    */
+    public function isEmpty() : bool
     {
         return $this->empty;
     }
     
-    public function isPositive()
+    public function isPositive() : bool
     {
         if(!$this->isEmpty()) {
             $number = $this->getNumber();
@@ -118,12 +130,12 @@ class NumberInfo
      * Whether the number is 0.
      * @return boolean
      */
-    public function isZero()
+    public function isZero() : bool
     {
         return $this->getNumber() === 0;
     }
     
-    public function isZeroOrEmpty()
+    public function isZeroOrEmpty() : bool
     {
         return $this->isEmpty() || $this->isZero();
     }
@@ -134,7 +146,7 @@ class NumberInfo
      *
      * @return boolean
      */
-    public function hasValue()
+    public function hasValue() : bool
     {
         if(!$this->isEmpty() && !$this->isZero()) {
             return true;
@@ -147,7 +159,7 @@ class NumberInfo
      * Whether the value is negative.
      * @return boolean
      */
-    public function isNegative()
+    public function isNegative() : bool
     {
         return !$this->isEmpty() && $this->getNumber() < 0;
     }
@@ -460,21 +472,23 @@ class NumberInfo
      *     'units' => '%'
      * )
      *
-     * @param string $value
+     * @param string|int|float|double $value
      * @return array
      */
-    protected function numericUnitsInfo($value)
+    protected function numericUnitsInfo($value) : array
     {
         static $cache = array();
         
-        $this->restoreFilters = false;
-        
-        if(!is_string($value) && !is_numeric($value)) {
-            $value = null;
+        if(!is_string($value) && !is_numeric($value)) 
+        {
+            $value = '';
+            $key = '_EMPTY_';
+        } 
+        else 
+        {
+            $key = (string)$value;
         }
 
-        $key = (string)$value;
-        
         if(array_key_exists($key, $cache)) {
             return $cache[$key];
         }
@@ -485,7 +499,7 @@ class NumberInfo
             'number' => null
         );
         
-        if($value === null) {
+        if($value === '') {
             $cache[$key]['empty'] = true;
             return $cache[$key];
         }
@@ -496,14 +510,14 @@ class NumberInfo
             return $cache[$key];
         }
         
-        $test = trim($value);
+        $test = trim((string)$value);
         if($test === '') {
             $cache[$key]['empty'] = true;
             return $cache[$key];
         }
         
         // replace comma notation (which is only possible if it's a string)
-        if(is_string($test))
+        if(is_string($value))
         {
             $test = $this->preProcess($test, $cache, $value);
         }
@@ -580,25 +594,34 @@ class NumberInfo
     * Called if explicitly enabled: allows filtering the 
     * number after the detection process has completed.
     * 
-    * @param mixed $number The adjusted number
+    * @param string|NULL $number The adjusted number
     * @param string $originalString The original value before it was parsed
     * @return mixed
     */
-    protected function postProcess($number, $originalString)
+    protected function postProcess(?string $number, string $originalString)
     {
+        print_r(gettype($number));
+        
         return $number;
     }
     
    /**
     * Filters the value before it is parsed, but only if it is a string.
     * 
-    * @param string $string
-    * @param array $cache
-    * @return mixed
+    * NOTE: This may be overwritten in a subclass, to allow custom filtering
+    * the the values. An example of a use case would be a preprocessor for
+    * variables in a templating system.
+    * 
+    * @param string $trimmedString The trimmed value.
+    * @param array $cache The internal values cache array.
+    * @param string $originalValue The original value that the NumberInfo was created for.
+    * @return string
+    * 
+    * @see NumberInfo::enablePostProcess()
     */
-    protected function preProcess(string $string, &$cache, $value)
+    protected function preProcess(string $trimmedString, /** @scrutinizer ignore-unused */ array &$cache, /** @scrutinizer ignore-unused */ string $originalValue) : string
     {
-        return str_replace(',', '.', $string);
+        return str_replace(',', '.', $trimmedString);
     }
     
    /**
@@ -609,13 +632,20 @@ class NumberInfo
     * @return NumberInfo
     * @see NumberInfo::postProcess()
     */
-    protected function enablePostProcess() : NumberInfo
+    private function enablePostProcess() : NumberInfo
     {
         $this->postProcess = true;
         return $this;
     }
     
-    protected function filterInfo($info)
+   /**
+    * Filters the number info array to adjust the units
+    * and number according to the required rules.
+    * 
+    * @param array $info
+    * @return array
+    */
+    protected function filterInfo(array $info) : array
     {
         $useUnits = 'px';
         if($info['units'] !== null) {
