@@ -1,7 +1,21 @@
 <?php
+/**
+ * File containing the {@see AppUtils\CSVHelper_Builder} class.
+ *
+ * @package Application Utils
+ * @subpackage CSVHelper
+ * @see AppUtils\CSVHelper_Builder
+ */
 
 namespace AppUtils;
 
+/**
+ * The CSV builder allows creating CSV contents 
+ * with an object oriented interface.
+ *
+ * @package Application Utils
+ * @subpackage CSVHelper
+ */
 class CSVHelper_Builder
 {
     public function getDefaultOptions()
@@ -122,4 +136,3 @@ class CSVHelper_Builder
         return false;
     }
 }
-
