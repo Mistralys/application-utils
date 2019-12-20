@@ -219,6 +219,15 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
         return $this->date;
     }
     
+   /**
+    * Serializes all information on the exception to an
+    * associative array. This can be saved (file, database, 
+    * session...), and later be restored into a throwable
+    * info instance using the fromSerialized() method.
+    * 
+    * @return array
+    * @see ConvertHelper_ThrowableInfo::fromSerialized()
+    */
     public function serialize() : array
     {
         $result = array(
@@ -257,9 +266,20 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
         return $this->setOption('folder-depth', $depth);
     }
     
+   /**
+    * Retrieves the current folder depth option value.
+    * 
+    * @return int
+    * @see ConvertHelper_ThrowableInfo::setFolderDepth()
+    */
     public function getFolderDepth() : int
     {
-        return $this->getOption('folder-depth');
+        $depth = $this->getOption('folder-depth');
+        if(!empty($depth)) {
+            return $depth;
+        }
+        
+        return 2;
     }
     
    /**
@@ -271,6 +291,10 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
         return $this->calls;
     }
     
+   /**
+    * Returns the amount of function and method calls in the stack trace.
+    * @return int
+    */
     public function countCalls() : int
     {
         return $this->callsCount;
@@ -309,7 +333,7 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
         }
         
         $previous = $e->getPrevious();
-        if($previous instanceof \Throwable) {
+        if(!empty($previous)) {
             $this->previous = ConvertHelper::throwable2info($previous);
         }
         
