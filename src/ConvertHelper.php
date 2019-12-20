@@ -1,8 +1,10 @@
 <?php
 /**
- * File containing the {@link ConvertHelper} class.
- * @package AppUtils
+ * File containing the {@see AppUtils\ConvertHelper} class.
+ * 
+ * @package Application Utils
  * @subpackage ConvertHelper
+ * @see AppUtils\ConvertHelper
  */
 
 namespace AppUtils;
@@ -12,14 +14,12 @@ namespace AppUtils;
  * to convert variable types, as well as specialized methods for working
  * with specific types like dates.
  * 
- * @package AppUtils
+ * @package Application Utils
  * @subpackage ConvertHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
 class ConvertHelper
 {
-    const ERROR_STRIPCONTROLCHARS_NOT_STRING = 23301;
-    
     const ERROR_NORMALIZETABS_INVALID_PARAMS = 23302;
     
     const ERROR_MONTHTOSTRING_NOT_VALID_MONTH_NUMBER = 23303;
@@ -207,6 +207,7 @@ class ConvertHelper
         // the two timestamps
 
         $difference = $dateto - $datefrom;
+        $interval = "";
         
         $future = false;
         if($difference < 0) {
@@ -263,6 +264,8 @@ class ConvertHelper
         elseif ($difference >= 60 * 60 * 24 * 365) {
             $interval = "y";
         }
+        
+        $result = '';
 
         // Based on the interval, determine the
         // number of units between the two dates
@@ -271,12 +274,22 @@ class ConvertHelper
         // this function and DateDiff. If the $datediff
         // returned is 1, be sure to return the singular
         // of the unit, e.g. 'day' rather 'days'
-        switch ($interval) {
+        switch ($interval) 
+        {
             case "m":
                 $months_difference = floor($difference / 60 / 60 / 24 / 29);
-                while (mktime(date("H", $datefrom), date("i", $datefrom), date("s", $datefrom), date("n", $datefrom) + ($months_difference), date("j", $dateto), date("Y", $datefrom)) < $dateto) {
+                $hour = (int)date("H", $datefrom);
+                $min = (int)date("i", $datefrom);
+                $sec = (int)date("s", $datefrom);
+                $month = (int)date("n", $datefrom);
+                $day = (int)date("j", $dateto);
+                $year = (int)date("Y", $datefrom);
+                
+                while(mktime($hour, $min, $sec, $month + ($months_difference), $day, $year) < $dateto) 
+                {
                     $months_difference++;
                 }
+                
                 $datediff = $months_difference;
 
                 // We need this in here because it is possible
@@ -288,68 +301,68 @@ class ConvertHelper
                 }
 
                 if($future) {
-                    $res = ($datediff == 1) ? t('In one month', $datediff) : t('In %1s months', $datediff);
+                    $result = ($datediff == 1) ? t('In one month', $datediff) : t('In %1s months', $datediff);
                 } else {
-                    $res = ($datediff == 1) ? t('One month ago', $datediff) : t('%1s months ago', $datediff);
+                    $result = ($datediff == 1) ? t('One month ago', $datediff) : t('%1s months ago', $datediff);
                 }
                 break;
 
             case "y":
                 $datediff = floor($difference / 60 / 60 / 24 / 365);
                 if($future) {
-                    $res = ($datediff == 1) ? t('In one year', $datediff) : t('In %1s years', $datediff);
+                    $result = ($datediff == 1) ? t('In one year', $datediff) : t('In %1s years', $datediff);
                 } else {
-                    $res = ($datediff == 1) ? t('One year ago', $datediff) : t('%1s years ago', $datediff);
+                    $result = ($datediff == 1) ? t('One year ago', $datediff) : t('%1s years ago', $datediff);
                 }
                 break;
 
             case "d":
                 $datediff = floor($difference / 60 / 60 / 24);
                 if($future) {
-                    $res = ($datediff == 1) ? t('In one day', $datediff) : t('In %1s days', $datediff);
+                    $result = ($datediff == 1) ? t('In one day', $datediff) : t('In %1s days', $datediff);
                 } else {
-                    $res = ($datediff == 1) ? t('One day ago', $datediff) : t('%1s days ago', $datediff);
+                    $result = ($datediff == 1) ? t('One day ago', $datediff) : t('%1s days ago', $datediff);
                 }
                 break;
 
             case "ww":
                 $datediff = floor($difference / 60 / 60 / 24 / 7);
                 if($future) {
-                    $res = ($datediff == 1) ? t('In one week', $datediff) : t('In %1s weeks', $datediff);
+                    $result = ($datediff == 1) ? t('In one week', $datediff) : t('In %1s weeks', $datediff);
                 } else {
-                    $res = ($datediff == 1) ? t('One week ago', $datediff) : t('%1s weeks ago', $datediff);
+                    $result = ($datediff == 1) ? t('One week ago', $datediff) : t('%1s weeks ago', $datediff);
                 }
                 break;
 
             case "h":
                 $datediff = floor($difference / 60 / 60);
                 if($future) {
-                    $res = ($datediff == 1) ? t('In one hour', $datediff) : t('In %1s hours', $datediff);
+                    $result = ($datediff == 1) ? t('In one hour', $datediff) : t('In %1s hours', $datediff);
                 } else {
-                    $res = ($datediff == 1) ? t('One hour ago', $datediff) : t('%1s hours ago', $datediff);
+                    $result = ($datediff == 1) ? t('One hour ago', $datediff) : t('%1s hours ago', $datediff);
                 }
                 break;
 
             case "n":
                 $datediff = floor($difference / 60);
                 if($future) {
-                    $res = ($datediff == 1) ? t('In one minute', $datediff) : t('In %1s minutes', $datediff);
+                    $result = ($datediff == 1) ? t('In one minute', $datediff) : t('In %1s minutes', $datediff);
                 } else {
-                    $res = ($datediff == 1) ? t('One minute ago', $datediff) : t('%1s minutes ago', $datediff);
+                    $result = ($datediff == 1) ? t('One minute ago', $datediff) : t('%1s minutes ago', $datediff);
                 }
                 break;
 
             case "s":
                 $datediff = $difference;
                 if($future) {
-                    $res = ($datediff == 1) ? t('In one second', $datediff) : t('In %1s seconds', $datediff);
+                    $result = ($datediff == 1) ? t('In one second', $datediff) : t('In %1s seconds', $datediff);
                 } else {
-                    $res = ($datediff == 1) ? t('One second ago', $datediff) : t('%1s seconds ago', $datediff);
+                    $result = ($datediff == 1) ? t('One second ago', $datediff) : t('%1s seconds ago', $datediff);
                 }
                 break;
         }
 
-        return $res;
+        return $result;
     }
 
     /**
@@ -544,7 +557,7 @@ class ConvertHelper
         if($date->format('d.m.Y') == $today->format('d.m.Y')) {
             $label = t('Today');
         } else {
-            $label = $date->format('d') . '. ' . self::month2string($date->format('m'), $shortMonth) . ' ';
+            $label = $date->format('d') . '. ' . self::month2string((int)$date->format('m'), $shortMonth) . ' ';
             if ($date->format('Y') != date('Y')) {
                 $label .= $date->format('Y');
             }
@@ -564,7 +577,7 @@ class ConvertHelper
      * return the shorthand version of the month. Translated into the current
      * application locale.
      *
-     * @param int $monthNr
+     * @param int|string $monthNr
      * @param boolean $short
      * @throws ConvertHelper_Exception
      * @return string
@@ -722,23 +735,12 @@ class ConvertHelper
      * @see https://stackoverflow.com/a/8171868/2298192
      * @see https://unicode-table.com/en
      */
-    public static function stripControlCharacters($string)
+    public static function stripControlCharacters(string $string) : string
     {
         if(empty($string)) {
             return $string;
         }
         
-        if(!is_string($string)) {
-            throw new ConvertHelper_Exception(
-                'Subject is not a string',
-                sprintf(
-                    'Expected string, [%s] given.',
-                    gettype($string)
-                ),
-                self::ERROR_STRIPCONTROLCHARS_NOT_STRING
-            );
-        }
-
         // create the regex from the unicode characters list
         if(!isset(self::$controlCharsRegex)) 
         {
@@ -853,8 +855,8 @@ class ConvertHelper
      * Checks whether the two specified numbers are equal.
      * null and empty strings are considered as 0 values.
      *
-     * @param number $a
-     * @param number $b
+     * @param number|string $a
+     * @param number|string $b
      * @return boolean
      */
     public static function areNumbersEqual($a, $b) : bool
@@ -867,11 +869,11 @@ class ConvertHelper
      * 'true' or 'false', with the additional parameter it can also
      * return the 'yes' and 'no' variants.
      *
-     * @param boolean $boolean
+     * @param boolean|string $boolean
      * @param boolean $yesno
      * @return string
      */
-    public static function bool2string($boolean, $yesno = false)
+    public static function bool2string($boolean, bool $yesno = false) : string
     {
         // allow 'yes', 'true', 'no', 'false' string notations as well
         if(!is_bool($boolean)) {
@@ -954,10 +956,10 @@ class ConvertHelper
     * <code>yes</code> or <code>no</code>, and <code>true</code>
     * or <code>false</code>.
     * 
-    * @param string|boolean $value
+    * @param mixed $value
     * @return boolean
     */
-    public static function isBoolean($value)
+    public static function isBoolean($value) : bool
     {
         if(is_bool($value)) {
             return true;
@@ -973,10 +975,10 @@ class ConvertHelper
    /**
     * Converts an associative array to an HTML style attribute value string.
     * 
-    * @param string $subject
+    * @param array $subject
     * @return string
     */
-    public static function array2styleString($subject)
+    public static function array2styleString(array $subject) : string
     {
         $tokens = array();
         foreach($subject as $name => $value) {
@@ -993,9 +995,9 @@ class ConvertHelper
     * @param \DateTime $date
     * @return integer
     */
-    public static function date2timestamp(\DateTime $date)
+    public static function date2timestamp(\DateTime $date) : int
     {
-        return $date->format('U');
+        return (int)$date->format('U');
     }
     
    /**
@@ -1003,7 +1005,7 @@ class ConvertHelper
     * @param int $timestamp
     * @return \DateTime
     */
-    public static function timestamp2date($timestamp)
+    public static function timestamp2date(int $timestamp) : \DateTime
     {
         $date = new \DateTime();
         $date->setTimestamp($timestamp);
@@ -1400,14 +1402,19 @@ class ConvertHelper
    /**
     * Splits a string into an array of all characters it is composed of.
     * Spaces and newlines (both \r and \n) are also considered single
-    * characters. UTF-8 character safe.
+    * characters. Unicode character safe.
     * 
     * @param string $string
     * @return string[]
     */
-    public static function string2array($string)
+    public static function string2array(string $string) : array
     {
-        return preg_split('//u', $string, null, PREG_SPLIT_NO_EMPTY);
+        $result = preg_split('//u', $string, null, PREG_SPLIT_NO_EMPTY);
+        if($result !== false) {
+            return $result;
+        }
+        
+        return array();
     }
     
    /**
@@ -1416,7 +1423,7 @@ class ConvertHelper
     * @param string $string
     * @return boolean
     */
-    public static function isStringHTML($string)
+    public static function isStringHTML(string $string) : bool
     {
         if(preg_match('%<[a-z/][\s\S]*>%siU', $string)) {
             return true;
@@ -1573,6 +1580,8 @@ class ConvertHelper
 
         unset($search);
         
+        $table = array();
+        
         // A fix is required: replace all parameter names with placeholders,
         // which do not conflict with parse_str and which will be restored
         // with the actual parameter names after the parsing.
@@ -1584,7 +1593,6 @@ class ConvertHelper
         if($fixRequired) 
         {
             $counter = 1;
-            $table = array();
             $placeholders = array();
             foreach($paramNames as $paramName)
             {
@@ -1626,7 +1634,6 @@ class ConvertHelper
         {
              $keep[$table[$name]] = $value;
         }
-        
         
         return $keep;
     }
@@ -1710,24 +1717,27 @@ class ConvertHelper
         
         if(!isset(self::$eolChars))
         {
+            $cr = chr((int)hexdec('0d'));
+            $lf = chr((int)hexdec('0a'));
+            
            self::$eolChars = array(
                array(
-                   'char' => chr(hexdec('0d')).chr(hexdec('0a')),
+                   'char' => $cr.$lf,
                    'type' => ConvertHelper_EOL::TYPE_CRLF,
                    'description' => t('Carriage return followed by a line feed'),
                ),
                array(
-                   'char' => chr(hexdec('0a')).chr(hexdec('0d')),
+                   'char' => $lf.$cr,
                    'type' => ConvertHelper_EOL::TYPE_LFCR,
                    'description' => t('Line feed followed by a carriage return'),
                ),
                array(
-                  'char' => chr(hexdec('0a')),
+                  'char' => $lf,
                   'type' => ConvertHelper_EOL::TYPE_LF,
                   'description' => t('Line feed'),
                ),
                array(
-                  'char' => chr(hexdec('0d')),
+                  'char' => $cr,
                   'type' => ConvertHelper_EOL::TYPE_CR,
                   'description' => t('Carriage Return'),
                ),
