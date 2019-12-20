@@ -150,6 +150,10 @@ final class ConvertHelperTest extends TestCase
     {
         $tests = array(
             array(
+                'string' => '',
+                'result' => array()
+            ),
+            array(
                 'string' => 'Hello',
                 'result' => array('H', 'e', 'l', 'l', 'o')
             ),
