@@ -1,12 +1,37 @@
 <?php
+/**
+ * File containing the {@see AppUtils\BaseException} class.
+ *
+ * @package Application Utils
+ * @subpackage BaseException
+ * @see AppUtils\BaseException
+ */
 
 namespace AppUtils;
 
+/**
+ * Extended exception class with additional tools. Allows setting
+ * developer-only information that does not get shown along with
+ * the message, but can easily be retrieved and logged.
+ *
+ * @package Application Utils
+ * @subpackage BaseException
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class BaseException extends \Exception
 {
+   /**
+    * @var string
+    */
     protected $details;
     
-    public function __construct($message, $details=null, $code=null, $previous=null)
+   /**
+    * @param string $message
+    * @param string $details
+    * @param int $code
+    * @param \Exception $previous
+    */
+    public function __construct(string $message, $details=null, $code=null, $previous=null)
     {
         parent::__construct($message, $code, $previous);
         
@@ -66,9 +91,9 @@ class BaseException extends \Exception
         }
     }
 
-    /**
-     * Dumps a current PHP function trace, with HTML styling.
-     */
+   /**
+    * Dumps a current PHP function trace, with HTML styling.
+    */
     public static function dumpTraceAsHTML()
     {
         try
