@@ -1,7 +1,7 @@
 <?php
 /**
  * File containing the {@link IniHelper} class.
- * @package AppUtils
+ * @package Application Utils
  * @subpackage IniHelper
  * @see IniHelper
  */
@@ -15,7 +15,7 @@ namespace AppUtils;
  * in the php.ini (list of extensions), and preserves the
  * formatting of the original file (including comments).
  * 
- * @package AppUtils
+ * @package Application Utils
  * @subpackage IniHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
@@ -186,7 +186,7 @@ class IniHelper
     */
     public function saveToFile(string $filePath) : IniHelper
     {
-        FileHelper::saveFile($filePath, self::saveToString());
+        FileHelper::saveFile($filePath, $this->saveToString());
         
         return $this;
     }
@@ -235,7 +235,13 @@ class IniHelper
         return $this;
     }
     
-    public function sectionExists(string $name)
+   /**
+    * Checks whether a section with the specified name exists.
+    * 
+    * @param string $name
+    * @return bool
+    */
+    public function sectionExists(string $name) : bool
     {
         foreach($this->sections as $section) {
             if($section->getName() === $name) {
@@ -246,6 +252,12 @@ class IniHelper
         return false;
     }
     
+   /**
+    * Retrieves the default section, which is used to add
+    * values in the root of the document.
+    * 
+    * @return IniHelper_Section
+    */
     public function getDefaultSection() : IniHelper_Section
     {
         return $this->addSection(self::SECTION_DEFAULT);
