@@ -89,22 +89,24 @@ trait Traits_Optionable
     }
     
    /**
-    * Enforces that the option value is a string. Scalar 
-    * values are converted to string, and non-scalar values
-    * are converted to an empty string.
+    * Enforces that the option value is a string. Numbers are converted
+    * to string, strings are passed through, and all other types will 
+    * return the default value. The default value is also returned if
+    * the string is empty.
     * 
     * @param string $name
+    * @param string $default Used if the option does not exist, is invalid, or empty.
     * @return string
     */
-    public function getStringOption(string $name) : string
+    public function getStringOption(string $name, string $default='') : string
     {
         $value = $this->getOption($name, false);
         
-        if(is_scalar($value)) {
+        if((is_string($value) || is_numeric($value)) && !empty($value)) {
             return (string)$value;
         }
         
-        return '';
+        return $default;
     }
     
    /**
@@ -116,13 +118,32 @@ trait Traits_Optionable
     * @param string $name
     * @return bool
     */
-    public function getBoolOption(string $name) : bool
+    public function getBoolOption(string $name, bool $default=false) : bool
     {
         if($this->getOption($name) === true) {
             return true;
         }
         
-        return false;
+        return $default;
+    }
+    
+   /**
+    * Treats the option value as an integer value: will return
+    * valid integer values (also from integer strings), or the
+    * default value otherwise.
+    * 
+    * @param string $name
+    * @param int $default
+    * @return int
+    */
+    public function getIntOption(string $name, int $default=0) : int
+    {
+        $value = $this->getOption($name);
+        if(ConvertHelper::isInteger($value)) {
+            return (int)$value;
+        }
+        
+        return $default;
     }
     
    /**
