@@ -6,15 +6,15 @@ final class NumberInfoTest extends TestCase
 {
     public function testParse()
     {
-        $fp = fopen(__FILE__,'r');
-        
         $tests = array(
             array('value' => '', 'label' => 'Empty string', 'units' => null, 'number' => null, 'css' => null),
             array('value' => '0', 'label' => 'String zero', 'units' => null, 'number' => 0, 'css' => '0'),
             array('value' => '1', 'label' => 'String one', 'units' => null, 'number' => 1, 'css' => '1px'),
             array('value' => 1, 'label' => 'Numeric one', 'units' => null, 'number' => 1, 'css' => '1px'),
+            array('value' => 8.7, 'label' => 'Decimal value', 'units' => null, 'number' => 8, 'css' => '8px'),
+            array('value' => 8.1, 'label' => 'Decimal value', 'units' => null, 'number' => 8, 'css' => '8px'),
             array('value' => '1,89', 'label' => 'String comma number', 'units' => null, 'number' => 1, 'css' => '1px'),
-            array('value' => '1.89', 'label' => 'String dot number', 'units' => null, 'number' => 1, 'css' => '1px'),
+            array('value' => '10.42', 'label' => 'String dot number', 'units' => null, 'number' => 10, 'css' => '10px'),
             array('value' => null, 'label' => 'null', 'units' => null, 'number' => null, 'css' => null),
             array('value' => false, 'label' => 'Boolean false', 'units' => null, 'number' => null, 'css' => null),
             array('value' => 'blabla', 'label' => 'String', 'units' => null, 'number' => null, 'css' => null),
@@ -33,23 +33,21 @@ final class NumberInfoTest extends TestCase
             
             array('value' => array(), 'label' => 'Empty array', 'units' => null, 'number' => null, 'css' => null),
             array('value' => array(0), 'label' => 'Array', 'units' => null, 'number' => null, 'css' => null),
-            array('value' => $fp, 'label' => 'Resource', 'units' => null, 'number' => null, 'css' => null),
+            array('value' => imagecreate(10, 10), 'label' => 'Resource', 'units' => null, 'number' => null, 'css' => null),
             array('value' => new DateTime(), 'label' => 'Object', 'units' => null, 'number' => null, 'css' => null),
         );
         
         $number = AppUtils\parseNumber(0);
         
-        foreach($tests as $expected)
-        {
-            $number->setValue($expected['value']);
+        foreach($tests as $test)
+        { 
+            $number->setValue($test['value']);
             
             $info = $number->getRawInfo();
             
-            $this->assertEquals($info['units'], $expected['units'], 'Units check: '.$expected['label']);
-            $this->assertEquals($info['number'], $expected['number'], 'Number check: '.$expected['label']);
-            $this->assertEquals($number->toCSS(), $expected['css'], 'CSS check: '.$expected['label']);
+            $this->assertEquals($info['units'], $test['units'], 'Units check: '.$test['label']);
+            $this->assertEquals($info['number'], $test['number'], 'Number check: '.$test['label']);
+            $this->assertEquals($number->toCSS(), $test['css'], 'CSS check: '.$test['label']);
         }
-        
-        fclose($fp);
     }
 }
