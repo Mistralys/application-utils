@@ -20,11 +20,11 @@ namespace AppUtils;
  */
 class ConvertHelper
 {
-    const ERROR_NORMALIZETABS_INVALID_PARAMS = 23302;
-    
     const ERROR_MONTHTOSTRING_NOT_VALID_MONTH_NUMBER = 23303;
     
     const ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE = 23304;
+    
+    const ERROR_JSON_ENCODE_FAILED = 23305;
     
     /**
      * Normalizes tabs in the specified string by indenting everything
@@ -36,19 +36,8 @@ class ConvertHelper
      * @param boolean $tabs2spaces
      * @return string
      */
-    public static function normalizeTabs($string, $tabs2spaces = false)
+    public static function normalizeTabs(string $string, bool $tabs2spaces = false)
     {
-        if (!is_string($string)) {
-            throw new ConvertHelper_Exception(
-                'Invalid parameters',
-                sprintf(
-                    'Argument for normalizing tabs is not a string, %1$s given.',
-                    gettype($string)
-                ),
-                self::ERROR_NORMALIZETABS_INVALID_PARAMS
-            );
-        }
-
         $lines = explode("\n", $string);
         $max = 0;
         $min = 99999;
@@ -1018,76 +1007,61 @@ class ConvertHelper
     * 
     * @param string $path
     * @return string
+    * 
+    * @see FileHelper::relativizePath()
+    * @see FileHelper::relativizePathByDepth()
     */
-    public static function fileRelativize($path)
+    public static function fileRelativize(string $path) : string
     {
-        $path = str_replace('\\', '/', $path);
-        $root = str_Replace('\\', '/', APP_ROOT);
-        return str_replace($root, '', $path);
+        return FileHelper::relativizePathByDepth($path);
     }
     
-    const JS_REGEX_OBJECT = 'object';
-    
-    const JS_REGEX_JSON = 'json';
+    /**
+    * Converts a PHP regex to a javascript RegExp object statement.
+    * 
+    * NOTE: This is an alias for the JSHelper's `convertRegex` method. 
+    * More details are available on its usage there.
+    *
+    * @param string $regex A PHP preg regex
+    * @param string $statementType The type of statement to return: Defaults to a statement to create a RegExp object.
+    * @return array|string Depending on the specified return type.
+    * 
+    * @see JSHelper::buildRegexStatement()
+    */
+    public static function regex2js(string $regex, string $statementType=JSHelper::JS_REGEX_OBJECT)
+    {
+        return JSHelper::buildRegexStatement($regex, $statementType);
+    }
     
    /**
-    * Takes a regular expression and attempts to convert it to
-    * its javascript equivalent. Returns an array containing the
-    * format string itself (without start and end characters),
-    * and the modifiers.
-    *  
-    * This is intended to be used with the RegExp object, for ex:
+    * Converts the specified variable to JSON. Works just
+    * like the native `json_encode` method, except that it
+    * will trigger an exception on failure, which has the 
+    * json error details included in its developer details.
     * 
-    * <script>
-    * var expression = <?php echo json_encode(ConvertHelper::regex2js('/ab+c/i')) ?>;
-    * var reg = new RegExp(expression.format, expression.modifiers);
-    * </script>
-    *  
-    * @param string $regex
-    * @return array
+    * @param mixed $variable
+    * @param int|NULL $options JSON encode options.
+    * @param int|NULL $depth 
+    * @throws ConvertHelper_Exception
+    * @return string
     */
-    public static function regex2js($regex, $return=self::JS_REGEX_OBJECT)
+    public static function var2json($variable, int $options=0, int $depth=512) : string
     {
-        $regex = trim($regex);
-        $separator = substr($regex, 0, 1);
-        $parts = explode($separator, $regex);
-        array_shift($parts);
+        $result = json_encode($variable, $options, $depth);
         
-        $modifiers = array_pop($parts);
-        if($modifiers == $separator) {
-            $modifiers = '';
+        if($result !== false) {
+            return $result;
         }
         
-        $modifierReplacements = array(
-            's' => '',
-            'U' => ''
-        );
-        
-        $modifiers = str_replace(array_keys($modifierReplacements), array_values($modifierReplacements), $modifiers);
-        
-        $format = implode($separator, $parts);
-        
-        // convert the anchors that are not supported in js regexes
-        $format = str_replace(array('\\A', '\\Z', '\\z'), array('^', '$', ''), $format);
-        
-        if($return==self::JS_REGEX_JSON) {
-            return json_encode(array(
-                'format' => $format,
-                'modifiers' => $modifiers
-            ));
-        }
-        
-        if(!empty($modifiers)) {
-            return sprintf(
-                'new RegExp(%s, %s)',
-                json_encode($format),
-                json_encode($modifiers)
-            );
-        }
-        
-        return sprintf(
-            'new RegExp(%s)',
-            json_encode($format)
+        throw new ConvertHelper_Exception(
+            'Could not create json array'.json_last_error_msg(),
+            sprintf(
+                'The call to json_encode failed for the variable [%s]. JSON error details: #%s, %s',
+                parseVariable($variable)->toString(),
+                json_last_error(),
+                json_last_error_msg()
+            ),
+            self::ERROR_JSON_ENCODE_FAILED
         );
     }
     
@@ -1260,32 +1234,80 @@ class ConvertHelper
     const INTERVAL_SECONDS = 'seconds';
     
    /**
+    * Converts an interval to its total amount of days.
+    * @param \DateInterval $interval
+    * @return int
+    */
+    public static function interval2days(\DateInterval $interval) : int
+    {
+        return self::interval2total($interval, self::INTERVAL_DAYS);
+    }
+
+   /**
+    * Converts an interval to its total amount of hours.
+    * @param \DateInterval $interval
+    * @return int
+    */
+    public static function interval2hours(\DateInterval $interval) : int
+    {
+        return self::interval2total($interval, self::INTERVAL_HOURS);
+    }
+    
+   /**
+    * Converts an interval to its total amount of minutes. 
+    * @param \DateInterval $interval
+    * @return int
+    */
+    public static function interval2minutes(\DateInterval $interval) : int
+    {
+        return self::interval2total($interval, self::INTERVAL_MINUTES);
+    }
+    
+   /**
+    * Converts an interval to its total amount of seconds.
+    * @param \DateInterval $interval
+    * @return int
+    */    
+    public static function interval2seconds(\DateInterval $interval) : int
+    {
+        return self::interval2total($interval, self::INTERVAL_SECONDS);
+    }
+    
+   /**
     * Calculates the total amount of days / hours / minutes or seconds
-    * of a date interval object and returns the value.
+    * of a date interval object (depending in the specified units), and 
+    * returns the total amount.
     * 
     * @param \DateInterval $interval
-    * @param string $unit
+    * @param string $unit What total value to calculate.
     * @return integer
+    * 
+    * @see ConvertHelper::INTERVAL_SECONDS
+    * @see ConvertHelper::INTERVAL_MINUTES
+    * @see ConvertHelper::INTERVAL_HOURS
+    * @see ConvertHelper::INTERVAL_DAYS
     */
-    public static function interval2total(\DateInterval $interval, $unit=self::INTERVAL_SECONDS)
+    public static function interval2total(\DateInterval $interval, $unit=self::INTERVAL_SECONDS) : int
     {
         $total = $interval->format('%a');
         if ($unit == self::INTERVAL_DAYS) {
-            return $total;
+            return (int)$total;
         }
-
+        
         $total = ($total * 24) + ($interval->h );
         if ($unit == self::INTERVAL_HOURS) {
-            return $total;
+            return (int)$total;
         }
     
         $total = ($total * 60) + ($interval->i );
-        if ($unit == self::INTERVAL_MINUTES)
-            return $total;
+        if ($unit == self::INTERVAL_MINUTES) {
+            return (int)$total;
+        }
 
         $total = ($total * 60) + ($interval->s );
-        if ($unit == self::INTERVAL_SECONDS)
-            return $total;
+        if ($unit == self::INTERVAL_SECONDS) {
+            return (int)$total;
+        }
         
         return 0;
     }
@@ -1789,6 +1811,8 @@ class ConvertHelper
     
    /**
     * Checks if the specified variable is an integer or a string containing an integer.
+    * Accepts both positive and negative integers.
+    * 
     * @param mixed $value
     * @return bool
     */
@@ -1798,10 +1822,35 @@ class ConvertHelper
             return true;
         }
         
-        if(is_string($value)) {
-            return preg_match('/\A\d+\z/', $value);
+        // booleans get converted to numbers, so they would
+        // actually match the regex.
+        if(is_bool($value)) {
+            return false;
+        }
+        
+        if(is_string($value) && $value !== '') {
+            return preg_match('/\A-?\d+\z/', $value) === 1;
         }
         
         return false;    
+    }
+    
+   /**
+    * Converts an amount of seconds to a DateInterval object.
+    * 
+    * @param int $seconds
+    * @return \DateInterval
+    */
+    public static function seconds2interval(int $seconds) : \DateInterval
+    {
+        // The DateInterval::format() method does not recalculate carry 
+        // over points in days / seconds / months etc, so we calculate the
+        // actual interval using dates to ensure we get a fully populated
+        // interval object.
+        $d1 = new \DateTime();
+        $d2 = new \DateTime();
+        $d2->add(new \DateInterval('PT'.$seconds.'S'));
+        
+        return $d2->diff($d1);
     }
 }
