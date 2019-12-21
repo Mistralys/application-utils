@@ -330,9 +330,9 @@ class VariableInfo implements Interface_Optionable
         return $this->type === $type;
     }
 
-    protected function cutString($string)
+    protected function cutString(string $string) : string
     {
-        $cutAt = $this->getOption('cut-length');
+        $cutAt = $this->getIntOption('cut-length', 1000);
         
         return ConvertHelper::text_cut($string, $cutAt, ' [...]');
     }
