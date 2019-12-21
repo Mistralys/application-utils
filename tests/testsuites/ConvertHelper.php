@@ -655,4 +655,72 @@ final class ConvertHelperTest extends TestCase
         
         $this->assertEquals($timestamp, $back);
     }
+    
+    public function test_isInteger()
+    {
+        $tests = array(
+            array(
+                'label' => 'Empty string',
+                'value' => '',
+                'expected' => false
+            ),
+            array(
+                'label' => 'Numeric Zero',
+                'value' => 0,
+                'expected' => true
+            ),
+            array(
+                'label' => 'String zero',
+                'value' => '0',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Boolean true',
+                'value' => true,
+                'expected' => false
+            ),
+            array(
+                'label' => 'Array',
+                'value' => array('foo' => 'bar'),
+                'expected' => false
+            ),
+            array(
+                'label' => 'Object',
+                'value' => new stdClass(),
+                'expected' => false
+            ),
+            array(
+                'label' => 'Integer value 145',
+                'value' => 145,
+                'expected' => true
+            ),
+            array(
+                'label' => 'Integer value 1000',
+                'value' => 1000,
+                'expected' => true
+            ),
+            array(
+                'label' => 'String integer',
+                'value' => '1458',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Decimal value',
+                'value' => 10.45,
+                'expected' => false
+            ),
+            array(
+                'label' => 'String decimal',
+                'value' => '10.89',
+                'expected' => false
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::isInteger($test['value']);
+            
+            $this->assertSame($test['expected'], $result, $test['label']);
+        }
+    }
 }
