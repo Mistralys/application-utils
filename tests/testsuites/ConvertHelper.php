@@ -3,6 +3,7 @@
 use PHPUnit\Framework\TestCase;
 
 use AppUtils\ConvertHelper;
+use AppUtils\ConvertHelper_Exception;
 
 final class ConvertHelperTest extends TestCase
 {
@@ -675,6 +676,21 @@ final class ConvertHelperTest extends TestCase
                 'expected' => true
             ),
             array(
+                'label' => 'Numeric 1',
+                'value' => 1,
+                'expected' => true
+            ),
+            array(
+                'label' => 'Numeric -50',
+                'value' => -50,
+                'expected' => true
+            ),
+            array(
+                'label' => 'String -50',
+                'value' => '-50',
+                'expected' => true
+            ),
+            array(
                 'label' => 'Boolean true',
                 'value' => true,
                 'expected' => false
@@ -722,5 +738,108 @@ final class ConvertHelperTest extends TestCase
             
             $this->assertSame($test['expected'], $result, $test['label']);
         }
+    }
+    
+    public function test_seconds2interval()
+    {
+        $tests = array(
+            array(
+                'label' => '60 seconds = 1 minute',
+                'seconds' => 60,
+                'expected' => array(
+                    'seconds' => 0,
+                    'minutes' => 1,
+                    'hours' => 0,
+                    'days' => 0
+                )
+            ),
+            array(
+                'label' => '59 seconds = 59 seconds',
+                'seconds' => 59,
+                'expected' => array(
+                    'seconds' => 59,
+                    'minutes' => 0,
+                    'hours' => 0,
+                    'days' => 0
+                )
+            ),
+            array(
+                'label' => '3601 seconds = 1 hour, 1 second',
+                'seconds' => 3601,
+                'expected' => array(
+                    'seconds' => 1,
+                    'minutes' => 0,
+                    'hours' => 1,
+                    'days' => 0
+                )
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $interval = ConvertHelper::seconds2interval($test['seconds']);
+            
+            $this->assertEquals($test['expected']['seconds'], $interval->s, $test['label']);
+            $this->assertEquals($test['expected']['minutes'], $interval->i, $test['label']);
+            $this->assertEquals($test['expected']['hours'], $interval->h, $test['label']);
+            $this->assertEquals($test['expected']['days'], $interval->d, $test['label']);
+        }
+    }
+    
+    public function test_interval2total()
+    {
+        $tests = array(
+            array(
+                'label' => '100 seconds',
+                'value' => ConvertHelper::seconds2interval(100),
+                'expected' => 100,
+                'units' => ConvertHelper::INTERVAL_SECONDS
+            ),
+            array(
+                'label' => '3600 seconds',
+                'value' => ConvertHelper::seconds2interval(3600),
+                'expected' => 1,
+                'units' => ConvertHelper::INTERVAL_HOURS
+            ),
+            array(
+                'label' => '3 minutes and some seconds',
+                'value' => ConvertHelper::seconds2interval(60*3+15),
+                'expected' => 3,
+                'units' => ConvertHelper::INTERVAL_MINUTES
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::interval2total($test['value'], $test['units']);
+            
+            $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
+    
+    public function test_var2json()
+    {
+        $tests = array(
+            array(
+                'label' => 'Regular array',
+                'value' => array('foo'),
+                'expected' => '["foo"]'
+            ),
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::var2json($test['value']);
+            
+            $this->assertEquals($test['expected'], $result);
+        }
+    }
+    
+    public function test_var2json_error()
+    {
+        $this->expectException(ConvertHelper_Exception::class);
+        
+        // the paragraph sign cannot be converted to JSON.
+        $result = ConvertHelper::var2json(array(utf8_decode('öäöü')));
     }
 }
