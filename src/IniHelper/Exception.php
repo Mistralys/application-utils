@@ -1,7 +1,7 @@
 <?php
 /**
  * File containing the {@link IniHelper_Exception} class.
- * @package AppUtils
+ * @package Application Utils
  * @subpackage IniHelper
  * @see IniHelper_Exception
  */
