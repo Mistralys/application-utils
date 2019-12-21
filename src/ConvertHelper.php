@@ -26,6 +26,8 @@ class ConvertHelper
     
     const ERROR_JSON_ENCODE_FAILED = 23305;
     
+    const ERROR_CANNOT_GET_DATE_DIFF = 23306;
+    
     /**
      * Normalizes tabs in the specified string by indenting everything
      * back to the minimum tab distance. With the second parameter,
@@ -1840,6 +1842,9 @@ class ConvertHelper
     * 
     * @param int $seconds
     * @return \DateInterval
+    * @throws ConvertHelper_Exception If the date interval cannot be created.
+    * 
+    * @see ConvertHelper::ERROR_CANNOT_GET_DATE_DIFF
     */
     public static function seconds2interval(int $seconds) : \DateInterval
     {
@@ -1851,6 +1856,15 @@ class ConvertHelper
         $d2 = new \DateTime();
         $d2->add(new \DateInterval('PT'.$seconds.'S'));
         
-        return $d2->diff($d1);
+        $result = $d2->diff($d1);
+        if($result !== false) {
+            return $result;
+        }
+        
+        throw new ConvertHelper_Exception(
+            'Cannot create interval',
+            sprintf('Getting the date diff failed to retrieve the interval for [%s] seconds.', $seconds),
+            self::ERROR_CANNOT_GET_DATE_DIFF
+        );
     }
 }
