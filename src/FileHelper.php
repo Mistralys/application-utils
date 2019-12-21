@@ -78,6 +78,8 @@ class FileHelper
     
     const ERROR_CURL_OUTPUT_NOT_STRING = 340031;
     
+    const ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM = 340032;
+    
    /**
     * Opens a serialized file and returns the unserialized data.
     * 
@@ -423,18 +425,15 @@ class FileHelper
      * outputs the file. Returns false if the mime type could
      * not be determined.
      * 
-     * NOTE: Exits the script by default.
-     *
      * @param string $filePath
      * @param string|null $fileName The name of the file for the client.
      * @param bool $asAttachment Whether to force the client to download the file.
-     * @param bool $exit Whether to exit the script after sending the file.
      * @throws FileHelper_Exception
      * 
      * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
      * @see FileHelper::ERROR_UNKNOWN_FILE_MIME_TYPE
      */
-    public static function sendFile(string $filePath, $fileName = null, bool $asAttachment=true, bool $exit=true)
+    public static function sendFile(string $filePath, $fileName = null, bool $asAttachment=true)
     {
         self::requireFileExists($filePath);
         
@@ -470,11 +469,6 @@ class FileHelper
         ), true);
         
         readfile($filePath);
-        
-        if($exit) 
-        {
-            exit;
-        }
     }
 
     /**
@@ -866,14 +860,26 @@ class FileHelper
     * @param string $filename
     * @return string|NULL
     */
-    public static function detectUTFBom(string $filename) 
+    public static function detectUTFBom(string $filename) : ?string
     {
         $fp = fopen($filename, 'r');
+        if($fp === false) 
+        {
+            throw new FileHelper_Exception(
+                'Cannot open file for reading',
+                sprintf('Tried opening file [%s] in read mode.', $filename),
+                self::ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM
+            );
+        }
+        
         $text = fread($fp, 20);
+        
         fclose($fp);
 
         $boms = self::getUTFBOMs();
-        foreach($boms as $bom => $value) {
+        
+        foreach($boms as $bom => $value) 
+        {
             $length = mb_strlen($value);
             if(mb_substr($text, 0, $length) == $value) {
                 return $bom;
