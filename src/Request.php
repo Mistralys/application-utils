@@ -39,9 +39,25 @@ class Request
      */
     protected static $instance;
     
+   /**
+    * @var string
+    */
+    protected $baseURL = '';
+    
     public function __construct()
     {
         self::$instance = $this;
+        
+        $this->init();
+    }
+    
+   /**
+    * Can be extended in a subclass, to avoid
+    * redefining the constructor.
+    */
+    protected function init()
+    {
+        
     }
     
     /**
@@ -172,7 +188,7 @@ class Request
      */
     public function buildURL($params = array(), string $dispatcher='')
     {
-        $url = rtrim(APP_URL, '/') . '/' . $dispatcher;
+        $url = rtrim($this->getBaseURL(), '/') . '/' . $dispatcher;
         
         // append any leftover parameters to the end of the URL
         if (!empty($params)) {
@@ -180,6 +196,21 @@ class Request
         }
         
         return $url;
+    }
+    
+   /**
+    * Retrieves the base URL of the application.
+    * @return string
+    */
+    public function getBaseURL() : string
+    {
+        return $this->baseURL;
+    }
+    
+    public function setBaseURL(string $url) : Request
+    {
+        $this->baseURL = $url;
+        return $this;
     }
     
     /**
