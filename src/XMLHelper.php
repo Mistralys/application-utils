@@ -1,6 +1,7 @@
 <?php
 /**
- * File containing the {@link XMLHelper} class.
+ * File containing the {@see AppUtils\XMLHelper} class.
+ * 
  * @package Application Utils
  * @subpackage XMLHelper
  * @see XMLHelper
