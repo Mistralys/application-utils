@@ -1786,4 +1786,22 @@ class ConvertHelper
             }
         }
     }
+    
+   /**
+    * Checks if the specified variable is an integer or a string containing an integer.
+    * @param mixed $value
+    * @return bool
+    */
+    public static function isInteger($value) : bool
+    {
+        if(is_int($value)) {
+            return true;
+        }
+        
+        if(is_string($value)) {
+            return preg_match('/\A\d+\z/', $value);
+        }
+        
+        return false;    
+    }
 }
