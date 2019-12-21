@@ -170,27 +170,33 @@ class ConvertHelper
      * will be calculated between the two dates and not
      * the current time.
      *
-     * @param float|\DateTime $datefrom
-     * @param float|\DateTime $dateto
+     * @param integer|\DateTime $datefrom
+     * @param integer|\DateTime $dateto
+     * @return string
      * @link http://www.sajithmr.com/php-time-ago-calculation/
      */
-    public static function duration2string($datefrom, $dateto = -1)
+    public static function duration2string($datefrom, $dateto = -1) : string
     {
         if($datefrom instanceof \DateTime) {
             $datefrom = ConvertHelper::date2timestamp($datefrom);
+        } else {
+            $datefrom = intval($datefrom);
         }
         
         if($dateto instanceof \DateTime) {
             $dateto = ConvertHelper::date2timestamp($dateto);
+        } else {
+            $dateto = intval($dateto);
         }
         
         // Defaults and assume if 0 is passed in that
         // its an error rather than the epoch
 
-        if ($datefrom <= 0) {
+        if($datefrom <= 0) {
             return t('A long time ago');
         }
-        if ($dateto == -1) {
+        
+        if($dateto == -1) {
             $dateto = time();
         }
 
