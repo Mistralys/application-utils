@@ -698,10 +698,10 @@ class Request_Param
 
     /**
      * Makes sure that the value is an array.
-     * @param array $value
+     * @param mixed $value
      * @return array|NULL
      */
-    protected function validate_array($value)
+    protected function validate_array($value) : ?array
     {
         if (is_array($value)) {
             return $value;
@@ -712,9 +712,9 @@ class Request_Param
     
    /**
     * Makes sure that the value is a JSON-encoded string.
-    * @param string $value
+    * @param mixed $value
     */
-    protected function validate_json($value)
+    protected function validate_json($value) : string
     {
         if(!is_string($value)) {
             return '';
@@ -739,7 +739,6 @@ class Request_Param
                 return $value;
             }
         }
-        
         
         return '';
     }
