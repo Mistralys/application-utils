@@ -31,6 +31,8 @@ class URLInfo implements \ArrayAccess
     
     const ERROR_CANNOT_FIND_CSS_FOLDER = 42104;
     
+    const ERROR_UNKNOWN_TYPE_FOR_LABEL = 42105;
+    
     const TYPE_EMAIL = 'email';
     const TYPE_FRAGMENT = 'fragment';
     const TYPE_PHONE = 'phone';
