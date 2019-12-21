@@ -37,9 +37,9 @@ trait Traits_Optionable
     * 
     * @param string $name
     * @param mixed $default
-    * @return mixed
+    * @return Interface_Optionable
     */
-    public function setOption(string $name, $value) : Interface_Optionable
+    public function setOption(string $name, $value)
     {
         if(!isset($this->options)) {
             $this->options = $this->getDefaultOptions();
@@ -56,7 +56,7 @@ trait Traits_Optionable
     * @param array $options
     * @return Interface_Optionable
     */
-    public function setOptions(array $options) : Interface_Optionable
+    public function setOptions(array $options)
     {
         foreach($options as $name => $value) {
             $this->setOption($name, $value);
@@ -204,6 +204,14 @@ trait Traits_Optionable
     {
         return $this->getOption($name) === $value;
     }
+    
+   /**
+    * Retrieves the default available options as an 
+    * associative array with option name => value pairs.
+    * 
+    * @return array
+    */
+    abstract public function getDefaultOptions() : array;
 }
 
 /**
@@ -220,9 +228,25 @@ trait Traits_Optionable
  */
 interface Interface_Optionable
 {
-    function setOption(string $name, $value) : Interface_Optionable;
+   /**
+    * @param string $name
+    * @param mixed $value
+    * @return Interface_Optionable
+    */
+    function setOption(string $name, $value);
+    
+   /**
+    * @param string $name
+    * @param mixed $default
+    * @return Interface_Optionable
+    */
     function getOption(string $name, $default=null);
-    function setOptions(array $options) : Interface_Optionable;
+    
+   /**
+    * @param array $options
+    * @return Interface_Optionable    
+    */
+    function setOptions(array $options);
     function getOptions() : array;
     function isOption(string $name, $value) : bool;
     function hasOption(string $name) : bool;
