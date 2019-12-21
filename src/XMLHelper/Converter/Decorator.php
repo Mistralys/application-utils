@@ -6,7 +6,7 @@ namespace AppUtils;
  * Custom decorator for converting a SimpleXMLElement to
  * a meaningful JSON structure.
  *
- * @package AppUtils
+ * @package Application Utils
  * @subpackage XMLHelper
  * @see https://hakre.wordpress.com/2013/07/10/simplexml-and-json-encode-in-php-part-iii-and-end/
  */

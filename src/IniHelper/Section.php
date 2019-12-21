@@ -1,7 +1,7 @@
 <?php
 /**
  * File containing the {@link IniHelper} class.
- * @package AppUtils
+ * @package Application Utils
  * @subpackage IniHelper
  * @see IniHelper_Section
  */
@@ -15,7 +15,7 @@ namespace AppUtils;
  * all ini lines contained within it, and offers methods
  * to handle the values.
  *
- * @package AppUtils
+ * @package Application Utils
  * @subpackage IniHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
