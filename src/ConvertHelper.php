@@ -1115,10 +1115,10 @@ class ConvertHelper
     * Note: empty strings and NULL are considered ASCII.
     * Any variable types other than strings are not.
     * 
-    * @param string $string
+    * @param mixed $string
     * @return boolean
     */
-    public static function isStringASCII($string)
+    public static function isStringASCII($string) : bool
     {
         if($string === '' || $string === NULL) {
             return true;
