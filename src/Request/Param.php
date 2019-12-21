@@ -538,7 +538,7 @@ class Request_Param
     */
     public function get($default=null)
     {
-        $value = $this->validate($this->request->getParam($this->paramName));
+        $value = $this->request->getParam($this->paramName);
         if($value !== null && $value !== '') {
             return $value;
         }
@@ -547,28 +547,28 @@ class Request_Param
     }
 
     /**
-     * Validates an integer: returns null if the value is not an integer.
-     * @param int|array|string|NULL|object $value
-     * @return int|NULL
+     * Validates an integer.
+     * 
+     * Note: returns null if the value is not an integer, since any other 
+     * value would be a valid integer that may have meaning in the application.
+     *  
+     * @param mixed $value
+     * @return int|null
      * @see setInteger()
      */
-    protected function validate_integer($value)
+    protected function validate_integer($value) : ?int
     {
-        if (is_array($value)) {
-            return null;
+        if(ConvertHelper::isInteger($value)) {
+            return intval($value);
         }
-
-        $int = null;
-        if (preg_match('/\A\d+\z/', $value)) {
-            $int = intval($value);
-        }
-
-        return $int;
+        
+        return null;
     }
     
    /**
     * Validates the syntax of an URL, but not its actual validity. 
-    * @param string $value
+    * 
+    * @param mixed $value
     * @return string
     */
     protected function validate_url($value) : string
@@ -587,14 +587,15 @@ class Request_Param
 
     /**
      * Validates a numeric value: returns null if the value is not in numeric notation.
-     * @param string $value
-     * @return string|NULL
+     * 
+     * @param mixed $value
+     * @return string|number|NULL
      * @see setNumeric()
      */
-    protected function validate_numeric($value)
+    protected function validate_numeric($value) : ?float
     {
-        if (is_numeric($value)) {
-            return $value;
+        if(is_numeric($value)) {
+            return $value * 1;
         }
 
         return null;
@@ -602,13 +603,28 @@ class Request_Param
 
     /**
      * Validates a request value using a regex. Returns null if the value does not match.
-     * @param string $value
+     * 
+     * @param mixed $value
      * @return string|NULL
      * @see setRegex()
      */
-    protected function validate_regex($value)
+    protected function validate_regex($value) : ?string
     {
-        if (preg_match($this->validationParams['regex'], $value)) {
+        if(!is_scalar($value)) {
+            return null;
+        }
+        
+        // the only scalar value we do not want to work with
+        // is a boolan, which is converted to an integer when
+        // converted to string, which in turn can be validated
+        // with a regex.
+        if(is_bool($value)) {
+            return null;
+        }
+        
+        $value = (string)$value;
+        
+        if(preg_match($this->validationParams['regex'], $value)) {
             return $value;
         }
 
@@ -617,13 +633,18 @@ class Request_Param
 
     /**
      * Validates a string containing only letters, lowercase and uppercase.
-     * @param string $value
+     * 
+     * @param mixed $value
      * @return string|NULL
      * @see setAlpha()
      */
     protected function validate_alpha($value)
     {
-        if (preg_match('/\A[a-zA-Z]+\z/', $value)) {
+        if(!is_scalar($value)) {
+            return null;
+        }
+        
+        if(preg_match('/\A[a-zA-Z]+\z/', $value)) {
             return $value;
         }
 
