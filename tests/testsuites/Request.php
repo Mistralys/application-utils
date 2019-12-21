@@ -445,54 +445,101 @@ final class RequestTest extends TestCase
     */
     public function test_getRegisteredParam_integer()
     {
+        $tests = array(
+            array(
+                'label' => 'Empty string',
+                'value' => '',
+                'expected' => null
+            ),
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => null
+            ),
+            array(
+                'label' => 'String value',
+                'value' => 'Not an integer',
+                'expected' => null
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array(),
+                'expected' => null
+            ),
+            array(
+                'label' => 'Object value',
+                'value' => new stdClass(),
+                'expected' => null
+            ),
+            array(
+                'label' => 'Numeric integer value',
+                'value' => 8958,
+                'expected' => 8958
+            ),
+            array(
+                'label' => 'String integer value',
+                'value' => '255',
+                'expected' => 255
+            ),
+            array(
+                'label' => 'Numeric float value',
+                'value' => 14.8,
+                'expected' => null
+            )
+        );
+        
         $request = new \AppUtils\Request();
         
-        $_REQUEST['foo'] = '100';
-        
-        $value = $request->registerParam('foo')->setInteger()->get();
-        
-        $this->assertEquals('100', $value);
+        foreach($tests as $test)
+        {
+            $name = $this->setUniqueParam($test['value']);
+                        
+            $value = $request->registerParam($name)->setInteger()->get();
+            
+            $this->assertSame($test['expected'], $value, $test['label']);
+        }
     }
     
-   /**
-    * An invalid integer value should not return any value at all.
-    */
-    public function test_getRegisteredParam_integer_invalid()
+    public function test_getRegisteredParam_numeric()
     {
+        $tests = array(
+            array(
+                'label' => 'Empty string',
+                'value' => '',
+                'expected' => null
+            ),
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => null
+            ),
+            array(
+                'label' => 'String value',
+                'value' => 'Not an number',
+                'expected' => null
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array(),
+                'expected' => null
+            ),
+            array(
+                'label' => 'Object value',
+                'value' => new stdClass(),
+                'expected' => null
+            )
+        );
+        
         $request = new \AppUtils\Request();
         
-        $_REQUEST['foo'] = 'not-an-integer';
-        
-        $value = $request->registerParam('foo')->setInteger()->get();
-        
-        $this->assertEquals(null, $value, 'A non-integer value should return null.');
-    }
-
-   /**
-    * Specifying a default value should return that value if
-    * the value in the request is invalid.
-    */
-    public function test_getRegisteredParam_integer_invalid_default()
-    {
-        $request = new \AppUtils\Request();
-        
-        $_REQUEST['foo'] = 'not-an-integer';
-        
-        $value = $request->registerParam('foo')->setInteger()->get(0);
-        
-        $this->assertEquals(0, $value, 'A non-integer value should return the specified default value.');
-    }
-    
-   /**
-    * When getting a default value, it has to be validated as well. 
-    */
-    public function test_getRegisteredParam_integer_default_invalid()
-    {
-        $request = new \AppUtils\Request();
-        
-        $value = $request->registerParam('foo')->setInteger()->get('not-an-integer');
-        
-        $this->assertEquals(null, $value, 'An invalid default value should return null.');
+        foreach($tests as $test)
+        {
+            $name = $this->generateUniqueParamName($test['value']);
+            
+            $value = $request->registerParam($name)->setInteger()->get();
+            
+            $this->assertSame($test['expected'], $value, $test['label']);
+        }
     }
     
    /**
@@ -501,6 +548,30 @@ final class RequestTest extends TestCase
     public function test_getRegisteredParam_enum()
     {
         $tests = array(
+            array(
+                'label' => 'null value',
+                'value' => null,
+                'accepted' => array('bar', 'foo'),
+                'expected' => null,
+            ),
+            array(
+                'label' => 'Empty string',
+                'value' => '',
+                'accepted' => array('bar', 'foo'),
+                'expected' => null,
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array(),
+                'accepted' => array('bar', 'foo'),
+                'expected' => null,
+            ),
+            array(
+                'label' => 'Zero value',
+                'value' => 0,
+                'accepted' => array('bar', 'foo'),
+                'expected' => null,
+            ),
             array(
                 'label' => 'Value exists, and is in accepted values list.',
                 'value' => 'bar',
@@ -1076,6 +1147,42 @@ final class RequestTest extends TestCase
     {
         $tests = array(
             array(
+                'label' => 'Empty string',
+                'value' => '',
+                'allowed' => array('foo', 'bar'),
+                'expected' => array(),
+            ),
+            array(
+                'label' => 'null value',
+                'value' => null,
+                'allowed' => array('foo', 'bar'),
+                'expected' => array(),
+            ),
+            array(
+                'label' => 'Empty array value',
+                'value' => array(),
+                'allowed' => array('foo', 'bar'),
+                'expected' => array(),
+            ),
+            array(
+                'label' => 'Pre-filled array',
+                'value' => array('foo'),
+                'allowed' => array('foo', 'bar'),
+                'expected' => array('foo'),
+            ),
+            array(
+                'label' => 'Object value',
+                'value' => new stdClass(),
+                'allowed' => array('foo', 'bar'),
+                'expected' => array(),
+            ),
+            array(
+                'label' => 'Zero value',
+                'value' => 0,
+                'allowed' => array('foo', 'bar'),
+                'expected' => array(),
+            ),
+            array(
                 'label' => 'Comma separated values',
                 'value' => 'foo,bar,lopos',
                 'allowed' => array('foo', 'bar'),
@@ -1248,6 +1355,48 @@ final class RequestTest extends TestCase
     public function test_getRegisteredParam_regex()
     {
         $tests = array(
+            array(
+                'label' => 'Null value',
+                'value' => null,
+                'expected' => '',
+                'regex' => '/[a-zA-Z0-9]+/'
+            ),
+            array(
+                'label' => 'Empty string value',
+                'value' => '',
+                'expected' => '',
+                'regex' => '/[a-zA-Z0-9]+/'
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array('foo'),
+                'expected' => '',
+                'regex' => '/[a-zA-Z0-9]+/'
+            ),
+            array(
+                'label' => 'Object value',
+                'value' => new stdClass(),
+                'expected' => '',
+                'regex' => '/[a-zA-Z0-9]+/'
+            ),
+            array(
+                'label' => 'Numeric Zero',
+                'value' => 0,
+                'expected' => '0',
+                'regex' => '/[a-zA-Z0-9]+/'
+            ),
+            array(
+                'label' => 'Invalid string',
+                'value' => '*-++**',
+                'expected' => '',
+                'regex' => '/[a-zA-Z0-9]+/'
+            ),
+            array(
+                'label' => 'Boolean true',
+                'value' => true,
+                'expected' => '',
+                'regex' => '/[a-zA-Z0-9]+/'
+            ),
             array(
                 'label' => 'Simple alnum regex',
                 'value' => 'FooBar2',
