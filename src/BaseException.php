@@ -52,8 +52,7 @@ class BaseException extends \Exception
     }
     
    /**
-    * Displays pertinent information on the exception in
-    * the browser, and exits the script.
+    * Displays pertinent information on the exception.
     */
     public function display()
     {
@@ -62,7 +61,6 @@ class BaseException extends \Exception
         }
         
         echo $this->getInfo();
-        exit;
     }
     
    /**
