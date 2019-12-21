@@ -472,10 +472,10 @@ class NumberInfo
      *     'units' => '%'
      * )
      *
-     * @param string|int|float|double $value
+     * @param mixed $value
      * @return array
      */
-    protected function numericUnitsInfo($value) : array
+    private function numericUnitsInfo($value) : array
     {
         static $cache = array();
         
@@ -598,10 +598,8 @@ class NumberInfo
     * @param string $originalString The original value before it was parsed
     * @return mixed
     */
-    protected function postProcess(?string $number, string $originalString)
+    protected function postProcess(?string $number, /** @scrutinizer ignore-unused */ string $originalString)
     {
-        print_r(gettype($number));
-        
         return $number;
     }
     
