@@ -203,9 +203,23 @@ class VariableInfo implements Interface_Optionable
         return $converted;
     }
     
+   /**
+    * Converts an array to a string.
+    * @return string
+    * 
+    * @todo Create custom dump implementation, using VariableInfo instances.
+    */
     protected function toString_array() : string
     {
-        return json_encode($this->value, JSON_PRETTY_PRINT);
+        $result = json_encode($this->value, JSON_PRETTY_PRINT);
+        
+        // the array may not be encodable - for example if it contains
+        // broken unicode characters. 
+        if(is_string($result) && $result !== '') {
+            return $result;
+        }
+        
+        return print_r($this->value, true);
     }
     
     protected function toString_callable() : string

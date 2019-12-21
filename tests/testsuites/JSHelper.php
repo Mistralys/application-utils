@@ -252,4 +252,50 @@ final class JSHelperTest extends TestCase
         
         $this->assertEquals('FOO'.($counter+1), $id, 'Changing the prefix should have worked.');
     }
+    
+    public function test_regex2js()
+    {
+        $tests = array(
+            array(
+                'label' => 'Regex with starting and ending anchors',
+                'regex' => "/\A[0-9]+\Z/",
+                'expected' => 'new RegExp("^[0-9]+$")'
+            ),
+            array(
+                'label' => 'Regex with modifiers',
+                'regex' => "/[0-9]+/iUs",
+                'expected' => 'new RegExp("[0-9]+", "i")'
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = JSHelper::buildRegexStatement($test['regex']);
+            
+            $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
+    
+    public function test_regex2js_array()
+    {
+        $tests = array(
+            array(
+                'label' => 'Simple regex without modifiers',
+                'regex' => "/[0-9]+/",
+                'expected' => '{"format":"[0-9]+","modifiers":""}'
+            ),
+            array(
+                'label' => 'Simple regex with modifiers',
+                'regex' => "/[0-9]+/iUs",
+                'expected' => '{"format":"[0-9]+","modifiers":"i"}'
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = JSHelper::buildRegexStatement($test['regex'], JSHelper::JS_REGEX_JSON);
+            
+            $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
 }
