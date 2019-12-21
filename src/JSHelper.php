@@ -279,4 +279,89 @@ class JSHelper
     {
         self::$idPrefix = $prefix;
     }
+
+    const JS_REGEX_OBJECT = 'object';
+    
+    const JS_REGEX_JSON = 'json';
+    
+    /**
+     * Takes a regular expression and attempts to convert it to
+     * its javascript equivalent. Returns an array containing the
+     * format string itself (without start and end characters),
+     * and the modifiers.
+     *
+     * By default, the method returns a javascript statement
+     * to create a RegExp object:
+     *
+     * ```php
+     * <script>
+     * var reg = <?php echo ConvertHelper::regex2js('/ab+c/i') ?>;
+     * </script>
+     * ```
+     *
+     * The second way allows accessing the format and the modifiers
+     * separately, by storing these in a variable first:
+     *
+     * ```php
+     * <script>
+     * // define the regex details
+     * var expression = <?php echo json_encode(ConvertHelper::regex2js('/ab+c/i', ConvertHelper::JS_REGEX_JSON)) ?>;
+     *
+     * // create the regex object
+     * var reg = new RegExp(expression.format, expression.modifiers);
+     * </script>
+     * ```
+     *
+     * @param string $regex A PHP preg regex
+     * @param string $statementType The statement type to generate: Default to a statement to create a RegExp object.
+     * @return string
+     *
+     * @see JSHelper::JS_REGEX_OBJECT
+     * @see JSHelper::JS_REGEX_JSON
+     */
+    public static function buildRegexStatement(string $regex, string $statementType=self::JS_REGEX_OBJECT) : string
+    {
+        $regex = trim($regex);
+        $separator = substr($regex, 0, 1);
+        $parts = explode($separator, $regex);
+        array_shift($parts);
+        
+        $modifiers = array_pop($parts);
+        if($modifiers == $separator) {
+            $modifiers = '';
+        }
+        
+        $modifierReplacements = array(
+            's' => '',
+            'U' => ''
+        );
+        
+        $modifiers = str_replace(array_keys($modifierReplacements), array_values($modifierReplacements), $modifiers);
+        
+        $format = implode($separator, $parts);
+        
+        // convert the anchors that are not supported in js regexes
+        $format = str_replace(array('\\A', '\\Z', '\\z'), array('^', '$', ''), $format);
+        
+        if($statementType==self::JS_REGEX_JSON)
+        {
+            return ConvertHelper::var2json(array(
+                'format' => $format,
+                'modifiers' => $modifiers
+            ));
+        }
+        
+        if(!empty($modifiers)) {
+            return sprintf(
+                'new RegExp(%s, %s)',
+                ConvertHelper::var2json($format),
+                ConvertHelper::var2json($modifiers)
+            );
+        }
+        
+        return sprintf(
+            'new RegExp(%s)',
+            ConvertHelper::var2json($format)
+        );
+    }
 }
