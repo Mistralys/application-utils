@@ -62,8 +62,6 @@ class ImageHelper
 
     const ERROR_IMAGE_CREATION_FAILED = 513021;
 
-    const ERROR_SAVE_IMAGE_RESOURCE_FALSE = 513022;
-    
     const ERROR_CANNOT_CREATE_IMAGE_CROP = 513023;
     
     const ERROR_GD_LIBRARY_NOT_INSTALLED = 513024;
@@ -106,12 +104,12 @@ class ImageHelper
    /**
     * @var int
     */
-    protected $newWidth;
+    protected $newWidth = 0;
 
    /**
     * @var int
     */
-    protected $newHeight;
+    protected $newHeight = 0;
 
    /**
     * @var int
@@ -199,7 +197,7 @@ class ImageHelper
         $this->height = $this->info->getHeight();
 
         if(!$this->isVector()) {
-            $this->setNewImage($this->duplicateImage($this->sourceImage, true));
+            $this->setNewImage($this->duplicateImage($this->sourceImage));
         }
     }
 
@@ -210,10 +208,22 @@ class ImageHelper
     * @param integer $height
     * @param string $type The target file type when saving
     * @return ImageHelper
+    * @throws ImageHelper_Exception
+    *
+    * @see ImageHelper::ERROR_CANNOT_CREATE_IMAGE_OBJECT
     */
     public static function createNew($width, $height, $type='png')
     {
-        return self::createFromResource(imagecreatetruecolor($width, $height), 'png');
+        $img = imagecreatetruecolor($width, $height);
+        if($img !== false) {
+            return self::createFromResource($img, 'png');
+        }
+        
+        throw new ImageHelper_Exception(
+            'Could not create new true color image.',
+            null,
+            self::ERROR_CANNOT_CREATE_IMAGE_OBJECT
+        );
     }
     
    /**
@@ -228,7 +238,7 @@ class ImageHelper
     * @param string $type The target image type, e.g. "jpeg", "png", etc.
     * @return ImageHelper
     */
-    public static function createFromResource($resource, string $type)
+    public static function createFromResource($resource, ?string $type=null)
     {
         self::requireResource($resource);
         
@@ -452,9 +462,9 @@ class ImageHelper
      * and returns an indexed array with the width and height size.
      *
      * @param integer $height
-     * @return integer[]
+     * @return ImageHelper_Size
      */
-    public function getSizeByWidth($width) : ImageHelper_Size
+    public function getSizeByWidth(int $width) : ImageHelper_Size
     {
         $height = floor(($width * $this->height) / $this->width);
         
@@ -471,7 +481,7 @@ class ImageHelper
      * and returns an indexed array with the width and height size.
      *
      * @param integer $height
-     * @return integer[]
+     * @return ImageHelper_Size
      */
     public function getSizeByHeight($height) : ImageHelper_Size
     {
@@ -492,11 +502,11 @@ class ImageHelper
     * @param int $width
     * @return ImageHelper
     */
-    public function resampleByWidth($width)
+    public function resampleByWidth(int $width) : ImageHelper
     {
         $size = $this->getSizeByWidth($width);
 
-        $this->resampleImage($size[0], $size[1]);
+        $this->resampleImage($size->getWidth(), $size->getHeight());
         
         return $this;
     }
@@ -511,7 +521,7 @@ class ImageHelper
     {
         $size = $this->getSizeByHeight($height);
 
-        return $this->resampleImage($size[0], $size[1]);
+        return $this->resampleImage($size->getWidth(), $size->getHeight());
     }
 
    /**
@@ -521,13 +531,13 @@ class ImageHelper
     * @param int $height
     * @return ImageHelper
     */
-    public function resample($width = null, $height = null) : ImageHelper
+    public function resample(?int $width = null, ?int $height = null) : ImageHelper
     {
         if($this->isVector()) {
             return $this;
         }
         
-        if ($width == null && $height == null) {
+        if ($width === null && $height === null) {
             return $this->resampleByWidth($this->width);
         }
 
@@ -550,11 +560,11 @@ class ImageHelper
 
         if ($this->width <= $this->height) 
         {
-            return $this->resampleByWidth($width);
+            $this->resampleByWidth($width);
         } 
         else 
         {
-            return $this->resampleByHeight($height);
+            $this->resampleByHeight($height);
         }
         
         $newCanvas = $this->createNewImage($width, $height);
@@ -614,22 +624,14 @@ class ImageHelper
             return true;
         }
         
-        if (!isset($this->newImage)) {
+        if(!is_resource($this->newImage)) {
             throw new ImageHelper_Exception(
                 'Error creating new image',
-                'Cannot save an image, no image was created. You have to call one of the resample methods to create a new image.',
+                'Cannot save an image, no valid image resource was created. You have to call one of the resample methods to create a new image.',
                 self::ERROR_SAVE_NO_IMAGE_CREATED
             );
         }
 
-        if($this->newImage === false) {
-            throw new ImageHelper_Exception(
-                'Cannot save image, not a valid image resource',
-                'The image is not a resource, but boolean false',
-                self::ERROR_SAVE_IMAGE_RESOURCE_FALSE
-            );
-        }
-        
         if (file_exists($targetFile)) {
             unlink($targetFile);
         }
@@ -785,9 +787,6 @@ class ImageHelper
             return $this;
         }
 
-        if(is_null($newWidth)) { $newWidth = $this->newWidth; }
-        if(is_null($newHeight)) { $newHeight = $this->newHeight; }
-        
         if($this->newWidth==$newWidth && $this->newHeight==$newHeight) {
             return $this;
         }
@@ -877,8 +876,6 @@ class ImageHelper
         $function = 'image' . $imageType;
         
         $function($resource, null, $quality);
-        
-        exit;
     }
 
     /**
@@ -921,7 +918,6 @@ class ImageHelper
         header('Content-Length: ' . filesize($imageFile));
 
         readfile($imageFile);
-        exit;
     }
     
    /**
@@ -941,6 +937,30 @@ class ImageHelper
     {
         return $this->trimImage($this->newImage, $color);
     }
+    
+   /**
+    * Retrieves a color definition by its index.
+    * 
+    * @param resource $img A valid image resource.
+    * @param int $colorIndex The color index, as returned by imagecolorat for example.
+    * @return array An array with red, green, blue and alpha keys.
+    */
+    public function getIndexedColors($img, int $colorIndex) : array
+    {
+        $color = imagecolorsforindex($img, $colorIndex);
+        
+        // it seems imagecolorsforindex may return false (undocumented, unproven)
+        if(is_array($color)) {
+            return $color;
+        }
+        
+        return array(
+            'red' => 0,
+            'green' => 0,
+            'blue' => 0,
+            'alpha' => 1
+        );
+    }
         
    /**
     * Trims the specified image resource by removing the specified color.
@@ -950,7 +970,7 @@ class ImageHelper
     * @param array $color A color definition, as an associative array with red, green, blue and alpha keys. If not specified, the color at pixel position 0,0 will be used.
     * @return ImageHelper
     */
-    protected function trimImage($img, $color=null) : ImageHelper
+    protected function trimImage($img, ?array $color=null) : ImageHelper
     {
         if($this->isVector()) {
             return $this;
@@ -958,9 +978,10 @@ class ImageHelper
 
         self::requireResource($img);
         
-        if(empty($color)) {
+        if(empty($color)) 
+        {
             $color = imagecolorat($img, 0, 0);
-            $color = imagecolorsforindex($img, $color);
+            $color = $this->getIndexedColors($img, $color);
         }
         
         // Get the image width and height.
@@ -981,7 +1002,7 @@ class ImageHelper
             for ($ix=0; $ix<$imw; $ix++)
             {
                 $ndx = imagecolorat($img, $ix, $iy);
-                $colors = imagecolorsforindex($img, $ndx);
+                $colors = $this->getIndexedColors($img, $ndx);
                 
                 if(!$this->colorsMatch($colors, $color)) 
                 {
@@ -1084,7 +1105,9 @@ class ImageHelper
     protected function createNewImage(int $width, int $height)
     {
         $img = imagecreatetruecolor($width, $height);
-        if (!$img) {
+        
+        if($img === false) 
+        {
             throw new ImageHelper_Exception(
                 'Error creating new image',
                 'Cannot create new image canvas',
@@ -1193,9 +1216,9 @@ class ImageHelper
     * @throws ImageHelper_Exception
     * @see ImageHelper::ERROR_CANNOT_GET_IMAGE_SIZE
     */
-	public function getSize($exception=true) : ImageHelper_Size
+	public function getSize() : ImageHelper_Size
     {
-	    return self::getImageSize($this->newImage, $exception);
+	    return self::getImageSize($this->newImage);
     }
     
     protected $TTFFile;
@@ -1298,7 +1321,6 @@ class ImageHelper
 	 * </pre>
 	 *
 	 * @param string|resource $pathOrResource
-	 * @param bool $exception Whether to trigger an exception when the image does not exist
 	 * @return ImageHelper_Size Size object, can also be accessed like the traditional array from getimagesize
 	 * @see ImageHelper_Size
 	 * @throws ImageHelper_Exception
@@ -1307,7 +1329,7 @@ class ImageHelper
 	 * @see ImageHelper::ERROR_SVG_SOURCE_VIEWBOX_MISSING
 	 * @see ImageHelper::ERROR_SVG_VIEWBOX_INVALID
 	 */
-	public static function getImageSize($pathOrResource, $exception=true) : ImageHelper_Size
+	public static function getImageSize($pathOrResource) : ImageHelper_Size
 	{
 	    if(is_resource($pathOrResource)) 
 	    {
@@ -1332,25 +1354,28 @@ class ImageHelper
 	        $info = getimagesize($pathOrResource);
 	    }
 	    
-	    if($info === false) {
-	        if($exception) {
-    	        throw new ImageHelper_Exception(
-    	            'Error opening image file',
-    	            sprintf(
-    	                'Could not get image size for image [%s]',
-    	                $pathOrResource
-	                ),
-    	            self::ERROR_CANNOT_GET_IMAGE_SIZE
-	            );
-	        }
-	        
-	        return false;
+	    if($info !== false) {
+	        return new ImageHelper_Size($info);
 	    }
 	    
-	    return new ImageHelper_Size($info);
+        throw new ImageHelper_Exception(
+            'Error opening image file',
+            sprintf(
+                'Could not get image size for image [%s]',
+                $pathOrResource
+            ),
+            self::ERROR_CANNOT_GET_IMAGE_SIZE
+        );
 	}
 	
-	protected static function getImageSize_svg($imagePath)
+   /**
+    * @param string $imagePath
+    * @throws ImageHelper_Exception
+    * @return array
+    * 
+    * @todo This should return a ImageHelper_Size instance.
+    */
+	protected static function getImageSize_svg(string $imagePath) : array
 	{
 	    $xml = XMLHelper::createSimplexml();
 	    $xml->loadFile($imagePath);
@@ -1431,7 +1456,7 @@ class ImageHelper
     * @param integer $y
     * @return ImageHelper
     */
-    public function crop($width, $height, $x=0, $y=0)
+    public function crop(int $width, int $height, int $x=0, int $y=0) : ImageHelper
     {
         $new = $this->createNewImage($width, $height);
         
@@ -1442,12 +1467,12 @@ class ImageHelper
         return $this;
     }
     
-    public function getWidth()
+    public function getWidth() : int
     {
         return $this->newWidth;
     }
     
-    public function getHeight()
+    public function getHeight() : int
     {
         return $this->newHeight;
     }
@@ -1457,16 +1482,18 @@ class ImageHelper
     * the image. Returns an associative array
     * with the red, green, blue and alpha components.
     * 
-    * @return array
+    * @param int $format The format in which to return the color value.
+    * @return array|string
     */
-    public function calcAverageColor($format=self::COLORFORMAT_RGB)
+    public function calcAverageColor(int $format=self::COLORFORMAT_RGB)
     {
         $image = $this->duplicate();
         $image->resample(1, 1);
+        
         return $image->getColorAt(0, 0, $format);
     }
     
-    public static function rgb2hex($rgb)
+    public static function rgb2hex(array $rgb) : string
     {
         return sprintf(
             "%02x%02x%02x",
@@ -1486,11 +1513,16 @@ class ImageHelper
     * 
     * @param int $x
     * @param int $y
-    * @return array
+    * @param int $format The format in which to return the color value.
+    * @return array|string
+    * 
+    * @see ImageHelper::COLORFORMAT_RGB
+    * @see ImageHelper::COLORFORMAT_HEX
     */
-    public function getColorAt($x, $y, $format=self::COLORFORMAT_RGB)
+    public function getColorAt(int $x, int $y, int $format=self::COLORFORMAT_RGB)
     {
-        if($x > $this->getWidth() || $y > $this->getHeight()) {
+        if($x > $this->getWidth() || $y > $this->getHeight()) 
+        {
             throw new ImageHelper_Exception(
                 'Position out of bounds',
                 sprintf(
@@ -1505,7 +1537,7 @@ class ImageHelper
         }
         
         $idx = imagecolorat($this->newImage, $x, $y);
-        $rgb = imagecolorsforindex($this->newImage, $idx);
+        $rgb = $this->getIndexedColors($this->newImage, $idx);
         
         if($format == self::COLORFORMAT_HEX) {
             return self::rgb2hex($rgb);
