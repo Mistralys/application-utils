@@ -1,9 +1,26 @@
 <?php
 
+/**
+ * File containing the {@see AppUtils\URLInfo} class.
+ * 
+ * @package Application Utils
+ * @subpackage URLInfo
+ * @see AppUtils\URLInfo
+ */
+
 declare(strict_types=1);
 
 namespace AppUtils;
 
+/**
+ * Replacement for PHP's native `parse_url` function, which
+ * handles some common pitfalls and issues that are hard to 
+ * follow, as well as adding a number of utility methods.
+ * 
+ * @package Application Utils
+ * @subpackage URLInfo
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class URLInfo implements \ArrayAccess
 {
     const ERROR_MISSING_SCHEME = 42101;
@@ -26,20 +43,32 @@ class URLInfo implements \ArrayAccess
     protected $rawURL;
 
    /**
-    * @var string
+    * @var array
     */
     protected $info;
     
+   /**
+    * @var bool
+    */
     protected $isEmail = false;
     
+   /**
+    * @var bool
+    */
     protected $isFragment = false;
     
+   /**
+    * @var bool
+    */
     protected $isValid = true;
     
+   /**
+    * @var bool
+    */
     protected $isPhone = false;
     
    /**
-    * @var string[]
+    * @var array
     */
     protected $knownSchemes = array(
         'ftp',
@@ -83,6 +112,9 @@ class URLInfo implements \ArrayAccess
     */
     protected $highlightExcluded = false;
     
+   /**
+    * @var array
+    */
     protected $infoKeys = array(
         'scheme',
         'host',
@@ -93,6 +125,11 @@ class URLInfo implements \ArrayAccess
         'query',
         'fragment'
     );
+    
+   /**
+    * @var string
+    */
+    protected $url;
     
     public function __construct(string $url)
     {
@@ -499,7 +536,7 @@ class URLInfo implements \ArrayAccess
             return sprintf(
                 '<span class="link-scheme scheme-mailto">mailto:</span>'.
                 '<span class="link-host">%s</span>',
-                $this->replaceVars($this->info['path'])
+                $this->info['path']
             );
         }
         
@@ -507,9 +544,11 @@ class URLInfo implements \ArrayAccess
             return sprintf(
                 '<span class="link-fragment-sign">#</span>'.
                 '<span class="link-fragment-value">%s</span>',
-                $this->replaceVars($this->info['fragment'])
+                $this->info['fragment']
             );
         }
+        
+        $result = '';
         
         if($this->hasScheme())
         {
