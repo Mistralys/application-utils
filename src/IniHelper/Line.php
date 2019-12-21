@@ -1,7 +1,7 @@
 <?php
 /**
  * File containing the {@link IniHelper_Line} class.
- * @package AppUtils
+ * @package Application Utils
  * @subpackage IniHelper
  * @see IniHelper_Line
  */
@@ -13,7 +13,7 @@ namespace AppUtils;
 /**
  * Single INI line container.
  *
- * @package AppUtils
+ * @package Application Utils
  * @subpackage IniHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
