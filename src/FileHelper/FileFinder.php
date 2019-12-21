@@ -1,11 +1,30 @@
 <?php
+/**
+ * File containing the {@see FileHelper_FileFinder} class.
+ * 
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @see FileHelper_FileFinder
+ */
 
 declare(strict_types = 1);
 
 namespace AppUtils;
 
-class FileHelper_FileFinder
+/**
+ * File finder class used to fetch file lists from folders,
+ * with criteria matching. Offers many customization options
+ * on how to return the files, from absolute paths to file names
+ * without extensions or even class name maps.
+ *
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
+class FileHelper_FileFinder implements Interface_Optionable
 {
+    use Traits_Optionable;
+    
     const PATH_MODE_ABSOLUTE = 'absolute';
     
     const PATH_MODE_RELATIVE = 'relative';
@@ -17,18 +36,21 @@ class FileHelper_FileFinder
     */
     protected $path;
     
-    protected $options = array(
-        'recursive' => false,
-        'strip-extensions' => false,
-        'include-extensions' => array(),
-        'exclude-extensions' => array(),
-        'pathmode' => self::PATH_MODE_ABSOLUTE,
-        'slash-replacement' => null
-    );
-    
     public function __construct(string $path)
     {
         $this->path = $this->normalizeSlashes($path);
+    }
+    
+    public function getDefaultOptions() : array
+    {
+        return array(
+            'recursive' => false,
+            'strip-extensions' => false,
+            'include-extensions' => array(),
+            'exclude-extensions' => array(),
+            'pathmode' => self::PATH_MODE_ABSOLUTE,
+            'slash-replacement' => null
+        );
     }
     
     protected function normalizeSlashes($string)
@@ -46,19 +68,29 @@ class FileHelper_FileFinder
         return $this->setOption('recursive', true);
     }
     
+    public function getIncludeExtensions() : array
+    {
+        return $this->getArrayOption('include-extensions');
+    }
+    
     public function includeExtensions(array $extensions) : FileHelper_FileFinder
     {
-        $items = $this->getOption('include-extensions');
+        $items = $this->getIncludeExtensions();
         $items = array_merge($items, $extensions);
         $items = array_unique($items);
         
         $this->setOption('include-extensions', $items);
         return $this;
     }
+
+    public function getExcludeExtensions() : array
+    {
+        return $this->getArrayOption('exclude-extensions');
+    }
     
     public function excludeExtensions(array $extensions) : FileHelper_FileFinder
     {
-        $items = $this->getOption('exclude-extensions');
+        $items = $this->getExcludeExtensions();
         $items = array_merge($items, $extensions);
         $items = array_unique($items);
         
@@ -89,21 +121,6 @@ class FileHelper_FileFinder
     protected function setPathmode($mode) : FileHelper_FileFinder
     {
         return $this->setOption('pathmode', $mode);
-    }
-    
-    protected function setOption($name, $value) : FileHelper_FileFinder
-    {
-        $this->options[$name] = $value;
-        return $this;
-    }
-    
-    protected function getOption($name, $default=null)
-    {
-        if(isset($this->options[$name])) {
-            return $this->options[$name];
-        }
-        
-        return $default;
     }
     
     public function getAll() : array
