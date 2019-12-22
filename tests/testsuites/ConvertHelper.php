@@ -842,4 +842,37 @@ final class ConvertHelperTest extends TestCase
         // the paragraph sign cannot be converted to JSON.
         $result = ConvertHelper::var2json(array(utf8_decode('öäöü')));
     }
+    
+    public function test_duration2string()
+    {
+        $time = time();
+        
+        $tests = array(
+            array(
+                'label' => '60 seconds ago',
+                'from' => $time - 60,
+                'to' => $time,
+                'expected' => 'One minute ago'
+            ),
+            array(
+                'label' => 'No to time set',
+                'from' => $time - 60,
+                'to' => -1,
+                'expected' => 'One minute ago'
+            ),
+            array(
+                'label' => 'Future time',
+                'from' => $time + 60,
+                'to' => $time,
+                'expected' => 'In one minute'
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::duration2string($test['from'], $test['to']);
+            
+            $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
 }
