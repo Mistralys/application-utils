@@ -746,8 +746,8 @@ class FileHelper
     * @param array $files
     * @throws FileHelper_Exception
     * @return array
-    * @deprecated Will be replaced by the file finder in the future.
     * @see FileHelper::createFileFinder()
+    * @todo Convert this to use the file finder. 
     */
     public static function findFiles(string $targetFolder, array $extensions=array(), array $options=array(), array $files=array()) : array
     {
