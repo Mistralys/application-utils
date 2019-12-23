@@ -63,6 +63,19 @@ class ConvertHelper_DurationConverter
     
     public function __construct()
     {
+        if(class_exists('\AppLocalize\Localization')) {
+            \AppLocalize\Localization::onLocaleChanged(array($this, 'handle_localeChanged'));
+        }
+    }
+    
+    /**
+     * Called whenever the application locale has changed,
+     * to reset the internal translation cache.
+     */
+    public function handle_localeChanged()
+    {
+        // force the texts to be refreshed when needed.
+        unset(self::$texts);
     }
     
    /**
