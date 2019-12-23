@@ -59,6 +59,11 @@ class SVNHelper
     const ERROR_INVALID_TARGET_TYPE = 22407;
     
    /**
+    * @var integer
+    */
+    const ERROR_INVALID_LOG_CALLBACK = 22408; 
+    
+   /**
     * @var SVNHelper_Target_Folder
     */
     protected $target;
@@ -102,6 +107,11 @@ class SVNHelper
         'from' => '\\',
         'to' => '/'
     );
+    
+   /**
+    * @var string
+    */
+    protected $sourcePath;
     
    /**
     * @param string $repPath The path to the repository
