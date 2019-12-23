@@ -37,7 +37,6 @@ trait Traits_Optionable
     * 
     * @param string $name
     * @param mixed $default
-    * @return Interface_Optionable
     */
     public function setOption(string $name, $value)
     {
@@ -54,7 +53,6 @@ trait Traits_Optionable
     * associative array.
     * 
     * @param array $options
-    * @return Interface_Optionable
     */
     public function setOptions(array $options)
     {
