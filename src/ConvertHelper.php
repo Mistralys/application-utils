@@ -26,8 +26,6 @@ class ConvertHelper
     
     const ERROR_JSON_ENCODE_FAILED = 23305;
     
-    const ERROR_CANNOT_GET_DATE_DIFF = 23306;
-    
     /**
      * Normalizes tabs in the specified string by indenting everything
      * back to the minimum tab distance. With the second parameter,
@@ -1018,56 +1016,18 @@ class ConvertHelper
         return round(100 - $percent, $options['precision']);
     }
     
-    public static function interval2string(\DateInterval $interval)
+   /**
+    * Converts a date interval to a human readable string with
+    * all necessary time components, e.g. "1 year, 2 months and 4 days".
+    * 
+    * @param \DateInterval $interval
+    * @return string
+    * @see ConvertHelper_IntervalConverter
+    */
+    public static function interval2string(\DateInterval $interval) : string
     {
-        $tokens = array('y', 'm', 'd', 'h', 'i', 's');
-        
-        $offset = 0;
-        $keep = array();
-        foreach($tokens as $token) {
-            if($interval->$token > 0) {
-                $keep = array_slice($tokens, $offset);
-                break;
-            }
-            
-            $offset++;
-        }
-        
-        $parts = array();
-        foreach($keep as $token) 
-        {
-            $value = $interval->$token;
-            $label = '';
-            
-            $suffix = 'p';
-            if($value == 1) { $suffix = 's'; }
-            $token .= $suffix;
-            
-            switch($token) {
-                case 'ys': $label = t('1 year'); break;
-                case 'yp': $label = t('%1$s years', $value); break;
-                case 'ms': $label = t('1 month'); break;
-                case 'mp': $label = t('%1$s months', $value); break;
-                case 'ds': $label = t('1 day'); break;
-                case 'dp': $label = t('%1$s days', $value); break;
-                case 'hs': $label = t('1 hour'); break;
-                case 'hp': $label = t('%1$s hours', $value); break;
-                case 'is': $label = t('1 minute'); break;
-                case 'ip': $label = t('%1$s minutes', $value); break;
-                case 'ss': $label = t('1 second'); break;
-                case 'sp': $label = t('%1$s seconds', $value); break;
-            }
-            
-            $parts[] = $label;
-        }
-        
-        if(count($parts) == 1) {
-            return $parts[0];
-        } 
-        
-        $last = array_pop($parts);
-        
-        return t('%1$s and %2$s', implode(', ', $parts), $last);
+        $converter = new ConvertHelper_IntervalConverter();
+        return $converter->toString($interval);
     }
     
     const INTERVAL_DAYS = 'days';
@@ -1134,24 +1094,24 @@ class ConvertHelper
     */
     public static function interval2total(\DateInterval $interval, $unit=self::INTERVAL_SECONDS) : int
     {
-        $total = $interval->format('%a');
+        $total = (int)$interval->format('%a');
         if ($unit == self::INTERVAL_DAYS) {
-            return (int)$total;
+            return $total;
         }
         
-        $total = ($total * 24) + ($interval->h );
+        $total = ($total * 24) + ((int)$interval->h );
         if ($unit == self::INTERVAL_HOURS) {
-            return (int)$total;
+            return $total;
         }
     
-        $total = ($total * 60) + ($interval->i );
+        $total = ($total * 60) + ((int)$interval->i );
         if ($unit == self::INTERVAL_MINUTES) {
-            return (int)$total;
+            return $total;
         }
 
-        $total = ($total * 60) + ($interval->s );
+        $total = ($total * 60) + ((int)$interval->s );
         if ($unit == self::INTERVAL_SECONDS) {
-            return (int)$total;
+            return $total;
         }
         
         return 0;
@@ -1175,10 +1135,10 @@ class ConvertHelper
     * Converts a date to the corresponding day name.
     * 
     * @param \DateTime $date
-    * @param string $short
+    * @param bool $short
     * @return string|NULL
     */
-    public static function date2dayName(\DateTime $date, $short=false)
+    public static function date2dayName(\DateTime $date, bool $short=false)
     {
         $day = $date->format('l');
         $invariant = self::getDayNamesInvariant();
@@ -1204,10 +1164,10 @@ class ConvertHelper
    /**
     * Retrieves the day names list for the current locale.
     * 
-    * @param string $short
-    * @return string[]
+    * @param bool $short
+    * @return array
     */
-    public static function getDayNames($short=false)
+    public static function getDayNames(bool $short=false) : array
     {
         if($short) {
             if(!isset(self::$daysShort)) {
@@ -1581,23 +1541,6 @@ class ConvertHelper
     */
     public static function seconds2interval(int $seconds) : \DateInterval
     {
-        // The DateInterval::format() method does not recalculate carry 
-        // over points in days / seconds / months etc, so we calculate the
-        // actual interval using dates to ensure we get a fully populated
-        // interval object.
-        $d1 = new \DateTime();
-        $d2 = new \DateTime();
-        $d2->add(new \DateInterval('PT'.$seconds.'S'));
-        
-        $result = $d2->diff($d1);
-        if($result !== false) {
-            return $result;
-        }
-        
-        throw new ConvertHelper_Exception(
-            'Cannot create interval',
-            sprintf('Getting the date diff failed to retrieve the interval for [%s] seconds.', $seconds),
-            self::ERROR_CANNOT_GET_DATE_DIFF
-        );
+        return ConvertHelper_DateInterval::fromSeconds($seconds)->getInterval();
     }
 }
