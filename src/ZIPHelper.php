@@ -242,15 +242,7 @@ class ZIPHelper
         header('Pragma: no-cache');
         header('Expires: 0');
         readfile($this->file);
-        
-        if($this->exit === false) {
-            return;
-        }
-        
-        exit;
     }
-    
-    protected $exit;
     
    /**
     * Like {@link ZIPHelper::download()}, but deletes the
@@ -261,15 +253,9 @@ class ZIPHelper
     */
     public function downloadAndDelete($fileName=null)
     {
-        $this->exit = false;
-        
         $this->download($fileName);
         
-        // with @ to avoid corrupting the download if
-        // error reporting is enabled.
-        @unlink($this->file);
-        
-        exit;
+        FileHelper::deleteFile($fileName);
     }
 
    /**
