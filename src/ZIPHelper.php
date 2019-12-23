@@ -36,6 +36,9 @@ class ZIPHelper
         'WriteThreshold' => 100
     );
     
+   /**
+    * @var string
+    */
     protected $file;
     
    /**
@@ -43,7 +46,7 @@ class ZIPHelper
     */
     protected $zip;
     
-    public function __construct($targetFile)
+    public function __construct(string $targetFile)
     {
         $this->file = $targetFile;
     }
@@ -59,7 +62,7 @@ class ZIPHelper
     * @param mixed $value
     * @return ZIPHelper
     */
-    public function setOption($name, $value)
+    public function setOption(string $name, $value) : ZIPHelper
     {
         $this->options[$name] = $value;
         return $this;
@@ -71,15 +74,18 @@ class ZIPHelper
     * parameter to change the location in the zip.
     * 
     * @param string $filePath
-    * @param string $zipPath
+    * @param string|null $zipPath If no path is specified, file will be added with the same name in the ZIP's root.
     * @throws ZIPHelper_Exception
     * @return bool
+    * 
+    * @see FileHelper::ERROR_SOURCE_FILE_DOES_NOT_EXIST
     */
-    public function addFile($filePath, $zipPath=null)
+    public function addFile(string $filePath, ?string $zipPath=null) : bool
     {
         $this->open();
         
-        if (!file_exists($filePath) || !is_file($filePath)) {
+        if (!file_exists($filePath) || !is_file($filePath)) 
+        {
             throw new ZIPHelper_Exception(
                 'File not found or not a file',
                 sprintf(
@@ -109,7 +115,7 @@ class ZIPHelper
      * @param string $zipPath The filename, or relative path within the archive.
      * @return bool
      */
-    public function addString($contents, $zipPath)
+    public function addString(string $contents, string $zipPath) : bool
     {
         $this->open();
         
@@ -186,7 +192,8 @@ class ZIPHelper
             return;
         }
         
-        if (!$this->zip->close()) {
+        if (!$this->zip->close()) 
+        {
             throw new ZIPHelper_Exception(
                 'Could not save ZIP file to disk',
                 sprintf(
@@ -206,7 +213,8 @@ class ZIPHelper
     {
         $this->open();
         
-        if ($this->zip->numFiles < 1) {
+        if($this->countFiles() < 1) 
+        {
             throw new ZIPHelper_Exception(
                 'No files in the zip file',
                 sprintf(
@@ -227,8 +235,9 @@ class ZIPHelper
      * @param string|NULL $fileName Override the ZIP's file name for the download
      * @see ZIPHelper::downloadAndDelete()
      * @throws ZIPHelper_Exception
+     * @return string The file name that was sent (useful in case none was specified).
      */
-    public function download($fileName=null)
+    public function download(?string $fileName=null) : string
     {
         $this->save();
         
@@ -242,6 +251,8 @@ class ZIPHelper
         header('Pragma: no-cache');
         header('Expires: 0');
         readfile($this->file);
+        
+        return $fileName;
     }
     
    /**
@@ -251,11 +262,11 @@ class ZIPHelper
     * @param string|NULL $fileName Override the ZIP's file name for the download
     * @see ZIPHelper::download()
     */
-    public function downloadAndDelete($fileName=null)
+    public function downloadAndDelete(?string $fileName=null)
     {
         $this->download($fileName);
         
-        FileHelper::deleteFile($fileName);
+        FileHelper::deleteFile($this->file);
     }
 
    /**
@@ -263,10 +274,10 @@ class ZIPHelper
     * target folder. If no folder is specified, the files
     * are extracted into the same folder as the zip itself.
     * 
-    * @param string $outputFolder
+    * @param string|NULL $outputFolder If no folder is specified, uses the target file's folder.
     * @return boolean
     */
-    public function extractAll($outputFolder=null)
+    public function extractAll(?string $outputFolder=null) : bool
     {
         if(empty($outputFolder)) {
             $outputFolder = dirname($this->file);
@@ -281,7 +292,7 @@ class ZIPHelper
    /**
     * @return \ZipArchive
     */
-    public function getArchive()
+    public function getArchive() : \ZipArchive
     {
         $this->open();
         
@@ -312,6 +323,6 @@ class ZIPHelper
     {
         $this->open();
         
-        return $this->zip->numFiles;
+        return intval($this->zip->numFiles);
     }
 }
