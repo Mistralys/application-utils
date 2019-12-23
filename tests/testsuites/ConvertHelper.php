@@ -875,4 +875,32 @@ final class ConvertHelperTest extends TestCase
             $this->assertEquals($test['expected'], $result, $test['label']);
         }
     }
+    
+    public function test_intervalstring()
+    {
+        $tests = array(
+            array(
+                'label' => '60 seconds',
+                'interval' => new DateInterval('PT60S'),
+                'expected' => '1 minute'
+            ),
+            array(
+                'label' => '1 hour 25 seconds',
+                'interval' => new DateInterval('PT'.(60*60+25).'S'),
+                'expected' => '1 hour and 25 seconds'
+            ),
+            array(
+                'label' => '6 days',
+                'interval' => new DateInterval('PT'.(60*60*24*6).'S'),
+                'expected' => '6 days'
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::interval2string($test['interval']);
+            
+            $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
 }
