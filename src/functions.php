@@ -68,6 +68,18 @@ function restoreThrowable(array $serialized) : ConvertHelper_ThrowableInfo
 }
 
 /**
+ * Creates an interval wrapper, that makes it a lot easier
+ * to work with date intervals. It also solves
+ *
+ * @param \DateInterval $interval
+ * @return ConvertHelper_DateInterval
+ */
+function parseInterval(\DateInterval $interval) : ConvertHelper_DateInterval
+{
+    return ConvertHelper_DateInterval::fromInterval($interval);
+}
+
+/**
  * Translation function used to translate some of the internal
  * strings: if the localization is installed, it will use this
  * to do the translation.
