@@ -20,7 +20,7 @@ class SVNHelper_Command_Add extends SVNHelper_Command
                 sprintf(
                     'Adding the target path [%s] returned errors: [%s]',
                     $this->target->getPath(),
-                    $result->getErrorMessages(true)
+                    (string)$result->getErrorMessages(true)
                 ),
                 self::ERROR_CANNOT_ADD_TARGET_PATH
             );
