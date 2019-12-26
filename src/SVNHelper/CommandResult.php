@@ -89,10 +89,10 @@ class SVNHelper_CommandResult
    /**
     * Retrieves all error messages.
     * 
-    * @param string $asString
+    * @param bool $asString
     * @return string|string[]
     */
-    public function getErrorMessages($asString=false)
+    public function getErrorMessages(bool $asString=false)
     {
         if($asString) {
             $lines = array();
