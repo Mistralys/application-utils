@@ -89,7 +89,7 @@ class NumberInfo
         }
         
         $this->rawValue = $value;
-        $this->info = $this->numericUnitsInfo($value);
+        $this->info = $this->parseValue($value);
         $this->empty = $this->info['empty'];
         
         return $this;
@@ -475,19 +475,11 @@ class NumberInfo
      * @param mixed $value
      * @return array
      */
-    private function numericUnitsInfo($value) : array
+    private function parseValue($value) : array
     {
         static $cache = array();
         
-        if(!is_string($value) && !is_numeric($value)) 
-        {
-            $value = '';
-            $key = '_EMPTY_';
-        } 
-        else 
-        {
-            $key = (string)$value;
-        }
+        $key = $this->createValueKey($value);
 
         if(array_key_exists($key, $cache)) {
             return $cache[$key];
@@ -499,19 +491,23 @@ class NumberInfo
             'number' => null
         );
         
-        if($value === '') {
+        if($key === '_EMPTY_') 
+        {
             $cache[$key]['empty'] = true;
             return $cache[$key];
         }
         
-        if($value === 0 || $value === '0') {
+        if($value === 0 || $value === '0') 
+        {
             $cache[$key]['number'] = 0;
             $cache[$key] = $this->filterInfo($cache[$key]);
             return $cache[$key];
         }
         
         $test = trim((string)$value);
-        if($test === '') {
+        
+        if($test === '') 
+        {
             $cache[$key]['empty'] = true;
             return $cache[$key];
         }
@@ -523,33 +519,36 @@ class NumberInfo
         }
         
         // convert to a number if it's numeric
-        if(is_numeric($test)) {
+        if(is_numeric($test)) 
+        {
             $cache[$key]['number'] = $test * 1;
             $cache[$key] = $this->filterInfo($cache[$key]);
             return $cache[$key];
         }
         
         // not numeric: there are possibly units specified in the string
+        $cache[$key] = $this->parseStringValue($test);
         
+        return $cache[$key];
+    }
+    
+   /**
+    * Parses a string number notation with units included, e.g. 14px, 50%...
+    * 
+    * @param string $test
+    * @return array
+    */
+    private function parseStringValue(string $test) : array
+    {
         $number = null;
         $units = null;
+        $empty = false;
         
-        $vlength = strlen($test);
-        $names = array_keys($this->knownUnits);
-        foreach($names as $unit)
+        $found = $this->findUnits($test);
+        if($found !== null) 
         {
-            $ulength = strlen($unit);
-            $start = $vlength-$ulength;
-            if($start < 0) {
-                continue;
-            }
-            
-            $search = substr($test, $start, $ulength);
-            if($search==$unit) {
-                $units = $unit;
-                $number = substr($test, 0, $start);
-                break;
-            }
+            $number = $found['number'];
+            $units = $found['units'];
         }
         
         // the filters have to restore the value
@@ -561,7 +560,7 @@ class NumberInfo
         else if($number === '' || $number === null || is_bool($number))
         {
             $number = null;
-            $cache[$key]['empty'] = true;
+            $empty = true;
         }
         // found a number
         else
@@ -572,7 +571,7 @@ class NumberInfo
             if(!is_numeric($number))
             {
                 $number = null;
-                $cache[$key]['empty'] = true;
+                $empty = true;
             }
             else
             {
@@ -580,12 +579,63 @@ class NumberInfo
             }
         }
         
-        $cache[$key]['units'] = $units;
-        $cache[$key]['number'] = $number;
+        $result = array(
+            'units' => $units,
+            'number' => $number,
+            'empty' => $empty
+        );
+
+        return $this->filterInfo($result);
+    }
+    
+   /**
+    * Attempts to determine what kind of units are specified
+    * in the string. Returns NULL if none could be matched.
+    * 
+    * @param string $value
+    * @return array|NULL
+    */
+    private function findUnits(string $value) : ?array
+    {
+        $vlength = strlen($value);
+        $names = array_keys($this->knownUnits);
         
-        $cache[$key] = $this->filterInfo($cache[$key]);
+        foreach($names as $unit)
+        {
+            $ulength = strlen($unit);
+            $start = $vlength-$ulength;
+            if($start < 0) {
+                continue;
+            }
+            
+            $search = substr($value, $start, $ulength);
+            
+            if($search==$unit) 
+            {
+                return array(
+                    'units' => $unit,
+                    'number' => substr($value, 0, $start)
+                );
+            }
+        }
         
-        return $cache[$key];
+        return null;
+    }
+    
+   /**
+    * Creates the cache key for the specified value.
+    * 
+    * @param mixed $value
+    * @return string
+    */
+    private function createValueKey($value) : string
+    {
+        if(!is_string($value) && !is_numeric($value))
+        {
+            return '_EMPTY_';
+        }
+
+        return (string)$value;
     }
     
     protected $postProcess = false;
