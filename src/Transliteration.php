@@ -62,7 +62,7 @@ class Transliteration implements Interface_Optionable
      */
     public function setLowercase(bool $lowercase=true) : Transliteration
     {
-        $this->setOption('lowercase', true);
+        $this->setOption('lowercase', $lowercase);
 
         return $this;
     }
@@ -104,7 +104,7 @@ class Transliteration implements Interface_Optionable
         $result = trim($result, $space);
 
         if ($this->getBoolOption('lowercase')) {
-            $result = strtolower($result);
+            $result = mb_strtolower($result);
         }
 
         return $result;
