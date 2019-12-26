@@ -65,6 +65,8 @@ class ImageHelper
     const ERROR_CANNOT_CREATE_IMAGE_CROP = 513023;
     
     const ERROR_GD_LIBRARY_NOT_INSTALLED = 513024;
+    
+    const ERROR_UNEXPECTED_COLOR_VALUE = 513025;
 
    /**
     * @var string
@@ -1410,8 +1412,10 @@ class ImageHelper
 	    $svgHeight = parseNumber($data['@attributes']['height'])->getNumber();
 	    
 	    $viewBox = str_replace(' ', ',', $data['@attributes']['viewBox']);
-	    $viewBox = explode(',', $viewBox);
-	    if(count($viewBox) != 4) {
+	    $size = explode(',', $viewBox);
+	    
+	    if(count($size) != 4) 
+	    {
 	        throw new ImageHelper_Exception(
 	            'SVG image has an invalid viewBox attribute',
 	            sprintf(
@@ -1423,8 +1427,8 @@ class ImageHelper
             );
 	    }
 	    
-	    $boxWidth = $viewBox[2];
-	    $boxHeight = $viewBox[3];
+	    $boxWidth = $size[2];
+	    $boxHeight = $size[3];
 	    
 	    // calculate the x and y units of the document: 
 	    // @see http://tutorials.jenkov.com/svg/svg-viewport-view-box.html#viewbox
@@ -1480,10 +1484,18 @@ class ImageHelper
    /**
     * Calculates the average color value used in 
     * the image. Returns an associative array
-    * with the red, green, blue and alpha components.
+    * with the red, green, blue and alpha components,
+    * or a HEX color string depending on the selected
+    * format.
+    * 
+    * NOTE: Use the calcAverageColorXXX methods for
+    * strict return types. 
     * 
     * @param int $format The format in which to return the color value.
     * @return array|string
+    * 
+    * @see ImageHelper::calcAverageColorRGB()
+    * @see ImageHelper::calcAverageColorHEX()
     */
     public function calcAverageColor(int $format=self::COLORFORMAT_RGB)
     {
@@ -1491,6 +1503,49 @@ class ImageHelper
         $image->resample(1, 1);
         
         return $image->getColorAt(0, 0, $format);
+    }
+    
+   /**
+    * Calculates the image's average color value, and
+    * returns an associative array with red, green,
+    * blue and alpha keys.
+    * 
+    * @throws ImageHelper_Exception
+    * @return array
+    */
+    public function calcAverageColorRGB() : array
+    {
+       $result = $this->calcAverageColor(self::COLORFORMAT_RGB);
+       if(is_array($result)) {
+           return $result;
+       }
+       
+       throw new ImageHelper_Exception(
+           'Unexpected color value',
+           sprintf('Expected an array, got [%s].', gettype($result)),
+           self::ERROR_UNEXPECTED_COLOR_VALUE
+       );
+    }
+    
+   /**
+    * Calculates the image's average color value, and
+    * returns a hex color string (without the #).
+    * 
+    * @throws ImageHelper_Exception
+    * @return string
+    */
+    public function calcAverageColorHex() : string
+    {
+        $result = $this->calcAverageColor(self::COLORFORMAT_HEX);
+        if(is_string($result)) {
+            return $result;
+        }
+        
+        throw new ImageHelper_Exception(
+            'Unexpected color value',
+            sprintf('Expected a hex string, got [%s].', gettype($result)),
+            self::ERROR_UNEXPECTED_COLOR_VALUE
+        );
     }
     
     public static function rgb2hex(array $rgb) : string
@@ -1552,9 +1607,9 @@ class ImageHelper
     * @param array $rgb
     * @return integer Integer, from 0 to 255 (0=black, 255=white)
     */
-    public static function rgb2luma($rgb)
+    public static function rgb2luma(array $rgb) : int
     {
-        return (($rgb['red']*2)+$rgb['blue']+($rgb['green']*3))/6;
+        return (int)floor((($rgb['red']*2)+$rgb['blue']+($rgb['green']*3))/6);
     }
     
    /**
@@ -1563,7 +1618,7 @@ class ImageHelper
     */
     public function getBrightness()
     {
-        $luma = self::rgb2luma($this->calcAverageColor());
+        $luma = self::rgb2luma($this->calcAverageColorRGB());
         $percent = $luma * 100 / 255;
         return $percent;
     }
