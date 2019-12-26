@@ -106,7 +106,7 @@ class XMLHelper
      * @param mixed $value
      * @return \DOMNode
      */
-    function addAttribute($parent, $name, $value)
+    public function addAttribute($parent, string $name, $value)
     {
         if(!$parent instanceof \DOMNode) {
             throw new XMLHelper_Exception(
@@ -168,7 +168,7 @@ class XMLHelper
      * @param string $text
      * @return \DOMNode
      */
-    function addTextTag($parent, $name, $text, $indent = 0)
+    public function addTextTag($parent, $name, $text, $indent = 0)
     {
         if ($indent > 0) {
             $this->indent($parent, $indent);
@@ -193,7 +193,7 @@ class XMLHelper
      * @param string $text
      * @return \DOMNode
      */
-    function addEscapedTag($parent, $name, $text, $indent = 0)
+    public function addEscapedTag($parent, $name, $text, $indent = 0)
     {
         if ($indent > 0) {
             $this->indent($parent, $indent);
@@ -220,7 +220,7 @@ class XMLHelper
      * @param string $text
      * @return \DOMNode
      */
-    function addFragmentTag($parent, $name, $text, $indent = 0)
+    public function addFragmentTag($parent, $name, $text, $indent = 0)
     {
         if ($indent > 0) {
             $this->indent($parent, $indent);
@@ -257,7 +257,7 @@ class XMLHelper
      * @param string $content
      * @return \DOMNode
      */
-    function addCDATATag($parent, $name, $content)
+    public function addCDATATag($parent, $name, $content)
     {
         $tag = $this->dom->createElement($name);
         $text = $this->dom->createCDATASection($content);
@@ -272,14 +272,14 @@ class XMLHelper
      * @param array $attributes
      * @return \DOMNode
      */
-    function createRoot($name, $attributes=array())
+    public function createRoot($name, $attributes=array())
     {
         $root = $this->dom->appendChild($this->dom->createElement($name));
         $this->addAttributes($root, $attributes);
         return $root;
     }
 
-    function escape($string)
+    public function escape($string)
     {
 
         $string = preg_replace('#<p>(.*)</p>#isUm', '$1', $string);
@@ -287,7 +287,8 @@ class XMLHelper
         return $string;
     }
 
-    function escapeText($string) {
+    public function escapeText($string) 
+    {
         $string = str_replace('&amp;', 'AMPERSAND_ESCAPE', $string);
         $string = str_replace('&lt;', 'LT_ESCAPE', $string);
         $string = str_replace('&gt;', 'GT_ESCAPE', $string);
