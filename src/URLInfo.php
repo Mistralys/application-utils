@@ -747,6 +747,21 @@ class URLInfo implements \ArrayAccess
     }
     
    /**
+    * Retrieves a specific parameter value from the URL.
+    * 
+    * @param string $name
+    * @return string The parameter value, or an empty string if it does not exist.
+    */
+    public function getParam(string $name) : string
+    {
+        if(isset($this->params[$name])) {
+            return $this->params[$name];
+        }
+        
+        return '';
+    }
+    
+   /**
     * Excludes an URL parameter entirely if present:
     * the parser will act as if the parameter was not
     * even present in the source URL, effectively
