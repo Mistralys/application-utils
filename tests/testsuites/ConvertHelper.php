@@ -4,6 +4,7 @@ use PHPUnit\Framework\TestCase;
 
 use AppUtils\ConvertHelper;
 use AppUtils\ConvertHelper_Exception;
+use AppUtils\ConvertHelper_SizeNotation;
 
 final class ConvertHelperTest extends TestCase
 {
@@ -901,6 +902,150 @@ final class ConvertHelperTest extends TestCase
             $result = ConvertHelper::interval2string($test['interval']);
             
             $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
+    
+    public function test_size2bytes()
+    {
+        $tests = array(
+            array(
+                'label' => 'Zero value',
+                'value' => '0',
+                'expected' => 0
+            ),
+            array(
+                'label' => '1 value',
+                'value' => '1',
+                'expected' => 1
+            ),
+            array(
+                'label' => 'Empty string',
+                'value' => '',
+                'expected' => 0
+            ),
+            array(
+                'label' => 'Negative value',
+                'value' => '-100',
+                'expected' => 0
+            ),
+            array(
+                'label' => 'No units, integer',
+                'value' => '500',
+                'expected' => 500
+            ),
+            array(
+                'label' => 'No units, float',
+                'value' => '500.45',
+                'expected' => 500
+            ),
+            array(
+                'label' => 'No units, float, comma notation',
+                'value' => '500,45',
+                'expected' => 500
+            ),
+            array(
+                'label' => 'Invalid string',
+                'value' => 'Some text here',
+                'expected' => 0
+            ),
+            array(
+                'label' => 'Byte units, negative',
+                'value' => '-500B',
+                'expected' => 0
+            ),
+            array(
+                'label' => 'Byte units',
+                'value' => '500B',
+                'expected' => 500
+            ),
+            array(
+                'label' => 'Byte units, spaces',
+                'value' => '   500     B     ',
+                'expected' => 500
+            ),
+            array(
+                'label' => 'Kilobytes',
+                'value' => '1KB',
+                'expected' => 1000
+            ),
+            array(
+                'label' => 'Megabytes',
+                'value' => '1MB',
+                'expected' => 1000000
+            ),
+            array(
+                'label' => 'Gigabytes',
+                'value' => '1GB',
+                'expected' => 1000000000
+            ),
+            array(
+                'label' => 'iKilobytes',
+                'value' => '1KiB',
+                'expected' => 1024
+            ),
+            array(
+                'label' => 'iMegabytes',
+                'value' => '1MiB',
+                'expected' => 1048576
+            ),
+            array(
+                'label' => 'iGigabytes',
+                'value' => '1GiB',
+                'expected' => 1073741824
+            ),
+            array(
+                'label' => 'iKilobytes, case insensitive',
+                'value' => '1kib',
+                'expected' => 1024
+            ),
+            array(
+                'label' => 'Several units',
+                'value' => '1 KB GiB',
+                'expected' => 0
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::size2bytes($test['value']);
+            
+            $this->assertSame($test['expected'], $result, $test['label']);
+        }
+    }
+    
+     public function test_parseSize() 
+    {
+        $size = ConvertHelper::parseSize('50MB');
+        
+        $this->assertInstanceOf(ConvertHelper_SizeNotation::class, $size);
+    }
+    
+    public function test_parseSize_errors()
+    {
+        $tests = array(
+            array(
+                'label' => 'Negative value',
+                'value' => '-100',
+                'error' => ConvertHelper_SizeNotation::VALIDATION_ERROR_NEGATIVE_VALUE
+            ),
+            array(
+                'label' => 'Invalid string',
+                'value' => 'Some text here',
+                'error' => ConvertHelper_SizeNotation::VALIDATION_ERROR_UNRECOGNIZED_STRING
+            ),
+            array(
+                'label' => 'Several units',
+                'value' => '1 KB GiB',
+                'error' => ConvertHelper_SizeNotation::VALIDATION_ERROR_MULTIPLE_UNITS
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::parseSize($test['value']);
+            
+            $this->assertFalse($result->isValid(), $test['label']);
+            $this->assertSame($test['error'], $result->getErrorCode(), $test['label']);
         }
     }
 }
