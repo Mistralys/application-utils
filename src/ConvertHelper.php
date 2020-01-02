@@ -1543,4 +1543,22 @@ class ConvertHelper
     {
         return ConvertHelper_DateInterval::fromSeconds($seconds)->getInterval();
     }
+    
+   /**
+    * Converts a size string like "50 MB" to the corresponding byte size.
+    * It is case insensitive, ignores spaces, and supports both traditional
+    * "MB" and "MiB" notations.
+    * 
+    * @param string $size
+    * @return int
+    */
+    public static function size2bytes(string $size) : int
+    {
+        return self::parseSize($size)->toBytes();
+    }
+    
+    public static function parseSize(string $size) : ConvertHelper_SizeNotation
+    {
+        return new ConvertHelper_SizeNotation($size);
+    }
 }
