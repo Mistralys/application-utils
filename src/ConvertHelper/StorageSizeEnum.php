@@ -108,7 +108,8 @@ class ConvertHelper_StorageSizeEnum
     
    /**
     * Retrieves all known sizes.
-    * @return \AppUtils\ConvertHelper_StorageSizeEnum_Size
+    * 
+    * @return \AppUtils\ConvertHelper_StorageSizeEnum_Size[]
     */
     public static function getSizes()
     {
