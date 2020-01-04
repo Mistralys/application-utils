@@ -233,38 +233,32 @@ class ConvertHelper
         return $geshi->parse_code();
     }
     
-    /**
-     * Converts a number of bytes to a human readable form,
-     * e.g. xx Kb / xx Mb / xx Gb
-     *
-     * @param $bytes
-     * @param $precision
-     * @return string
-     */
-    public static function bytes2readable($bytes, $precision = 1)
+   /**
+    * Converts a number of bytes to a human readable form,
+    * e.g. xx Kb / xx Mb / xx Gb
+    *
+    * @param int $bytes The amount of bytes to convert.
+    * @param int $precision The amount of decimals
+    * @param int $base The base to calculate with: Base 10 is default (=1000 Bytes in a KB), Base 2 is mainly used for Windows memory (=1024 Bytes in a KB).
+    * @return string
+    * 
+    * @see https://en.m.wikipedia.org/wiki/Megabyte#Definitions
+    */
+    public static function bytes2readable(int $bytes, int $precision = 1, int $base = ConvertHelper_StorageSizeEnum::BASE_10) : string
     {
-        $kilobyte = 1024;
-        $megabyte = $kilobyte * 1024;
-        $gigabyte = $megabyte * 1024;
-        $terabyte = $gigabyte * 1024;
-
-        if (($bytes >= 0) && ($bytes < $kilobyte)) {
-            return $bytes . ' ' . t('B');
-
-        } elseif (($bytes >= $kilobyte) && ($bytes < $megabyte)) {
-            return round($bytes / $kilobyte, $precision) . ' ' . t('Kb');
-
-        } elseif (($bytes >= $megabyte) && ($bytes < $gigabyte)) {
-            return round($bytes / $megabyte, $precision) . ' ' . t('Mb');
-
-        } elseif (($bytes >= $gigabyte) && ($bytes < $terabyte)) {
-            return round($bytes / $gigabyte, $precision) . ' ' . t('Gb');
-
-        } elseif ($bytes >= $terabyte) {
-            return round($bytes / $gigabyte, $precision) . ' ' . t('Tb');
-        }
-
-        return $bytes . ' ' . t('B');
+        return self::parseBytes($bytes)->toString($precision, $base);
+    }
+    
+   /**
+    * Parses a number of bytes, and creates a converter instance which
+    * allows doing common operations with it.
+    * 
+    * @param int $bytes
+    * @return ConvertHelper_ByteConverter
+    */
+    public static function parseBytes(int $bytes) : ConvertHelper_ByteConverter
+    {
+        return new ConvertHelper_ByteConverter($bytes);
     }
 
    /**
@@ -1557,6 +1551,13 @@ class ConvertHelper
         return self::parseSize($size)->toBytes();
     }
     
+   /**
+    * Parses a size string like "50 MB" and returns a size notation instance
+    * that has utility methods to access information on it, and convert it.
+    * 
+    * @param string $size
+    * @return ConvertHelper_SizeNotation
+    */
     public static function parseSize(string $size) : ConvertHelper_SizeNotation
     {
         return new ConvertHelper_SizeNotation($size);
