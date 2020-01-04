@@ -32,69 +32,6 @@ class ConvertHelper_SizeNotation
     const VALIDATION_ERROR_NEGATIVE_VALUE = 43803;
     
    /**
-    * Stores the supported unit notations, and
-    * how they are supposed to be calculated. 
-    * 
-    * The `base` key: This defines how many bytes there are
-    * in a kilobyte, to differentiate with the two
-    * common way to calculate sizes: base 10 or base 2.
-    * See the Wikipedia link for more details.
-    * 
-    * The `exponent` key: This defines the multiplier to
-    * multiply the value with to get the target size.
-    * 
-    * @var array
-    * @see https://en.m.wikipedia.org/wiki/Megabyte#Definitions 
-    * @see ConvertHelper_SizeNotation::parseSize()
-    */
-    protected static $unitDefs = array(
-        'kib' => array(
-            'base' => 1024,
-            'exponent' => 1
-        ),
-        'mib' => array(
-            'base' => 1024,
-            'exponent' => 2
-        ),
-        'gib' => array(
-            'base' => 1024,
-            'exponent' => 3
-        ),
-        'tib' => array(
-            'base' => 1024,
-            'exponent' => 4
-        ),
-        'pib' => array(
-            'base' => 1024,
-            'exponent' => 5
-        ),
-        'kb' => array(
-            'base' => 1000,
-            'exponent' => 1
-        ),
-        'mb' => array(
-            'base' => 1000,
-            'exponent' => 2
-        ),
-        'gb' => array(
-            'base' => 1000,
-            'exponent' => 3
-        ),
-        'tb' => array(
-            'base' => 1000,
-            'exponent' => 4
-        ),
-        'pb' => array(
-            'base' => 1000,
-            'exponent' => 5
-        ),
-        'b' => array(
-            'base' => 1,
-            'exponent' => 1
-        ),
-    );
-    
-   /**
     * @var string
     */
     protected $size;
@@ -148,6 +85,31 @@ class ConvertHelper_SizeNotation
     public function toBytes() : int
     {
         return $this->bytes;
+    }
+    
+   /**
+    * Converts the size notation to a human readable string, e.g. "50 MB".
+    * 
+    * @param int $precision
+    * @return string
+    * @see ConvertHelper::bytes2readable()
+    */
+    public function toString(int $precision=1) : string
+    {
+        return ConvertHelper::bytes2readable($this->bytes, $precision, $this->getBase());
+    }
+    
+   /**
+    * Retrieves the detected number's base.
+    * @return int The base number (1000 for Base 10, or 1024 for Base 2), or 0 if it is not valid.
+    */
+    public function getBase() : int
+    {
+        if(!$this->isValid()) {
+            return 0; 
+        }
+        
+        return $this->size->getBase();
     }
     
    /**
@@ -225,7 +187,7 @@ class ConvertHelper_SizeNotation
     */
     protected function detectParts() : bool
     {
-        $units = array_keys(self::$unitDefs);
+        $units = ConvertHelper_StorageSizeEnum::getSizeNames();
         
         $number = $this->size;
         
@@ -307,8 +269,8 @@ class ConvertHelper_SizeNotation
             return;
         }
         
-        $def = self::$unitDefs[$this->units];
+        $this->size = ConvertHelper_StorageSizeEnum::getSizeByName($this->units);
         
-        $this->bytes = (int)($int * ($def['base'] ** $def['exponent']));
+        $this->bytes = $int * $this->size->getBytes();
     }
 }
