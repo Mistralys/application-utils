@@ -238,4 +238,19 @@ class URLInfo_Highlighter
             $this->info->getFragment()
         );
     }
+    
+    public static function getHighlightCSS() : string
+    {
+        $cssFolder = realpath(__DIR__.'/../../css');
+        
+        if($cssFolder === false) {
+            throw new BaseException(
+                'Cannot find package CSS folder.',
+                null,
+                URLInfo::ERROR_CANNOT_FIND_CSS_FOLDER
+            );
+        }
+        
+        return FileHelper::readContents($cssFolder.'/urlinfo-highlight.css');
+    }
 }
