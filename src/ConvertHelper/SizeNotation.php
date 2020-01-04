@@ -32,9 +32,14 @@ class ConvertHelper_SizeNotation
     const VALIDATION_ERROR_NEGATIVE_VALUE = 43803;
     
    /**
-    * @var ConvertHelper_StorageSizeEnum_Size
+    * @var string
     */
-    protected $size;
+    protected $sizeString;
+
+    /**
+     * @var ConvertHelper_StorageSizeEnum_Size
+     */
+    protected $sizeDefinition;
     
    /**
     * @var integer
@@ -69,11 +74,11 @@ class ConvertHelper_SizeNotation
    /**
     * Create a new instance for the specified size string.
     * 
-    * @param string $size A size notation in the format "50 MB", or a number of bytes without units. Spaces are ignored, so "50MB" = "50 MB" = "  50   MB   ". Floating point values are accepted, both with dot and comma notation ("50.5" = "50,5"). To use Base 2 values, ose appropriate units, e.g. "50 MiB", "1.5 GiB". The units are case insensitive, so "50 MB" = "50 mb". 
+    * @param string $sizeString A size notation in the format "50 MB", or a number of bytes without units. Spaces are ignored, so "50MB" = "50 MB" = "  50   MB   ". Floating point values are accepted, both with dot and comma notation ("50.5" = "50,5"). To use Base 2 values, ose appropriate units, e.g. "50 MiB", "1.5 GiB". The units are case insensitive, so "50 MB" = "50 mb". 
     */
-    public function __construct(string $size)
+    public function __construct(string $sizeString)
     {
-        $this->size = $this->cleanString($size);
+        $this->sizeString = $this->cleanString($sizeString);
         
         $this->convert();
     }
@@ -105,11 +110,27 @@ class ConvertHelper_SizeNotation
     */
     public function getBase() : int
     {
-        if(!$this->isValid()) {
-            return 0; 
+        if($this->isValid()) {
+            return $this->sizeDefinition->getBase(); 
         }
         
-        return $this->size->getBase();
+        return 0;
+    }
+    
+   /**
+    * Retrieves the detected storage size instance, if 
+    * the size string is valid.
+    * 
+    * @return ConvertHelper_StorageSizeEnum_Size|NULL
+    * @see ConvertHelper_StorageSizeEnum_Size
+    */
+    public function getSizeDefinition() : ?ConvertHelper_StorageSizeEnum_Size
+    {
+        if($this->isValid()) {
+            return $this->sizeDefinition;
+        }
+        
+        return null;
     }
     
    /**
@@ -189,7 +210,7 @@ class ConvertHelper_SizeNotation
     {
         $units = ConvertHelper_StorageSizeEnum::getSizeNames();
         
-        $number = $this->size;
+        $number = $this->sizeString;
         
         foreach($units as $unit)
         {
@@ -269,8 +290,8 @@ class ConvertHelper_SizeNotation
             return;
         }
         
-        $this->size = ConvertHelper_StorageSizeEnum::getSizeByName($this->units);
+        $this->sizeDefinition = ConvertHelper_StorageSizeEnum::getSizeByName($this->units);
         
-        $this->bytes = $int * $this->size->getBytes();
+        $this->bytes = $int * $this->sizeString->getBytes();
     }
 }
