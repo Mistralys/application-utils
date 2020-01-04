@@ -94,6 +94,11 @@ class URLInfo implements \ArrayAccess
     */
     protected $parser;
     
+   /**
+    * @var URLInfo_Normalizer
+    */
+    protected $normalizer;
+    
     public function __construct(string $url)
     {
         $this->rawURL = $url;
@@ -121,11 +126,7 @@ class URLInfo implements \ArrayAccess
      */
     public function isSecure() : bool
     {
-        if(isset($this->info['scheme']) && $this->info['scheme'] === 'https') {
-            return true;
-        }
-        
-        return false;
+        return isset($this->info['scheme']) && $this->info['scheme'] === 'https';
     }
     
     public function isAnchor() : bool
@@ -196,6 +197,7 @@ class URLInfo implements \ArrayAccess
     public function getPort() : int
     {
         $port = $this->getInfoKey('port');
+        
         if(!empty($port)) {
             return (int)$port;
         }
@@ -282,41 +284,18 @@ class URLInfo implements \ArrayAccess
         
         return '';
     }
-    
+
     public function getNormalized() : string
     {
         if(!$this->isValid()) {
             return '';
         }
         
-        if($this->isAnchor())
-        {
-            return '#'.$this->getFragment();
-        }
-        else if($this->isPhoneNumber())
-        {
-            return 'tel://'.$this->getHost();
-        }
-        else if($this->isEmail())
-        {
-            return 'mailto:'.$this->getPath();
+        if(!isset($this->normalizer)) {
+            $this->normalizer = new URLInfo_Normalizer($this);
         }
         
-        $normalized = $this->info['scheme'].'://'.$this->info['host'];
-        if(isset($this->info['path'])) {
-            $normalized .= $this->info['path'];
-        }
-        
-        $params = $this->getParams();
-        if(!empty($params)) {
-            $normalized .= '?'.http_build_query($params);
-        }
-        
-        if(isset($this->info['fragment'])) {
-            $normalized .= '#'.$this->info['fragment'];
-        }
-        
-        return $normalized;
+        return $this->normalizer->normalize();
     }
     
    /**
@@ -387,7 +366,8 @@ class URLInfo implements \ArrayAccess
         }
         
         $keep = array();
-        foreach($this->info['params'] as $name => $value) {
+        foreach($this->info['params'] as $name => $value) 
+        {
             if(!isset($this->excludedParams[$name])) {
                 $keep[$name] = $value;
             }
@@ -617,17 +597,7 @@ class URLInfo implements \ArrayAccess
     
     public static function getHighlightCSS() : string
     {
-        $cssFolder = realpath(__DIR__.'/../css');
-        
-        if($cssFolder === false) {
-            throw new BaseException(
-                'Cannot find package CSS folder.',
-                null,
-                self::ERROR_CANNOT_FIND_CSS_FOLDER
-            );
-        }
-        
-        return FileHelper::readContents($cssFolder.'/urlinfo-highlight.css');
+        return URLInfo_Highlighter::getHighlightCSS();
     }
     
     public function getExcludedParams() : array
