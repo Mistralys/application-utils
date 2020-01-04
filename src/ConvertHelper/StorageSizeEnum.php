@@ -11,7 +11,18 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
-
+/**
+ * Static class used to handle possible storage sizes,
+ * like Kilobytes, Megabytes and the like. Offers an easy
+ * to use interface to access information on these sizes,
+ * and to translate their labels to the application locale. 
+ * 
+ * It supports both Base 10 and Base 2 sizes.
+ * 
+ * @package AppUtils
+ * @subpackage ConvertHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class ConvertHelper_StorageSizeEnum
 {
     const ERROR_UNKNOWN_UNIT_NAME = 43901;
@@ -21,24 +32,14 @@ class ConvertHelper_StorageSizeEnum
     const BASE_2 = 1024;
     
    /**
-    * @var ConvertHelper_StorageSizeEnum_Size
+    * @var ConvertHelper_StorageSizeEnum_Size[]
     */
     protected static $sizes;
     
    /**
-    * Stores the supported unit notations, and
+    * Initializes the supported unit notations, and
     * how they are supposed to be calculated.
     *
-    * The `base` key: This defines how many bytes there are
-    * in a kilobyte, to differentiate with the two
-    * common way to calculate sizes: base 10 or base 2.
-    * See the Wikipedia link for more details.
-    *
-    * The `exponent` key: This defines the multiplier to
-    * multiply the value with to get the target size.
-    *
-    * @var array
-    * @see https://en.m.wikipedia.org/wiki/Megabyte#Definitions
     * @see ConvertHelper_SizeNotation::parseSize()
     */
     protected static function init()
@@ -81,7 +82,19 @@ class ConvertHelper_StorageSizeEnum
         self::$sizes = null;
     }
     
-    protected static function addSize($name, int $base, int $exponent, string $suffix, string $singular, string $plural)
+   /**
+    * Adds a storage size to the internal collection.
+    * 
+    * @param string $name The lowercase size name, e.g. "kb", "mib"
+    * @param int $base This defines how many bytes there are in a kilobyte, to differentiate with the two common way to calculate sizes: base 10 or base 2. See the Wikipedia link for more details.
+    * @param int $exponent The multiplier of the base to get the byte value
+    * @param string $suffix The localized short suffix, e.g. "KB", "MiB"
+    * @param string $singular The localized singular label of the size, e.g. "Kilobyte".
+    * @param string $plural The localized plural label of the size, e.g. "Kilobytes".
+    * 
+    * @see https://en.m.wikipedia.org/wiki/Megabyte#Definitions
+    */
+    protected static function addSize(string $name, int $base, int $exponent, string $suffix, string $singular, string $plural)
     {
         self::$sizes[$name] = new ConvertHelper_StorageSizeEnum_Size(
             $name,
@@ -104,9 +117,20 @@ class ConvertHelper_StorageSizeEnum
         return self::$sizes;
     }
     
+   /**
+    * Retrieves a size definition instance by its name.
+    * 
+    * @param string $name Case insensitive. For example "kb", "MiB"...
+    * @throws ConvertHelper_Exception
+    * @return ConvertHelper_StorageSizeEnum_Size
+    * 
+    * @see ConvertHelper_StorageSizeEnum::ERROR_UNKNOWN_UNIT_NAME
+    */
     public static function getSizeByName(string $name) : ConvertHelper_StorageSizeEnum_Size
     {
         self::init();
+        
+        $name = strtolower($name);
         
         if(isset(self::$sizes[$name])) {
             return self::$sizes[$name];
@@ -133,7 +157,17 @@ class ConvertHelper_StorageSizeEnum
         
         return array_keys(self::$sizes);
     }
-    
+   
+   /**
+    * Retrieves all available storage sizes for the specified
+    * base value.
+    * 
+    * @param int $base
+    * @return \AppUtils\ConvertHelper_StorageSizeEnum_Size[]
+    * 
+    * @see ConvertHelper_StorageSizeEnum::BASE_10
+    * @see ConvertHelper_StorageSizeEnum::BASE_2
+    */
     public static function getSizesByBase(int $base)
     {
         self::init();
