@@ -1,5 +1,4 @@
 <?php
-
 /**
  * File containing the {@see AppUtils\URLInfo} class.
  * 
@@ -50,49 +49,6 @@ class URLInfo implements \ArrayAccess
     protected $info;
     
    /**
-    * @var bool
-    */
-    protected $isEmail = false;
-    
-   /**
-    * @var bool
-    */
-    protected $isFragment = false;
-    
-   /**
-    * @var bool
-    */
-    protected $isValid = true;
-    
-   /**
-    * @var bool
-    */
-    protected $isPhone = false;
-    
-   /**
-    * @var array
-    */
-    protected $knownSchemes = array(
-        'ftp',
-        'http',
-        'https',
-        'mailto',
-        'tel',
-        'data',
-        'file'
-    );
-
-   /**
-    * @var array
-    */
-    protected $error;
-    
-   /**
-    * @var array
-    */
-    protected $params = array();
-    
-   /**
     * @var string[]
     */
     protected $excludedParams = array();
@@ -133,87 +89,18 @@ class URLInfo implements \ArrayAccess
     */
     protected $url;
     
+   /**
+    * @var URLInfo_Parser
+    */
+    protected $parser;
+    
     public function __construct(string $url)
     {
         $this->rawURL = $url;
         $this->url = self::filterURL($url);
         
-        $this->parse();
-    }
-    
-    protected function parse()
-    {
-        // fix for parsing unicode characters in URLs:
-        // this is dependent on the machine's locale,
-        // so to ensure this works we temporarily change
-        // it to the always available US UTF8 locale.
-        $prev = setlocale(LC_CTYPE, 'en_US.UTF-8');
-        
-        $this->info = parse_url($this->url);
-        
-        // restore the previous locale
-        setlocale(LC_CTYPE, $prev);
-
-        $this->filterParsed();
-        
-        if($this->detectEmail()) {
-            return;
-        }
-        
-        if($this->detectFragmentLink()) {
-            return;
-        }
-        
-        if($this->detectPhoneLink()) {
-            return;
-        }
-        
-        if(!$this->isValid) {
-            return;
-        }
-        
-        // no scheme found: it may be an email address without the mailto:
-        // It can't be a variable, since without the scheme it would already
-        // have been recognized as a vaiable only link.
-        if(!isset($this->info['scheme'])) {
-            $this->setError(
-                self::ERROR_MISSING_SCHEME,
-                t('Cannot determine the link\'s scheme, e.g. %1$s.', 'http')
-            );
-            $this->isValid = false;
-            return;
-        }
-        
-        if(!in_array($this->info['scheme'], $this->knownSchemes)) {
-            $this->setError(
-                self::ERROR_INVALID_SCHEME,
-                t('The scheme %1$s is not supported for links.', $this->info['scheme']) . ' ' .
-                t('Valid schemes are: %1$s.', implode(', ', $this->knownSchemes))
-            );
-            $this->isValid = false;
-            return;
-        }
-        
-        // every link needs a host. This case can happen for ex, if
-        // the link starts with a typo with only one slash, like:
-        // "http:/hostname"
-        if(!isset($this->info['host'])) {
-            $this->setError(
-                self::ERROR_MISSING_HOST,
-                t('Cannot determine the link\'s host name.') . ' ' .
-                t('This usually happens when there\'s a typo somewhere.')
-            );
-            $this->isValid = false;
-            return;
-        }
-
-        if(!empty($this->info['query'])) 
-        {
-            $this->params = \AppUtils\ConvertHelper::parseQueryString($this->info['query']);
-            ksort($this->params);
-        }
-        
-        $this->isValid = true;
+        $this->parser = new URLInfo_Parser($this->url);
+        $this->info = $this->parser->getInfo();
     }
     
    /**
@@ -225,93 +112,16 @@ class URLInfo implements \ArrayAccess
     */
     public static function filterURL(string $url)
     {
-        // fix ampersands if it comes from HTML
-        $url = str_replace('&amp;', '&', $url);
-        
-        // we remove any control characters from the URL, since these
-        // may be copied when copy+pasting from word or pdf documents
-        // for example.
-        $url = \AppUtils\ConvertHelper::stripControlCharacters($url);
-        
-        // fix the pesky unicode hyphen that looks like a regular hyphen,
-        // but isn't and can cause all sorts of problems
-        $url = str_replace('‐', '-', $url);
-        
-        // remove newlines and tabs
-        $url = str_replace(array("\n", "\r", "\t"), '', $url);
-        
-        $url = trim($url);
-        
-        return $url;
-    }
-    
-   /**
-    * Goes through all information in the parse_url result
-    * array, and attempts to fix any user errors in formatting
-    * that can be recovered from, mostly regarding stray spaces.
-    */
-    protected function filterParsed()
-    {
-        foreach($this->info as $key => $val)
-        {
-            if(is_string($val)) {
-                $this->info[$key] = trim($val);
-            }
-        }
-        
-        if(isset($this->info['host'])) {
-            $this->info['host'] = str_replace(' ', '', $this->info['host']);
-        }
-        
-        if(isset($this->info['path'])) {
-            $this->info['path'] = str_replace(' ', '', $this->info['path']);
-        }
-    }
-    
-    protected function detectEmail()
-    {
-        if(isset($this->info['scheme']) && $this->info['scheme'] == 'mailto') {
-            $this->isEmail = true;
-            return true;
-        }
-        
-        if(isset($this->info['path']) && preg_match(\AppUtils\RegexHelper::REGEX_EMAIL, $this->info['path'])) 
-        {
-            $this->info['scheme'] = 'email';
-            $this->isEmail = true;
-            return true;
-        }
-        
-        return false;
-    }
-    
-    protected function detectFragmentLink()
-    {
-        if(isset($this->info['fragment']) && !isset($this->info['scheme'])) {
-            $this->isFragment = true;
-            return true;
-        }
-        
-        return false;
-    }
-    
-    protected function detectPhoneLink()
-    {
-        if(isset($this->info['scheme']) && $this->info['scheme'] == 'tel') {
-            $this->isPhone = true;
-            return true;
-        }
-        
-        return false;
+        return URLInfo_Filter::filter($url);
     }
     
     /**
      * Checks if it is an https link.
      * @return boolean
      */
-    public function isSecure()
+    public function isSecure() : bool
     {
-        if(isset($this->info['scheme']) && $this->info['scheme']=='https') {
+        if(isset($this->info['scheme']) && $this->info['scheme'] === 'https') {
             return true;
         }
         
@@ -320,17 +130,17 @@ class URLInfo implements \ArrayAccess
     
     public function isAnchor() : bool
     {
-        return $this->isFragment;
+        return $this->info['type'] === self::TYPE_FRAGMENT;
     }
     
     public function isEmail() : bool
     {
-        return $this->isEmail;
+        return $this->info['type'] === self::TYPE_EMAIL;
     }
     
     public function isPhoneNumber() : bool
     {
-        return $this->isPhone;
+        return $this->info['type'] === self::TYPE_PHONE;
     }
     
    /**
@@ -345,9 +155,9 @@ class URLInfo implements \ArrayAccess
         return !empty($host);
     }
     
-    public function isValid()
+    public function isValid() : bool
     {
-        return $this->isValid;
+        return $this->parser->isValid();
     }
     
    /**
@@ -475,19 +285,19 @@ class URLInfo implements \ArrayAccess
     
     public function getNormalized() : string
     {
-        if(!$this->isValid) {
+        if(!$this->isValid()) {
             return '';
         }
         
-        if($this->isFragment === true)
+        if($this->isAnchor())
         {
             return '#'.$this->getFragment();
         }
-        else if($this->isPhone === true)
+        else if($this->isPhoneNumber())
         {
             return 'tel://'.$this->getHost();
         }
-        else if($this->isEmail === true)
+        else if($this->isEmail())
         {
             return 'mailto:'.$this->getPath();
         }
@@ -530,173 +340,23 @@ class URLInfo implements \ArrayAccess
     */
     public function getHighlighted() : string
     {
-        if(!$this->isValid) {
+        if(!$this->isValid()) {
             return '';
         }
         
-        if($this->isEmail) {
-            return sprintf(
-                '<span class="link-scheme scheme-mailto">mailto:</span>'.
-                '<span class="link-host">%s</span>',
-                $this->info['path']
-            );
-        }
+        $highlighter = new URLInfo_Highlighter($this);
         
-        if($this->isFragment) {
-            return sprintf(
-                '<span class="link-fragment-sign">#</span>'.
-                '<span class="link-fragment-value">%s</span>',
-                $this->info['fragment']
-            );
-        }
-        
-        $result = '';
-        
-        if($this->hasScheme())
-        {
-            $result = sprintf(
-                '<span class="link-scheme scheme-%1$s">'.
-                    '%1$s:'.
-                '</span>',
-                $this->getScheme()
-            );
-        }
-
-        $result .= '<span class="link-component double-slashes">//</span>';
-        
-        if($this->hasUsername())
-        {
-            $result .= sprintf(
-                '<span class="link-credentials">%s</span>'.
-                '<span class="link-component credentials-separator">:</span>'.
-                '<span class="link-credentials">%s</span>'.
-                '<span class="link-component credentials-at">@</span>',
-                $this->getUsername(),
-                $this->getPassword()
-            );
-        }
-        
-        if($this->hasHost()) 
-        {
-            $result .=
-            sprintf(
-                '<span class="link-host">%s</span><wbr>',
-                $this->getHost()
-            );
-        }
-        
-        if($this->hasPort()) 
-        {
-            $result .= sprintf(
-                '<span class="link-component port-separator">:</span>'.
-                '<span class="link-port">%s</span>',
-                $this->getPort()
-            );
-        }
-        
-        if($this->hasPath()) 
-        {
-            $path = str_replace(array(';', '='), array(';<wbr>', '=<wbr>'), $this->getPath());
-            $tokens = explode('/', $path);
-            $path = implode('<span class="link-component path-separator">/</span><wbr>', $tokens);
-            $result .= sprintf(
-                '<span class="link-path">%s</span><wbr>',
-                $path
-            );
-        }
-        
-        if(!empty($this->params))
-        {
-            $tokens = array();
-            
-            foreach($this->params as $param => $value)
-            {
-                $parts = sprintf(
-                    '<span class="link-param-name">%s</span>'.
-                    '<span class="link-component param-equals">=</span>'.
-                    '<span class="link-param-value">%s</span>'.
-                    '<wbr>',
-                    $param,
-                    str_replace(
-                        array(':', '.', '-', '_'),
-                        array(':<wbr>', '.<wbr>', '-<wbr>', '_<wbr>'),
-                        $value
-                    )
-                );
-                
-                $tag = '';
-                
-                // is parameter exclusion enabled, and is this an excluded parameter?
-                if($this->paramExclusion && isset($this->excludedParams[$param]))
-                {
-                    // display the excluded parameter, but highlight it
-                    if($this->highlightExcluded)
-                    {
-                        $tooltip = $this->excludedParams[$param];
-                        
-                        $tag = sprintf(
-                            '<span class="link-param excluded-param" title="%s" data-toggle="tooltip">%s</span>',
-                            $tooltip,
-                            $parts
-                        );
-                    }
-                    else
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    $tag = sprintf(
-                        '<span class="link-param">%s</span>',
-                        $parts
-                    );
-                }
-                
-                $tokens[] = $tag;
-            }
-            
-            $result .=
-            '<span class="link-component query-sign">?</span>'.implode('<span class="link-component param-separator">&amp;</span>', $tokens);
-        }
-        
-        if(isset($this->info['fragment'])) {
-            $result .= sprintf(
-                '<span class="link-fragment-sign">#</span>'.
-                '<span class="link-fragment">%s</span>',
-                $this->info['fragment']
-            );
-        }
-        
-        $result = '<span class="link">'.$result.'</span>';
-        
-        return $result;
-    }
-    
-    protected function setError(int $code, string $message)
-    {
-        $this->error = array(
-            'code' => $code,
-            'message' => $message
-        );
+        return $highlighter->highlight();
     }
     
     public function getErrorMessage() : string
     {
-        if(isset($this->error)) {
-            return $this->error['message'];
-        }
-        
-        return '';
+        return $this->parser->getErrorMessage();
     }
     
     public function getErrorCode() : int
     {
-        if(isset($this->error)) {
-            return $this->error['code'];
-        }
-        
-        return -1;
+        return $this->parser->getErrorCode();
     }
     
     public function hasParams() : bool
@@ -723,11 +383,11 @@ class URLInfo implements \ArrayAccess
     public function getParams() : array
     {
         if(!$this->paramExclusion || empty($this->excludedParams)) {
-            return $this->params;
+            return $this->info['params'];
         }
         
         $keep = array();
-        foreach($this->params as $name => $value) {
+        foreach($this->info['params'] as $name => $value) {
             if(!isset($this->excludedParams[$name])) {
                 $keep[$name] = $value;
             }
@@ -754,8 +414,8 @@ class URLInfo implements \ArrayAccess
     */
     public function getParam(string $name) : string
     {
-        if(isset($this->params[$name])) {
-            return $this->params[$name];
+        if(isset($this->info['params'][$name])) {
+            return $this->info['params'][$name];
         }
         
         return '';
@@ -794,19 +454,7 @@ class URLInfo implements \ArrayAccess
      */
     public function getType() : string
     {
-        if($this->isEmail) {
-            return self::TYPE_EMAIL;
-        }
-        
-        if($this->isFragment) {
-            return self::TYPE_FRAGMENT;
-        }
-        
-        if($this->isPhone) {
-            return self::TYPE_PHONE;
-        }
-        
-        return self::TYPE_URL;
+        return $this->info['type'];
     }
     
     public function getTypeLabel() : string
@@ -921,7 +569,7 @@ class URLInfo implements \ArrayAccess
             return false;
         }
         
-        $names = array_keys($this->params);
+        $names = array_keys($this->info['params']);
         foreach($names as $name) {
             if(isset($this->excludedParams[$name])) {
                 return true;
@@ -980,5 +628,15 @@ class URLInfo implements \ArrayAccess
         }
         
         return FileHelper::readContents($cssFolder.'/urlinfo-highlight.css');
+    }
+    
+    public function getExcludedParams() : array
+    {
+        return $this->excludedParams;
+    }
+    
+    public function isHighlightExcludeEnabled() : bool
+    {
+        return $this->highlightExcluded;
     }
 }
