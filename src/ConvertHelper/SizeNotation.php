@@ -292,6 +292,6 @@ class ConvertHelper_SizeNotation
         
         $this->sizeDefinition = ConvertHelper_StorageSizeEnum::getSizeByName($this->units);
         
-        $this->bytes = $int * $this->sizeString->getBytes();
+        $this->bytes = $int * $this->sizeDefinition->getBytes();
     }
 }
