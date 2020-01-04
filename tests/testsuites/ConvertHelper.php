@@ -5,6 +5,7 @@ use PHPUnit\Framework\TestCase;
 use AppUtils\ConvertHelper;
 use AppUtils\ConvertHelper_Exception;
 use AppUtils\ConvertHelper_SizeNotation;
+use AppUtils\ConvertHelper_StorageSizeEnum;
 
 final class ConvertHelperTest extends TestCase
 {
@@ -1047,5 +1048,163 @@ final class ConvertHelperTest extends TestCase
             $this->assertFalse($result->isValid(), $test['label']);
             $this->assertSame($test['error'], $result->getErrorCode(), $test['label']);
         }
+    }
+    
+    public function test_bytes2readable()
+    {
+        $tests = array(
+            array(
+                'label' => 'Negative value',
+                'value' => -100,
+                'result' => '0 B'
+            ),
+            array(
+                'label' => 'Max byte value',
+                'value' => 999,
+                'result' => '999 B'
+            ),
+            array(
+                'label' => 'KB value',
+                'value' => 1000,
+                'result' => '1 KB'
+            ),
+            array(
+                'label' => 'KB value',
+                'value' => 1500,
+                'result' => '1.5 KB'
+            ),
+            array(
+                'label' => 'MB value',
+                'value' => 1400000,
+                'result' => '1.4 MB'
+            ),
+            array(
+                'label' => 'GB value',
+                'value' => 1400000000,
+                'result' => '1.4 GB'
+            ),
+            array(
+                'label' => 'TB value',
+                'value' => 1400000000000,
+                'result' => '1.4 TB'
+            ),
+            array(
+                'label' => 'PB value',
+                'value' => 1400000000000000,
+                'result' => '1.4 PB'
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::bytes2readable($test['value']);
+            
+            $this->assertSame($test['result'], $result, $test['label']);
+        }
+    }
+    
+    public function test_bytes2readable_precision()
+    {
+        $tests = array(
+            array(
+                'label' => 'Rounding up',
+                'value' => 1800,
+                'result' => '2 KB',
+                'precision' => 0
+            ),
+            array(
+                'label' => 'Rounding down',
+                'value' => 1400,
+                'result' => '1 KB',
+                'precision' => 0
+            ),
+            array(
+                'label' => 'Higher precision',
+                'value' => 1480,
+                'result' => '1.48 KB',
+                'precision' => 2
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::bytes2readable($test['value'], $test['precision']);
+            
+            $this->assertSame($test['result'], $result, $test['label']);
+        }
+    }
+    
+    public function test_bytes2readable_base2()
+    {
+        $tests = array(
+            array(
+                'label' => 'Max byte value',
+                'value' => 1023,
+                'result' => '1023 B',
+            ),
+            array(
+                'label' => '0 value',
+                'value' => 0,
+                'result' => '0 B',
+            ),
+            array(
+                'label' => '1 value',
+                'value' => 1,
+                'result' => '1 B',
+            ),
+            array(
+                'label' => 'KiB value',
+                'value' => 1024,
+                'result' => '1 KiB',
+            ),
+            array(
+                'label' => 'MiB value',
+                'value' => 1024 ** 2,
+                'result' => '1 MiB',
+            ),
+            array(
+                'label' => 'GiB value',
+                'value' => 1024 ** 3,
+                'result' => '1 GiB',
+            ),
+            array(
+                'label' => 'TiB value',
+                'value' => 1024 ** 4,
+                'result' => '1 TiB',
+            ),
+            array(
+                'label' => 'PiB value',
+                'value' => 1024 ** 5,
+                'result' => '1 PiB',
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::bytes2readable($test['value'], 0, ConvertHelper_StorageSizeEnum::BASE_2);
+            
+            $this->assertSame($test['result'], $result, $test['label']);
+        }
+    }
+    
+    public function test_storageSizeEnum_localeSwitching()
+    {
+        if(!class_exists('\AppLocalize\Localization')) 
+        {
+            $this->markTestSkipped('The localization package is not installed.');
+        }
+        
+        $size = ConvertHelper_StorageSizeEnum::getSizeByName('mb');
+        
+        $this->assertEquals('Megabyte', $size->getLabelSingular());
+        
+        \AppLocalize\Localization::addAppLocale('fr_FR');
+        \AppLocalize\Localization::selectAppLocale('fr_FR');
+        
+        $size = ConvertHelper_StorageSizeEnum::getSizeByName('mb');
+        
+        $this->assertEquals('mégaoctet', $size->getLabelSingular());
+        
+        \AppLocalize\Localization::reset();
     }
 }
