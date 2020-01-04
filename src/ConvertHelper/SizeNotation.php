@@ -32,7 +32,7 @@ class ConvertHelper_SizeNotation
     const VALIDATION_ERROR_NEGATIVE_VALUE = 43803;
     
    /**
-    * @var string
+    * @var ConvertHelper_StorageSizeEnum_Size
     */
     protected $size;
     
