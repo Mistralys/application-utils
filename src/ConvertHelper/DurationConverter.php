@@ -75,7 +75,7 @@ class ConvertHelper_DurationConverter
     public function handle_localeChanged()
     {
         // force the texts to be refreshed when needed.
-        unset(self::$texts);
+        self::$texts = null;
     }
     
    /**

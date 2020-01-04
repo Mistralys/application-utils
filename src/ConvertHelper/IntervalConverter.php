@@ -47,7 +47,7 @@ class ConvertHelper_IntervalConverter
     */
     public function handle_localeChanged()
     {
-        unset(self::$texts);
+        self::$texts = null;
     }
     
    /**
