@@ -28,8 +28,6 @@ class FileHelper
     
     const ERROR_JSON_ENCODE_ERROR = 340005;
     
-    const ERROR_JSON_CANNOT_WRITE_FILE = 340006;
-    
     const ERROR_CURL_EXTENSION_NOT_INSTALLED = 340007;
     
     const ERROR_CANNOT_OPEN_URL = 340008;
@@ -42,8 +40,6 @@ class FileHelper
     
     const ERROR_CANNOT_DELETE_FILE = 340012;
     
-    const ERROR_FIND_FOLDER_DOES_NOT_EXIST = 340013;
-     
     const ERROR_FIND_SUBFOLDERS_FOLDER_DOES_NOT_EXIST = 340014;
     
     const ERROR_UNKNOWN_FILE_MIME_TYPE = 340015;
@@ -711,12 +707,14 @@ class FileHelper
    /**
     * Searches for all HTML files in the target folder.
     * 
+    * NOTE: This method only exists for backwards compatibility.
+    * Use the `createFileFinder()` method instead, which offers
+    * an object oriented interface that is much easier to use.
+    * 
     * @param string $targetFolder
     * @param array $options
     * @return array An indexed array with files.
     * @see FileHelper::createFileFinder()
-    * 
-    * @todo Convert this to use the file finder.
     */
     public static function findHTMLFiles(string $targetFolder, array $options=array()) : array
     {
@@ -726,12 +724,14 @@ class FileHelper
    /**
     * Searches for all PHP files in the target folder.
     * 
+    * NOTE: This method only exists for backwards compatibility.
+    * Use the `createFileFinder()` method instead, which offers
+    * an object oriented interface that is much easier to use.
+    * 
     * @param string $targetFolder
     * @param array $options
     * @return array An indexed array of PHP files.
     * @see FileHelper::createFileFinder()
-    * 
-    * @todo Convert this to use the file finder.
     */
     public static function findPHPFiles(string $targetFolder, array $options=array()) : array
     {
@@ -739,7 +739,12 @@ class FileHelper
     }
     
    /**
+    * Finds files according to the specified options.
     * 
+    * NOTE: This method only exists for backwards compatibility.
+    * Use the `createFileFinder()` method instead, which offers
+    * an object oriented interface that is much easier to use.
+    *  
     * @param string $targetFolder
     * @param array $extensions
     * @param array $options
@@ -747,84 +752,26 @@ class FileHelper
     * @throws FileHelper_Exception
     * @return array
     * @see FileHelper::createFileFinder()
-    * @todo Convert this to use the file finder. 
     */
     public static function findFiles(string $targetFolder, array $extensions=array(), array $options=array(), array $files=array()) : array
     {
-        if(!isset($options['strip-extension'])) {
-            $options['strip-extension'] = false;
-        }
-        
-        if(!isset($options['absolute-path'])) {
-            $options['absolute-path'] = false;
-        } 
-        
-        if(!isset($options['relative-path'])) {
-            $options['relative-path'] = false;
-        }
-        
-        if(!isset($options['recursive'])) {
-            $options['recursive'] = false;
-        }
-        
-        if($options['relative-path']) {
-            $options['absolute-path'] = true;
-        }
-        
-        if(!isset($options['__root'])) {
-            $options['__root'] = self::normalizePath($targetFolder);
-        }
-        
-        $checkExtensions = false;
-        if(!empty($extensions)) {
-            $checkExtensions = true;
-            $extensions = array_map('strtolower', $extensions);
-        }
-        
-        if(!is_dir($targetFolder)) 
+        $finder = self::createFileFinder($targetFolder);
+
+        if(isset($options['relative-path']) && $options['relative-path'] === true) 
         {
-            throw new FileHelper_Exception(
-                'Target folder does not exist',
-                sprintf(
-                    'Cannot find files in folder [%s], it could not be found.',
-                    $targetFolder
-                ),
-                self::ERROR_FIND_FOLDER_DOES_NOT_EXIST
-            );
+            $finder->setPathmodeRelative();
+        } 
+        else if(isset($options['absolute-path']) && $options['absolute-path'] === true)
+        {
+            $finder->setPathmodeAbsolute();
         }
         
-        $d = new \DirectoryIterator($targetFolder);
-        foreach($d as $item) {
-            if($item->isDot()) {
-                continue;
-            }
-            
-            if($item->isDir()) {
-                if($options['recursive']) {
-                    $files = self::findFiles($item->getPathname(), $extensions, $options, $files);
-                }
-                continue;
-            }
-            
-            if($checkExtensions && !in_array(self::getExtension($item, true), $extensions)) {
-                continue;
-            }
-            
-            $filename = $item->getFilename();
-            if($options['strip-extension']) {
-                $filename = self::removeExtension($filename);
-            }
-            
-            if($options['absolute-path']) {
-                $filename = self::normalizePath($targetFolder.'/'.$filename);
-            }
-            
-            if($options['relative-path']) {
-                $filename = ltrim(str_replace($options['__root'], '', $filename), '/');
-            }
-            
-            $files[] = $filename;
+        if(isset($options['strip-extension'])) 
+        {
+            $finder->stripExtensions();
         }
+        
+        $finder->setOptions($options);
         
         return $files;
     }
@@ -961,7 +908,20 @@ class FileHelper
         return str_replace(array('\\', '//'), array('/', '/'), $path);
     }
     
-    public static function saveAsJSON($data, $file, $pretty=false)
+   /**
+    * Saves the specified data to a file, JSON encoded.
+    * 
+    * @param mixed $data
+    * @param string $file
+    * @param bool $pretty
+    * @throws FileHelper_Exception
+    * 
+    * @see FileHelper::ERROR_JSON_ENCODE_ERROR
+    * @see FileHelper::ERROR_SAVE_FOLDER_NOT_WRITABLE
+    * @see FileHelper::ERROR_SAVE_FILE_NOT_WRITABLE
+    * @see FileHelper::ERROR_SAVE_FILE_WRITE_FAILED
+    */
+    public static function saveAsJSON($data, string $file, bool $pretty=false)
     {
         $options = null;
         if($pretty) {
@@ -969,9 +929,11 @@ class FileHelper
         }
         
         $json = json_encode($data, $options);
+        
         if($json===false) 
         {
             $errorCode = json_last_error();
+            
             throw new FileHelper_Exception(
                 'An error occurred while encdoding a data set to JSON. Native error message: ['.json_last_error_msg().'].', 
                 'JSON error code: '.$errorCode,
@@ -979,13 +941,7 @@ class FileHelper
             ); 
         }
         
-        if(!file_put_contents($file, $json)) {
-            throw new FileHelper_Exception(
-                sprintf('Could not write the JSON file [%s] to disk.', basename($file)),
-                sprintf('Full path: [%s].', $file),
-                self::ERROR_JSON_CANNOT_WRITE_FILE
-            );
-        }
+        self::saveFile($file, $json);
     }
    
    /**
@@ -1069,6 +1025,8 @@ class FileHelper
      * @param string $command The name of the command to check, e.g. "php"
      * @return bool True if the command has been found, false otherwise.
      * @throws FileHelper_Exception 
+     * 
+     * @todo Move this to a separate class.
      */
     public static  function cliCommandExists($command)
     {
@@ -1200,6 +1158,8 @@ class FileHelper
     * @param array $options
     * @throws FileHelper_Exception
     * @return string[]
+    * 
+    * @todo Move this to a separate class.
     */
     public static function getSubfolders($targetFolder, $options = array())
     {
