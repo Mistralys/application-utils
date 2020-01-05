@@ -2,7 +2,7 @@
 /**
  * File containing the {@see ConvertHelper_StorageSizeEnum_Size} class.
  *
- * @package AppUtils
+ * @package Application Utils
  * @subpackage ConvertHelper
  * @see ConvertHelper_StorageSizeEnum_Size
  */
@@ -17,7 +17,7 @@ namespace AppUtils;
  * 
  * NOTE: Use the enum's methods to retrieve instances of this class.
  *
- * @package AppUtils
+ * @package Application Utils
  * @subpackage ConvertHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  * 

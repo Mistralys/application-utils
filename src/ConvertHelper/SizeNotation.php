@@ -2,7 +2,7 @@
 /**
  * File containing the {@see ConvertHelper_SizeNotation} class.
  * 
- * @package AppUtils
+ * @package Application Utils
  * @subpackage ConvertHelper
  * @see ConvertHelper_SizeNotation
  */
@@ -19,7 +19,7 @@ namespace AppUtils;
  * 
  * It supports both Base 10 and Base 2 size calculation.
  * 
- * @package AppUtils
+ * @package Application Utils
  * @subpackage ConvertHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
