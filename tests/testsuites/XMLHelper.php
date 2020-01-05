@@ -33,11 +33,9 @@ final class XMLHelperTest extends TestCase
                 'type' => 'root'
             ),
             'title' => array(
-                '@attributes' => array(),
                 '@text' => 'Title'
             ),
             'items' => array(
-                '@attributes' => array(),
                 'item' => array(
                     array(
                         '@attributes' => array(
@@ -51,12 +49,8 @@ final class XMLHelperTest extends TestCase
                     )
                 )
             ),
-            'self_closing' => array(
-                '@attributes' => array()
-            ),
-            'empty' => array(
-                '@attributes' => array()
-            )
+            'self_closing' => null,
+            'empty' => null
         );
         
         $this->assertEquals($expected, $array);
