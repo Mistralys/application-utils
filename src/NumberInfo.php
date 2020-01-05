@@ -274,10 +274,10 @@ class NumberInfo
      * Formats the number for use in a CSS statement.
      * @return string
      */
-    public function toCSS()
+    public function toCSS() : string
     {
         if($this->isEmpty()) {
-            return null;
+            return '';
         }
         
         if($this->isZero()) {
