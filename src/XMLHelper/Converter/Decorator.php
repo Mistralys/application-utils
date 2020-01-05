@@ -1,4 +1,13 @@
 <?php
+/**
+ * File containing the {@see \AppUtils\XMLHelper_Converter_Decorator} class.
+ * 
+ * @package Application Utils
+ * @subpackage XMLHelper
+ * @see XMLHelper_Converter_Decorator
+ */
+
+declare(strict_types=1);
 
 namespace AppUtils;
 
@@ -12,34 +21,66 @@ namespace AppUtils;
  */
 class XMLHelper_Converter_Decorator implements \JsonSerializable
 {
-    /**
-     * @var \SimpleXMLElement
-     */
+   /**
+    * @var \SimpleXMLElement
+    */
     private $subject;
     
     const DEF_DEPTH = 512;
     
+   /**
+    * @var array
+    */
     private $options = array(
         '@attributes' => true,
         '@text' => true,
         'depth' => self::DEF_DEPTH
     );
+
+   /**
+    * @var array
+    */
+    protected $result = array();
     
     public function __construct(\SimpleXMLElement $element)
     {
         $this->subject = $element;
     }
     
-    public function useAttributes($bool) {
+   /**
+    * Whether to use the `@attributes` key to store element attributes.
+    * 
+    * @param bool $bool
+    * @return XMLHelper_Converter_Decorator
+    */
+    public function useAttributes(bool $bool) : XMLHelper_Converter_Decorator 
+    {
         $this->options['@attributes'] = (bool)$bool;
+        return $this;
     }
     
-    public function useText($bool) {
+   /**
+    * Whether to use the `@text` key to store the node text.
+    * 
+    * @param bool $bool
+    * @return XMLHelper_Converter_Decorator
+    */
+    public function useText(bool $bool) : XMLHelper_Converter_Decorator 
+    {
         $this->options['@text'] = (bool)$bool;
+        return $this;
     }
     
-    public function setDepth($depth) {
+   /**
+    * Set the maximum depth to parse in the document.
+    * 
+    * @param int $depth
+    * @return XMLHelper_Converter_Decorator
+    */
+    public function setDepth(int $depth) : XMLHelper_Converter_Decorator 
+    {
         $this->options['depth'] = (int)max(0, $depth);
+        return $this;
     }
     
     /**
@@ -49,56 +90,84 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        $subject = $this->subject;
+        $this->result = array();
         
-        $array = array();
+        $this->detectAttributes();
+        $this->traverseChildren();
+        $this->encodeTextElements();
         
-        // json encode attributes if any.
-        if ($this->options['@attributes']) {
-            if ($attributes = $subject->attributes()) {
-                $array['@attributes'] = array_map('strval', iterator_to_array($attributes));
-            }
+        // return empty elements as NULL (self-closing or empty tags)
+        if (empty($this->result) && !is_numeric($this->result) && !is_bool($this->result)) {
+            $this->result = NULL;
         }
         
-        // traverse into children if applicable
-        $children      = $subject;
-        $this->options = (array)$this->options;
-        $depth         = $this->options['depth'] - 1;
-        if ($depth <= 0) {
+        return $this->result;
+    }
+    
+    protected function detectAttributes()
+    {
+        // json encode attributes if any.
+        if(!$this->options['@attributes']) {
+            return;
+        }
+        
+        $attributes = $this->subject->attributes();
+        
+        if($attributes instanceof \SimpleXMLElement) 
+        {
+            $this->result['@attributes'] = array_map('strval', iterator_to_array($attributes));
+        }
+    }
+    
+    protected function traverseChildren()
+    {
+        $children = $this->subject;
+        $depth = $this->options['depth'] - 1;
+        
+        if($depth <= 0) 
+        {
             $children = [];
         }
         
         // json encode child elements if any. group on duplicate names as an array.
-        foreach ($children as $name => $element) {
+        foreach ($children as $name => $element) 
+        {
             /* @var \SimpleXMLElement $element */
-            $decorator          = new self($element);
+            $decorator = new self($element);
+            
             $decorator->options = ['depth' => $depth] + $this->options;
             
-            if (isset($array[$name])) {
-                if (!is_array($array[$name])) {
-                    $array[$name] = [$array[$name]];
+            if(isset($this->result[$name])) 
+            {
+                if(!is_array($this->result[$name])) 
+                {
+                    $this->result[$name] = [$this->result[$name]];
                 }
-                $array[$name][] = $decorator;
-            } else {
-                $array[$name] = $decorator;
+                
+                $this->result[$name][] = $decorator;
+            } 
+            else 
+            {
+                $this->result[$name] = $decorator;
             }
         }
-        
+    }
+    
+    protected function encodeTextElements()
+    {
         // json encode non-whitespace element simplexml text values.
-        $text = trim($subject);
-        if (strlen($text)) {
-            if ($array) {
-                $this->options['@text'] && $array['@text'] = $text;
-            } else {
-                $array = $text;
+        $text = trim((string)$this->subject);
+        
+        if(strlen($text)) 
+        {
+            if($this->result && $this->options['@text']) 
+            {
+                $this->result['@text'] = $text;
+            } 
+            else 
+            {
+                $this->result = $text;
             }
         }
-        
-        // return empty elements as NULL (self-closing or empty tags)
-        if (empty($array) && !is_numeric($array) && !is_bool($array)) {
-            $array = NULL;
-        }
-        
-        return $array;
     }
 }
