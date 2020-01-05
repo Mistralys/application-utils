@@ -38,7 +38,7 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
     );
 
    /**
-    * @var array
+    * @var array|string|null
     */
     protected $result = array();
     
@@ -97,7 +97,8 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
         $this->encodeTextElements();
         
         // return empty elements as NULL (self-closing or empty tags)
-        if (empty($this->result) && !is_numeric($this->result) && !is_bool($this->result)) {
+        if (empty($this->result) && !is_numeric($this->result) && !is_bool($this->result)) 
+        {
             $this->result = NULL;
         }
         
@@ -106,14 +107,13 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
     
     protected function detectAttributes()
     {
-        // json encode attributes if any.
         if(!$this->options['@attributes']) {
             return;
         }
         
         $attributes = $this->subject->attributes();
         
-        if($attributes instanceof \SimpleXMLElement) 
+        if(!empty($attributes)) 
         {
             $this->result['@attributes'] = array_map('strval', iterator_to_array($attributes));
         }
@@ -160,7 +160,7 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
         
         if(strlen($text)) 
         {
-            if($this->result && $this->options['@text']) 
+            if($this->options['@text']) 
             {
                 $this->result['@text'] = $text;
             } 
