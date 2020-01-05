@@ -980,7 +980,7 @@ final class RequestTest extends TestCase
             ->setBoolean()
             ->get();
             
-            $this->assertEquals($def['expected'], $value, $def['label']);
+            $this->assertSame($def['expected'], $value, $def['label']);
         }
     }
     
