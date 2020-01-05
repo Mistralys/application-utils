@@ -400,15 +400,17 @@ class Request
     
     public function validate()
     {
-        foreach($this->knownParams as $param) {
+        foreach($this->knownParams as $param) 
+        {
             $name = $param->getName();
-            if($param->isRequired() && !$this->hasParam($name)) {
+            
+            if($param->isRequired() && !$this->hasParam($name)) 
+            {
                 throw new Request_Exception(
                     'Missing request parameter '.$name,
                     sprintf(
-                        'The request parameter [%s] is required, and is either empty or invalid according to the specified format [%s].',
-                        $name,
-                        $param->getValidationType()
+                        'The request parameter [%s] is required, and is either empty or invalid.',
+                        $name
                     ),
                     self::ERROR_MISSING_OR_INVALID_PARAMETER
                 );
