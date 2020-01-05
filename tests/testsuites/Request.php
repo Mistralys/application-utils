@@ -1230,23 +1230,39 @@ final class RequestTest extends TestCase
 
     public function test_getAcceptHeaders()
     {
-        // simulate the accept header string
-        $_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3';
-        
-        $headers = \AppUtils\Request::getAcceptHeaders();
-        
-        $this->assertEquals(
+        $tests = array(
             array(
-                'application/xml',
-                '*/*',
-                'text/html',
-                'application/xhtml+xml',
-                'image/webp',
-                'image/apng',
-                'application/signed-exchange'
-            ), 
-            $headers
+                'label' => 'Chrome accept string',
+                'value' => implode(',', array( 
+                    'text/html',
+                    'application/xhtml+xml',
+                    'application/xml;q=0.9',
+                    'image/webp',
+                    'image/apng',
+                    '*/*;q=0.8',
+                    'application/signed-exchange;v=b3;q=0.9'
+                )),
+                'expected' => array(
+                    'application/xml',
+                    'application/signed-exchange',
+                    '*/*',
+                    'text/html',
+                    'application/xhtml+xml',
+                    'image/webp',
+                    'image/apng',
+                )
+            ),
         );
+        
+        foreach($tests as $test)
+        {
+            $_SERVER['HTTP_ACCEPT'] = $test['value'];
+            
+            $accept = new \AppUtils\Request_AcceptHeaders();
+            $mimes = $accept->getMimeStrings();
+            
+            $this->assertEquals($test['expected'], $mimes, $test['label']);
+        }
     }
     
     public function test_validateJSON()
