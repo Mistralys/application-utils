@@ -135,37 +135,37 @@ class Request
         return '';
     }
     
-    public function getRefreshParams($params = array(), $exclude = array())
+    public function getRefreshParams(array $params = array(), array $exclude = array())
     {
-        if(empty($params)) { $params = array(); }
-        if(empty($exclude)) { $exclude = array(); }
-        
         $vars = $_REQUEST;
 
         $exclude[] = session_name();
-        $exclude[] = 'ZDEDebuggerPresent';
         
         $exclude = array_merge($exclude, $this->getExcludeParams());
         
-        foreach ($exclude as $name) {
-            if (isset($vars[$name])) {
+        foreach($exclude as $name) 
+        {
+            if(isset($vars[$name])) 
+            {
                 unset($vars[$name]);
             }
         }
         
         $names = array_keys($vars);
         
-        // remove the quickform form variable if present, to 
+        // remove the HTML_QuickForm2 form variable if present, to 
         // avoid redirect loops when using the refresh URL in
         // a page in which a form has been submitted.
-        foreach($names as $name) {
-            if(strstr($name, '_qf__')) {
+        foreach($names as $name) 
+        {
+            if(strstr($name, '_qf__')) 
+            {
                 unset($vars[$name]);
                 break;
             }
         }
         
-        // to allow specifiying even exluded parameters
+        // to allow specifiying even excluded parameters
         $params = array_merge($vars, $params);
         
         return $params;
@@ -266,97 +266,51 @@ class Request
         return isset($this->knownParams[$name]);
     }
     
-    protected static $acceptHeaders;
-    
-    /**
-     * Retrieves an indexed array with accept mime types
-     * that the client sent, in the order of preference
-     * the client specified.
-     *
-     * Example:
-     *
-     * array(
-     *     'text/html',
-     *     'application/xhtml+xml',
-     *     'image/webp'
-     *     ...
-     * )
-     */
-    public static function getAcceptHeaders()
+   /**
+    * Retrieves an indexed array with accept mime types
+    * that the client sent, in the order of preference
+    * the client specified.
+    *
+    * Example:
+    *
+    * array(
+    *     'text/html',
+    *     'application/xhtml+xml',
+    *     'image/webp'
+    *     ...
+    * )
+    * 
+    * @return array
+    * @see Request::parseAcceptHeaders()
+    */
+    public static function getAcceptHeaders() : array
     {
-        if (isset(self::$acceptHeaders)) {
-            return self::$acceptHeaders;
-        }
-        
-        self::$acceptHeaders = array();
-        
-        $acceptHeader = $_SERVER['HTTP_ACCEPT'];
-        
-        $accept = array();
-        foreach (preg_split('/\s*,\s*/', $acceptHeader) as $i => $term) 
-        {
-            $entry = array(
-                'pos' => $i,
-                'params' => array(),
-                'quality' => 0,
-                'type' => null
-            );
-            
-            $matches = null;
-            if (preg_match('/^(\S+)\s*;(.*)/six', $term, $matches)) 
-            {
-                $entry['type'] = $matches[1];
-                
-                if(isset($matches[2]) && !empty($matches[2])) 
-                {
-                    $params = ConvertHelper::parseQueryString($matches[2]);
-                    $entry['params'] = $params;
-                     
-                    if(isset($params['q'])) {
-                        $entry['quality'] = (double)$params['q'];
-                    }
-                }
-            }
-            else
-            {
-                $entry['type'] = $term;
-            }
-            
-            $accept[] = $entry;
-        }
-        
-        usort($accept, array(Request::class, 'sortAcceptHeaders'));
-        
-        foreach ($accept as $a) {
-            self::$acceptHeaders[] = $a['type'];
-        }
-        
-        return self::$acceptHeaders;
+        return self::parseAcceptHeaders()->getMimeStrings();
     }
     
-    public static function sortAcceptHeaders($a, $b)
+   /**
+    * Returns an instance of the accept headers parser,
+    * to access information on the browser's accepted
+    * mime types.
+    *  
+    * @return Request_AcceptHeaders
+    * @see Request::getAcceptHeaders()
+    */
+    public static function parseAcceptHeaders() : Request_AcceptHeaders
     {
-        /* first tier: highest q factor wins */
-        $diff = $b['quality'] - $a['quality'];
-        if ($diff > 0) {
-            $diff = 1;
-        } else {
-            if ($diff < 0) {
-                $diff = -1;
-            } else {
-                /* tie-breaker: first listed item wins */
-                $diff = $a['pos'] - $b['pos'];
-            }
+        static $accept;
+        
+        if(!isset($accept)) {
+            $accept = new Request_AcceptHeaders();
         }
         
-        return $diff;
+        return $accept;
     }
     
     /**
      * Sets a request parameter. Does nothing more than setting/overwriting
      * a parameter value within the same request.
      *
-     * @since 3.3.7
      * @param string $name
      * @param string $value
      * @return Request
