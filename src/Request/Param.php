@@ -74,6 +74,8 @@ class Request_Param
     
     const FILTER_TYPE_CALLBACK = 'callback';
     
+    const FILTER_TYPE_CLASS = 'class';
+    
     /**
      * Constructor for the specified parameter name. Note that this
      * is instantiated automatically by the request class itself. You
@@ -106,7 +108,8 @@ class Request_Param
                 self::VALIDATION_TYPE_JSON
             );
             self::$filterTypes = array(
-                self::FILTER_TYPE_CALLBACK
+                self::FILTER_TYPE_CALLBACK,
+                self::FILTER_TYPE_CLASS
             );
         }
     }
@@ -119,11 +122,11 @@ class Request_Param
     * The callback must return boolean true or false depending on
     * whether the value is valid.
     * 
-    * @param mixed $callback
+    * @param callable $callback
     * @param array $args
     * @return Request_Param
     */
-    public function setCallback($callback, $args=array())
+    public function setCallback($callback, array $args=array()) : Request_Param
     {
         if(!is_callable($callback)) {
             throw new Request_Exception(
@@ -142,23 +145,6 @@ class Request_Param
         );
     }
     
-    protected function validate_callback($value)
-    {
-        $args = $this->validationParams['arguments'];
-        array_unshift($args, $value);
-        
-        $result = call_user_func_array($this->validationParams['callback'], $args);
-        if($result !== false) {
-            return $value;
-        }
-        
-        return null;
-    }
-    
-    protected $validated = false;
-    
-    protected $validatedValue = null;
-
     /**
      * Validates a request parameter: called automatically for all
      * registered parameters by the request class. If no specific
@@ -177,50 +163,76 @@ class Request_Param
         // replacing the value with the adjusted, validated value.
         foreach($this->validations as $validateDef) 
         {
-            $this->validationType = $validateDef['type'];
-            $this->validationParams = $validateDef['params'];
-            
-            // and now, see if we have to validate the value as well
-            $method = 'validate_' . $this->validationType;
-            if (!method_exists($this, $method)) {
-                throw new Request_Exception(
-                    'Unknown validation type.',
-                    sprintf(
-                        'Cannot validate using type [%s], the target method [%s] does not exist in class [%s].',
-                        $this->validationType,
-                        $method,
-                        get_class($this)
-                    ),
-                    self::ERROR_UNKNOWN_VALIDATION_TYPE
-                );
-            }
-         
-            if($this->valueType === self::VALUE_TYPE_ID_LIST) 
-            {
-                if(!is_array($value)) {
-                    $value = explode(',', $value);
-                }
-                
-                $keep = array();
-                foreach($value as $subval) 
-                {
-                    $subval = trim($subval);
-                    $subval = $this->$method($subval);
-                    
-                    if($subval !== null) {
-                        $keep[] = intval($subval);
-                    }
-                }
-
-                $value = $keep;
-            } else {
-                $value = $this->$method($value);
-            }
+            $value = $this->validateType($value, $validateDef['type'], $validateDef['params']);
         }
 
         return $value;
     }
-
+    
+   /**
+    * Validates the specified value using the validation type. Returns
+    * the validated value. 
+    * 
+    * @param mixed $value
+    * @param string $type
+    * @param array $params
+    * @throws Request_Exception
+    * @return mixed
+    */
+    protected function validateType($value, string $type, array $params)
+    {
+        $class = '\AppUtils\Request_Param_Validator_'.ucfirst($type);
+        
+        if(!class_exists($class))
+        {
+            throw new Request_Exception(
+                'Unknown validation type.',
+                sprintf(
+                    'Cannot validate using type [%s], the target class [%s] does not exist.',
+                    $type,
+                    $class
+                ),
+                self::ERROR_UNKNOWN_VALIDATION_TYPE
+            );
+        }
+        
+        $validator = new $class($this);
+        $validator->setOptions($params);
+        
+        if($this->valueType === self::VALUE_TYPE_ID_LIST)
+        {
+            $value = $this->validateType_idList($value, $validator);
+        }
+        else
+        {
+            $value = $validator->validate($value);
+        }
+        
+        return $value;
+    }
+    
+    protected function validateType_idList($value, Request_Param_Validator $validator) : array
+    {
+        if(!is_array($value))
+        {
+            $value = explode(',', $value);
+        }
+        
+        $keep = array();
+        
+        foreach($value as $subval)
+        {
+            $subval = trim($subval);
+            $subval = $validator->validate($subval);
+            
+            if($subval !== null) {
+                $keep[] = intval($subval);
+            }
+        }
+         
+        return $keep;
+    }
+    
     /**
      * Sets the parameter value as numeric, meaning it will be validated
      * using PHP's is_numeric method.
@@ -352,11 +364,16 @@ class Request_Param
     public function setEnum()
     {
         $args = func_get_args(); // cannot be used as function parameter in some PHP versions
-        if (is_array($args[0])) {
+        
+        if(is_array($args[0])) 
+        {
             $args = $args[0];
         }
 
-        return $this->setValidation(self::VALIDATION_TYPE_ENUM, $args);
+        return $this->setValidation(
+            self::VALIDATION_TYPE_ENUM, 
+            array('values' => $args)
+        );
     }
     
    /**
@@ -374,7 +391,12 @@ class Request_Param
     {
         $this->setArray();
         
-        return $this->setValidation(self::VALIDATION_TYPE_VALUESLIST, $values);
+        return $this->setValidation(
+            self::VALIDATION_TYPE_VALUESLIST, 
+            array(
+                'values' => $values
+            )
+        );
     }
     
     public function setArray()
@@ -417,65 +439,7 @@ class Request_Param
     */
     public function setBoolean() : Request_Param
     {
-        $this->addCallbackFilter(array($this, 'applyFilter_boolean'));
-        return $this->setEnum('yes', 'no', 'true', 'false');
-    }
-    
-    protected function applyFilter_boolean($value)
-    {
-        if($value == 'yes' || $value == 'true') {
-            return true;
-        }
-        
-        return false;
-    }
-    
-    protected function applyFilter_stripWhitespace($value)
-    {
-        return preg_replace('/\s/', '', $value);
-    }
-    
-    protected function applyFilter_string($value)
-    {
-        if(!is_scalar($value)) {
-            return '';
-        }
-        
-        return (string)$value;
-    }
-    
-    protected function applyFilter_commaSeparated($value, bool $trimEntries, bool $stripEmptyEntries)
-    {
-        if(is_array($value)) {
-            return $value;
-        }
-        
-        if($value === '' || $value === null || !is_string($value)) {
-            return array();
-        }
-        
-        $result = explode(',', $value);
-        
-        if(!$trimEntries && !$stripEmptyEntries) {
-            return $result;
-        }
-        
-        $keep = array();
-        
-        foreach($result as $entry) 
-        {
-            if($trimEntries === true) {
-                $entry = trim($entry);
-            }
-            
-            if($stripEmptyEntries === true && $entry === '') {
-                continue;
-            }
-            
-            $keep[] = $entry;
-        }
-        
-        return $keep;
+        return $this->addClassFilter('Boolean');
     }
     
    /**
@@ -547,203 +511,6 @@ class Request_Param
     }
 
     /**
-     * Validates an integer.
-     * 
-     * Note: returns null if the value is not an integer, since any other 
-     * value would be a valid integer that may have meaning in the application.
-     *  
-     * @param mixed $value
-     * @return int|null
-     * @see setInteger()
-     */
-    protected function validate_integer($value) : ?int
-    {
-        if(ConvertHelper::isInteger($value)) {
-            return intval($value);
-        }
-        
-        return null;
-    }
-    
-   /**
-    * Validates the syntax of an URL, but not its actual validity. 
-    * 
-    * @param mixed $value
-    * @return string
-    */
-    protected function validate_url($value) : string
-    {
-        if(!is_string($value)) {
-            return '';
-        }
-        
-        $info = parse_url($value);
-        if(isset($info['host'])) {
-            return $value;
-        }
-        
-        return '';
-    }
-
-    /**
-     * Validates a numeric value: returns null if the value is not in numeric notation.
-     * 
-     * @param mixed $value
-     * @return string|number|NULL
-     * @see setNumeric()
-     */
-    protected function validate_numeric($value) : ?float
-    {
-        if(is_numeric($value)) {
-            return $value * 1;
-        }
-
-        return null;
-    }
-
-    /**
-     * Validates a request value using a regex. Returns null if the value does not match.
-     * 
-     * @param mixed $value
-     * @return string|NULL
-     * @see setRegex()
-     */
-    protected function validate_regex($value) : ?string
-    {
-        if(!is_scalar($value)) {
-            return null;
-        }
-        
-        // the only scalar value we do not want to work with
-        // is a boolan, which is converted to an integer when
-        // converted to string, which in turn can be validated
-        // with a regex.
-        if(is_bool($value)) {
-            return null;
-        }
-        
-        $value = (string)$value;
-        
-        if(preg_match($this->validationParams['regex'], $value)) {
-            return $value;
-        }
-
-        return null;
-    }
-
-    /**
-     * Validates a string containing only letters, lowercase and uppercase.
-     * 
-     * @param mixed $value
-     * @return string|NULL
-     * @see setAlpha()
-     */
-    protected function validate_alpha($value)
-    {
-        if(!is_scalar($value)) {
-            return null;
-        }
-        
-        if(preg_match('/\A[a-zA-Z]+\z/', $value)) {
-            return $value;
-        }
-
-        return null;
-    }
-    
-    protected function validate_valueslist($value)
-    {
-        if(!is_array($value)) {
-            return array();
-        }
-        
-        $keep = array();
-        foreach($value as $item) {
-            if(in_array($item, $this->validationParams)) {
-                $keep[] = $item;
-            }
-        }
-        
-        return $keep;
-    }
-
-    /**
-     * Validates a string containing only letters, lowercase and uppercase, and numbers.
-     * @param string $value
-     * @return string|NULL
-     * @see setAlnum()
-     */
-    protected function validate_alnum($value)
-    {
-        if (preg_match('/\A[a-zA-Z0-9]+\z/', $value)) {
-            return $value;
-        }
-    
-        return null;
-    }
-    
-    /**
-     * Validates the value according to a list of possible values.
-     * @param string $value
-     * @return string|NULL
-     */
-    protected function validate_enum($value)
-    {
-        if (in_array($value, $this->validationParams)) {
-            return $value;
-        }
-
-        return null;
-    }
-
-    /**
-     * Makes sure that the value is an array.
-     * @param mixed $value
-     * @return array|NULL
-     */
-    protected function validate_array($value) : ?array
-    {
-        if (is_array($value)) {
-            return $value;
-        }
-
-        return null;
-    }
-    
-   /**
-    * Makes sure that the value is a JSON-encoded string.
-    * @param mixed $value
-    */
-    protected function validate_json($value) : string
-    {
-        if(!is_string($value)) {
-            return '';
-        }
-        
-        $value = trim($value);
-        
-        if(empty($value)) {
-            return '';
-        }
-        
-        // strictly validate for objects?
-        if($this->validationParams['arrays'] === false) 
-        {
-            if(is_object(json_decode($value))) {
-               return $value; 
-            }
-        } 
-        else 
-        {
-            if(is_array(json_decode($value, true))) {
-                return $value;
-            }
-        }
-        
-        return '';
-    }
-
-    /**
      * Filters the specified value by going through all available
      * filters, if any. If none have been set, the value is simply
      * passed through.
@@ -760,6 +527,16 @@ class Request_Param
         }
 
         return $value;
+    }
+    
+    protected function applyFilter_class($value, array $config)
+    {
+        $class = '\AppUtils\Request_Param_Filter_'.$config['name'];
+        
+        $filter = new $class($this);
+        $filter->setOptions($config['params']);
+        
+        return $filter->filter($value);
     }
 
     /**
@@ -833,7 +610,7 @@ class Request_Param
     */
     public function addStringFilter() : Request_Param
     {
-        return $this->addCallbackFilter(array($this, 'applyFilter_string'));
+        return $this->addClassFilter('String');
     }
 
     /**
@@ -891,7 +668,7 @@ class Request_Param
         // to ensure we only work with strings.
         $this->addStringFilter();
         
-        return $this->addCallbackFilter(array($this, 'applyFilter_stripWhitespace'));
+        return $this->addClassFilter('StripWhitespace');
     }   
     
    /**
@@ -906,11 +683,22 @@ class Request_Param
     {
         $this->setArray();
         
-        return $this->addCallbackFilter(
-            array($this, 'applyFilter_commaSeparated'), 
+        return $this->addClassFilter(
+            'CommaSeparated', 
             array(
-                $trimEntries,
-                $stripEmptyEntries
+                'trimEntries' => $trimEntries,
+                'stripEmptyEntries' => $stripEmptyEntries
+            )
+        );
+    }
+    
+    protected function addClassFilter(string $name, array $params=array()) : Request_Param
+    {
+        return $this->addFilter(
+            self::FILTER_TYPE_CLASS,
+            array(
+                'name' => $name,
+                'params' => $params
             )
         );
     }
@@ -950,10 +738,5 @@ class Request_Param
     public function isRequired() : bool
     {
         return $this->required;
-    }
-    
-    public function getValidationType()
-    {
-        return $this->validationType;
     }
 }
