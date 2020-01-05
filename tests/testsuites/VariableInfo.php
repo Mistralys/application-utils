@@ -12,7 +12,7 @@ final class VariableInfoTest extends TestCase
             array(
                 'value' => array('foo' => 'bar'),
                 'type' => VariableInfo::TYPE_ARRAY,
-                'string' => json_encode(array('foo' => 'bar'), JSON_PRETTY_PRINT)
+                'string' => print_r(array('foo' => 'bar'), true)
             ),
             array(
                 'value' => true,
@@ -96,7 +96,7 @@ final class VariableInfoTest extends TestCase
             array(
                 'label' => 'Array value',
                 'value' => array('foo' => 'bar'),
-                'string' => 'array '.json_encode(array('foo' => 'bar'), JSON_PRETTY_PRINT),
+                'string' => 'array '.print_r(array('foo' => 'bar'), true),
                 'type' => VariableInfo::TYPE_ARRAY
             ),
             array(
@@ -159,7 +159,7 @@ final class VariableInfoTest extends TestCase
             array(
                 'label' => 'Array value',
                 'value' => array('foo' => 'bar'),
-                'string' => json_encode(array('foo' => 'bar'), JSON_PRETTY_PRINT)
+                'string' => print_r(array('foo' => 'bar'), true)
             ),
             array(
                 'label' => 'Integer value',
