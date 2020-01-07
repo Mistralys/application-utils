@@ -7,16 +7,16 @@ namespace AppUtils;
 abstract class VariableInfo_Renderer_HTML extends VariableInfo_Renderer
 {
     protected static $colors = array(
-        self::TYPE_DOUBLE => 'ce0237',
-        self::TYPE_INTEGER => 'ce0237',
-        self::TYPE_ARRAY => '027ace',
-        self::TYPE_OBJECT => 'cf5e20',
-        self::TYPE_RESOURCE => '1c2eb1',
-        self::TYPE_STRING => '1fa507',
-        self::TYPE_BOOLEAN => '1c2eb1',
-        self::TYPE_NULL => '1c2eb1',
-        self::TYPE_UNKNOWN => 'cc0000',
-        self::TYPE_CALLABLE => 'cf5e20'
+        VariableInfo::TYPE_DOUBLE => 'ce0237',
+        VariableInfo::TYPE_INTEGER => 'ce0237',
+        VariableInfo::TYPE_ARRAY => '027ace',
+        VariableInfo::TYPE_OBJECT => 'cf5e20',
+        VariableInfo::TYPE_RESOURCE => '1c2eb1',
+        VariableInfo::TYPE_STRING => '1fa507',
+        VariableInfo::TYPE_BOOLEAN => '1c2eb1',
+        VariableInfo::TYPE_NULL => '1c2eb1',
+        VariableInfo::TYPE_UNKNOWN => 'cc0000',
+        VariableInfo::TYPE_CALLABLE => 'cf5e20'
     );
     
     protected function init()
