@@ -28,8 +28,6 @@ class FileHelper
     
     const ERROR_JSON_ENCODE_ERROR = 340005;
     
-    const ERROR_CURL_EXTENSION_NOT_INSTALLED = 340007;
-    
     const ERROR_CANNOT_OPEN_URL = 340008;
     
     const ERROR_CANNOT_CREATE_FOLDER = 340009;
@@ -475,20 +473,12 @@ class FileHelper
      * @throws FileHelper_Exception
      * @return string
      * 
-     * @see FileHelper::ERROR_CURL_EXTENSION_NOT_INSTALLED
      * @see FileHelper::ERROR_CANNOT_OPEN_URL
      */
     public static function downloadFile($url)
     {
-        if(!function_exists('curl_init')) 
-        {
-            throw new FileHelper_Exception(
-                'The cURL extension is not installed.',
-                null,
-                self::ERROR_CURL_EXTENSION_NOT_INSTALLED
-            );
-        }
-
+        requireCURL();
+        
         $ch = curl_init();
         if($ch === false) 
         {
