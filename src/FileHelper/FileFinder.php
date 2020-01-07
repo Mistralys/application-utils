@@ -24,6 +24,8 @@ namespace AppUtils;
 class FileHelper_FileFinder implements Interface_Optionable
 {
     use Traits_Optionable;
+
+    const ERROR_PATH_DOES_NOT_EXIST = 44101;
     
     const PATH_MODE_ABSOLUTE = 'absolute';
     
@@ -36,9 +38,36 @@ class FileHelper_FileFinder implements Interface_Optionable
     */
     protected $path;
     
+   /**
+    * @var array
+    */
+    protected $found;
+    
+   /**
+    * The path must exist when the class is instantiated: its
+    * real path will be determined to work with.
+    * 
+    * @param string $path The absolute path to the target folder.
+    * @throws FileHelper_Exception
+    * @see FileHelper_FileFinder::ERROR_PATH_DOES_NOT_EXIST
+    */
     public function __construct(string $path)
     {
-        $this->path = $this->normalizeSlashes($path);
+        $real = realpath($path);
+        
+        if($real === false) 
+        {
+            throw new FileHelper_Exception(
+                'Target path does not exist',
+                sprintf(
+                    'Tried accessing path [%s], but its real path could not be determined.',
+                    $path
+                ),
+                self::ERROR_PATH_DOES_NOT_EXIST
+            );
+        }
+        
+        $this->path = FileHelper::normalizePath($real);
     }
     
     public function getDefaultOptions() : array
@@ -53,26 +82,66 @@ class FileHelper_FileFinder implements Interface_Optionable
         );
     }
     
-    protected function normalizeSlashes($string)
-    {
-        return str_replace('\\', '/', $string);
-    }
-    
+   /**
+    * Enables extension stripping, to return file names without extension.
+    * 
+    * @return FileHelper_FileFinder
+    */
     public function stripExtensions() : FileHelper_FileFinder
     {
         return $this->setOption('strip-extensions', true);
     }
     
+   /**
+    * Enables recursing into subfolders.
+    * 
+    * @return FileHelper_FileFinder
+    */
     public function makeRecursive() : FileHelper_FileFinder
     {
         return $this->setOption('recursive', true);
     }
     
+   /**
+    * Retrieves all extensions that were added to
+    * the include list.
+    * 
+    * @return array
+    */
     public function getIncludeExtensions() : array
     {
         return $this->getArrayOption('include-extensions');
     }
     
+   /**
+    * Includes a single extension in the file search: only
+    * files with this extension will be used in the results.
+    * 
+    * NOTE: Included extensions take precedence before excluded
+    * extensions. If any excluded extensions are specified, they
+    * will be ignored.
+    * 
+    * @param string $extension Extension name, without dot (`php` for example).
+    * @return FileHelper_FileFinder
+    * @see FileHelper_FileFinder::includeExtensions()
+    */
+    public function includeExtension(string $extension) : FileHelper_FileFinder
+    {
+        return $this->includeExtensions(array($extension));
+    }
+    
+   /**
+    * Includes several extensions in the file search: only
+    * files with these extensions wil be used in the results.
+    * 
+    * NOTE: Included extensions take precedence before excluded
+    * extensions. If any excluded extensions are specified, they
+    * will be ignored.
+    * 
+    * @param array $extensions Extension names, without dot (`php` for example).
+    * @return FileHelper_FileFinder
+    * @see FileHelper_FileFinder::includeExtension()
+    */
     public function includeExtensions(array $extensions) : FileHelper_FileFinder
     {
         $items = $this->getIncludeExtensions();
@@ -83,11 +152,37 @@ class FileHelper_FileFinder implements Interface_Optionable
         return $this;
     }
 
+   /**
+    * Retrieves a list of all extensions currently set as 
+    * excluded from the search.
+    * 
+    * @return array
+    */
     public function getExcludeExtensions() : array
     {
         return $this->getArrayOption('exclude-extensions');
     }
     
+   /**
+    * Excludes a single extension from the search.
+    * 
+    * @param string $extension Extension name, without dot (`php` for example).
+    * @return FileHelper_FileFinder
+    * @see FileHelper_FileFinder::excludeExtensions()
+    */
+    public function excludeExtension(string $extension) : FileHelper_FileFinder
+    {
+        return $this->excludeExtensions(array($extension));
+    }
+
+   /**
+    * Add several extensions to the list of extensions to
+    * exclude from the file search.
+    *  
+    * @param array $extensions Extension names, without dot (`php` for example).
+    * @return FileHelper_FileFinder
+    * @see FileHelper_FileFinder::excludeExtension()
+    */
     public function excludeExtensions(array $extensions) : FileHelper_FileFinder
     {
         $items = $this->getExcludeExtensions();
@@ -98,22 +193,53 @@ class FileHelper_FileFinder implements Interface_Optionable
         return $this;
     }
     
+   /**
+    * In this mode, the entire path to the file will be stripped,
+    * leaving only the file name in the files list.
+    * 
+    * @return FileHelper_FileFinder
+    */
     public function setPathmodeStrip() : FileHelper_FileFinder
     {
         return $this->setPathmode(self::PATH_MODE_STRIP);
     }
     
+   /**
+    * In this mode, only the path relative to the source folder
+    * will be included in the files list.
+    * 
+    * @return FileHelper_FileFinder
+    */
     public function setPathmodeRelative() : FileHelper_FileFinder
     {
         return $this->setPathmode(self::PATH_MODE_RELATIVE);
     }
     
+   /**
+    * In this mode, the full, absolute paths to the files will
+    * be included in the files list.
+    * 
+    * @return FileHelper_FileFinder
+    */
     public function setPathmodeAbsolute() : FileHelper_FileFinder
     {
         return $this->setPathmode(self::PATH_MODE_ABSOLUTE);
     }
     
-    public function setSlashReplacement($character)
+   /**
+    * This sets a character or string to replace the slashes
+    * in the paths with. 
+    * 
+    * This is used for example in the `getPHPClassNames()` 
+    * method, to return files from subfolders as class names
+    * using the "_" character:
+    * 
+    * Subfolder/To/File.php => Subfolder_To_File.php
+    * 
+    * @param string $character
+    * @return \AppUtils\FileHelper_FileFinder
+    */
+    public function setSlashReplacement(string $character) : FileHelper_FileFinder
     {
         return $this->setOption('slash-replacement', $character);
     }
@@ -123,21 +249,37 @@ class FileHelper_FileFinder implements Interface_Optionable
         return $this->setOption('pathmode', $mode);
     }
     
+   /**
+    * Retrieves a list of all matching file names/paths,
+    * depending on the selected options.
+    * 
+    * @return array
+    */
     public function getAll() : array
     {
-        if(!isset($this->found)) {
-            $this->find($this->path, true);
-        }
+        $this->find($this->path, true);
         
         return $this->found;
     }
     
+   /**
+    * Retrieves only PHP files. Can be combined with other
+    * options like enabling recursion into subfolders.
+    * 
+    * @return array
+    */
     public function getPHPFiles() : array
     {
         $this->includeExtensions(array('php'));
         return $this->getAll();
     }
     
+   /**
+    * Generates PHP class names from file paths: it replaces
+    * slashes with underscores, and removes file extensions.
+    * 
+    * @return array An array of PHP file names without extension.
+    */
     public function getPHPClassNames() : array
     {
         $this->includeExtensions(array('php'));
@@ -148,79 +290,110 @@ class FileHelper_FileFinder implements Interface_Optionable
         return $this->getAll();
     }
     
-    protected $found;
-    
-    protected function find($path, $isRoot=false)
+    protected function find(string $path, bool $isRoot=false) : void
     {
         if($isRoot) {
             $this->found = array();
         }
         
+        $recursive = $this->getBoolOption('recursive');
+        
         $d = new \DirectoryIterator($path);
         foreach($d as $item)
         {
+            $pathname = $item->getPathname();
+            
             if($item->isDir())
             {
-                if($this->getOption('recursive') === true && !$item->isDot()) {
-                    $this->find($item->getPathname());
+                if($recursive && !$item->isDot()) {
+                    $this->find($pathname);
                 }
+                
+                continue;
             }
-            else
+            
+            $file = $this->filterFile($pathname);
+            
+            if($file !== null) 
             {
-                $file = $this->filterFile($item->getPathname());
-                if($file) {
-                    $this->found[] = $file;
-                }
+                $this->found[] = $file;
             }
         }
     }
     
-    protected function filterFile($path)
+    protected function filterFile(string $path) : ?string
     {
-        $path = $this->normalizeSlashes($path);
+        $path = FileHelper::normalizePath($path);
         
-        $info = pathinfo($path);
+        $extension = FileHelper::getExtension($path);
         
-        $include = $this->getOption('include-extensions');
-        $exclude = $this->getOption('exclude-extensions');
-        
-        if(!empty($include))
-        {
-            if(!in_array($info['extension'], $include)) {
-                return false;
-            }
-        }
-        else if(!empty($exclude))
-        {
-            if(in_array($info['extension'], $exclude)) {
-                return false;
-            }
+        if(!$this->filterExclusion($extension)) {
+            return null;
         }
         
-        switch($this->getOption('pathmode'))
-        {
-            case self::PATH_MODE_STRIP:
-                $path = basename($path);
-                break;
-                
-            case self::PATH_MODE_RELATIVE:
-                $path = str_replace($this->path, '', $path);
-                $path = ltrim($path, '/');
-                break;
-                
-            case self::PATH_MODE_ABSOLUTE:
-            default:
-                break;
-        }
+        $path = $this->filterPath($path);
         
         if($this->getOption('strip-extensions') === true)
         {
-            $path = str_replace('.'.$info['extension'], '', $path);
+            $path = str_replace('.'.$extension, '', $path);
+        }
+        
+        if($path === '') {
+            return null;
         }
         
         $replace = $this->getOption('slash-replacement');
         if(!empty($replace)) {
             $path = str_replace('/', $replace, $path);
+        }
+        
+        return $path;
+    }
+    
+   /**
+    * Checks whether the specified extension is allowed 
+    * with the current settings.
+    * 
+    * @param string $extension
+    * @return bool
+    */
+    protected function filterExclusion(string $extension) : bool
+    {
+        $include = $this->getOption('include-extensions');
+        $exclude = $this->getOption('exclude-extensions');
+        
+        if(!empty($include))
+        {
+            if(!in_array($extension, $include)) {
+                return false;
+            }
+        }
+        else if(!empty($exclude))
+        {
+            if(in_array($extension, $exclude)) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+   /**
+    * Adjusts the path according to the selected path mode.
+    * 
+    * @param string $path
+    * @return string
+    */
+    protected function filterPath(string $path) : string
+    {
+        switch($this->getStringOption('pathmode'))
+        {
+            case self::PATH_MODE_STRIP:
+                return basename($path);
+                
+            case self::PATH_MODE_RELATIVE:
+                $path = str_replace($this->path, '', $path);
+                return ltrim($path, '/');
         }
         
         return $path;
