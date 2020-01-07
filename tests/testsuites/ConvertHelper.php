@@ -108,6 +108,71 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
+    public function test_string2bool()
+    {
+        $tests = array(
+            array(
+                'value' => 0,
+                'expected' => false
+            ),
+            array(
+                'value' => 1,
+                'expected' => true
+            ),
+            array(
+                'value' => '0',
+                'expected' => false
+            ),
+            array(
+                'value' => '1',
+                'expected' => true
+            ),
+            array(
+                'value' => false,
+                'expected' => false
+            ),
+            array(
+                'value' => true,
+                'expected' => true
+            ),
+            array(
+                'value' => 'false',
+                'expected' => false
+            ),
+            array(
+                'value' => 'true',
+                'expected' => true
+            ),
+            array(
+                'value' => 'no',
+                'expected' => false
+            ),
+            array(
+                'value' => 'yes',
+                'expected' => true
+            ),
+            array(
+                'value' => null,
+                'expected' => false
+            ),
+            array(
+                'value' => array(),
+                'expected' => false
+            ),
+            array(
+                'value' => new stdClass(),
+                'expected' => false
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $actual = ConvertHelper::string2bool($test['value']);
+            
+            $this->assertSame($test['expected'], $actual);
+        }
+    }
+    
     public function test_isStringASCII()
     {
         $tests = array(
