@@ -52,7 +52,10 @@ final class FileHelper_FileFinderTest extends TestCase
             $this->assetsFolder.'/.extension',
             $this->assetsFolder.'/README.txt',
             $this->assetsFolder.'/test-png.png',
-            $this->assetsFolder.'/Subfolder/script.php'
+            $this->assetsFolder.'/Subfolder/script.php',
+            $this->assetsFolder.'/Classmap/Class.php',
+            $this->assetsFolder.'/Classmap/Class/Subclass.php',
+            $this->assetsFolder.'/Classmap/Class/Subclass/Subsubclass.php'
         );
         
         // ensure the same order for the comparison
@@ -74,7 +77,10 @@ final class FileHelper_FileFinderTest extends TestCase
             '.extension',
             'README.txt',
             'test-png.png',
-            'Subfolder/script.php'
+            'Subfolder/script.php',
+            'Classmap/Class.php',
+            'Classmap/Class/Subclass.php',
+            'Classmap/Class/Subclass/Subsubclass.php'
         );
         
         // ensure the same order for the comparison
@@ -96,7 +102,10 @@ final class FileHelper_FileFinderTest extends TestCase
         $expected = array(
             'README',
             'test-png',
-            'Subfolder/script'
+            'Subfolder/script',
+            'Classmap/Class',
+            'Classmap/Class/Subclass',
+            'Classmap/Class/Subclass/Subsubclass'
         );
         
         // ensure the same order for the comparison
@@ -155,8 +164,42 @@ final class FileHelper_FileFinderTest extends TestCase
         
         $expected = array(
             'Subfolder-script',
+            'Classmap-Class',
+            'Classmap-Class-Subclass',
+            'Classmap-Class-Subclass-Subsubclass'
         );
         
+        // ensure the same order for the comparison
+        sort($files); sort($expected);
+        
         $this->assertEquals($expected, $files);
+    }
+    
+    public function test_findFiles_getPHPClassNames()
+    {
+        $finder = FileHelper::createFileFinder($this->assetsFolder);
+        
+        $finder->makeRecursive();
+        
+        $files = $finder->getPHPClassNames();
+        
+        $expected = array(
+            'Subfolder_script',
+            'Classmap_Class',
+            'Classmap_Class_Subclass',
+            'Classmap_Class_Subclass_Subsubclass'
+        );
+        
+        // ensure the same order for the comparison
+        sort($files); sort($expected);
+        
+        $this->assertEquals($expected, $files);
+    }
+    
+    public function test_pathNotExists()
+    {
+        $this->expectException(FileHelper_Exception::class);
+        
+        FileHelper::createFileFinder(md5('/path/that/does/not/exist'));
     }
 }
