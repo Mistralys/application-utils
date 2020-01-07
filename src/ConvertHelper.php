@@ -26,6 +26,8 @@ class ConvertHelper
     
     const ERROR_JSON_ENCODE_FAILED = 23305;
     
+    const ERROR_INVALID_BOOLEAN_STRING = 23306;
+    
     /**
      * Normalizes tabs in the specified string by indenting everything
      * back to the minimum tab distance. With the second parameter,
@@ -283,7 +285,7 @@ class ConvertHelper
         return $text;
     }
 
-    public static function var_dump($var, $html=true)
+    public static function var_dump($var, $html=true) : string
     {
         $info = parseVariable($var);
         
@@ -294,50 +296,77 @@ class ConvertHelper
         return $info->toString();
     }
     
-    public static function print_r($var, $return=false, $html=true)
+   /**
+    * Pretty print_r.
+    * 
+    * @param mixed $var The variable to dump.
+    * @param bool $return Whether to return the dumped code.
+    * @param bool $html Whether to style the dump as HTML.
+    * @return string
+    */
+    public static function print_r($var, bool $return=false, bool $html=true) : string
     {
-        $result = self::var_dump($var, $html);
+        $result = parseVariable($var)->enableType()->toString();
         
-        if($html) {
+        if($html) 
+        {
             $result = 
             '<pre style="background:#fff;color:#333;padding:16px;border:solid 1px #bbb;border-radius:4px">'.
                 $result.
             '</pre>';
         }
         
-        if($return) {
-            return $result;
+        if(!$return) 
+        {
+            echo $result;
         }
         
-        echo $result;
+        return $result;
     }
     
     protected static $booleanStrings = array(
         1 => true,
         0 => false,
-        '1' => true,
-        '0' => false,
         'true' => true,
         'false' => false,
         'yes' => true,
         'no' => false
     );
 
-    public static function string2bool($string)
+   /**
+    * Converts a string, number or boolean value to a boolean value.
+    * 
+    * @param string|number|bool $string
+    * @throws ConvertHelper_Exception
+    * @return bool
+    * 
+    * @see ConvertHelper::ERROR_INVALID_BOOLEAN_STRING
+    */
+    public static function string2bool($string) : bool
     {
-        if($string === '' || $string === null) {
+        if($string === '' || $string === null) 
+        {
             return false;
         }
         
-        if (is_bool($string)) {
+        if(is_bool($string)) 
+        {
             return $string;
         }
 
-        if (!array_key_exists($string, self::$booleanStrings)) {
-            throw new \InvalidArgumentException('Invalid string boolean representation');
+        if(array_key_exists($string, self::$booleanStrings)) 
+        {
+            return self::$booleanStrings[$string];
         }
-
-        return self::$booleanStrings[$string];
+         
+        throw new ConvertHelper_Exception(
+            'Invalid string boolean representation',
+            sprintf(
+                'Cannot convert [%s] to a boolean value.',
+                parseVariable($string)->enableType()->toString()
+            ),
+            self::ERROR_INVALID_BOOLEAN_STRING
+        );
     }
     
    /**
@@ -448,10 +477,10 @@ class ConvertHelper
      *
      * @param string $string
      * @param string $spaceChar
-     * @param string $lowercase
+     * @param bool $lowercase
      * @return string
      */
-    public static function transliterate($string, $spaceChar = '-', $lowercase = true)
+    public static function transliterate(string $string, string $spaceChar = '-', bool $lowercase = true) : string
     {
         $translit = new Transliteration();
         $translit->setSpaceReplacement($spaceChar);
@@ -877,8 +906,8 @@ class ConvertHelper
     * json error details included in its developer details.
     * 
     * @param mixed $variable
-    * @param int|NULL $options JSON encode options.
-    * @param int|NULL $depth 
+    * @param int $options JSON encode options.
+    * @param int $depth 
     * @throws ConvertHelper_Exception
     * @return string
     */
@@ -1419,7 +1448,7 @@ class ConvertHelper
    /**
     * Detects the most used end-of-line character in the subject string.
     * 
-    * @param string $str The string to check.
+    * @param string $subjectString The string to check.
     * @return NULL|ConvertHelper_EOL The detected EOL instance, or NULL if none has been detected.
     */
     public static function detectEOLCharacter(string $subjectString) : ?ConvertHelper_EOL

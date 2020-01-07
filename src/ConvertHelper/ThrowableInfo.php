@@ -328,7 +328,7 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
         $this->message = $e->getMessage();
         $this->code = intval($e->getCode());
         
-        if(!isset($_REQUEST) || !isset($_REQUEST['REQUEST_URI'])) {
+        if(!isset($_REQUEST['REQUEST_URI'])) {
             $this->context = self::CONTEXT_COMMAND_LINE;
         }
         
@@ -337,7 +337,7 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
             $this->previous = ConvertHelper::throwable2info($previous);
         }
         
-        if(isset($_SERVER) && isset($_SERVER['REQUEST_URI'])) {
+        if(isset($_SERVER['REQUEST_URI'])) {
             $this->referer = $_SERVER['REQUEST_URI'];
         }
         

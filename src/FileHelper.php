@@ -376,10 +376,11 @@ class FileHelper
      * Parses all lines in the specified file and returns an
      * indexed array with all csv values in each line.
      *
-     * @param string $csv
-     * @param string $delimiter
-     * @param string $enclosure
-     * @param string $escape
+     * @param string $filePath
+     * @param string $delimiter 
+     * @param string $enclosure The character to use to quote literal strings
+     * @param string $escape The character to use to escape special characters.
+     * @param bool $heading Whether to include headings.
      * @return array
      * @throws FileHelper_Exception
      * 

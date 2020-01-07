@@ -521,7 +521,7 @@ class NumberInfo
         // convert to a number if it's numeric
         if(is_numeric($test)) 
         {
-            $cache[$key]['number'] = $test * 1;
+            $cache[$key]['number'] = (float)$test * 1;
             $cache[$key] = $this->filterInfo($cache[$key]);
             return $cache[$key];
         }
@@ -575,7 +575,7 @@ class NumberInfo
             }
             else
             {
-                $number = $number * 1;
+                $number = (float)$number * 1;
             }
         }
         

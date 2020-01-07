@@ -36,7 +36,7 @@ trait Traits_Optionable
     * kind of variable type, including objects, as needed.
     * 
     * @param string $name
-    * @param mixed $default
+    * @param mixed $value
     */
     public function setOption(string $name, $value)
     {

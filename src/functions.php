@@ -4,8 +4,6 @@ namespace AppUtils;
 
 /**
  * Error code for the CURL extension check.
- * 
- * @var int
  * @see \AppUtils\requireCURL()
  */
 define('APPUTILS_ERROR_CURL_NOT_INSTALLED', 44001);

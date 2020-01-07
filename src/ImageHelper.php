@@ -130,7 +130,7 @@ class ImageHelper
         'auto-memory-adjustment' => true
     );
 
-    protected $streamTypes = array(
+    protected static $streamTypes = array(
         'jpeg',
         'png',
         'gif'
@@ -251,10 +251,10 @@ class ImageHelper
     * Factory method: creates an image helper from an
     * image file on disk.
     *
-    * @param string $path
+    * @param string $file
     * @return ImageHelper
     */
-    public static function createFromFile($file)
+    public static function createFromFile(string $file) : ImageHelper
     {
         return new ImageHelper($file);
     }
@@ -463,7 +463,7 @@ class ImageHelper
      * Calculates the size of the image by the specified width,
      * and returns an indexed array with the width and height size.
      *
-     * @param integer $height
+     * @param integer $width
      * @return ImageHelper_Size
      */
     public function getSizeByWidth(int $width) : ImageHelper_Size
@@ -851,18 +851,19 @@ class ImageHelper
         return array_unique($types);
     }
     
-    /**
-     * Displays an existing image resource.
-     *
-     * @param resource $resource
-     * @param string $imageType The image format to send, i.e. "jpeg", "png"
-     * @param int $quality The quality to use for the image. This is 0-9 (0=no compression, 9=max) for PNG, and 0-100 (0=lowest, 100=highest quality) for JPG 
-     */
+   /**
+    * Displays an existing image resource.
+    *
+    * @param resource $resource
+    * @param string $imageType The image format to send, i.e. "jpeg", "png"
+    * @param int $quality The quality to use for the image. This is 0-9 (0=no compression, 9=max) for PNG, and 0-100 (0=lowest, 100=highest quality) for JPG 
+    */
     public static function displayImageStream($resource, $imageType, $quality=-1)
     {
         $imageType = strtolower($imageType);
         
-        if(!in_array($imageType, self::$streamTypes)) {
+        if(!in_array($imageType, self::$streamTypes)) 
+        {
             throw new ImageHelper_Exception(
                 'Invalid image stream type',
                 sprintf(
@@ -1213,7 +1214,6 @@ class ImageHelper
    /**
     * Retrieves the size of the image.
     * 
-    * @param bool $exception Whether to trigger an exception when the image does not exist
     * @return ImageHelper_Size
     * @throws ImageHelper_Exception
     * @see ImageHelper::ERROR_CANNOT_GET_IMAGE_SIZE
