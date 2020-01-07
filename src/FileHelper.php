@@ -747,6 +747,8 @@ class FileHelper
     {
         $finder = self::createFileFinder($targetFolder);
 
+        $finder->setPathmodeStrip();
+        
         if(isset($options['relative-path']) && $options['relative-path'] === true) 
         {
             $finder->setPathmodeRelative();
@@ -763,7 +765,7 @@ class FileHelper
         
         $finder->setOptions($options);
         
-        return $files;
+        return $finder->getAll();
     }
 
    /**
