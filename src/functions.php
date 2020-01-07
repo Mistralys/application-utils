@@ -3,6 +3,14 @@
 namespace AppUtils;
 
 /**
+ * Error code for the CURL extension check.
+ * 
+ * @var int
+ * @see \AppUtils\requireCURL()
+ */
+define('APPUTILS_ERROR_CURL_NOT_INSTALLED', 44001);
+
+/**
  * Parses the specified number, and returns a NumberInfo instance.
  *
  * @param mixed $value
@@ -98,6 +106,26 @@ function t()
     
     // simulate the translation function
     return call_user_func_array('sprintf', $args);
+}
+
+/**
+ * Ensures that the CURL extension is available, and throws
+ * an exception if not.
+ * 
+ * @throws BaseException
+ * @link \AppUtils\APPUTILS_ERROR_CURL_NOT_INSTALLED
+ */
+function requireCURL() : void
+{
+    if(function_exists('curl_init')) {
+        return;
+    }
+    
+    throw new BaseException(
+        'The CURL extension is not installed or not available.',
+        null,
+        APPUTILS_ERROR_CURL_NOT_INSTALLED
+    );
 }
 
 /**
