@@ -344,7 +344,7 @@ class ConvertHelper
     */
     public static function string2bool($string) : bool
     {
-        if($string === '' || $string === null) 
+        if($string === '' || $string === null || !is_scalar($string)) 
         {
             return false;
         }
