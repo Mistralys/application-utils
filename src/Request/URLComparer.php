@@ -1,23 +1,71 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\Request_URLComparer}.
+ * 
+ * @package Application Utils
+ * @subpackage Request
+ * @see \AppUtils\Request_URLComparer
+ */
 
 declare(strict_types=1);
 
 namespace AppUtils;
 
+/**
+ * URL comparison class: used to check if URLs match
+ * independently of the order of parameters, or fragments
+ * and the like. Allows specifying parameters that should
+ * be excluded from the comparison as well.
+ * 
+ * @package Application Utils
+ * @subpackage Request
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class Request_URLComparer
 {
+   /**
+    * @var Request
+    */
+    protected $request;
+    
+   /**
+    * @var string
+    */
     protected $sourceURL;
     
+   /**
+    * @var string
+    */
     protected $targetURL;
     
+   /**
+    * @var array
+    */
     protected $limitParams = array();
     
-    protected $isMatch;
+   /**
+    * @var bool
+    */
+    protected $isMatch = false;
     
+   /**
+    * @var bool
+    */
     protected $ignoreFragment = true;
+
+   /**
+    * @var URLInfo
+    */
+    protected $sourceInfo;
+    
+   /**
+    * @var URLInfo
+    */
+    protected $targetInfo;
     
     public function __construct(Request $request, string $sourceURL, string $targetURL)
     {
+        $this->request = $request;
         $this->sourceURL = $sourceURL;
         $this->targetURL = $targetURL;
     }
@@ -55,10 +103,6 @@ class Request_URLComparer
     
     protected function init()
     {
-        if(isset($this->isMatch)) {
-            return;
-        }
-        
         // so they are always in the same order. 
         sort($this->limitParams);
         
@@ -67,8 +111,8 @@ class Request_URLComparer
     
     protected function compare()
     {
-        $sInfo = parse_url($this->sourceURL);
-        $tInfo = parse_url($this->targetURL);
+        $this->sourceInfo = parseURL($this->sourceURL);
+        $this->targetInfo = parseURL($this->targetURL);
         
         $keys = array(
             'scheme',
@@ -83,24 +127,28 @@ class Request_URLComparer
         
         foreach($keys as $key)
         {
-            $sVal = '';
-            $tVal = '';
-            
-            if(isset($sInfo[$key])) { $sVal = $sInfo[$key]; }
-            if(isset($tInfo[$key])) { $tVal = $tInfo[$key]; }
-            
-            $filter = 'filter_'.$key;
-            if(method_exists($this, $filter)) {
-                $sVal = $this->$filter($sVal);
-                $tVal = $this->$filter($tVal);
-            }
-            
-            if($sVal !== $tVal) {
+            if(!$this->compareKey($key)) {
                 return false;
             }
         }
         
         return true;
+    }
+    
+    protected function compareKey(string $key) : bool
+    {
+        $sVal = $this->sourceInfo[$key];
+        $tVal = $this->targetInfo[$key];
+        
+        $filter = 'filter_'.$key;
+        
+        if(method_exists($this, $filter)) 
+        {
+            $sVal = $this->$filter($sVal);
+            $tVal = $this->$filter($tVal);
+        }
+        
+        return $sVal === $tVal;
     }
     
     protected function filter_path(string $path) : string
@@ -121,22 +169,28 @@ class Request_URLComparer
         
         $params = ConvertHelper::parseQueryString($query);
         
+        $params = $this->limitParams($params);
+        
         ksort($params);
         
-        if(!empty($this->limitParams))
-        {
-            $keep = array();
-            
-            foreach($this->limitParams as $name)
-            {
-                if(isset($params[$name])) {
-                    $keep[$name] = $params[$name];
-                }
-            }
-            
-            $params = $keep;
+        return serialize($params);
+    }
+    
+    protected function limitParams(array $params) : array
+    {
+        if(empty($this->limitParams)) {
+            return $params;
         }
         
-        return serialize($params);
+        $keep = array();
+        
+        foreach($this->limitParams as $name)
+        {
+            if(isset($params[$name])) {
+                $keep[$name] = $params[$name];
+            }
+        }
+        
+        return $keep;
     }
 }
