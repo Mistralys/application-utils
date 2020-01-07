@@ -1,0 +1,17 @@
+@echo off
+
+cls 
+
+echo -------------------------------------------------------
+echo RUNNING PHPSTAN ANALYSIS
+echo -------------------------------------------------------
+
+echo.
+
+call ../vendor/bin/phpstan analyse -c ./config/phpstan.neon -l 2 > phpstan/output.txt
+
+echo.
+echo Saved to phpstan/output.txt.
+echo.
+
+pause
