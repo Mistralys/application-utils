@@ -342,4 +342,11 @@ final class URLInfoTest extends TestCase
         $this->assertEquals($info1->getNormalized(), $info2->getNormalized(), 'The normalized URLs should match.');
         $this->assertEquals($info1->getHash(), $info2->getHash(), 'The hashes should match.');
     }
+    
+    public function test_tryConnect()
+    {
+        $this->assertTrue(parseURL('https://google.com')->tryConnect(), 'Could not connect to google.com.');
+        
+        $this->assertFalse(parseURL('https://'.md5(microtime(true)).'.org')->tryConnect(), 'Could connect to an unknown website.');
+    }
 }
