@@ -32,6 +32,8 @@ class URLInfo implements \ArrayAccess
     
     const ERROR_UNKNOWN_TYPE_FOR_LABEL = 42105;
     
+    const ERROR_CURL_INIT_FAILED = 42106;
+    
     const TYPE_EMAIL = 'email';
     const TYPE_FRAGMENT = 'fragment';
     const TYPE_PHONE = 'phone';
@@ -608,5 +610,43 @@ class URLInfo implements \ArrayAccess
     public function isHighlightExcludeEnabled() : bool
     {
         return $this->highlightExcluded;
+    }
+    
+   /**
+    * Checks if the URL exists, i.e. can be connected to. Will return
+    * true if the returned HTTP status code is `200` or `302`.
+    * 
+    * NOTE: If the target URL requires HTTP authentication, the username
+    * and password should be integrated into the URL.
+    * 
+    * @return bool
+    * @throws BaseException
+    */
+    public function tryConnect() : bool
+    {
+        requireCURL();
+        
+        $ch = curl_init();
+        if($ch === false)
+        {
+            throw new BaseException(
+                'Could not initialize a new cURL instance.',
+                'Calling curl_init returned false. Additional information is not available.',
+                self::ERROR_CURL_INIT_FAILED
+            );
+        }
+        
+        curl_setopt($ch, CURLOPT_URL, $this->getNormalized());
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        
+        curl_exec($ch);
+        
+        $http_code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        
+        curl_close($ch);
+        
+        return ($http_code === 200) || ($http_code === 302);
     }
 }
