@@ -4,6 +4,7 @@ use PHPUnit\Framework\TestCase;
 
 use AppUtils\URLInfo;
 use function AppUtils\parseURL;
+use AppUtils\URLInfo_Parser;
 
 final class URLInfoTest extends TestCase
 {
@@ -348,5 +349,75 @@ final class URLInfoTest extends TestCase
         $this->assertTrue(parseURL('https://google.com')->tryConnect(), 'Could not connect to google.com.');
         
         $this->assertFalse(parseURL('https://'.md5(microtime(true)).'.org')->tryConnect(), 'Could connect to an unknown website.');
+    }
+    
+    public function test_normalize()
+    {
+        $tests = array(
+            array(
+                'label' => 'Regular URL',
+                'value' => 'https://www.foo.com',
+                'expected' => 'https://www.foo.com'
+            ),
+            array(
+                'label' => 'With parameter',
+                'value' => 'https://www.foo.com?bar=foo',
+                'expected' => 'https://www.foo.com?bar=foo'
+            ),
+            array(
+                'label' => 'With port number',
+                'value' => 'https://www.foo.com:5511/path/to/page',
+                'expected' => 'https://www.foo.com:5511/path/to/page'
+            ),
+            array(
+                'label' => 'With parameter and fragment',
+                'value' => 'https://www.foo.com?bar=foo#somewhere',
+                'expected' => 'https://www.foo.com?bar=foo#somewhere'
+            ),
+            array(
+                'label' => 'With path, parameter and fragment',
+                'value' => 'https://www.foo.com/some/path/?bar=foo#somewhere',
+                'expected' => 'https://www.foo.com/some/path/?bar=foo#somewhere'
+            ),
+            array(
+                'label' => 'With username and password',
+                'value' => 'https://username:password@www.foo.com',
+                'expected' => 'https://username:password@www.foo.com'
+            ),
+            array(
+                'label' => 'Parameter reordering',
+                'value' => 'https://www.foo.com?foo=bar&bar=foo',
+                'expected' => 'https://www.foo.com?bar=foo&foo=bar'
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $info = parseURL($test['value']);
+            
+            $this->assertEquals($test['expected'], $info->getNormalized(), $test['label']);
+        }
+    }
+    
+   /**
+    * The Username and password have to be URL encoded, since they
+    * can contain URL-specific syntax characters. This has to be
+    * handled correctly so they are URL decoded when accessing them,
+    * and URL encoded when normalizing.
+    * 
+    * @see URLInfo_Parser::filterParsed()
+    */
+    public function test_credentialsSpecialCharacters()
+    {
+        $specialchars = 'öä§#()!?/{}';
+        $encoded = urlencode($specialchars);
+        
+        $url = 'https://'.$encoded.':'.$encoded.'@www.foo.com';
+        
+        $info = parseURL($url);
+        
+        $this->assertEquals($specialchars, $info->getUsername(), 'Username should be URL decoded.');
+        $this->assertEquals($specialchars, $info->getPassword(), 'Password should be URL decoded.');
+        $this->assertEquals('https://'.$encoded.':'.$encoded.'@www.foo.com', $info->getNormalized(), 'Password and Username should be URL encoded.');
     }
 }
