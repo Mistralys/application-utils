@@ -54,7 +54,17 @@ class URLInfo_Normalizer
     
     protected function normalize_url() : string
     {
-        $normalized = $this->info->getScheme().'://'.$this->info->getHost();
+        $normalized = $this->info->getScheme().'://';
+        
+        if($this->info->hasUsername()) {
+            $normalized .= urlencode($this->info->getUsername()).':'.urlencode($this->info->getPassword()).'@';
+        }
+        
+        $normalized .= $this->info->getHost();
+        
+        if($this->info->hasPort()) {
+            $normalized .= ':'.$this->info->getPort();
+        }
         
         if($this->info->hasPath()) {
             $normalized .= $this->info->getPath();
