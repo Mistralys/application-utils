@@ -619,10 +619,11 @@ class URLInfo implements \ArrayAccess
     * NOTE: If the target URL requires HTTP authentication, the username
     * and password should be integrated into the URL.
     * 
+    * @param bool $verifySSL Whether to enable SSL certificate checks. Warning: do not use this in production.
     * @return bool
     * @throws BaseException
     */
-    public function tryConnect() : bool
+    public function tryConnect(bool $verifySSL=true) : bool
     {
         requireCURL();
         
@@ -636,10 +637,24 @@ class URLInfo implements \ArrayAccess
             );
         }
         
+        //curl_setopt($ch, CURLOPT_VERBOSE, true);
+        
         curl_setopt($ch, CURLOPT_URL, $this->getNormalized());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 10);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        
+        if(!$verifySSL) 
+        {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        }
+        
+        if($this->hasUsername()) 
+        {
+            curl_setopt($ch, CURLOPT_USERNAME, $this->getUsername());
+            curl_setopt($ch, CURLOPT_PASSWORD, $this->getPassword());
+        }
         
         curl_exec($ch);
         
