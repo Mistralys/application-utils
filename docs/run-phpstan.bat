@@ -8,7 +8,7 @@ echo -------------------------------------------------------
 
 echo.
 
-call ../vendor/bin/phpstan analyse -c ./config/phpstan.neon -l 2 > phpstan/output.txt
+call ../vendor/bin/phpstan analyse -c ./config/phpstan.neon -l 5 > phpstan/output.txt
 
 echo.
 echo Saved to phpstan/output.txt.
