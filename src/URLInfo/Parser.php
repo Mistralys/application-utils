@@ -194,6 +194,14 @@ class URLInfo_Parser
         $this->info['params'] = array();
         $this->info['type'] = URLInfo::TYPE_URL;
         
+        if(isset($this->info['user'])) {
+            $this->info['user'] = urldecode($this->info['user']);
+        }
+
+        if(isset($this->info['pass'])) {
+            $this->info['pass'] = urldecode($this->info['pass']);
+        }
+        
         if(isset($this->info['host'])) {
             $this->info['host'] = str_replace(' ', '', $this->info['host']);
         }
