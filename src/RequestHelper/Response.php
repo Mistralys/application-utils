@@ -19,6 +19,9 @@ namespace AppUtils;
  */
 class RequestHelper_Response
 {
+   /**
+    * @var RequestHelper
+    */
     protected $request;
     
    /**
@@ -54,6 +57,16 @@ class RequestHelper_Response
     {
         $this->request = $helper;
         $this->info = $info;
+    }
+    
+   /**
+    * Retrieves the request instance that initiated the request.
+    *  
+    * @return RequestHelper
+    */
+    public function getRequest() : RequestHelper
+    {
+        return $this->request;
     }
     
     public function setError(int $code, string $message) : RequestHelper_Response
