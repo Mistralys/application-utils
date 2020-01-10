@@ -118,7 +118,7 @@ class ConvertHelper_IntervalConverter
         
         return str_replace(
             '$value', 
-            $value, 
+            (string)$value, 
             self::$texts[$token]
         );
     }
