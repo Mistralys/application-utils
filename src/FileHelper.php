@@ -481,7 +481,7 @@ class FileHelper
         requireCURL();
         
         $ch = curl_init();
-        if($ch === false) 
+        if(!is_resource($ch)) 
         {
             throw new FileHelper_Exception(
                 'Could not initialize a new cURL instance.',
@@ -1247,12 +1247,13 @@ class FileHelper
         return $max_size;
     }
     
-    protected static function parse_size($size)
+    protected static function parse_size(string $size) : float
     {
         $unit = preg_replace('/[^bkmgtpezy]/i', '', $size); // Remove the non-unit characters from the size.
-        $size = preg_replace('/[^0-9\.]/', '', $size); // Remove the non-numeric characters from the size.
+        $size = floatval(preg_replace('/[^0-9\.]/', '', $size)); // Remove the non-numeric characters from the size.
         
-        if ($unit) {
+        if($unit) 
+        {
             // Find the position of the unit in the ordered string which is the power of magnitude to multiply a kilobyte by.
             return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
         }
@@ -1511,8 +1512,10 @@ class FileHelper
             }
             
             // the first line may contain a unicode BOM marker.
-            if($first) {
+            if($first) 
+            {
                 $line = ConvertHelper::stripUTFBom($line);
+                $first = false;
             }
             
             $result[] = $line;
