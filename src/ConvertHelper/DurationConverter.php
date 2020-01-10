@@ -57,9 +57,9 @@ class ConvertHelper_DurationConverter
     protected $dateDiff = 0;
     
    /**
-    * @var array
+    * @var array|NULL
     */
-    protected static $texts;
+    protected static $texts = null;
     
     public function __construct()
     {
@@ -137,7 +137,7 @@ class ConvertHelper_DurationConverter
         
         $text = self::$texts[$this->interval][$key];
         
-        return str_replace('$value', $this->dateDiff, $text);
+        return str_replace('$value', (string)$this->dateDiff, $text);
     }
     
     protected function initTexts()
