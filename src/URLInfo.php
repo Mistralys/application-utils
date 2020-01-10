@@ -287,20 +287,29 @@ class URLInfo implements \ArrayAccess
         return '';
     }
 
+   /**
+    * Retrieves a normalized URL: this ensures that all parameters
+    * in the URL are always in the same order.
+    * 
+    * @return string
+    */
     public function getNormalized() : string
     {
-        if(!$this->isValid()) {
-            return '';
-        }
-        
-        if(!isset($this->normalizer)) {
-            $this->normalizer = new URLInfo_Normalizer($this);
-        }
-        
-        return $this->normalizer->normalize();
+        return $this->normalize(true);
     }
     
+   /**
+    * Like getNormalized(), but if a username and password are present
+    * in the URL, returns the URL without them.
+    * 
+    * @return string
+    */
     public function getNormalizedWithoutAuth() : string
+    {
+        return $this->normalize(false);
+    }
+    
+    protected function normalize(bool $auth=true) : string
     {
         if(!$this->isValid()) {
             return '';
@@ -308,8 +317,9 @@ class URLInfo implements \ArrayAccess
         
         if(!isset($this->normalizer)) {
             $this->normalizer = new URLInfo_Normalizer($this);
-            $this->normalizer->disableAuth();
         }
+        
+        $this->normalizer->enableAuth($auth);
         
         return $this->normalizer->normalize();
     }
@@ -641,7 +651,7 @@ class URLInfo implements \ArrayAccess
         requireCURL();
         
         $ch = curl_init();
-        if($ch === false)
+        if(!is_resource($ch))
         {
             throw new BaseException(
                 'Could not initialize a new cURL instance.',
