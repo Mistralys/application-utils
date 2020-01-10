@@ -32,9 +32,9 @@ class ConvertHelper_StorageSizeEnum
     const BASE_2 = 1024;
     
    /**
-    * @var ConvertHelper_StorageSizeEnum_Size[]
+    * @var ConvertHelper_StorageSizeEnum_Size[]|NULL
     */
-    protected static $sizes;
+    protected static $sizes = null;
     
    /**
     * Initializes the supported unit notations, and
