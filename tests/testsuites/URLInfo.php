@@ -420,4 +420,12 @@ final class URLInfoTest extends TestCase
         $this->assertEquals($specialchars, $info->getPassword(), 'Password should be URL decoded.');
         $this->assertEquals('https://'.$encoded.':'.$encoded.'@www.foo.com', $info->getNormalized(), 'Password and Username should be URL encoded.');
     }
+    
+    public function test_normalizedWithoutAuth()
+    {
+        $info = parseURL('http://username:password@test.com');
+        
+        $this->assertEquals('http://username:password@test.com', $info->getNormalized());
+        $this->assertEquals('http://test.com', $info->getNormalizedWithoutAuth());
+    }
 }
