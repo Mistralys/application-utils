@@ -20,6 +20,8 @@ namespace AppUtils;
  */
 class RequestHelper_Boundaries
 {
+    const ERROR_NO_BOUNDARIES_SPECIFIED = 44401;
+    
    /**
     * @var RequestHelper
     */
@@ -40,18 +42,29 @@ class RequestHelper_Boundaries
         $this->helper = $helper;
     }
     
+   /**
+    * Retrieves the string that is used to separate mime boundaries in the body.
+    * 
+    * @return string
+    */
     public function getMimeBoundary() : string
     {
         return $this->helper->getMimeBoundary();
     }
     
+   /**
+    * Retrieves the end of line character(s) used in the body.
+    * 
+    * @return string
+    */
     public function getEOL() : string
     {
         return $this->helper->getEOL();
     }
     
    /**
-    * Retrieves the total content length of all boundaries.
+    * Retrieves the total content length of all boundary contents.
+    * 
     * @return int
     */
     public function getContentLength() : int
@@ -74,9 +87,9 @@ class RequestHelper_Boundaries
         ->setName($varName)
         ->setFileName(basename($fileName))
         ->setContentType($contentType)
-        ->setContentEncding($encoding);
+        ->setContentEncoding($encoding);
         
-        $this->addBoundary($boundary);
+        return $this->addBoundary($boundary);
     }
     
    /**
@@ -119,8 +132,22 @@ class RequestHelper_Boundaries
         return $this;
     }
     
+   /**
+    * Renders the response body with all mime boundaries.
+    * 
+    * @return string
+    */
     public function render() : string
     {
+        if(empty($this->boundaries)) 
+        {
+            throw new RequestHelper_Exception(
+                'No mime boundaries added',
+                'At least one content has to be added, be it variables or files.',
+                self::ERROR_NO_BOUNDARIES_SPECIFIED
+            );    
+        }
+        
         $result = '';
         
         foreach($this->boundaries as $boundary)
