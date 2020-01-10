@@ -55,22 +55,46 @@ class RequestHelper_Boundaries_Boundary
         return strlen($this->content);
     }
     
+   /**
+    * Sets the name of the request parameter.
+    * 
+    * @param string $name
+    * @return RequestHelper_Boundaries_Boundary
+    */
     public function setName(string $name) : RequestHelper_Boundaries_Boundary
     {
         return $this->setDispositionParam('name', $name);
     }
     
+   /**
+    * Sets the filename to use for the content, if applicable.
+    *  
+    * @param string $fileName
+    * @return RequestHelper_Boundaries_Boundary
+    */
     public function setFileName(string $fileName) : RequestHelper_Boundaries_Boundary
     {
         return $this->setDispositionParam('filename', $fileName);
     }
     
+   /**
+    * Sets the content type to use for the content.
+    * 
+    * @param string $contentType
+    * @return RequestHelper_Boundaries_Boundary
+    */
     public function setContentType(string $contentType) : RequestHelper_Boundaries_Boundary
     {
         $this->contentType = $contentType;
         return $this;
     }
     
+   /**
+    * Sets the encoding to specify for the content.
+    * 
+    * @param string $encoding An encoding string, e.g. "UTF-8", "ASCII"
+    * @return RequestHelper_Boundaries_Boundary
+    */
     public function setContentEncoding(string $encoding) : RequestHelper_Boundaries_Boundary
     {
         $this->contentEncoding = $encoding;
@@ -83,6 +107,11 @@ class RequestHelper_Boundaries_Boundary
         return $this;
     }
     
+   /**
+    * Renders the mime boundary text.
+    * 
+    * @return string
+    */
     public function render()
     {
         $eol = $this->boundaries->getEOL();
