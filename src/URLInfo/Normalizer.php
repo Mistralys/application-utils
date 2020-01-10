@@ -32,12 +32,23 @@ class URLInfo_Normalizer
         $this->info = $info;
     }
     
-    public function disableAuth() : URLInfo_Normalizer
+   /**
+    * Enables the authentication information in the URL,
+    * if a username and password are present.
+    * 
+    * @param bool $enable Whether to turn it on or off.
+    * @return URLInfo_Normalizer
+    */
+    public function enableAuth(bool $enable=true) : URLInfo_Normalizer
     {
-        $this->auth = false;
+        $this->auth = $enable;
         return $this;
     }
     
+   /**
+    * Retrieves the normalized URL.
+    * @return string
+    */
     public function normalize() : string
     {
         $method = 'normalize_'.$this->info->getType();
@@ -63,30 +74,60 @@ class URLInfo_Normalizer
     protected function normalize_url() : string
     {
         $normalized = $this->info->getScheme().'://';
-        
-        if($this->info->hasUsername() && $this->auth) {
-            $normalized .= urlencode($this->info->getUsername()).':'.urlencode($this->info->getPassword()).'@';
-        }
-        
+        $normalized = $this->renderAuth($normalized);
         $normalized .= $this->info->getHost();
-        
-        if($this->info->hasPort()) {
-            $normalized .= ':'.$this->info->getPort();
-        }
-        
-        if($this->info->hasPath()) {
-            $normalized .= $this->info->getPath();
-        }
-        
-        $params = $this->info->getParams();
-        if(!empty($params)) {
-            $normalized .= '?'.http_build_query($params);
-        }
-        
-        if($this->info->hasFragment()) {
-            $normalized .= '#'.$this->info->getFragment();
-        }
+        $normalized = $this->renderPort($normalized);        
+        $normalized = $this->renderPath($normalized);
+        $normalized = $this->renderParams($normalized);
+        $normalized = $this->renderFragment($normalized);
         
         return $normalized;
+    }
+    
+    protected function renderAuth(string $normalized) : string
+    {
+        if(!$this->info->hasUsername() || !$this->auth) {
+            return $normalized;
+        }
+         
+        return $normalized . urlencode($this->info->getUsername()).':'.urlencode($this->info->getPassword()).'@';
+    }
+    
+    protected function renderPort(string $normalized) : string
+    {
+        if(!$this->info->hasPort()) {
+            return $normalized;
+        }
+        
+        return $normalized . ':'.$this->info->getPort();
+    }
+    
+    protected function renderPath(string $normalized) : string
+    {
+        if(!$this->info->hasPath()) {
+            return $normalized; 
+        }
+        
+        return $normalized . $this->info->getPath();
+    }
+    
+    protected function renderParams(string $normalized) : string
+    {
+        $params = $this->info->getParams();
+        
+        if(empty($params)) {
+            return $normalized;
+        }
+        
+        return $normalized . '?'.http_build_query($params);
+    }
+    
+    protected function renderFragment(string $normalized) : string
+    {
+        if(!$this->info->hasFragment()) {
+            return $normalized;
+        }
+        
+        return $normalized . '#'.$this->info->getFragment();
     }
 }
