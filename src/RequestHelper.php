@@ -219,7 +219,7 @@ class RequestHelper
         }
         else
         {
-            $this->response->setBody($output);
+            $this->response->setBody((string)$output);
         }
         
         curl_close($ch);
@@ -243,7 +243,7 @@ class RequestHelper
     protected function createCURL(URLInfo $url)
     {
         $ch = curl_init();
-        if($ch === false)
+        if(!is_resource($ch))
         {
             throw new RequestHelper_Exception(
                 'Could not initialize a new cURL instance.',
@@ -252,7 +252,7 @@ class RequestHelper
             );
         }
 
-        $this->setHeader('Content-Length', $this->boundaries->getContentLength());
+        $this->setHeader('Content-Length', (string)$this->boundaries->getContentLength());
         $this->setHeader('Content-Type', 'multipart/form-data; charset=UTF-8; boundary=' . $this->mimeBoundary);
         
         //curl_setopt($ch, CURLOPT_VERBOSE, true);
@@ -279,6 +279,13 @@ class RequestHelper
         return $ch;
     }
 
+   /**
+    * Compiles the associative headers array into
+    * the format understood by CURL, namely an indexed
+    * array with one header string per entry.
+    * 
+    * @return array
+    */
     protected function renderHeaders() : array
     {
         $result = array();
@@ -294,9 +301,13 @@ class RequestHelper
     * Retrieves the raw response header, in the form of an indexed
     * array containing all response header lines, for example:
     */
-    public function getResponseHeader()
+    public function getResponseHeader() : array
     {
-        return $this->response->getInfo();
+        if(isset($this->response)) {
+            return $this->response->getHeaders();
+        }
+
+        return array();
     }
 
     /**
