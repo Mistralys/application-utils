@@ -336,7 +336,7 @@ class ConvertHelper
    /**
     * Converts a string, number or boolean value to a boolean value.
     * 
-    * @param string|number|bool $string
+    * @param mixed $string
     * @throws ConvertHelper_Exception
     * @return bool
     * 
@@ -628,18 +628,21 @@ class ConvertHelper
     * @param string $unicodeChar
     * @return string
     */
-    public static function unicodeChar2php($unicodeChar) 
+    public static function unicodeChar2php(string $unicodeChar) : string 
     {
         $unicodeChar = json_decode($unicodeChar);
         
-        /** @author Krinkle 2018 */
         $output = '';
-        foreach (str_split($unicodeChar) as $octet) {
+        $split = str_split($unicodeChar);
+        
+        foreach($split as $octet) 
+        {
             $ordInt = ord($octet);
             // Convert from int (base 10) to hex (base 16), for PHP \x syntax
-            $ordHex = base_convert($ordInt, 10, 16);
+            $ordHex = base_convert((string)$ordInt, 10, 16);
             $output .= '\x' . $ordHex;
         }
+        
         return $output;
     }
     
