@@ -300,6 +300,20 @@ class URLInfo implements \ArrayAccess
         return $this->normalizer->normalize();
     }
     
+    public function getNormalizedWithoutAuth() : string
+    {
+        if(!$this->isValid()) {
+            return '';
+        }
+        
+        if(!isset($this->normalizer)) {
+            $this->normalizer = new URLInfo_Normalizer($this);
+            $this->normalizer->disableAuth();
+        }
+        
+        return $this->normalizer->normalize();
+    }
+    
    /**
     * Creates a hash of the URL, which can be used for comparisons.
     * Since any parameters in the URL's query are sorted alphabetically,
@@ -619,7 +633,6 @@ class URLInfo implements \ArrayAccess
     * NOTE: If the target URL requires HTTP authentication, the username
     * and password should be integrated into the URL.
     * 
-    * @param bool $verifySSL Whether to enable SSL certificate checks. Warning: do not use this in production.
     * @return bool
     * @throws BaseException
     */
