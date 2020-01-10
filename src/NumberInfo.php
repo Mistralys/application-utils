@@ -253,10 +253,10 @@ class NumberInfo
      *
      * @return string
      */
-    public function toAttribute()
+    public function toAttribute() : string
     {
         if($this->isEmpty()) {
-            return null;
+            return '';
         }
         
         if($this->isZero()) {
@@ -267,7 +267,7 @@ class NumberInfo
             return $this->getNumber().$this->getUnits();
         }
         
-        return $this->getNumber();
+        return (string)$this->getNumber();
     }
     
     /**
