@@ -25,9 +25,9 @@ class ConvertHelper_IntervalConverter
     const ERROR_MISSING_TRANSLATION = 43501;
     
    /**
-    * @var array
+    * @var array|NULL
     */
-    protected static $texts;
+    protected static $texts = null;
     
    /**
     * @var array
