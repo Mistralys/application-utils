@@ -25,9 +25,17 @@ class URLInfo_Normalizer
      */
     protected $info;
     
+    protected $auth = true;
+    
     public function __construct(URLInfo $info)
     {
         $this->info = $info;
+    }
+    
+    public function disableAuth() : URLInfo_Normalizer
+    {
+        $this->auth = false;
+        return $this;
     }
     
     public function normalize() : string
@@ -56,7 +64,7 @@ class URLInfo_Normalizer
     {
         $normalized = $this->info->getScheme().'://';
         
-        if($this->info->hasUsername()) {
+        if($this->info->hasUsername() && $this->auth) {
             $normalized .= urlencode($this->info->getUsername()).':'.urlencode($this->info->getPassword()).'@';
         }
         
