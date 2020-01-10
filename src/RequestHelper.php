@@ -299,12 +299,16 @@ class RequestHelper
     
    /**
     * Retrieves the raw response header, in the form of an indexed
-    * array containing all response header lines, for example:
+    * array containing all response header lines.
+    * 
+    * @return array
     */
     public function getResponseHeader() : array
     {
-        if(isset($this->response)) {
-            return $this->response->getHeaders();
+        $response = $this->getResponse();
+        
+        if($response !== null) {
+            return $response->getHeaders();
         }
 
         return array();
