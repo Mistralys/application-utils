@@ -34,3 +34,8 @@
      * Dummy test classes for the PHPClassInfo tests.
      */
     require_once TESTS_ROOT.'/classes/FooClass.php';
+    
+    /**
+     * Dummy test class for the classable trait.
+     */
+    require_once TESTS_ROOT.'/classes/TraitClassable.php';
