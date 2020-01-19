@@ -1272,4 +1272,116 @@ final class ConvertHelperTest extends TestCase
         
         \AppLocalize\Localization::reset();
     }
+    
+    public function test_spaces2tabs()
+    {
+        $tests = array(
+            array(
+                'label' => 'No spaces',
+                'value' => "Foo",
+                'expected' => "Foo"
+            ),
+            array(
+                'label' => 'Three spaces indentation',
+                'value' => "   Foo",
+                'expected' => "   Foo"
+            ),
+            array(
+                'label' => 'Four spaces indentation',
+                'value' => "    Foo",
+                'expected' => "\tFoo"
+            ),
+            array(
+                'label' => 'Seven spaces indentation',
+                'value' => "       Foo",
+                'expected' => "\t   Foo"
+            ),
+            array(
+                'label' => 'Tabbed string',
+                'value' => "\tFoo",
+                'expected' => "\tFoo"
+            ),
+            array(
+                'label' => 'Different spaces mix',
+                'value' =>
+                "    Foo".PHP_EOL.
+                "Foo    ",
+                'expected' =>
+                "\tFoo".PHP_EOL.
+                "Foo\t"
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::spaces2tabs($test['value']);
+            
+            $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
+    
+    public function test_hidden2visible()
+    {
+        $tests = array(
+            array(
+                'label' => 'Spaces and newlines',
+                'value' => " \n\r\t",
+                'expected' => "[SPACE][LF][CR][TAB]"
+            ),
+            array(
+                'label' => 'Control characters',
+                'value' => "\x00\x0D\x15",
+                'expected' => "[NUL][CR][NAK]"
+            ),
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::hidden2visible($test['value']);
+            
+            $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
+    
+    public function test_normalizeTabs()
+    {
+        $tests = array(
+            array(
+                'label' => 'Two spaces indentation',
+                'value' => "  Foo",
+                'expected' => "  Foo"
+            ),
+            array(
+                'label' => 'Four spaces indentation',
+                'value' => "    Foo",
+                'expected' => "\tFoo"
+            ),
+            array(
+                'label' => 'Seven spaces indentation',
+                'value' => "       Foo",
+                'expected' => "\t   Foo"
+            ),
+            array(
+                'label' => 'One-tabbed string',
+                'value' => "\tFoo",
+                'expected' => "\tFoo"
+            ),
+            array(
+                'label' => 'Different tabs mix',
+                'value' => 
+                    "\t\t\tFoo".PHP_EOL.
+                    "\tFoo",
+                'expected' => 
+                    "\t\tFoo".PHP_EOL.
+                    "Foo"
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::normalizeTabs($test['value']);
+            
+            $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
 }
