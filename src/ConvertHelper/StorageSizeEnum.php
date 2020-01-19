@@ -32,9 +32,9 @@ class ConvertHelper_StorageSizeEnum
     const BASE_2 = 1024;
     
    /**
-    * @var ConvertHelper_StorageSizeEnum_Size[]|NULL
+    * @var ConvertHelper_StorageSizeEnum_Size[]
     */
-    protected static $sizes = null;
+    protected static $sizes = array();
     
    /**
     * Initializes the supported unit notations, and
@@ -42,13 +42,11 @@ class ConvertHelper_StorageSizeEnum
     *
     * @see ConvertHelper_SizeNotation::parseSize()
     */
-    protected static function init()
+    protected static function init() : void
     {
-        if(isset(self::$sizes)) {
+        if(!empty(self::$sizes)) {
             return;
         }
-        
-        self::$sizes = array();
         
         self::addSize('kib', self::BASE_2, 1, t('KiB'), t('Kibibyte'), t('Kibibytes')); 
         self::addSize('mib', self::BASE_2, 2, t('MiB'), t('Mebibyte'), t('Mebibytes'));
@@ -77,9 +75,9 @@ class ConvertHelper_StorageSizeEnum
     * 
     * @param \AppLocalize\Localization_Event_LocaleChanged $event
     */
-    public static function handle_localeChanged(\AppLocalize\Localization_Event_LocaleChanged $event)
+    public static function handle_localeChanged(\AppLocalize\Localization_Event_LocaleChanged $event) : void
     {
-        self::$sizes = null;
+        self::$sizes = array();
     }
     
    /**
@@ -94,7 +92,7 @@ class ConvertHelper_StorageSizeEnum
     * 
     * @see https://en.m.wikipedia.org/wiki/Megabyte#Definitions
     */
-    protected static function addSize(string $name, int $base, int $exponent, string $suffix, string $singular, string $plural)
+    protected static function addSize(string $name, int $base, int $exponent, string $suffix, string $singular, string $plural) : void
     {
         self::$sizes[$name] = new ConvertHelper_StorageSizeEnum_Size(
             $name,
@@ -111,7 +109,7 @@ class ConvertHelper_StorageSizeEnum
     * 
     * @return \AppUtils\ConvertHelper_StorageSizeEnum_Size[]
     */
-    public static function getSizes()
+    public static function getSizes() : array
     {
         self::init();
         
@@ -169,7 +167,7 @@ class ConvertHelper_StorageSizeEnum
     * @see ConvertHelper_StorageSizeEnum::BASE_10
     * @see ConvertHelper_StorageSizeEnum::BASE_2
     */
-    public static function getSizesByBase(int $base)
+    public static function getSizesByBase(int $base) : array
     {
         self::init();
         
