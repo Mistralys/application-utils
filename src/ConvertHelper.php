@@ -40,57 +40,51 @@ class ConvertHelper
      */
     public static function normalizeTabs(string $string, bool $tabs2spaces = false)
     {
-        $lines = explode("\n", $string);
-        $max = 0;
-        $min = 99999;
-        foreach ($lines as $line) {
-            $amount = substr_count($line, "\t");
-            if ($amount > $max) {
-                $max = $amount;
-            }
-
-            if ($amount > 0 && $amount < $min) {
-                $min = $amount;
-            }
-        }
-
-        $converted = array();
-        foreach ($lines as $line) {
-            $amount = substr_count($line, "\t") - $min;
-            $line = trim($line);
-            if ($amount >= 1) {
-                $line = str_repeat("\t", $amount) . $line;
-            }
-
-            $converted[] = $line;
-        }
-
-        $string = implode("\n", $converted);
-        if ($tabs2spaces) {
-            $string = self::tabs2spaces($string);
-        }
-
-        return $string;
+        $normalizer = new ConvertHelper_TabsNormalizer();
+        $normalizer->convertTabsToSpaces($tabs2spaces);
+        
+        return $normalizer->normalize($string);
     }
 
     /**
      * Converts tabs to spaces in the specified string.
+     * 
      * @param string $string
+     * @param int $tabSize The amount of spaces per tab.
      * @return string
      */
-    public static function tabs2spaces($string)
+    public static function tabs2spaces(string $string, int $tabSize=4) : string
     {
-        return str_replace("\t", '    ', $string);
+        return str_replace("\t", str_repeat(' ', $tabSize), $string);
     }
     
-    /**
-     * Converts the specified amount of seconds into
-     * a human readable string split in months, weeks,
-     * days, hours, minutes and seconds.
-     *
-     * @param float $seconds
-     * @return string
-     */
+   /**
+    * Converts spaces to tabs in the specified string.
+    * 
+    * @param string $string
+    * @param int $tabSize The amount of spaces per tab in the source string.
+    * @return string
+    */
+    public static function spaces2tabs(string $string, int $tabSize=4) : string
+    {
+        return str_replace(str_repeat(' ', $tabSize), "\t", $string);
+    }
+    
+    public static function hidden2visible(string $string) : string
+    {
+        $converter = new ConvertHelper_HiddenConverter();
+        
+        return $converter->convert($string);
+    }
+    
+   /**
+    * Converts the specified amount of seconds into
+    * a human readable string split in months, weeks,
+    * days, hours, minutes and seconds.
+    *
+    * @param float $seconds
+    * @return string
+    */
     public static function time2string($seconds)
     {
         static $units = null;
