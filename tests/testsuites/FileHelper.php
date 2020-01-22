@@ -753,4 +753,29 @@ final class FileHelperTest extends TestCase
             $this->assertEquals($test['isLF'], $result->isLF(), $label);
         }
     }
+    
+    public function test_requireFolder_notExist()
+    {
+        $this->expectException(FileHelper_Exception::class);
+        
+        FileHelper::requireFolderExists(md5('/some/unknown/folder'));
+    }
+    
+    public function test_requireFolder_notAFolder()
+    {
+        $this->expectException(FileHelper_Exception::class);
+        
+        FileHelper::requireFolderExists($this->assetsFolder.'/single-line.txt');
+    }
+    
+    public function test_requireFolder_pathNormalized()
+    {
+        $folder = realpath($this->assetsFolder.'/FileFinder');
+        
+        $this->assertIsString($folder);
+        
+        $normalized = FileHelper::requireFolderExists($folder);
+        
+        $this->assertEquals(FileHelper::normalizePath($folder), $normalized);
+    }
 }
