@@ -74,6 +74,10 @@ class FileHelper
     
     const ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM = 340032;
     
+    const ERROR_FOLDER_DOES_NOT_EXIST = 340033;
+    
+    const ERROR_PATH_IS_NOT_A_FOLDER = 340034;
+    
    /**
     * Opens a serialized file and returns the unserialized data.
     * 
@@ -1557,6 +1561,49 @@ class FileHelper
                 $filePath
             ),
             self::ERROR_CANNOT_READ_FILE_CONTENTS
+        );
+    }
+
+   /**
+    * Ensures that the target path exists on disk, and is a folder.
+    * 
+    * @param string $path
+    * @return string The real path, with normalized slashes.
+    * @throws FileHelper_Exception
+    * 
+    * @see FileHelper::normalizePath()
+    * 
+    * @see FileHelper::ERROR_FOLDER_DOES_NOT_EXIST
+    * @see FileHelper::ERROR_PATH_IS_NOT_A_FOLDER
+    */
+    public static function requireFolderExists(string $path) : string
+    {
+        $actual = realpath($path);
+        
+        if($actual === false) 
+        {
+            throw new FileHelper_Exception(
+                'Folder does not exist',
+                sprintf(
+                    'The path [%s] does not exist on disk.',
+                    $path
+                ),
+                self::ERROR_FOLDER_DOES_NOT_EXIST
+            );
+        }
+        
+        if(is_dir($path)) 
+        {
+            return self::normalizePath($actual);
+        }
+        
+        throw new FileHelper_Exception(
+            'Target is not a folder',
+            sprintf(
+                'The path [%s] does not point to a folder.',
+                $path
+            ),
+            self::ERROR_PATH_IS_NOT_A_FOLDER
         );
     }
 }
