@@ -531,14 +531,14 @@ class Request_Param
         return $this->validate($default);
     }
 
-    /**
-     * Filters the specified value by going through all available
-     * filters, if any. If none have been set, the value is simply
-     * passed through.
-     *
-     * @param mixed $value
-     * @return string
-     */
+   /**
+    * Filters the specified value by going through all available
+    * filters, if any. If none have been set, the value is simply
+    * passed through.
+    *
+    * @param mixed $value
+    * @return mixed
+    */
     protected function filter($value)
     {
         $total = count($this->filters);
