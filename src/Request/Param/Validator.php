@@ -27,11 +27,20 @@ abstract class Request_Param_Validator implements Interface_Optionable
      */
     protected $param;
     
+   /**
+    * @var mixed
+    */
     protected $value;
     
-    public function __construct(Request_Param $param)
+   /**
+    * @var bool
+    */
+    protected $isSubvalue = false;
+    
+    public function __construct(Request_Param $param, bool $subval)
     {
         $this->param = $param;
+        $this->isSubvalue = $subval;
     }
     
     public function validate($value)
