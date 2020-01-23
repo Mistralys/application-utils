@@ -770,7 +770,12 @@ final class RequestTest extends TestCase
         
         $value = $request->registerParam($name)
         ->setIDList()
-        ->setCallback(function($value) { if($value === 5) {return true;} return false;})
+        ->setCallback(
+            function($value) 
+            { 
+                return $value === 5;
+            }
+        )
         ->get();
         
         $this->assertEquals(array(5), $value, 'Combination failed');
