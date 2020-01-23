@@ -29,13 +29,26 @@ class Request_Param_Validator_Valueslist extends Request_Param_Validator
     
     protected function _validate()
     {
+        $allowed = $this->getArrayOption('values');
+        
+        // if we are validating a subvalue, it means we are 
+        // validating a single value in the existing list.
+        if($this->isSubvalue) 
+        {
+            if(in_array($this->value, $allowed)) {
+                return $this->value;
+            }
+            
+            return null;
+        }
+        
         if(!is_array($this->value)) {
             return array();
         }
         
         $keep = array();
         foreach($this->value as $item) {
-            if(in_array($item, $this->getArrayOption('values'))) {
+            if(in_array($item, $allowed)) {
                 $keep[] = $item;
             }
         }

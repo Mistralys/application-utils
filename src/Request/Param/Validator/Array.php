@@ -27,6 +27,11 @@ class Request_Param_Validator_Array extends Request_Param_Validator
     
     protected function _validate()
     {
+        // subvalues cannot be arrays
+        if($this->isSubvalue) {
+            return $this->value;
+        }
+        
         if(is_array($this->value)) {
             return $this->value;
         }
