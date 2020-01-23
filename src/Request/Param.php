@@ -159,13 +159,51 @@ class Request_Param
         // first off, apply filtering
         $value = $this->filter($value);
         
+        if($this->valueType === self::VALUE_TYPE_LIST)
+        {
+            if(!is_array($value))
+            {
+                $value = explode(',', $value);
+            }
+            
+            $keep = array();
+            
+            foreach($value as $subval)
+            {
+                $subval = $this->filter($subval);
+                
+                $subval = $this->applyValidations($subval, true);
+
+                if($subval !== null) {
+                    $keep[] = $subval;
+                }
+            }
+            
+            return $keep;
+        }
+        
+        $value = $this->filter($value);
+        
+        $value = $this->applyValidations($value);
+        
+        return $value;
+    }
+    
+   /**
+    * Runs the value through all validations that were added.
+    * 
+    * @param mixed $value
+    * @return mixed
+    */
+    protected function applyValidations($value, bool $subval=false)
+    {
         // go through all enqueued validations in turn, each time
         // replacing the value with the adjusted, validated value.
-        foreach($this->validations as $validateDef) 
+        foreach($this->validations as $validateDef)
         {
-            $value = $this->validateType($value, $validateDef['type'], $validateDef['params']);
+            $value = $this->validateType($value, $validateDef['type'], $validateDef['params'], $subval);
         }
-
+        
         return $value;
     }
     
@@ -176,10 +214,11 @@ class Request_Param
     * @param mixed $value
     * @param string $type
     * @param array $params
+    * @param bool $subval Whether this is a subvalue in a list
     * @throws Request_Exception
     * @return mixed
     */
-    protected function validateType($value, string $type, array $params)
+    protected function validateType($value, string $type, array $params, bool $subval)
     {
         $class = '\AppUtils\Request_Param_Validator_'.ucfirst($type);
         
@@ -196,41 +235,12 @@ class Request_Param
             );
         }
         
-        $validator = new $class($this);
+        $validator = new $class($this, $subval);
         $validator->setOptions($params);
         
-        if($this->valueType === self::VALUE_TYPE_ID_LIST)
-        {
-            $value = $this->validateType_idList($value, $validator);
-        }
-        else
-        {
-            $value = $validator->validate($value);
-        }
+        $value = $validator->validate($value);
         
         return $value;
-    }
-    
-    protected function validateType_idList($value, Request_Param_Validator $validator) : array
-    {
-        if(!is_array($value))
-        {
-            $value = explode(',', $value);
-        }
-        
-        $keep = array();
-        
-        foreach($value as $subval)
-        {
-            $subval = trim($subval);
-            $subval = $validator->validate($subval);
-            
-            if($subval !== null) {
-                $keep[] = intval($subval);
-            }
-        }
-         
-        return $keep;
     }
     
     /**
@@ -272,7 +282,7 @@ class Request_Param
     
     const VALUE_TYPE_STRING = 'string';
     
-    const VALUE_TYPE_ID_LIST = 'ids_list';
+    const VALUE_TYPE_LIST = 'ids_list';
     
     protected $valueType = self::VALUE_TYPE_STRING;
 
@@ -285,7 +295,8 @@ class Request_Param
     */
     public function setIDList()
     {
-        $this->valueType = self::VALUE_TYPE_ID_LIST;
+        $this->valueType = self::VALUE_TYPE_LIST;
+        $this->addFilterTrim();
         $this->setInteger();
         
         return $this;
@@ -397,6 +408,16 @@ class Request_Param
                 'values' => $values
             )
         );
+    }
+    
+   /**
+    * Whether the parameter is a list of values.
+    * 
+    * @return bool
+    */
+    public function isList() : bool
+    {
+        return $this->valueType === self::VALUE_TYPE_LIST;
     }
     
     public function setArray()
