@@ -748,6 +748,78 @@ final class RequestTest extends TestCase
         }
     }
     
+    public function test_combination_idlist_enum()
+    {
+        $request = new \AppUtils\Request();
+        
+        $name = $this->setUniqueParam('5,89,111');
+        
+        $value = $request->registerParam($name)
+        ->setIDList()
+        ->setEnum(array(89, 5))
+        ->get();
+        
+        $this->assertEquals(array(5, 89), $value, 'Combination failed');
+    }
+    
+    public function test_combination_idlist_callback()
+    {
+        $request = new \AppUtils\Request();
+        
+        $name = $this->setUniqueParam('5,89,111');
+        
+        $value = $request->registerParam($name)
+        ->setIDList()
+        ->setCallback(function($value) { if($value === 5) {return true;} return false;})
+        ->get();
+        
+        $this->assertEquals(array(5), $value, 'Combination failed');
+    }
+    
+    public function test_combination_idlist_valuesList()
+    {
+        $request = new \AppUtils\Request();
+        
+        $name = $this->setUniqueParam('5,89,111');
+        
+        $value = $request->registerParam($name)
+        ->setIDList()
+        ->setValuesList(array(89))
+        ->get();
+        
+        $this->assertEquals(array(89), $value, 'Combination failed');
+    }
+    
+    public function test_combination_commaseparated_valuesList()
+    {
+        $request = new \AppUtils\Request();
+        
+        $name = $this->setUniqueParam('bar,lopos,foo');
+        
+        $value = $request->registerParam($name)
+        ->addCommaSeparatedFilter()
+        ->setValuesList(array('foo', 'bar'))
+        ->get();
+        
+        $this->assertEquals(array('bar', 'foo'), $value, 'Combination failed');
+    }
+    
+    public function test_combination_commaseparated_callback()
+    {
+        $request = new \AppUtils\Request();
+        
+        $name = $this->setUniqueParam('bar,lopos,foo');
+        
+        $value = $request->registerParam($name)
+        ->addCommaSeparatedFilter()
+        ->setCallback(function($value) {
+            return in_array('lopos', $value);
+        })
+        ->get();
+        
+        $this->assertEquals(array('bar', 'lopos', 'foo'), $value, 'Combination failed');
+    }
+    
     public function test_filterTrim()
     {
         $tests = array(
