@@ -778,14 +778,26 @@ class FileHelper
     * if any, and returns the name without the extension.
     * 
     * @param string $filename
-    * @return sTring
+    * @param bool $keepPath Whether to keep the path component, if any. Default PHP pathinfo behavior is not to.
+    * @return string
     */
-    public static function removeExtension(string $filename) : string
+    public static function removeExtension(string $filename, bool $keepPath=false) : string
     {
         // normalize paths to allow windows style slashes even on nix servers
         $filename = self::normalizePath($filename);
         
-        return pathinfo($filename, PATHINFO_FILENAME);
+        if(!$keepPath) 
+        {
+            return pathinfo($filename, PATHINFO_FILENAME);
+        }
+        
+        $parts = explode('/', $filename);
+        
+        $file = self::removeExtension(array_pop($parts));
+        
+        $parts[] = $file;
+        
+        return implode('/', $parts);
     }
     
    /**
