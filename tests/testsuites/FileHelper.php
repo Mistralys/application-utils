@@ -147,6 +147,26 @@ final class FileHelperTest extends TestCase
         }
     }
     
+    public function test_removeExtension_keepPath()
+    {
+        $tests = array(
+            'somename.ext' => 'somename',
+            '/path/to/file.txt' => '/path/to/file',
+            'F:\\path\name.extension' => 'F:/path/name',
+            'With.Several.Dots.file' => 'With.Several.Dots',
+            'noextension' => 'noextension',
+            'file ending in dot.' => 'file ending in dot',
+            '.ext' => ''
+        );
+        
+        foreach($tests as $string => $expected)
+        {
+            $actual = FileHelper::removeExtension($string, true);
+            
+            $this->assertEquals($expected, $actual);
+        }
+    }
+    
    /**
     * @see FileHelper::detectUTFBom()
     */
@@ -492,7 +512,9 @@ final class FileHelperTest extends TestCase
             'c:\windows\style\path' => 'c:/windows/style/path',
             'path/with/slash/' => 'path/with/slash/',
             'd:\mixed/style\here' => 'd:/mixed/style/here',
-            '/with/file.txt' => '/with/file.txt'
+            '/with/file.txt' => '/with/file.txt',
+            '/with//double//slashes' => '/with/double/slashes',
+            '\\mixed\\style\/path\/windows\/style' => '/mixed/style/path/windows/style'
          );
         
         foreach($tests as $path => $expected) 
