@@ -1,4 +1,7 @@
 <?php
+
+use function AppUtils\requireCURL;
+
 /**
  * Main bootstrapper used to set up the testsuites environment.
  * 
@@ -24,6 +27,13 @@
     * The composer autoloader
     */
     require_once $autoloader;
+    
+    $configFile = TESTS_ROOT.'/config.php';
+    
+    if(file_exists($configFile))
+    {
+        require_once $configFile;
+    }
     
     /**
      * Dummy test interfaces for the PHPClassInfo tests.
