@@ -44,6 +44,11 @@ class RequestHelper_Boundaries_Boundary
     */
     protected $boundaries;
     
+   /**
+    * @var string
+    */
+    protected $transferEncoding = '';
+    
     public function __construct(RequestHelper_Boundaries $boundaries, string $content)
     {
         $this->boundaries = $boundaries;
@@ -101,6 +106,13 @@ class RequestHelper_Boundaries_Boundary
         return $this;
     }
     
+    public function setTransferEncoding(string $encoding) : RequestHelper_Boundaries_Boundary
+    {
+        $this->transferEncoding = $encoding;
+        
+        return $this;
+    }
+    
     protected function setDispositionParam(string $name, string $value) : RequestHelper_Boundaries_Boundary
     {
         $this->dispositionParams[$name] = $value;
@@ -120,11 +132,17 @@ class RequestHelper_Boundaries_Boundary
         $lines[] = '--'.$this->boundaries->getMimeBoundary();
         $lines[] = $this->renderContentDisposition();
         
-        if(!empty($this->contentType)) {
+        if(!empty($this->contentType)) 
+        {
             $lines[] = $this->renderContentType();
         }
         
-        $lines[] = $eol;
+        if(!empty($this->transferEncoding))
+        {
+            $lines[] = $this->renderTransferEncoding();
+        }
+        
+        $lines[] = '';
         $lines[] = $this->content;
         
         return implode($eol, $lines).$eol;
@@ -148,8 +166,15 @@ class RequestHelper_Boundaries_Boundary
         
         if(!empty($this->contentEncoding)) 
         {
-            $result .= '; charset=' . $this->contentEncoding;
+            $result .= '; charset="' . $this->contentEncoding.'"';
         }
+        
+        return $result;
+    }
+    
+    protected function renderTransferEncoding() : string
+    {
+        $result = 'Content-Transfer-Encoding: ' . $this->transferEncoding;
         
         return $result;
     }

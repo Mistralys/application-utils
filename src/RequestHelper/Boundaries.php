@@ -69,7 +69,7 @@ class RequestHelper_Boundaries
     */
     public function getContentLength() : int
     {
-        return $this->contentLength;
+        return mb_strlen($this->render());
     }
     
    /**
@@ -81,13 +81,25 @@ class RequestHelper_Boundaries
     * @param string $contentType The content type, use the constants to specify this
     * @param string $encoding The encoding of the file, use the constants to specify this
     */
-    public function addFile(string $varName, string $fileName, string $content, string $contentType = RequestHelper::FILETYPE_TEXT, string $encoding = RequestHelper::ENCODING_UTF8) : RequestHelper_Boundaries
+    public function addFile(string $varName, string $fileName, string $content, string $contentType = '', string $encoding = '') : RequestHelper_Boundaries
     {
-        $boundary = $this->createBoundary(chunk_split(base64_encode($content)))
+        if(empty($contentType))
+        {
+            $contentType = FileHelper::detectMimeType($fileName);
+        }
+        
+        if(empty($encoding))
+        {
+            $encoding = RequestHelper::ENCODING_UTF8;
+            $content = ConvertHelper::string2utf8($content);
+        }
+        
+        $boundary = $this->createBoundary($content)
         ->setName($varName)
         ->setFileName(basename($fileName))
         ->setContentType($contentType)
-        ->setContentEncoding($encoding);
+        ->setContentEncoding($encoding)
+        ->setTransferEncoding(RequestHelper::TRANSFER_ENCODING_8BIT);
         
         return $this->addBoundary($boundary);
     }
@@ -101,9 +113,12 @@ class RequestHelper_Boundaries
     */
     public function addContent(string $varName, string $content, string $contentType) : RequestHelper_Boundaries
     {
+        $content = ConvertHelper::string2utf8($content);
+        
         $boundary = $this->createBoundary($content)
         ->setName($varName)
         ->setContentType($contentType)
+        ->setTransferEncoding(RequestHelper::TRANSFER_ENCODING_8BIT)
         ->setContentEncoding(RequestHelper::ENCODING_UTF8);
         
         return $this->addBoundary($boundary);
@@ -127,7 +142,6 @@ class RequestHelper_Boundaries
     protected function addBoundary(RequestHelper_Boundaries_Boundary $boundary) : RequestHelper_Boundaries
     {
         $this->boundaries[] = $boundary;
-        $this->contentLength += $boundary->getContentLength();
         
         return $this;
     }

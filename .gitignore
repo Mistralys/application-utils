@@ -4,3 +4,5 @@ composer.lock
 localization/storage.json
 tests/assets/FileHelper/savetest.txt
 docs/phpstan/output.txt
+tests/config.php
+tests/assets/RequestHelper/curl-log.txt

@@ -22,12 +22,22 @@ class RequestHelper
     const FILETYPE_TEXT = 'text/plain';
 
     const FILETYPE_XML = 'text/xml';
-
+    
+    const FILETYPE_HTML = 'text/html';
+    
     const ENCODING_UTF8 = 'UTF-8';
 
+    const TRANSFER_ENCODING_BASE64 = 'BASE64';
+
+    const TRANSFER_ENCODING_8BIT = '8BIT';
+    
+    const TRANSFER_ENCODING_BINARY = 'BINARY';
+    
     const ERROR_REQUEST_FAILED = 17902;
     
     const ERROR_CURL_INIT_FAILED = 17903;
+    
+    const ERROR_CANNOT_OPEN_LOGFILE = 17904;
 
    /**
     * @var string
@@ -76,13 +86,23 @@ class RequestHelper
     protected $timeout = 30;
     
    /**
+    * @var string
+    */
+    protected $logfile = '';
+
+   /**
+    * @var resource|NULL
+    */
+    protected $logfilePointer = null;
+    
+   /**
     * Creates a new request helper to send POST data to the specified destination URL.
     * @param string $destinationURL
     */
     public function __construct(string $destinationURL)
     {
         $this->destination = $destinationURL;
-        $this->mimeBoundary = md5('request-helper-boundary');
+        $this->mimeBoundary = str_repeat('-', 20).md5('request-helper-boundary');
         $this->boundaries = new RequestHelper_Boundaries($this);
         
         requireCURL();
@@ -91,6 +111,11 @@ class RequestHelper
     public function getMimeBoundary() : string
     {
         return $this->mimeBoundary;
+    }
+    
+    public function getMimeBody() : string
+    {
+        return $this->boundaries->render();
     }
     
     public function getEOL() : string
@@ -104,6 +129,20 @@ class RequestHelper
         
         return $this;
     }
+    
+   /**
+    * Enables verbose logging of the CURL request, which
+    * is then redirected to the target file.
+    * 
+    * @param string $targetFile
+    * @return RequestHelper
+    */
+    public function enableLogging(string $targetFile) : RequestHelper
+    {
+        $this->logfile = $targetFile;
+        
+        return $this;
+    }
 
    /**
     * Adds a file to be sent with the request.
@@ -114,7 +153,7 @@ class RequestHelper
     * @param string $contentType The content type, use the constants to specify this
     * @param string $encoding The encoding of the file, use the constants to specify this
     */
-    public function addFile(string $varName, string $fileName, string $content, string $contentType = self::FILETYPE_TEXT, string $encoding = self::ENCODING_UTF8) : RequestHelper
+    public function addFile(string $varName, string $fileName, string $content, string $contentType = '', string $encoding = '') : RequestHelper
     {
         $this->boundaries->addFile($varName, $fileName, $content, $contentType, $encoding);
         
@@ -195,16 +234,19 @@ class RequestHelper
     */
     public function send() : string
     {
-        $this->data = $this->boundaries->render();
-
         $info = parseURL($this->destination);
         
         $ch = $this->createCURL($info);
-        
+
         $output = curl_exec($ch);
 
+        if(isset($this->logfilePointer))
+        {
+            fclose($this->logfilePointer);
+        }
+        
         $info = curl_getinfo($ch);
-
+        
         $this->response = new RequestHelper_Response($this, $info);
         
         // CURL will complain about an empty response when the 
@@ -243,6 +285,7 @@ class RequestHelper
     protected function createCURL(URLInfo $url)
     {
         $ch = curl_init();
+        
         if(!is_resource($ch))
         {
             throw new RequestHelper_Exception(
@@ -253,16 +296,23 @@ class RequestHelper
         }
 
         $this->setHeader('Content-Length', (string)$this->boundaries->getContentLength());
-        $this->setHeader('Content-Type', 'multipart/form-data; charset=UTF-8; boundary=' . $this->mimeBoundary);
-        
-        //curl_setopt($ch, CURLOPT_VERBOSE, true);
+        $this->setHeader('Content-Type', 'multipart/form-data; boundary=' . $this->mimeBoundary);
+
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_URL, $url->getNormalizedWithoutAuth());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $this->renderHeaders());
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->boundaries->render());
+        curl_setopt($ch, CURLOPT_FAILONERROR, true);
+        
+        $loggingEnabled = $this->configureLogging($ch);
+        
+        if(!$loggingEnabled) 
+        {
+            curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+        }
         
         if($this->verifySSL)
         {
@@ -278,6 +328,36 @@ class RequestHelper
         
         return $ch;
     }
+    
+   /**
+    * @param resource $ch
+    * @return bool Whether logging is enabled.
+    */
+    protected function configureLogging($ch) : bool
+    {
+        if(empty($this->logfile))
+        {
+            return false;
+        }
+        
+        $res = fopen($this->logfile, 'w+');
+        
+        if($res === false)
+        {
+            throw new RequestHelper_Exception(
+                'Cannot open logfile for writing.',
+                sprintf('Tried accessing the file at [%s].', $this->logfile),
+                self::ERROR_CANNOT_OPEN_LOGFILE
+            );
+        }
+        
+        $this->logfilePointer = $res;
+        
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        curl_setopt($ch, CURLOPT_STDERR, $res);
+        
+        return true;
+    }
 
    /**
     * Compiles the associative headers array into
@@ -289,6 +369,8 @@ class RequestHelper
     protected function renderHeaders() : array
     {
         $result = array();
+        
+        $this->setHeader('Expect', '');
         
         foreach($this->headers as $name => $value) {
             $result[] = $name.': '.$value;
