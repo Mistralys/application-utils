@@ -91,14 +91,15 @@ class RequestHelper_Boundaries
         if(empty($encoding))
         {
             $encoding = RequestHelper::ENCODING_UTF8;
+            $content = ConvertHelper::string2utf8($content);
         }
         
-        $boundary = $this->createBoundary(chunk_split(base64_encode($content)))
+        $boundary = $this->createBoundary($content)
         ->setName($varName)
         ->setFileName(basename($fileName))
         ->setContentType($contentType)
         ->setContentEncoding($encoding)
-        ->setTransferEncoding(RequestHelper::TRANSFER_ENCODING_BASE64);
+        ->setTransferEncoding(RequestHelper::TRANSFER_ENCODING_8BIT);
         
         return $this->addBoundary($boundary);
     }
@@ -112,9 +113,12 @@ class RequestHelper_Boundaries
     */
     public function addContent(string $varName, string $content, string $contentType) : RequestHelper_Boundaries
     {
+        $content = ConvertHelper::string2utf8($content);
+        
         $boundary = $this->createBoundary($content)
         ->setName($varName)
         ->setContentType($contentType)
+        ->setTransferEncoding(RequestHelper::TRANSFER_ENCODING_8BIT)
         ->setContentEncoding(RequestHelper::ENCODING_UTF8);
         
         return $this->addBoundary($boundary);
