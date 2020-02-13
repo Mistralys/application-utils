@@ -16,6 +16,11 @@
         'files' => $_FILES
     );
     
+    foreach($data['files'] as $idx => $file)
+    {
+        $data['files'][$idx]['content'] = file_get_contents($file['tmp_name']);
+    }
+    
     header('Content-Type:application/json');
     
     echo json_encode($data, JSON_PRETTY_PRINT);
