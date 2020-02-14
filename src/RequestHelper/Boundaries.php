@@ -85,7 +85,7 @@ class RequestHelper_Boundaries
     {
         if(empty($contentType))
         {
-            $contentType = FileHelper::detectMimeType($fileName);
+            $contentType = (string)FileHelper::detectMimeType($fileName);
         }
         
         if(empty($encoding))
