@@ -229,20 +229,20 @@ interface Interface_Optionable
    /**
     * @param string $name
     * @param mixed $value
-    * @return Interface_Optionable
+    * @return $this
     */
     function setOption(string $name, $value);
     
    /**
     * @param string $name
     * @param mixed $default
-    * @return Interface_Optionable
+    * @return $this
     */
     function getOption(string $name, $default=null);
     
    /**
     * @param array $options
-    * @return Interface_Optionable    
+    * @return $this    
     */
     function setOptions(array $options);
     function getOptions() : array;

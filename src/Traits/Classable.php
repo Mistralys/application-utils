@@ -89,13 +89,13 @@ interface Interface_Classable
 {
    /**
     * @param string $name
-    * @return Interface_Classable
+    * @return $this
     */
     public function addClass(string $name);
 
    /**
     * @param array $names
-    * @return Interface_Classable
+    * @return $this
     */
     public function addClasses(array $names);
     
@@ -107,7 +107,7 @@ interface Interface_Classable
     
    /**
     * @param string $name
-    * @return Interface_Classable
+    * @return $this
     */
     public function removeClass(string $name);
     
