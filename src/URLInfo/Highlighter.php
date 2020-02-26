@@ -158,9 +158,32 @@ class URLInfo_Highlighter
         );
     }
     
+   /**
+    * Fetches all parameters in the URL, regardless of 
+    * whether parameter exclusion is enabled, so they
+    * can be highlighted is need be.
+    * 
+    * @return array
+    */
+    protected function resolveParams() : array
+    {
+        $previous = $this->info->isParamExclusionEnabled();
+        
+        if($previous)
+        {
+            $this->info->setParamExclusion(false);
+        }
+        
+        $params = $this->info->getParams();
+        
+        $this->info->setParamExclusion($previous);
+        
+        return $params;
+    }
+    
     protected function render_params() : string
     {
-        $params = $this->info->getParams();
+        $params = $this->resolveParams();
         
         if(empty($params)) {
             return '';
@@ -189,41 +212,40 @@ class URLInfo_Highlighter
                 )
             );
             
-            $tag = '';
+            $tag = $this->resolveTag($excluded, $param);
             
-            // is parameter exclusion enabled, and is this an excluded parameter?
-            if(isset($excluded[$param]))            
+            if(!empty($tag))
             {
-                // display the excluded parameter, but highlight it
-                if($this->info->isHighlightExcludeEnabled())
-                {
-                    $tooltip = $excluded[$param];
-                    
-                    $tag = sprintf(
-                        '<span class="link-param excluded-param" title="%s" data-toggle="tooltip">%s</span>',
-                        $tooltip,
-                        $parts
-                    );
-                }
-                else
-                {
-                    continue;
-                }
+                $tokens[] = sprintf($tag, $parts);
             }
-            else
-            {
-                $tag = sprintf(
-                    '<span class="link-param">%s</span>',
-                    $parts
-                );
-            }
-            
-            $tokens[] = $tag;
         }
         
         return
         '<span class="link-component query-sign">?</span>'.
         implode('<span class="link-component param-separator">&amp;</span>', $tokens);
+    }
+    
+    protected function resolveTag(array $excluded, string $paramName) : string
+    {
+        // regular, non-excluded parameter
+        if(!isset($excluded[$paramName]))
+        {
+            return '<span class="link-param">%s</span>';
+        }
+
+        // highlight excluded parameters is disabled, ignore this parameter
+        if(!$this->info->isHighlightExcludeEnabled())
+        {
+            return '';
+        }
+            
+        $tooltip = $excluded[$paramName];
+                
+        return sprintf(
+            '<span class="link-param excluded-param" title="%s" data-toggle="tooltip">%s</span>',
+            $tooltip,
+            '%s'
+        );
     }
      
     protected function render_fragment() : string
