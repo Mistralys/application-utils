@@ -70,6 +70,12 @@ final class URLInfoTest extends TestCase
                 'url' => "http://www.   foo-bar.   com /  some/ folder /",
                 'valid' => true,
                 'normalized' => 'http://www.foo-bar.com/some/folder/'
+            ),
+            array(
+                'label' => 'With HTML encoded ampersands',
+                'url' => "http://www.foo-bar.com?foo=bar&amp;bar=foo&amp;lopos=yes",
+                'valid' => true,
+                'normalized' => 'http://www.foo-bar.com?bar=foo&foo=bar&lopos=yes'
             )
         );
         
@@ -260,35 +266,40 @@ final class URLInfoTest extends TestCase
                 'url' => 'http://foo.com',
                 'expected' => 'http',
                 'hasScheme' => true,
-                'isSecure' => false
+                'isSecure' => false,
+                'isURL' => true
             ),
             array(
                 'label' => 'Regular HTTPS url',
                 'url' => 'https://foo.com',
                 'expected' => 'https',
                 'hasScheme' => true,
-                'isSecure' => true
+                'isSecure' => true,
+                'isURL' => true
             ),
             array(
                 'label' => 'Regular FTP url',
                 'url' => 'ftp://foo.com',
                 'expected' => 'ftp',
                 'hasScheme' => true,
-                'isSecure' => false
+                'isSecure' => false,
+                'isURL' => true
             ),
             array(
                 'label' => 'Schemeless but valid URL',
                 'url' => '//foo.com',
                 'expected' => '',
                 'hasScheme' => false,
-                'isSecure' => false
+                'isSecure' => false,
+                'isURL' => true
             ),
             array(
                 'label' => 'Invalid URL',
                 'url' => 'foo.com',
                 'expected' => '',
                 'hasScheme' => false,
-                'isSecure' => false
+                'isSecure' => false,
+                'isURL' => false
             )
         );
 
@@ -299,6 +310,7 @@ final class URLInfoTest extends TestCase
             $this->assertEquals($test['expected'], $info->getScheme(), $test['label']);
             $this->assertEquals($test['hasScheme'], $info->hasScheme(), $test['label']);
             $this->assertEquals($test['isSecure'], $info->isSecure(), $test['label']);
+            $this->assertEquals($test['isURL'], $info->isURL(), $test['label']);
         }
     }
     
@@ -428,4 +440,120 @@ final class URLInfoTest extends TestCase
         $this->assertEquals('http://username:password@test.com', $info->getNormalized());
         $this->assertEquals('http://test.com', $info->getNormalizedWithoutAuth());
     }
+    
+    /**
+     * Excluding parameters in URLs.
+     */
+    public function test_excludeParam()
+    {
+        $tests = array(
+            array(
+                'label' => 'The URL should stay unchanged.',
+                'url' => 'http://test.com/feedback?medium=somevalue',
+                'expected' => 'http://test.com/feedback?medium=somevalue'
+            ),
+            array(
+                'label' => ' The ac parameter should be stripped.',
+                'url' => 'http://test.com/feedback?medium=somevalue&ac=stripme',
+                'expected' => 'http://test.com/feedback?medium=somevalue'
+            ),
+            array(
+                'label' => ' The ac parameter should be stripped, other parameters left alone.',
+                'url' => 'http://test.com/feedback?medium=somevalue&ac=stripme&medium2=othervalue',
+                'expected' => 'http://test.com/feedback?medium=somevalue&medium2=othervalue'
+            )
+        );
+        
+        foreach($tests as $entry)
+        {
+            $info = parseURL($entry['url']);
+            
+            $info->excludeParam('ac', 'Reason');
+            
+            $this->assertEquals($entry['expected'], $info->getNormalized(), $entry['label']);
+        }
+    }
+    
+    /**
+     * Check the switching between parameter exclusion modes.
+     */
+    public function test_disableParamExclusion()
+    {
+        $tests = array(
+            array(
+                'label' => ' The ac parameter should be stripped, other parameters left alone.',
+                'url' => 'http://test.com/feedback?ac=stripme&medium1=somevalue&medium2=othervalue',
+                'excluded' => 'http://test.com/feedback?medium1=somevalue&medium2=othervalue',
+                'not-excluded' => 'http://test.com/feedback?ac=stripme&medium1=somevalue&medium2=othervalue'
+            )
+        );
+        
+        foreach($tests as $entry)
+        {
+            $info = parseURL($entry['url']);
+            
+            // the default state: no parameters excluded.
+            $this->assertFalse($info->isParamExclusionEnabled(), 'By default, parameter exclusion should be turned off.');
+            $this->assertEquals($entry['not-excluded'], $info->getNormalized(), 'By default, URL should still contain excluded params.');
+            
+            // exluding a parameter should auto-enable the exclusion mode.
+            $info->excludeParam('ac', 'Reason');
+            $this->assertTrue($info->isParamExclusionEnabled(), 'Parameter exclusion should be auto-enabled when adding exclude params.');
+            $this->assertEquals($entry['excluded'], $info->getNormalized(), 'URL should not contain any of the excluded params.');
+            
+            // turning it off should return the original URL with all excluded params
+            $info->setParamExclusion(false);
+            $this->assertFalse($info->isParamExclusionEnabled(), 'Parameter exclusion should be disabled.');
+            $this->assertEquals($entry['not-excluded'], $info->getNormalized(), 'URL should contain all of the excluded params.');
+            
+            // turning it on again without adding new excluded parameters
+            $info->setParamExclusion(true);
+            $this->assertTrue($info->isParamExclusionEnabled(), 'Parameter exclusion should be enabled.');
+            $this->assertEquals($entry['excluded'], $info->getNormalized(), 'URL should not contain any of the excluded params.');
+        }
+    }
+    
+    /**
+     * Ensure that highlighting excluded parameters works.
+     */
+    public function test_highlightExcluded()
+    {
+        $info = parseURL('http://test.com/feedback?ac=stripme&medium1=somevalue&medium2=othervalue');
+        $info->excludeParam('ac', 'Reason');
+        $info->setHighlightExcluded();
+        
+        $highlighted = $info->getHighlighted();
+        
+        $this->assertStringContainsString('stripme', $highlighted, 'Should contain the excluded parameter.');
+        $this->assertStringContainsString('excluded-param', $highlighted, 'Should contain the class for excluded parameters.');
+    }
+    
+    /**
+     * Ensure that checking whether an URL contains excluded parameters works as intended.
+     */
+    public function test_containsExcludedParams()
+    {
+        $tests = array(
+            array(
+                'label' => 'Should contain no excluded params.',
+                'url' => 'http://test.com/feedback?medium=somevalue',
+                'expected' => false
+            ),
+            array(
+                'label' => 'Should contain excluded params.',
+                'url' => 'http://test.com/feedback?medium=somevalue&ac=stripme',
+                'expected' => true
+            )
+        );
+        
+        foreach($tests as $entry)
+        {
+            $info = parseURL($entry['url']);
+            
+            $info->excludeParam('ac', 'Reason');
+            
+            $this->assertEquals($entry['expected'], $info->containsExcludedParams(), $entry['label']);
+        }
+    }
+    
 }
