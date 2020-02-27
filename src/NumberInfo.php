@@ -680,7 +680,7 @@ class NumberInfo
     * @return NumberInfo
     * @see NumberInfo::postProcess()
     */
-    private function enablePostProcess() : NumberInfo
+    protected function enablePostProcess() : NumberInfo
     {
         $this->postProcess = true;
         return $this;
