@@ -119,7 +119,7 @@ class URLInfo_Normalizer
             return $normalized;
         }
         
-        return $normalized . '?'.http_build_query($params);
+        return $normalized . '?'.http_build_query($params, null, '&', PHP_QUERY_RFC3986);
     }
     
     protected function renderFragment(string $normalized) : string
