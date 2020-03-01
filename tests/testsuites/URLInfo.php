@@ -76,6 +76,12 @@ final class URLInfoTest extends TestCase
                 'url' => "http://www.foo-bar.com?foo=bar&amp;bar=foo&amp;lopos=yes",
                 'valid' => true,
                 'normalized' => 'http://www.foo-bar.com?bar=foo&foo=bar&lopos=yes'
+            ),
+            array(
+                'label' => 'With spaces in param names',
+                'url' => "http://www.spaceparams.com?  foo  =bar",
+                'valid' => true,
+                'normalized' => 'http://www.spaceparams.com?%20%20foo%20%20=bar'
             )
         );
         
