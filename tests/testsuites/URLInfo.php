@@ -82,6 +82,12 @@ final class URLInfoTest extends TestCase
                 'url' => "http://www.spaceparams.com?  foo  =bar",
                 'valid' => true,
                 'normalized' => 'http://www.spaceparams.com?%20%20foo%20%20=bar'
+            ),
+            array(
+                'label' => 'With previously encoded spaces in param names',
+                'url' => "http://www.spaceparams.com?%20%20foo%20%20=bar",
+                'valid' => true,
+                'normalized' => 'http://www.spaceparams.com?%20%20foo%20%20=bar'
             )
         );
         

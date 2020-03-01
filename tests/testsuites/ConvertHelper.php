@@ -453,6 +453,13 @@ final class ConvertHelperTest extends TestCase
                 )
             ),
             array(
+                'label' => 'Parameter name surrounded by pre-encoded spaces',
+                'value' => '%20%20foo%20%20=result',
+                'expected' => array(
+                    '  foo  ' => 'result'
+                )
+            ),
+            array(
                 'label' => 'Parameter name URL encoded should not conflict',
                 'value' => 'foobar='.urlencode('&foo=bar'),
                 'expected' => array(
