@@ -184,13 +184,6 @@ class URLInfo_Parser
     */
     protected function filterParsed()
     {
-        foreach($this->info as $key => $val)
-        {
-            if(is_string($val)) {
-                $this->info[$key] = trim($val);
-            }
-        }
-        
         $this->info['params'] = array();
         $this->info['type'] = URLInfo::TYPE_URL;
         
