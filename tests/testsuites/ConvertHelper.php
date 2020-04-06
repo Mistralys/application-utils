@@ -9,6 +9,25 @@ use AppUtils\ConvertHelper_StorageSizeEnum;
 
 final class ConvertHelperTest extends TestCase
 {
+    protected $assetsFolder;
+    
+    protected function setUp() : void
+    {
+        if(isset($this->assetsFolder))
+        {
+            return;
+        }
+        
+        $this->assetsFolder = realpath(TESTS_ROOT.'/assets/ConvertHelper');
+        
+        if($this->assetsFolder === false) 
+        {
+            throw new Exception(
+                'The convert helper assets folder could not be found.'
+            );
+        }
+    }
+    
     /**
      * @see ConvertHelper::areVariablesEqual()
      */
@@ -921,7 +940,9 @@ final class ConvertHelperTest extends TestCase
         $this->expectException(ConvertHelper_Exception::class);
         
         // the paragraph sign cannot be converted to JSON.
-        $result = ConvertHelper::var2json(array(utf8_decode('öäöü')));
+        $result = ConvertHelper::var2json(array(utf8_decode('öäöü§')));
+        
+        
     }
     
     public function test_duration2string()
@@ -1397,5 +1418,26 @@ final class ConvertHelperTest extends TestCase
             
             $this->assertEquals($test['expected'], $result, $test['label']);
         }
+    }
+    
+    public function test_stripControlChars()
+    {
+        $string = file_get_contents($this->assetsFolder.'/ControlCharacters.txt');
+        
+        $result = ConvertHelper::stripControlCharacters($string);
+            
+        $this->assertEquals('SOHACKBELL', $result);
+    }
+    
+   /**
+    * Ensure that the automatic fixing of UTF8 characters works as intended.
+    */
+    public function test_stripControlChars_brokenUTF8()
+    {
+        $string = file_get_contents($this->assetsFolder.'/ControlCharactersBrokenUTF8.txt');
+        
+        $result = ConvertHelper::stripControlCharacters($string);
+        
+        $this->assertEquals('SOHACKBELLöäüYes', $result);
     }
 }
