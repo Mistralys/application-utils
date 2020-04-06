@@ -494,37 +494,7 @@ class ConvertHelper
     */
     public static function getControlCharactersAsHex()
     {
-        $hexAlphabet = array('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F');
-        
-        $stack = array();
-        foreach(self::$controlChars as $char)
-        {
-            $tokens = explode('-', $char);
-            $start = $tokens[0];
-            $end = $tokens[1];
-            $prefix = substr($start, 0, 3);
-            $range = array();
-            foreach($hexAlphabet as $number) {
-                $range[] = $prefix.$number;
-            }
-            
-            $use = false;
-            foreach($range as $number) {
-                if($number == $start) {
-                    $use = true;
-                }
-                
-                if($use) {
-                    $stack[] = $number;
-                }
-                
-                if($number == $end) {
-                    break;
-                }
-            }
-        }
-        
-        return $stack;
+        return self::createControlCharacters()->getCharsAsHex();
     }
     
    /**
@@ -536,14 +506,7 @@ class ConvertHelper
     */
     public static function getControlCharactersAsUTF8()
     {
-        $chars = self::getControlCharactersAsHex();
-        
-        $result = array();
-        foreach($chars as $char) {
-            $result[] = hex2bin($char);
-        }
-        
-        return $result;
+        return self::createControlCharacters()->getCharsAsUTF8();
     }
     
    /**
@@ -554,58 +517,32 @@ class ConvertHelper
     */
     public static function getControlCharactersAsJSON()
     {
-        $chars = self::getControlCharactersAsHex();
-        
-        $result = array();
-        foreach($chars as $char) {
-            $result[] = '\u'.strtolower($char);
-        }
-        
-        return $result;
+        return self::createControlCharacters()->getCharsAsJSON();
     }
     
-    protected static $controlChars =  array(
-        '0000-0008', // control chars
-        '000E-000F', // control chars
-        '0010-001F', // control chars
-        '2000-200F', // non-breaking space and co
-    );
-    
-    protected static $controlCharsRegex;
-
-    /**
-     * Removes all control characters from the specified string
-     * that can cause problems in some cases, like creating
-     * valid XML documents. This includes invisible non-breaking
-     * spaces.
-     *
-     * @param string $string
-     * @return string
-     * @see https://stackoverflow.com/a/8171868/2298192
-     * @see https://unicode-table.com/en
-     */
+   /**
+    * Removes all control characters from the specified string
+    * that can cause problems in some cases, like creating
+    * valid XML documents. This includes invisible non-breaking
+    * spaces.
+    *
+    * @param string $string
+    * @return string
+    */
     public static function stripControlCharacters(string $string) : string
     {
-        if(empty($string)) {
-            return $string;
-        }
-        
-        // create the regex from the unicode characters list
-        if(!isset(self::$controlCharsRegex)) 
-        {
-            $chars = self::getControlCharactersAsHex();
-
-            // we use the notation \x{0000} to specify the unicode character key
-            // in the regular expression.
-            $stack = array();
-            foreach($chars as $char) {
-                $stack[] = '\x{'.$char.'}';
-            }
-            
-            self::$controlCharsRegex = '/['.implode('', $stack).']/u';
-        }
-        
-        return preg_replace(self::$controlCharsRegex, '', $string);
+        return self::createControlCharacters()->stripControlCharacters($string);
+    }
+    
+   /**
+    * Creates the control characters class, used to 
+    * work with control characters in strings.
+    * 
+    * @return ConvertHelper_ControlCharacters
+    */
+    public static function createControlCharacters() : ConvertHelper_ControlCharacters
+    {
+        return new ConvertHelper_ControlCharacters();
     }
 
    /**
