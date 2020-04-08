@@ -101,13 +101,47 @@ class URLInfo implements \ArrayAccess
     */
     protected $normalizer;
     
+   /**
+    * @var bool
+    */
+    protected $encodeUTFChars = false;
+    
     public function __construct(string $url)
     {
         $this->rawURL = $url;
         $this->url = self::filterURL($url);
         
-        $this->parser = new URLInfo_Parser($this->url);
+        $this->parse();
+    }
+    
+    protected function parse() : void
+    {
+        $this->parser = new URLInfo_Parser($this->url, $this->encodeUTFChars);
         $this->info = $this->parser->getInfo();
+    }
+    
+   /**
+    * Whether to URL encode any non-encoded UTF8 characters in the URL.
+    * Default is to leave them as-is for better readability, since 
+    * browsers handle this well.
+    * 
+    * @param bool $enabled
+    * @return URLInfo
+    */
+    public function setUTFEncoding(bool $enabled=true) : URLInfo
+    {
+        if($this->encodeUTFChars !== $enabled)
+        {
+            $this->encodeUTFChars = $enabled;
+            $this->parse(); // re-parse the URL to apply the changes
+        }
+        
+        return $this;
+    }
+    
+    public function isUTFEncodingEnabled() : bool
+    {
+        return $this->encodeUTFChars;
     }
     
    /**

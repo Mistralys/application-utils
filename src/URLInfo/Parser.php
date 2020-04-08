@@ -12,7 +12,10 @@ declare(strict_types=1);
 namespace AppUtils;
 
 /**
- * Handles the URL parsing.
+ * Handles the URL parsing, as replacement for PHP's 
+ * native parse_url function. It overcomes a number of
+ * limitations of the function, using pre- and post-
+ * processing of the URL and its component parts.
  *
  * @package Application Utils
  * @subpackage URLInfo
@@ -41,7 +44,7 @@ class URLInfo_Parser
     protected $error;
     
     /**
-     * @var array
+     * @var string[]
      */
     protected $knownSchemes = array(
         'ftp',
@@ -53,9 +56,29 @@ class URLInfo_Parser
         'file'
     );
     
-    public function __construct(string $url)
+   /**
+    * Stores a list of all unicode characters in the URL
+    * that have been filtered out before parsing it with
+    * parse_url.
+    * 
+    * @var string[]string
+    */
+    protected $unicodeChars = array();
+    
+   /**
+    * @var bool
+    */
+    protected $encodeUTF = false;
+    
+   /**
+    * 
+    * @param string $url The target URL.
+    * @param bool $encodeUTF Whether to URL encode any plain text unicode characters.
+    */
+    public function __construct(string $url, bool $encodeUTF)
     {
         $this->url = $url;
+        $this->encodeUTF = $encodeUTF;
         
         $this->parse();
         
@@ -64,6 +87,12 @@ class URLInfo_Parser
         }
     }
 
+   /**
+    * Retrieves the array as parsed by PHP's parse_url,
+    * filtered and adjusted as necessary.
+    * 
+    * @return array
+    */
     public function getInfo() : array
     {
         return $this->info;
@@ -71,18 +100,48 @@ class URLInfo_Parser
     
     protected function parse()
     {
-        // fix for parsing unicode characters in URLs:
-        // this is dependent on the machine's locale,
-        // so to ensure this works we temporarily change
-        // it to the always available US UTF8 locale.
-        $prev = setlocale(LC_CTYPE, 'en_US.UTF-8');
+        $this->filterUnicodeChars();
         
         $this->info = parse_url($this->url);
         
-        // restore the previous locale
-        setlocale(LC_CTYPE, $prev);
-        
         $this->filterParsed();
+        
+        // if the URL contains any URL characters, and we
+        // do not want them URL encoded, restore them.
+        if(!$this->encodeUTF && !empty($this->unicodeChars))
+        {
+            $this->info = $this->restoreUnicodeChars($this->info);
+        }
+    }
+    
+   /**
+    * Finds any non-url encoded unicode characters in 
+    * the URL, and encodes them before the URL is 
+    * passed to parse_url.
+    */
+    protected function filterUnicodeChars() : void
+    {
+        $chars = \AppUtils\ConvertHelper::string2array($this->url);
+        
+        $keep = array();
+        
+        foreach($chars as $char)
+        {
+            if(preg_match('/\p{L}/usix', $char))
+            {
+                $encoded = rawurlencode($char);
+                
+                if($encoded != $char)
+                {
+                    $this->unicodeChars[$encoded] = $char;
+                    $char = $encoded;
+                }
+            }
+            
+            $keep[] = $char;
+        }
+        
+        $this->url = implode('', $keep);
     }
     
     protected function detectType() : bool
@@ -210,6 +269,53 @@ class URLInfo_Parser
         }
     }
     
+   /**
+    * Recursively goes through the array, and converts all previously
+    * URL encoded characters with their unicode character counterparts.
+    * 
+    * @param array $subject
+    * @return array
+    */
+    protected function restoreUnicodeChars(array $subject) : array
+    {
+        $result = array();
+        
+        foreach($subject as $key => $val)
+        {
+            if(is_array($val))
+            {
+                $val = $this->restoreUnicodeChars($val);
+            }
+            else
+            {
+                $val = $this->restoreUnicodeChar($val);
+            }
+            
+            $key = $this->restoreUnicodeChar($key);
+            
+            $result[$key] = $val;
+        }
+        
+        return $result;
+    }
+    
+   /**
+    * Replaces all URL encoded unicode characters
+    * in the string with the unicode character.
+    * 
+    * @param string $string
+    * @return string
+    */
+    protected function restoreUnicodeChar(string $string) : string
+    {
+        if(strstr($string, '%'))
+        {
+            return str_replace(array_keys($this->unicodeChars), array_values($this->unicodeChars), $string);
+        }
+        
+        return $string;
+    }
+    
     protected function detectType_email() : bool
     {
         if(isset($this->info['scheme']) && $this->info['scheme'] == 'mailto') {
@@ -256,12 +362,22 @@ class URLInfo_Parser
             'message' => $message
         );
     }
-    
+   
+   /**
+    * Checks whether the URL that was parsed is valid.
+    * @return bool
+    */
     public function isValid() : bool
     {
         return $this->isValid;
     }
 
+   /**
+    * If the validation failed, retrieves the validation
+    * error message.
+    * 
+    * @return string
+    */
     public function getErrorMessage() : string
     {
         if(isset($this->error)) {
@@ -271,6 +387,12 @@ class URLInfo_Parser
         return '';
     }
     
+   /**
+    * If the validation failed, retrieves the validation
+    * error code.
+    * 
+    * @return int
+    */
     public function getErrorCode() : int
     {
         if(isset($this->error)) {

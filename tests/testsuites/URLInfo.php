@@ -568,4 +568,54 @@ final class URLInfoTest extends TestCase
         }
     }
     
+    public function test_unicodeChars()
+    {
+        $tests = array(
+            array(
+                'label' => 'German characters in the path.',
+                'url' => 'http://test.com/mögenß/',
+                'expected' => 'http://test.com/mögenß/'
+            ),
+            array(
+                'label' => 'Spanish character',
+                'url' => 'https://www.lideresenservicio.com/metodología/',
+                'expected' => 'https://www.lideresenservicio.com/metodología/',
+            )
+        );
+        
+        foreach($tests as $entry)
+        {
+            $info = parseURL($entry['url']);
+            
+            $result = $info->getNormalized();
+            
+            $this->assertEquals($entry['expected'], $result, $entry['label']);
+        }
+    }
+    
+    public function test_unicodeChars_withUrlencode()
+    {
+        $tests = array(
+            array(
+                'label' => 'German characters in the path.',
+                'url' => 'http://test.com/mögenß/',
+                'expected' => 'http://test.com/m%C3%B6gen%C3%9F/'
+            ),
+            array(
+                'label' => 'Spanish character',
+                'url' => 'https://www.lideresenservicio.com/metodología/',
+                'expected' => 'https://www.lideresenservicio.com/metodolog%C3%ADa/',
+            )
+        );
+        
+        foreach($tests as $entry)
+        {
+            $info = parseURL($entry['url']);
+            $info->setUTFEncoding();
+            
+            $result = $info->getNormalized();
+            
+            $this->assertEquals($entry['expected'], $result, $entry['label']);
+        }
+    }
 }
