@@ -64,6 +64,42 @@ final class RequestHelperTest extends TestCase
         $this->assertEquals($originalContent, $data['files']['htmlfile']['content']);
     }
     
+    public function test_sendTextfile()
+    {
+        if(!defined('TESTS_WEBSERVER_URL'))
+        {
+            $this->markTestSkipped('The webserver URL has not been defined in the config file.');
+            return;
+        }
+        
+        $helper = new RequestHelper(TESTS_WEBSERVER_URL.'/assets/RequestHelper/PostCatcher.php');
+        
+        $helper->enableLogging($this->assetsFolder.'/curl-log.txt');
+        
+        $originalContent = file_get_contents($this->assetsFolder.'/upload.txt');
+        
+        $helper->addFile(
+            'textfile',
+            'uploaded-textfile.txt',
+            $originalContent
+        );
+        
+        $json = $helper->send();
+        
+        $response = $helper->getResponse();
+        
+        $this->assertNotEmpty($json);
+        $this->assertEquals(200, $response->getCode());
+        
+        $data = json_decode($json, true);
+        
+        $this->assertIsArray($data);
+        $this->assertArrayHasKey('files', $data);
+        $this->assertArrayHasKey('textfile', $data['files']);
+        $this->assertEquals(0, $data['files']['textfile']['error']);
+        $this->assertEquals($originalContent, $data['files']['textfile']['content']);
+    }
+    
    /**
     * Checks that sending JSON keeps the JSON data intact, 
     * so that reading it back in it equals the source JSON.
