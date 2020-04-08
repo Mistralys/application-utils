@@ -69,7 +69,10 @@ class RequestHelper_Boundaries
     */
     public function getContentLength() : int
     {
-        return mb_strlen($this->render());
+        // this must use strlen, and not mb_strlen: the content length
+        // has to match the actual number of characters, with unicode
+        // characters having a higher length than 1.
+        return strlen($this->render());
     }
     
    /**
