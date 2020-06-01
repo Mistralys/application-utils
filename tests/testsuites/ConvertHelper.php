@@ -940,9 +940,7 @@ final class ConvertHelperTest extends TestCase
         $this->expectException(ConvertHelper_Exception::class);
         
         // the paragraph sign cannot be converted to JSON.
-        $result = ConvertHelper::var2json(array(utf8_decode('öäöü§')));
-        
-        
+        ConvertHelper::var2json(array(utf8_decode('öäöü§')));
     }
     
     public function test_duration2string()
@@ -1439,5 +1437,77 @@ final class ConvertHelperTest extends TestCase
         $result = ConvertHelper::stripControlCharacters($string);
         
         $this->assertEquals('SOHACKBELLöäüYes', $result);
+    }
+    
+    public function test_findURLs()
+    {
+        $tests = array(
+            array(
+                'label' => 'Simple URL in text',
+                'text' => 
+'This is a text with a link: http://www.argh.de.',
+                'expected' => array(
+                    'http://www.argh.de'
+                )
+            ),
+            array(
+                'label' => 'Complex URL',
+                'text' =>
+                'This is a text with http://user:pass@domain.co.uk/path/script?query=value#fragment a link.',
+                'expected' => array(
+                    'http://user:pass@domain.co.uk/path/script?query=value#fragment'
+                )
+            ),
+            array(
+                'label' => 'In HTML tag and outside',
+                'text' =>
+                '<a href="http://domain.is">http://foo.bar.de/path</a>',
+                'expected' => array(
+                    'http://domain.is',
+                    'http://foo.bar.de/path'
+                )
+            ),
+            array(
+                'label' => 'Separated with commas or the like',
+                'text' =>
+                'http://domain.is,http://foo.bar.de/path;https://somewhere.com',
+                'expected' => array(
+                    'http://domain.is',
+                    'http://foo.bar.de/path',
+                    'https://somewhere.com'
+                )
+            ),
+            array(
+                'label' => 'In HTML tag and outside',
+                'text' =>
+                '<a href="http://domain.is">http://foo.bar.de/path</a>',
+                'expected' => array(
+                    'http://domain.is',
+                    'http://foo.bar.de/path'
+                )
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::createURLFinder($test['text'])->getURLs();
+            
+            $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
+    
+    public function test_findURLs_sorting()
+    {
+        $text = 'https://domain.com http://www.argh.de http://foo.com';
+        
+        $result = ConvertHelper::createURLFinder($text)->enableSorting()->getURLs();
+        
+        $expected = array(
+            'http://foo.com',
+            'http://www.argh.de',
+            'https://domain.com',
+        );
+        
+        $this->assertEquals($expected, $result);
     }
 }
