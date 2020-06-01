@@ -192,7 +192,7 @@ class Request
         
         // append any leftover parameters to the end of the URL
         if (!empty($params)) {
-            $url .= '?' . http_build_query($params, null, '&amp;');
+            $url .= '?' . http_build_query($params, '', '&amp;');
         }
         
         return $url;
