@@ -25,6 +25,12 @@ class ConvertHelper_DurationConverter
 {
     const ERROR_NO_DATE_FROM_SET = 43401;
     
+    const SECONDS_PER_MINUTE = 60;
+    const SECONDS_PER_HOUR = 3600;
+    const SECONDS_PER_DAY = 86400;
+    const SECONDS_PER_WEEK = 604800;
+    const SECONDS_PER_MONTH_APPROX = 2505600; // imprecise - for 29 days, only for approximations. 
+    const SECONDS_PER_YEAR = 31536000;
     
    /**
     * @var int
@@ -194,32 +200,32 @@ class ConvertHelper_DurationConverter
     
     protected function convert_minute() : int
     {
-        return (int)floor($this->difference / 60);
+        return (int)floor($this->difference / self::SECONDS_PER_MINUTE);
     }
     
     protected function convert_hour() : int
     {
-        return (int)floor($this->difference / 60 / 60);
+        return (int)floor($this->difference / self::SECONDS_PER_HOUR);
     }
     
     protected function convert_week() : int
     {
-        return (int)floor($this->difference / 60 / 60 / 24 / 7);
+        return (int)floor($this->difference / self::SECONDS_PER_WEEK);
     }
     
     protected function convert_day() : int
     {
-        return (int)floor($this->difference / 60 / 60 / 24);
+        return (int)floor($this->difference / self::SECONDS_PER_DAY);
     }
     
     protected function convert_year() : int
     {
-        return (int)floor($this->difference / 60 / 60 / 24 / 365);
+        return (int)floor($this->difference / self::SECONDS_PER_YEAR);
     }
     
     protected function convert_month() : int
     {
-        $months_difference = (int)floor($this->difference / 60 / 60 / 24 / 29);
+        $months_difference = (int)floor($this->difference / self::SECONDS_PER_MONTH_APPROX);
         
         $hour = (int)date("H", $this->dateFrom);
         $min = (int)date("i", $this->dateFrom);
@@ -272,36 +278,35 @@ class ConvertHelper_DurationConverter
     {
         // If difference is less than 60 seconds,
         // seconds is a good interval of choice
-        
-        if ($this->difference < 60) 
+        if ($this->difference < self::SECONDS_PER_MINUTE) 
         {
             return "s";
         }
         
         // If difference is between 60 seconds and
         // 60 minutes, minutes is a good interval
-        if ($this->difference >= 60 && $this->difference < 60 * 60) 
+        if ($this->difference < self::SECONDS_PER_HOUR) 
         {
             return "n";
         }
         
         // If difference is between 1 hour and 24 hours
         // hours is a good interval
-        if ($this->difference >= 60 * 60 && $this->difference < 60 * 60 * 24) 
+        if ($this->difference < self::SECONDS_PER_DAY) 
         {
             return "h";
         }
         
         // If difference is between 1 day and 7 days
         // days is a good interval
-        if ($this->difference >= 60 * 60 * 24 && $this->difference < 60 * 60 * 24 * 7) 
+        if ($this->difference < self::SECONDS_PER_WEEK) 
         {
             return "d";
         }
         
         // If difference is between 1 week and 30 days
         // weeks is a good interval
-        if ($this->difference >= 60 * 60 * 24 * 7 && $this->difference < 60 * 60 * 24 * 30) 
+        if ($this->difference < self::SECONDS_PER_MONTH_APPROX) 
         {
             return "ww";
         }
@@ -311,23 +316,12 @@ class ConvertHelper_DurationConverter
         // applies, if the 29th February happens to exist
         // between your 2 dates, the function will return
         // the 'incorrect' value for a day
-        if ($this->difference >= 60 * 60 * 24 * 30 && $this->difference < 60 * 60 * 24 * 365) 
+        if ($this->difference < self::SECONDS_PER_YEAR) 
         {
             return "m";
         }
         
-        // If difference is greater than or equal to 365
-        // days, return year. This will be incorrect if
-        // for example, you call the function on the 28th April
-        // 2008 passing in 29th April 2007. It will return
-        // 1 year ago when in actual fact (yawn!) not quite
-        // a year has gone by
-        if ($this->difference >= 60 * 60 * 24 * 365) 
-        {
-            return "y";
-        }
-        
-        return ""; 
+        return "y";
     }
     
     protected function resolveDifference() : int
