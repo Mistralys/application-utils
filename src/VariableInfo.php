@@ -1,9 +1,25 @@
 <?php
+/**
+ * File containing the {@see AppUtils\VariableInfo} class.
+ *
+ * @package Application Utils
+ * @subpackage VariableInfo
+ * @see AppUtils\VariableInfo
+ */
 
 declare(strict_types=1);
 
 namespace AppUtils;
 
+/**
+ * Class used to retrieve information on variable types
+ * in an object oriented way, with way to convert these 
+ * to human readable formats.
+ *
+ * @package Application Utils
+ * @subpackage VariableInfo
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class VariableInfo implements Interface_Optionable
 {
     use Traits_Optionable;
@@ -19,6 +35,8 @@ class VariableInfo implements Interface_Optionable
     const TYPE_UNKNOWN = 'unknown type';
     const TYPE_CALLABLE = 'callable';
 
+    const ERROR_INVALID_SERIALIZED_DATA = 56301;
+    
    /**
     * @var string
     */
@@ -75,8 +93,26 @@ class VariableInfo implements Interface_Optionable
         return new VariableInfo(null, $serialized);
     }
     
-    protected function parseSerialized(array $serialized)
+   /**
+    * Parses a previously serialized data set to restore the 
+    * variable information from it.
+    * 
+    * @param array $serialized
+    * @throws BaseException
+    * 
+    * @see VariableInfo::ERROR_INVALID_SERIALIZED_DATA
+    */
+    protected function parseSerialized(array $serialized) : void
     {
+        if(!isset($serialized['string']) || !isset($serialized['type']) || !isset($serialized['options']))
+        {
+            throw new BaseException(
+                'Invalid variable info serialized data.',
+                'The serialized data does not contain the expected keys.',
+                self::ERROR_INVALID_SERIALIZED_DATA
+            );
+        }
+        
         $this->string = $serialized['string'];
         $this->type = $serialized['type'];
         
