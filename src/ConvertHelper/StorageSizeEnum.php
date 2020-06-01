@@ -72,10 +72,8 @@ class ConvertHelper_StorageSizeEnum
     * Called whenever the application locale is changed,
     * to reset the size definitions so the labels get 
     * translated to the new locale.
-    * 
-    * @param \AppLocalize\Localization_Event_LocaleChanged $event
     */
-    public static function handle_localeChanged(\AppLocalize\Localization_Event_LocaleChanged $event) : void
+    public static function handle_localeChanged() : void
     {
         self::$sizes = array();
     }
