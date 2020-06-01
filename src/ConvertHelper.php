@@ -1525,4 +1525,16 @@ class ConvertHelper
     {
         return new ConvertHelper_SizeNotation($size);
     }
+    
+   /**
+    * Creates a URL finder instance, which can be used to find
+    * URLs in a string - be it plain text, or HTML.
+    * 
+    * @param string $subject
+    * @return ConvertHelper_URLFinder
+    */
+    public static function createURLFinder(string $subject) : ConvertHelper_URLFinder
+    {
+        return new ConvertHelper_URLFinder($subject);
+    }
 }
