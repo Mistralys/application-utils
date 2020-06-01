@@ -57,7 +57,7 @@ class ConvertHelper_DateInterval
         
         $interval = $d2->diff($d1);
         
-        if($interval === false) 
+        if(!$interval instanceof \DateInterval) 
         {
             throw new ConvertHelper_Exception(
                 'Cannot create interval',
