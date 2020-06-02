@@ -3,7 +3,6 @@
 use PHPUnit\Framework\TestCase;
 
 use AppUtils\XMLHelper;
-use AppUtils\XMLHelper_Exception;
 
 final class XMLHelperTest extends TestCase
 {
