@@ -9,6 +9,10 @@
  * @see http://www.xmlsoft.org/html/libxml-xmlerror.html
  */
 
+declare(strict_types=1);
+
+namespace AppUtils;
+
 class XMLHelper_LibXML
 {
     const OK = 0;
