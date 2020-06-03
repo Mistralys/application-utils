@@ -37,23 +37,9 @@
         );
     }
     
-    $php =
-    "<"."?p"."hp".PHP_EOL.
-    "/**".PHP_EOL.
-    " * List of LIBXML error codes, as extracted from the official docs.".PHP_EOL.
-    " *".PHP_EOL.
-    " * @package Application Utils".PHP_EOL.
-    " * @subpackage XMLHelper".PHP_EOL.
-    " * @author Sebastian Mordziol <s.mordziol@mistralys.eu>".PHP_EOL.
-    " *".PHP_EOL.
-    " * @see http://www.xmlsoft.org/html/libxml-xmlerror.html".PHP_EOL.
-    " */".PHP_EOL.
-    PHP_EOL.
-    "class XMLHelper_LibXML".PHP_EOL.
-    "{".PHP_EOL.
-        implode(PHP_EOL, $constants).PHP_EOL.
-    "}".PHP_EOL.
-    PHP_EOL;
+    $template = file_get_contents('class.php.tpl');
+    
+    $php = sprintf($template, implode(PHP_EOL, $constants));
     
     file_put_contents($outputFile, $php);
     
