@@ -22,11 +22,8 @@ namespace AppUtils;
 class XMLHelper
 {
     const ERROR_CANNOT_APPEND_FRAGMENT = 491001; 
-    
     const ERROR_PARENT_NOT_A_NODE = 491002;
     
-    const ERROR_STRING_ALREADY_HAS_BODY_TAG = 491003;
-
     public static function create()
     {
         $dom = new \DOMDocument('1.0', 'UTF-8');
@@ -465,40 +462,6 @@ class XMLHelper
     */
     public static function string2xml(string $string) : string
     {
-        if(stristr($string, '<body')) 
-        {
-            throw new XMLHelper_Exception(
-                'Cannot convert string with existing body element',
-                sprintf(
-                    'The string already contains a body tag, which conflicts with the conversion process. Source string: %s',
-                    htmlspecialchars($string)
-                ),
-                self::ERROR_STRING_ALREADY_HAS_BODY_TAG
-            );
-        }
-        
-        $pseudoHTML =
-        '<!DOCTYPE html>'.
-        '<html>'.
-            '<head>'.
-                '<meta charset="utf-8">'.
-            '</head>'.
-            '<body>'.
-                $string.
-            '</body>'.
-        '</html>';
-        
-        $dom = new \DOMDocument();
-        $dom->loadHTML($pseudoHTML, LIBXML_NOWARNING | LIBXML_NOERROR);
-        
-        $root = $dom->getElementsByTagName('body')->item(0);
-        
-        // capture all elements except the body tag itself
-        $xml = '';
-        foreach($root->childNodes as $child) {
-            $xml .= $dom->saveXML($child);
-        }
-        
-        return $xml;
+        return XMLHelper_HTMLLoader::loadFragment($string)->fragmentToXML();
     }
 }
