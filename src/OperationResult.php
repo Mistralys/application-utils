@@ -3,7 +3,7 @@
  * File containing the {@link OperationResult} class.
  *
  * @package Application Utils
- * @subpackage Core
+ * @subpackage OperationResult
  * @see OperationResult
  */
 
@@ -22,11 +22,16 @@ namespace AppUtils;
  * can return error information.
  *
  * @package Application Utils
- * @subpackage Core
+ * @subpackage OperationResult
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
 class OperationResult
 {
+    const TYPE_NOTICE = 'notice';
+    const TYPE_WARNING = 'warning';
+    const TYPE_ERROR = 'error';
+    const TYPE_SUCCESS = 'success';
+    
    /**
     * @var string
     */
@@ -48,6 +53,21 @@ class OperationResult
     protected $code = 0;
     
    /**
+    * @var string
+    */
+    protected $type = '';
+    
+   /**
+    * @var integer
+    */
+    private static $counter = 0;
+    
+   /**
+    * @var int
+    */
+    private $id;
+    
+   /**
     * The subject being validated.
     * 
     * @param object $subject
@@ -55,6 +75,20 @@ class OperationResult
     public function __construct(object $subject)
     {
         $this->subject = $subject;
+        
+        self::$counter++;
+        
+        $this->id = self::$counter;
+    }
+    
+   /**
+    * Retrieves the ID of the result, which is unique within a request.
+    * 
+    * @return int
+    */
+    public function getID() : int
+    {
+        return $this->id;
     }
     
    /**
@@ -65,6 +99,31 @@ class OperationResult
     public function isValid() : bool
     {
         return $this->valid;
+    }
+    
+    public function isError() : bool
+    {
+        return $this->isType(self::TYPE_ERROR);
+    }
+    
+    public function isWarning() : bool
+    {
+        return $this->isType(self::TYPE_WARNING);
+    }
+    
+    public function isNotice() : bool
+    {
+        return $this->isType(self::TYPE_NOTICE);
+    }
+    
+    public function isSuccess() : bool
+    {
+        return $this->isType(self::TYPE_SUCCESS);
+    }
+    
+    public function isType(string $type) : bool
+    {
+        return $this->type === $type;
     }
     
    /**
@@ -85,7 +144,7 @@ class OperationResult
     */
     public function makeSuccess(string $message, int $code=0) : OperationResult
     {
-        return $this->setMessage($message, $code, true);
+        return $this->setMessage(self::TYPE_SUCCESS, $message, $code, true);
     }
     
    /**
@@ -96,16 +155,32 @@ class OperationResult
     */
     public function makeError(string $message, int $code=0) : OperationResult
     {
-        return $this->setMessage($message, $code, false);
+        return $this->setMessage(self::TYPE_ERROR, $message, $code, false);
     }
     
-    protected function setMessage(string $message, int $code, bool $valid) : OperationResult
+    public function makeNotice(string $message, int $code) : OperationResult
     {
+        return $this->setMessage(self::TYPE_NOTICE, $message, $code, true);
+    }
+    
+    public function makeWarning(string $message, int $code) : OperationResult
+    {
+        return $this->setMessage(self::TYPE_WARNING, $message, $code, true);
+    }
+    
+    protected function setMessage(string $type, string $message, int $code, bool $valid) : OperationResult
+    {
+        $this->type = $type;
         $this->valid = $valid;
         $this->message = $message;
         $this->code = $code;
         
         return $this;
+    }
+    
+    public function getType() : string
+    {
+        return $this->type;
     }
     
    /**
@@ -115,7 +190,7 @@ class OperationResult
     */
     public function getErrorMessage() : string
     {
-        return $this->getMessage(false);
+        return $this->getMessage(self::TYPE_ERROR);
     }
     
    /**
@@ -125,26 +200,51 @@ class OperationResult
     */
     public function getSuccessMessage() : string
     {
-        return $this->getMessage(true);
+        return $this->getMessage(self::TYPE_SUCCESS);
     }
     
+    public function getNoticeMessage() : string
+    {
+        return $this->getMessage(self::TYPE_NOTICE);
+    }
+ 
+    public function getWarningMessage() : string
+    {
+        return $this->getMessage(self::TYPE_WARNING);
+    }
+    
+   /**
+    * Whether a specific error/success code has been specified.
+    * 
+    * @return bool
+    */
     public function hasCode() : bool
     {
         return $this->code > 0;
     }
     
+   /**
+    * Retrieves the error/success code, if any. 
+    * 
+    * @return int The error code, or 0 if none.
+    */
     public function getCode() : int
     {
         return $this->code;
     }
     
-    protected function getMessage(bool $valid) : string
+    public function getMessage(string $type='') : string
     {
-        if($this->valid === $valid) 
+        if(!empty($type))
         {
-            return $this->message;
+            if($this->type === $type)
+            {
+                return $this->message;
+            }
+            
+            return '';
         }
         
-        return '';
+        return $this->message;
     }
 }
