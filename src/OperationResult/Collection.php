@@ -92,14 +92,9 @@ class OperationResult_Collection extends OperationResult
         // the subjects are the same, this is actually the better way.
         $new = new OperationResult($this->subject);
         
-        if($result->isValid())
-        {
-            $new->makeSuccess($result->getSuccessMessage(), $result->getCode());
-        }
-        else
-        {
-            $new->makeError($result->getErrorMessage(), $result->getCode());
-        }
+        $method = 'make'.ucfirst($result->getType());
+        
+        $new->$method($result->getSuccessMessage(), $result->getCode());
         
         $this->results[] = $new;
         
