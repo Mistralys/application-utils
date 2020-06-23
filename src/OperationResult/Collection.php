@@ -68,7 +68,9 @@ class OperationResult_Collection extends OperationResult
             return $this->importCollection($result);
         }
 
-        return $this->importResult($result);
+        $this->results[] = $result;
+        
+        return $this;
     }
     
     private function importCollection(OperationResult_Collection $collection) : OperationResult_Collection
@@ -79,25 +81,6 @@ class OperationResult_Collection extends OperationResult
         {
             $this->addResult($result);
         }
-        
-        return $this;
-    }
-    
-    private function importResult(OperationResult $result) : OperationResult_Collection
-    {
-        // We need to inherit this collection\'s subject for any
-        // results we add, so we simply create a new instance.
-        //
-        // Since there is no easy, well performing way to check if
-        // the subjects are the same, this is actually the better way.
-        $new = new OperationResult($this->subject);
-        
-        $type = $result->getType();
-        $method = 'make'.ucfirst($type);
-        
-        $new->$method($result->getMessage($type), $result->getCode());
-        
-        $this->results[] = $new;
         
         return $this;
     }

@@ -110,12 +110,7 @@ final class OperationResultTest extends TestCase
     
     public function test_collection_merge()
     {
-        // we use an operation result as subject, as this
-        // makes it easy to check if it's the right subject,
-        // by using its unique ID.
-        $subject = new OperationResult($this);
-        
-        $result1 = new OperationResult_Collection($subject);
+        $result1 = new OperationResult_Collection(new DateTime());
         
         $result2 = new OperationResult_Collection(new stdClass());
         $result2->makeError('Error 1', 30);
@@ -131,8 +126,7 @@ final class OperationResultTest extends TestCase
         
         $first = array_shift($results);
         
-        $this->assertInstanceOf(OperationResult::class, $first->getSubject());
-        $this->assertEquals($subject->getID(), $first->getSubject()->getID());
+        $this->assertInstanceOf(stdClass::class, $first->getSubject());
     }
     
     public function test_collection_summary()
