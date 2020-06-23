@@ -244,5 +244,10 @@ final class OperationResultTest extends TestCase
         
         $this->assertTrue($collection->isNotice());
         $this->assertSame(1, $collection->countNotices());
+        
+        $notices = $collection->getNotices();
+        $notice = array_pop($notices);
+        
+        $this->assertEquals('Notice', $notice->getNoticeMessage());
     }
 }
