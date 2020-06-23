@@ -92,9 +92,10 @@ class OperationResult_Collection extends OperationResult
         // the subjects are the same, this is actually the better way.
         $new = new OperationResult($this->subject);
         
-        $method = 'make'.ucfirst($result->getType());
+        $type = $result->getType();
+        $method = 'make'.ucfirst($type);
         
-        $new->$method($result->getSuccessMessage(), $result->getCode());
+        $new->$method($result->getMessage($type), $result->getCode());
         
         $this->results[] = $new;
         
