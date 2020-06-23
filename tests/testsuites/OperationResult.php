@@ -152,4 +152,97 @@ final class OperationResultTest extends TestCase
         $this->assertStringContainsString('stdClass', $summary);
         $this->assertStringContainsString('Collection #'.$result->getID(), $summary);
     }
+    
+    public function test_type_error()
+    {
+        $error = new OperationResult(new stdClass());
+        $error->makeError('Error', 17);
+        $this->assertTrue($error->isError());
+        $this->assertEquals(OperationResult::TYPE_ERROR, $error->getType());
+    }
+    
+    public function test_type_warning()
+    {
+        $warning = new OperationResult(new stdClass());
+        $warning->makeWarning('Warning', 18);
+        $this->assertTrue($warning->isWarning());
+        $this->assertEquals(OperationResult::TYPE_WARNING, $warning->getType());
+    }
+    
+    public function test_type_notice()
+    {
+        $notice = new OperationResult(new stdClass());
+        $notice->makeNotice('Notice', 19);
+        $this->assertTrue($notice->isNotice());
+        $this->assertEquals(OperationResult::TYPE_NOTICE, $notice->getType());
+    }
+    
+    public function test_type_success()
+    {
+        $success = new OperationResult(new stdClass());
+        $success->makeSuccess('Success', 19);
+        $this->assertTrue($success->isSuccess());
+        $this->assertEquals(OperationResult::TYPE_SUCCESS, $success->getType());
+    }
+    
+    public function test_collection_error()
+    {
+        $result = new OperationResult_Collection(new stdClass());
+        $result->makeError('Error', 17);
+        
+        $items = $result->getErrors();
+        
+        $this->assertTrue($result->isError());
+        $this->assertSame(1, $result->countErrors());
+        $this->assertSame(1, count($items));
+    }
+    
+    public function test_collection_warning()
+    {
+        $result = new OperationResult_Collection(new stdClass());
+        $result->makeWarning('Warning', 17);
+        
+        $items = $result->getWarnings();
+        
+        $this->assertTrue($result->isWarning());
+        $this->assertSame(1, $result->countWarnings());
+        $this->assertSame(1, count($items));
+    }
+    
+    public function test_collection_notice()
+    {
+        $result = new OperationResult_Collection(new stdClass());
+        $result->makeNotice('Notice', 17);
+        
+        $items = $result->getNotices();
+        
+        $this->assertTrue($result->isNotice());
+        $this->assertSame(1, $result->countNotices());
+        $this->assertSame(1, count($items));
+    }
+    
+    public function test_collection_success()
+    {
+        $result = new OperationResult_Collection(new stdClass());
+        $result->makeSuccess('Success', 17);
+        
+        $items = $result->getSuccesses();
+        
+        $this->assertTrue($result->isSuccess());
+        $this->assertSame(1, $result->countSuccesses());
+        $this->assertSame(1, count($items));
+    }
+    
+    public function test_collection_add()
+    {
+        $collection = new OperationResult_Collection(new stdClass());
+        
+        $notice = new OperationResult(new stdClass());
+        $notice->makeNotice('Notice', 17);
+        
+        $collection->addResult($notice);
+        
+        $this->assertTrue($collection->isNotice());
+        $this->assertSame(1, $collection->countNotices());
+    }
 }
