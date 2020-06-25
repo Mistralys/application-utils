@@ -50,4 +50,11 @@ final class Traits_ClassableTest extends TestCase
         
         $this->assertEquals('foo bar', $this->subject->classesToString());
     }
+    
+    public function test_classesToAttribute()
+    {
+        $this->subject->addClasses(array('foo', 'bar'));
+        
+        $this->assertEquals(' class="foo bar" ', $this->subject->classesToAttribute());
+    }
 }

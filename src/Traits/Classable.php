@@ -25,6 +25,9 @@ namespace AppUtils;
  */
 trait Traits_Classable
 {
+   /**
+    * @var string[]
+    */
     protected $classes = array();
     
     public function addClass(string $name)
@@ -62,14 +65,41 @@ trait Traits_Classable
         return $this;
     }
     
+   /**
+    * Retrieves a list of all classes, if any.
+    * 
+    * @return string[]
+    */
     public function getClasses() : array
     {
         return $this->classes;
     }
     
+   /**
+    * Renders the class names list as space-separated string for use in an HTML tag.
+    * 
+    * @return string
+    */
     public function classesToString() : string
     {
         return implode(' ', $this->classes);
+    }
+    
+   /**
+    * Renders the "class" attribute string for inserting into an HTML tag.
+    * @return string
+    */
+    public function classesToAttribute() : string
+    {
+        if(!empty($this->classes))
+        {
+            return sprintf(
+                ' class="%s" ',
+                $this->classesToString()
+            );
+        }
+        
+        return '';
     }
 }
 
@@ -120,4 +150,9 @@ interface Interface_Classable
     * @return string
     */
     public function classesToString() : string;
+    
+   /**
+    * @return string
+    */
+    public function classesToAttribute() : string;
 }
