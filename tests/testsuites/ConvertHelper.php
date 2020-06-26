@@ -1490,7 +1490,53 @@ final class ConvertHelperTest extends TestCase
         
         foreach($tests as $test)
         {
-            $result = ConvertHelper::createURLFinder($test['text'])->getURLs();
+            $result = ConvertHelper::createURLFinder($test['text'])
+            ->getURLs();
+            
+            $this->assertEquals($test['expected'], $result, $test['label']);
+        }
+    }
+    
+    public function test_findEmails()
+    {
+        $tests = array(
+            array(
+                'label' => 'Complex URL',
+                'text' =>
+                'This is a text with http://user:pass@domain.co.uk/path/script?query=value#fragment a link.',
+                'omit-mailto' => false,
+                'expected' => array(
+                    'http://user:pass@domain.co.uk/path/script?query=value#fragment',
+                    'mailto:pass@domain.co.uk'
+                )
+            ),
+            array(
+                'label' => 'Email addresses',
+                'text' =>
+                'mailto:someone@foo.com mailto:first.last@sub.domain.com without@mailto.com',
+                'omit-mailto' => false,
+                'expected' => array(
+                    'mailto:someone@foo.com',
+                    'mailto:first.last@sub.domain.com',
+                    'mailto:without@mailto.com'
+                )
+            ),
+            array(
+                'label' => 'Email addresses',
+                'text' => 'someone@foo.com',
+                'omit-mailto' => true,
+                'expected' => array(
+                    'someone@foo.com'
+                )
+            )
+        );
+        
+        foreach($tests as $test)
+        {
+            $result = ConvertHelper::createURLFinder($test['text'])
+            ->includeEmails()
+            ->omitMailto($test['omit-mailto'])
+            ->getURLs();
             
             $this->assertEquals($test['expected'], $result, $test['label']);
         }

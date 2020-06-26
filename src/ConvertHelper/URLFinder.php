@@ -20,18 +20,23 @@ namespace AppUtils;
  * 
  * @see ConvertHelper::createURLFinder()
  */
-class ConvertHelper_URLFinder
+class ConvertHelper_URLFinder implements Interface_Optionable
 {
+    use Traits_Optionable;
+    
+   /**
+    * @see https://gist.github.com/gruber/249502
+    */
+    const REGEX_URL = '#(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))#i';
+    
    /**
     * @var string
     */
     protected $subject;
-    
+
    /**
-    * @var boolean
+    * @var string[]
     */
-    protected $sorting = false;
-    
     protected $schemes = array(
         'http',
         'https',
@@ -48,6 +53,15 @@ class ConvertHelper_URLFinder
         $this->subject = $subject;
     }
     
+    public function getDefaultOptions() : array
+    {
+        return array(
+            'include-emails' => false,
+            'omit-mailto' => false,
+            'sorting' => false
+        );
+    }
+    
    /**
     * Whether to enable sorting the URLs alphabetically (disabled by default).
     * 
@@ -56,8 +70,33 @@ class ConvertHelper_URLFinder
     */
     public function enableSorting(bool $enabled=true) : ConvertHelper_URLFinder
     {
-        $this->sorting = $enabled;
-        
+        $this->setOption('sorting', $enabled);
+        return $this;
+    }
+    
+   /**
+    * Whether to include email addresses in the search. 
+    * This is only relevant when using the getURLs()
+    * method.
+    * 
+    * @param bool $include
+    * @return ConvertHelper_URLFinder
+    */
+    public function includeEmails(bool $include=true) : ConvertHelper_URLFinder
+    {
+        $this->setOption('include-emails', $include);
+        return $this;
+    }
+    
+   /**
+    * Whether to omit the mailto: that is automatically added to all email addresses.
+    * 
+    * @param bool $omit
+    * @return ConvertHelper_URLFinder
+    */
+    public function omitMailto(bool $omit=true) : ConvertHelper_URLFinder
+    {
+        $this->setOption('omit-mailto', $omit);
         return $this;
     }
     
@@ -66,7 +105,7 @@ class ConvertHelper_URLFinder
     * to make it possible to parse even lists of links separated by commas or
     * the like (http://domain.com,http://domain2.com).
     */
-    protected function prepareSubject() : void
+    private function prepareSubject() : void
     {
         $replaces = array();
         
@@ -82,30 +121,30 @@ class ConvertHelper_URLFinder
     * Fetches all URLs that can be found in the subject string.
     * 
     * @return string[]
-    * 
-    * @see https://gist.github.com/gruber/249502
     */
     public function getURLs() : array
     {
         $this->prepareSubject();
         
         $matches = array();
-        preg_match_all('#(?i)\b((?:[a-z][\w-]+:(?:/{1,3}|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))#i', $this->subject, $matches, PREG_PATTERN_ORDER);
+        preg_match_all(self::REGEX_URL, $this->subject, $matches, PREG_PATTERN_ORDER);
         
         $result = array();
         
-        if(is_array($matches))
+        foreach($matches[0] as $match)
         {
-            foreach($matches[0] as $match)
+            if(strstr($match, '://') && !in_array($match, $result))
             {
-                if(strstr($match, '://') && !in_array($match, $result))
-                {
-                    $result[] = $match;
-                }
+                $result[] = $match;
             }
         }
         
-        if($this->sorting)
+        if($this->getBoolOption('include-emails'))
+        {
+            $result = array_merge($result, $this->getEmails());
+        }
+        
+        if($this->getBoolOption('sorting'))
         {
             usort($result, function(string $a, string $b) {
                 return strnatcasecmp($a, $b);
@@ -113,6 +152,46 @@ class ConvertHelper_URLFinder
         }
         
         return $result;
+    }
+    
+   /**
+    * Retrieves all email addresses from the subject string.
+    * 
+    * @return string[]
+    * 
+    * @see omitMailto()
+    */
+    public function getEmails() : array
+    {
+        $matches = array();
+        preg_match_all(RegexHelper::REGEX_EMAIL, $this->subject, $matches, PREG_PATTERN_ORDER);
+        
+        $result = array();
+        $prefix = $this->getEmailPrefix();
+        
+        foreach($matches[0] as $email)
+        {
+            $result[] = $prefix.$email;
+        }
+        
+        if($this->getBoolOption('sorting'))
+        {
+            usort($result, function(string $a, string $b) {
+                return strnatcasecmp($a, $b);
+            });
+        }
+        
+        return $result;
+    }
+    
+    private function getEmailPrefix() : string
+    {
+        if($this->getBoolOption('omit-mailto'))
+        {
+            return '';
+        }
+        
+        return 'mailto:';
     }
     
    /**
