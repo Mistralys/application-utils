@@ -114,6 +114,8 @@ class Request
      * @param array $params
      * @param string[] $exclude Names of parameters to exclude from the refresh URL.
      * @return string
+     * 
+     * @see Request::getRefreshParams()
      */
     public function buildRefreshURL($params = array(), $exclude = array())
     {
@@ -135,40 +137,37 @@ class Request
         return '';
     }
     
+   /**
+    * Filters and retrieves the current request variables 
+    * to be used to build an URL to refresh the current page.
+    * 
+    * For further customization options, use the 
+    * {@see Request::createRefreshParams()} method.
+    * 
+    * @param array<string,mixed> $params Key => value pairs of parameters to always include in the result.
+    * @param string[] $exclude Names of parameters to exclude from the result.
+    * @return array<string,mixed>
+    * 
+    * @see Request::createRefreshParams()
+    */
     public function getRefreshParams(array $params = array(), array $exclude = array())
     {
-        $vars = $_REQUEST;
-
-        $exclude[] = session_name();
-        
-        $exclude = array_merge($exclude, $this->getExcludeParams());
-        
-        foreach($exclude as $name) 
-        {
-            if(isset($vars[$name])) 
-            {
-                unset($vars[$name]);
-            }
-        }
-        
-        $names = array_keys($vars);
-        
-        // remove the HTML_QuickForm2 form variable if present, to 
-        // avoid redirect loops when using the refresh URL in
-        // a page in which a form has been submitted.
-        foreach($names as $name) 
-        {
-            if(strstr($name, '_qf__')) 
-            {
-                unset($vars[$name]);
-                break;
-            }
-        }
-        
-        // to allow specifiying even excluded parameters
-        $params = array_merge($vars, $params);
-        
-        return $params;
+        return $this->createRefreshParams()
+        ->overrideParams($params)
+        ->excludeParamsByName($exclude)
+        ->getParams();
+    }
+    
+   /**
+    * Creates an instance of the helper that can be used to
+    * retrieve the request's parameters collection, with the
+    * possiblity to exlude and override some by rules.
+    * 
+    * @return Request_RefreshParams
+    */
+    public function createRefreshParams() : Request_RefreshParams
+    {
+        return new Request_RefreshParams();
     }
     
     public function getExcludeParams()
