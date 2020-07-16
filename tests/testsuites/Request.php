@@ -1,7 +1,6 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use AppUtils\RegexHelper;
 
 final class RequestTest extends TestCase
 {
