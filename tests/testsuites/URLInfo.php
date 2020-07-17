@@ -618,4 +618,75 @@ final class URLInfoTest extends TestCase
             $this->assertEquals($entry['expected'], $result, $entry['label']);
         }
     }
+    
+    public function test_setParam()
+    {
+        $tests = array(
+            array(
+                'label' => 'No existing parameters',
+                'url' => 'http://test.com',
+                'expected' => 'http://test.com?foo=bar',
+                'params' => array(
+                    'foo' => 'bar'
+                )
+            ),
+            array(
+                'label' => 'With existing parameter',
+                'url' => 'https://www.test.com?bar=foo',
+                'expected' => 'https://www.test.com?bar=foo&foo=bar',
+                'params' => array(
+                    'foo' => 'bar'
+                )
+            )
+        );
+        
+        foreach($tests as $entry)
+        {
+            $info = parseURL($entry['url']);
+            
+            foreach($entry['params'] as $name => $val)
+            {
+                $info->setParam($name, $val);
+            }
+            
+            $result = $info->getNormalized();
+            
+            $this->assertEquals($entry['expected'], $result, $entry['label']);
+        }
+    }
+    
+    public function test_removeParam()
+    {
+        $tests = array(
+            array(
+                'label' => 'Single existing param',
+                'url' => 'http://test.com?foo=bar',
+                'expected' => 'http://test.com',
+                'param' => 'foo'
+            ),
+            array(
+                'label' => 'Several existing parameters',
+                'url' => 'https://www.test.com?bar=foo&foo=bar',
+                'expected' => 'https://www.test.com?bar=foo',
+                'param' => 'foo'
+            ),
+            array(
+                'label' => 'Param not present',
+                'url' => 'https://www.test.com?bar=foo',
+                'expected' => 'https://www.test.com?bar=foo',
+                'param' => 'foo'
+            )
+        );
+        
+        foreach($tests as $entry)
+        {
+            $info = parseURL($entry['url']);
+            
+            $info->removeParam($entry['param']);
+            
+            $result = $info->getNormalized();
+            
+            $this->assertEquals($entry['expected'], $result, $entry['label']);
+        }
+    }
 }
