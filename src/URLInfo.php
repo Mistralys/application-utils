@@ -23,15 +23,10 @@ namespace AppUtils;
 class URLInfo implements \ArrayAccess
 {
     const ERROR_MISSING_SCHEME = 42101;
-    
     const ERROR_INVALID_SCHEME = 42102;
-
     const ERROR_MISSING_HOST = 42103;
-    
     const ERROR_CANNOT_FIND_CSS_FOLDER = 42104;
-    
     const ERROR_UNKNOWN_TYPE_FOR_LABEL = 42105;
-    
     const ERROR_CURL_INIT_FAILED = 42106;
     
     const TYPE_EMAIL = 'email';
@@ -682,43 +677,52 @@ class URLInfo implements \ArrayAccess
     */
     public function tryConnect(bool $verifySSL=true) : bool
     {
-        requireCURL();
+        return $this->createConnectionTester()
+        ->setVerifySSL($verifySSL)
+        ->canConnect();
+    }
+    
+   /**
+    * Creates the connection tester instance that is used
+    * to check if a URL can be connected to, and which is
+    * used in the {@see URLInfo::tryConnect()} method. It
+    * allows more settings to be used.
+    * 
+    * @return URLInfo_ConnectionTester
+    */
+    public function createConnectionTester() : URLInfo_ConnectionTester
+    {
+        return new URLInfo_ConnectionTester($this);
+    }
+    
+   /**
+    * Adds/overwrites an URL parameter.
+    *  
+    * @param string $name
+    * @param string $val
+    * @return URLInfo
+    */
+    public function setParam(string $name, string $val) : URLInfo
+    {
+        $this->info['params'][$name] = $val;
         
-        $ch = curl_init();
-        if(!is_resource($ch))
+        return $this;
+    }
+    
+   /**
+    * Removes an URL parameter. Has no effect if the 
+    * parameter is not present to begin with.
+    * 
+    * @param string $param
+    * @return URLInfo
+    */
+    public function removeParam(string $param) : URLInfo
+    {
+        if(isset($this->info['params'][$param]))
         {
-            throw new BaseException(
-                'Could not initialize a new cURL instance.',
-                'Calling curl_init returned false. Additional information is not available.',
-                self::ERROR_CURL_INIT_FAILED
-            );
+            unset($this->info['params'][$param]);
         }
         
-        //curl_setopt($ch, CURLOPT_VERBOSE, true);
-        
-        curl_setopt($ch, CURLOPT_URL, $this->getNormalized());
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        
-        if(!$verifySSL) 
-        {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        }
-        
-        if($this->hasUsername()) 
-        {
-            curl_setopt($ch, CURLOPT_USERNAME, $this->getUsername());
-            curl_setopt($ch, CURLOPT_PASSWORD, $this->getPassword());
-        }
-        
-        curl_exec($ch);
-        
-        $http_code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        
-        curl_close($ch);
-        
-        return ($http_code === 200) || ($http_code === 302);
+        return $this;
     }
 }
