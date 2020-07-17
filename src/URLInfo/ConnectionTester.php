@@ -36,7 +36,8 @@ class URLInfo_ConnectionTester implements Interface_Optionable
     {
         return array(
             'verify-ssl' => true,
-            'curl-verbose' => false
+            'curl-verbose' => false,
+            'timeout' => 10
         );
     }
     
@@ -69,7 +70,24 @@ class URLInfo_ConnectionTester implements Interface_Optionable
         return $this->getBoolOption('curl-verbose');
     }
     
-    public function canConnect() : bool
+    public function setTimeout(int $seconds) : URLInfo_ConnectionTester#
+    {
+        $this->setOption('timeout', $seconds);
+        return $this;
+    }
+    
+    public function getTimeout() : int
+    {
+        return $this->getIntOption('timeout');
+    }
+    
+   /**
+    * Initializes the CURL instance.
+    * 
+    * @throws BaseException
+    * @return resource
+    */
+    private function initCURL()
     {
         requireCURL();
         
@@ -84,6 +102,14 @@ class URLInfo_ConnectionTester implements Interface_Optionable
             );
         }
         
+        return $ch;
+    }
+    
+   /**
+    * @param resource $ch
+    */
+    private function configureOptions($ch) : void
+    {
         if($this->isVerboseModeEnabled())
         {
             curl_setopt($ch, CURLOPT_VERBOSE, true);
@@ -91,7 +117,7 @@ class URLInfo_ConnectionTester implements Interface_Optionable
         
         curl_setopt($ch, CURLOPT_URL, $this->url->getNormalized());
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->getTimeout());
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         
         if(!$this->isVerifySSLEnabled())
@@ -105,6 +131,13 @@ class URLInfo_ConnectionTester implements Interface_Optionable
             curl_setopt($ch, CURLOPT_USERNAME, $this->url->getUsername());
             curl_setopt($ch, CURLOPT_PASSWORD, $this->url->getPassword());
         }
+    }
+        
+    public function canConnect() : bool
+    {
+        $ch = $this->initCURL();
+        
+        $this->configureOptions($ch);
         
         curl_exec($ch);
         
