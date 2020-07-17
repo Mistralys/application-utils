@@ -80,7 +80,7 @@ class URLInfo_ConnectionTester implements Interface_Optionable
             throw new BaseException(
                 'Could not initialize a new cURL instance.',
                 'Calling curl_init returned false. Additional information is not available.',
-                self::ERROR_CURL_INIT_FAILED
+                URLInfo::ERROR_CURL_INIT_FAILED
             );
         }
         
