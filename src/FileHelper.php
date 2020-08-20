@@ -19,64 +19,36 @@ namespace AppUtils;
 class FileHelper
 {
     const ERROR_CANNOT_FIND_JSON_FILE = 340001;
-    
     const ERROR_JSON_FILE_CANNOT_BE_READ = 340002;
-    
     const ERROR_CANNOT_DECODE_JSON_FILE = 340003;
-    
     const ERROR_CANNOT_SEND_MISSING_FILE = 340004;
-    
     const ERROR_JSON_ENCODE_ERROR = 340005;
-    
     const ERROR_CANNOT_OPEN_URL = 340008;
-    
     const ERROR_CANNOT_CREATE_FOLDER = 340009;
-    
     const ERROR_FILE_NOT_READABLE = 340010;
-    
     const ERROR_CANNOT_COPY_FILE = 340011;
-    
     const ERROR_CANNOT_DELETE_FILE = 340012;
-    
     const ERROR_FIND_SUBFOLDERS_FOLDER_DOES_NOT_EXIST = 340014;
-    
     const ERROR_UNKNOWN_FILE_MIME_TYPE = 340015;
-    
     const ERROR_SERIALIZED_FILE_CANNOT_BE_READ = 340017;
-    
     const ERROR_SERIALIZED_FILE_UNSERIALZE_FAILED = 340018;
-    
     const ERROR_UNSUPPORTED_OS_CLI_COMMAND = 340019;
-    
     const ERROR_SOURCE_FILE_NOT_FOUND = 340020;
-    
     const ERROR_SOURCE_FILE_NOT_READABLE = 340021;
-    
     const ERROR_TARGET_COPY_FOLDER_NOT_WRITABLE = 340022;
-    
     const ERROR_SAVE_FOLDER_NOT_WRITABLE = 340023;
-    
     const ERROR_SAVE_FILE_NOT_WRITABLE = 340024;
-    
     const ERROR_SAVE_FILE_WRITE_FAILED = 340025;
-    
     const ERROR_FILE_DOES_NOT_EXIST = 340026;
-    
     const ERROR_CANNOT_OPEN_FILE_TO_READ_LINES = 340027;
-    
     const ERROR_CANNOT_READ_FILE_CONTENTS = 340028;
-    
     const ERROR_PARSING_CSV = 340029;
-    
     const ERROR_CURL_INIT_FAILED = 340030;
-    
     const ERROR_CURL_OUTPUT_NOT_STRING = 340031;
-    
     const ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM = 340032;
-    
     const ERROR_FOLDER_DOES_NOT_EXIST = 340033;
-    
     const ERROR_PATH_IS_NOT_A_FOLDER = 340034;
+    const ERROR_CANNOT_WRITE_TO_FOLDER = 340035;
     
    /**
     * Opens a serialized file and returns the unserialized data.
@@ -967,6 +939,8 @@ class FileHelper
     */
     public static function saveFile(string $filePath, string $content='') : void
     {
+        $filePath = self::normalizePath($filePath);
+        
         // target file already exists
         if(file_exists($filePath))
         {
@@ -1001,6 +975,18 @@ class FileHelper
                     self::ERROR_SAVE_FOLDER_NOT_WRITABLE
                 );
             }
+        }
+        
+        if(is_dir($filePath))
+        {
+            throw new FileHelper_Exception(
+                sprintf('Cannot save file: the target [%s] is a directory.', basename($filePath)),
+                sprintf(
+                    'Tried saving content to path [%s].',
+                    $filePath
+                ),
+                self::ERROR_CANNOT_WRITE_TO_FOLDER
+            );
         }
         
         if(file_put_contents($filePath, $content) !== false) {
