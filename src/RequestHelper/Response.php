@@ -94,6 +94,15 @@ class RequestHelper_Response
     }
     
    /**
+    * Whether the request timed out.
+    * @return bool
+    */
+    public function isTimeout() : bool
+    {
+        return $this->errorCode === RequestHelper_CURL::OPERATION_TIMEDOUT;
+    }
+    
+   /**
     * Retrieves the native error message, if an error occurred.
     * @return string
     */
@@ -103,14 +112,14 @@ class RequestHelper_Response
     }
     
    /**
-    * Retrieves the native error code, if an error occurred.
+    * Retrieves the native CURL error code, if an error occurred.
     * @return int
+    * @see RequestHelper_CURL For a list of error codes.
     */
     public function getErrorCode() : int
     {
         return $this->errorCode;
     }
-    
     
    /**
     * Retrieves the full body of the request.
