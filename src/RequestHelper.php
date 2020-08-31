@@ -20,23 +20,16 @@ namespace AppUtils;
 class RequestHelper
 {
     const FILETYPE_TEXT = 'text/plain';
-
     const FILETYPE_XML = 'text/xml';
-    
     const FILETYPE_HTML = 'text/html';
-    
     const ENCODING_UTF8 = 'UTF-8';
 
     const TRANSFER_ENCODING_BASE64 = 'BASE64';
-
     const TRANSFER_ENCODING_8BIT = '8BIT';
-    
     const TRANSFER_ENCODING_BINARY = 'BINARY';
     
     const ERROR_REQUEST_FAILED = 17902;
-    
     const ERROR_CURL_INIT_FAILED = 17903;
-    
     const ERROR_CANNOT_OPEN_LOGFILE = 17904;
 
    /**
@@ -52,15 +45,10 @@ class RequestHelper
    /**
     * @var string
     */
-    protected $data = '';
-
-   /**
-    * @var string
-    */
     protected $destination;
 
    /**
-    * @var array
+    * @var array<string,string>
     */
     protected $headers = array();
     
@@ -81,6 +69,7 @@ class RequestHelper
     protected $response;
 
    /**
+    * Timeout duration, in seconds.
     * @var integer
     */
     protected $timeout = 30;
@@ -123,11 +112,23 @@ class RequestHelper
         return $this->eol;
     }
     
+   /**
+    * Sets the timeout for the request, in seconds. If the request
+    * takes longer, it will be cancelled and an exception triggered.
+    * 
+    * @param int $seconds
+    * @return RequestHelper
+    */
     public function setTimeout(int $seconds) : RequestHelper
     {
         $this->timeout = $seconds;
         
         return $this;
+    }
+    
+    public function getTimeout() : int
+    {
+        return $this->timeout;
     }
     
    /**
@@ -174,13 +175,13 @@ class RequestHelper
         return $this;
     }
 
-    /**
-     * Adds a variable to be sent with the request. If it
-     * already exists, its value is overwritten.
-     *
-     * @param string $name
-     * @param string $value
-     */
+   /**
+    * Adds a variable to be sent with the request. If it
+    * already exists, its value is overwritten.
+    *
+    * @param string $name
+    * @param string $value
+    */
     public function addVariable(string $name, string $value) : RequestHelper
     {
         $this->boundaries->addVariable($name, $value);
@@ -254,9 +255,11 @@ class RequestHelper
         // regarded as an error.
         if($output === false && $this->response->getCode() !== 100)
         {
+            $curlCode = curl_errno($ch);
+            
             $this->response->setError(
-                curl_errno($ch),
-                curl_error($ch)
+                $curlCode,
+                curl_error($ch).' | Explanation: '.curl_strerror($curlCode)
             );
         }
         else
@@ -396,19 +399,40 @@ class RequestHelper
         return array();
     }
 
-    /**
-     * After calling the {@link send()} method, this may be used to
-     * retrieve the response text from the POST request.
-     *
-     * @return RequestHelper_Response|NULL
-     */
+   /**
+    * After calling the {@link send()} method, this may be used to
+    * retrieve the response text from the POST request.
+    *
+    * @return RequestHelper_Response|NULL
+    */
     public function getResponse() : ?RequestHelper_Response
     {
         return $this->response;
     }
     
-    public function getHeaders()
+   /**
+    * Retrieves all headers set until now.
+    * 
+    * @return array<string,string>
+    */
+    public function getHeaders() : array
     {
         return $this->headers;
+    }
+    
+   /**
+    * Retrieves the value of a header by its name.
+    * 
+    * @param string $name
+    * @return string The header value, or an empty string if not set.
+    */
+    public function getHeader(string $name) : string
+    {
+        if(isset($this->headers[$name]))
+        {
+            return $this->headers[$name];
+        }
+        
+        return '';
     }
 }
