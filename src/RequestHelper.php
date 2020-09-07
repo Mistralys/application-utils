@@ -272,9 +272,16 @@ class RequestHelper
         return $this->response->getResponseBody();
     }
     
+   /**
+    * Retrieves the request's body content. This is an alias
+    * for {@see RequestHelper::getMimeBody()}.
+    * 
+    * @return string
+    * @see RequestHelper::getMimeBody()
+    */
     public function getBody() : string
     {
-        return $this->data;
+        return $this->getMimeBody();
     }
     
    /**
