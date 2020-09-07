@@ -164,6 +164,16 @@ function valBoolFalse(bool $initial=true) : Value_Bool_False
 }
 
 /**
+ * Creates a new StringBuilder instance.
+ * 
+ * @return StringBuilder
+ */
+function sb() : StringBuilder
+{
+    return new StringBuilder();
+}
+
+/**
  * Initializes the utilities: this is called automatically
  * because this file is included in the files list in the
  * composer.json, guaranteeing it is always loaded.

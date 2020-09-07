@@ -49,6 +49,7 @@ This overview is an excerpt of the available utility classes in the package. It 
     - URLComparer: Compare URLs, including query parameters.
     - RequestHelper: build raw requests from scratch with multipart support.
     - AcceptHeaders: Allows parsing the Accept: header.
+* StringBuilder: Easily concatenate strings, with formatting helpers, in a chainable interface.
 * SVNHelper: working with a local SVN repository. Update, commit, etc.
 * Traits: Plug-in traits for common tasks, with matching interfaces.
     - Classable: For elements that can have classes, like HTML elements.
