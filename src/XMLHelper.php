@@ -9,6 +9,11 @@
 
 namespace AppUtils;
 
+use DOMDocument;
+use DOMNode;
+use DOMElement;
+use SimpleXMLElement;
+
 /**
  * Simple XML utility class that makes it easier to work
  * with the native PHP DOMDocument class. Simplifies the
@@ -22,11 +27,25 @@ namespace AppUtils;
 class XMLHelper
 {
     const ERROR_CANNOT_APPEND_FRAGMENT = 491001; 
-    const ERROR_PARENT_NOT_A_NODE = 491002;
+
+   /**
+    * @var boolean
+    */
+    private static $simulation = false;
+
+    /**
+     * @var DOMDocument
+     */
+    private $dom;
     
-    public static function create()
+   /**
+    * Creates a new XMLHelper instance.
+    * 
+    * @return XMLHelper
+    */
+    public static function create() : XMLHelper
     {
-        $dom = new \DOMDocument('1.0', 'UTF-8');
+        $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->formatOutput = true;
 
         return new XMLHelper($dom);
@@ -35,9 +54,9 @@ class XMLHelper
    /**
     * Creates a converter instance from an XML file.
     * @param string $xmlFile
-    * @return \AppUtils\XMLHelper_Converter
+    * @return XMLHelper_Converter
     */
-    public static function convertFile(string $xmlFile)
+    public static function convertFile(string $xmlFile) : XMLHelper_Converter
     {
         return XMLHelper_Converter::fromFile($xmlFile);
     }
@@ -45,96 +64,90 @@ class XMLHelper
    /**
     * Creates a converter from an XML string.
     * @param string $xmlString
-    * @return \AppUtils\XMLHelper_Converter
+    * @return XMLHelper_Converter
     */
-    public static function convertString(string $xmlString)
+    public static function convertString(string $xmlString) : XMLHelper_Converter
     {
         return XMLHelper_Converter::fromString($xmlString);
     }
 
    /**
     * Creates a converter from a SimpleXMLElement instance.
-    * @param \SimpleXMLElement $element
-    * @return \AppUtils\XMLHelper_Converter
+    * @param SimpleXMLElement $element
+    * @return XMLHelper_Converter
     */
-    public static function convertElement(\SimpleXMLElement $element)
+    public static function convertElement(SimpleXMLElement $element) : XMLHelper_Converter
     {
         return XMLHelper_Converter::fromElement($element);
     }
    
    /**
     * Creates a converter from a DOMElement instance.
-    * @param \DOMElement $element
-    * @return \AppUtils\XMLHelper_Converter
+    * @param DOMElement $element
+    * @return XMLHelper_Converter
     */
-    public static function convertDOMElement(\DOMElement $element)
+    public static function convertDOMElement(DOMElement $element) : XMLHelper_Converter
     {
         return XMLHelper_Converter::fromDOMElement($element);
     }
 
-    /**
-     * @var \DOMDocument
-     */
-    private $dom;
-
-    /**
-     * Creates a new helper using an existing DOMDocument object.
-     * @param \DOMDocument $dom
-     */
-    public function __construct(\DOMDocument $dom)
+   /**
+    * Creates a new helper using an existing DOMDocument object.
+    * @param DOMDocument $dom
+    */
+    public function __construct(DOMDocument $dom)
     {
         $this->dom = $dom;
     }
 
-    /**
-     * @return \DOMDocument
-     */
-    public function getDOM()
+   /**
+    * @return DOMDocument
+    */
+    public function getDOM() : DOMDocument
     {
         return $this->dom;
     }
 
-    /**
-     * Adds an attribute to an existing tag with
-     * the specified value.
-     *
-     * @param \DOMNode $parent
-     * @param string $name
-     * @param mixed $value
-     * @return \DOMNode
-     */
-    public function addAttribute($parent, string $name, $value)
+   /**
+    * Adds an attribute to an existing tag with
+    * the specified value.
+    *
+    * @param DOMNode $parent
+    * @param string $name
+    * @param mixed $value
+    * @return DOMNode
+    */
+    public function addAttribute(DOMNode $parent, string $name, $value)
     {
-        if(!$parent instanceof \DOMNode) {
-            throw new XMLHelper_Exception(
-                'The specified parent node is not a node instance.',
-                sprintf('Tried adding attribute [%s].', $name),
-                self::ERROR_PARENT_NOT_A_NODE
-            );
-        }
-        
         $node = $this->dom->createAttribute($name);
-        $text = $this->dom->createTextNode($value);
+        $text = $this->dom->createTextNode(strval($value));
         $node->appendChild($text);
 
         return $parent->appendChild($node);
     }
 
-    public function addAttributes($parent, $attributes)
+   /**
+    * Adds several attributes to the target node.
+    * 
+    * @param DOMNode $parent
+    * @param array<string,mixed> $attributes
+    */
+    public function addAttributes(DOMNode $parent, array $attributes) : void
     {
         foreach ($attributes as $name => $value) {
             $this->addAttribute($parent, $name, $value);
         }
     }
 
-    /**
-     * Adds a tag without content.
-     *
-     * @param \DOMNode $parent
-     * @param string $name
-     * @return \DOMNode
-     */
-    public function addTag($parent, $name, $indent = 0)
+   /**
+    * Adds a tag without content.
+    *
+    * @param DOMNode $parent
+    * @param string $name
+    * @param integer $indent
+    * @return DOMNode
+    */
+    public function addTag(DOMNode $parent, string $name, int $indent = 0) : DOMNode
     {
         if ($indent > 0) {
             $this->indent($parent, $indent);
@@ -145,27 +158,28 @@ class XMLHelper
         );
     }
 
-    public function removeTag(\DOMElement $tag)
+    public function removeTag(DOMElement $tag) : void
     {
         $tag->parentNode->removeChild($tag);
     }
     
-    public function indent(\DOMNode $parent, $amount)
+    public function indent(DOMNode $parent, int $amount) : void
     {
         $parent->appendChild($this->dom->createTextNode(str_repeat("\t", $amount)));
     }
 
-    /**
-     * Adds a tag with textual content, like:
-     *
-     * <tagname>text</tagname>
-     *
-     * @param \DOMNode $parent
-     * @param string $name
-     * @param string $text
-     * @return \DOMNode
-     */
-    public function addTextTag($parent, $name, $text, $indent = 0)
+   /**
+    * Adds a tag with textual content, like:
+    *
+    * <tagname>text</tagname>
+    *
+    * @param DOMNode $parent
+    * @param string $name
+    * @param string $text
+    * @param integer $indent
+    * @return DOMNode
+    */
+    public function addTextTag(DOMNode $parent, string $name, string $text, int $indent = 0) : DOMNode
     {
         if ($indent > 0) {
             $this->indent($parent, $indent);
@@ -178,19 +192,20 @@ class XMLHelper
         return $parent->appendChild($tag);
     }
 
-    /**
-     * Adds a tag with textual content, like:
-     *
-     * <tagname>text</tagname>
-     *
-     * and removes <p> tags
-     *
-     * @param \DOMNode $parent
-     * @param string $name
-     * @param string $text
-     * @return \DOMNode
-     */
-    public function addEscapedTag($parent, $name, $text, $indent = 0)
+   /**
+    * Adds a tag with textual content, like:
+    *
+    * <tagname>text</tagname>
+    *
+    * and removes <p> tags
+    *
+    * @param DOMNode $parent
+    * @param string $name
+    * @param string $text
+    * @param integer $indent
+    * @return DOMNode
+    */
+    public function addEscapedTag(DOMNode $parent, string $name, string $text, int $indent = 0)
     {
         if ($indent > 0) {
             $this->indent($parent, $indent);
@@ -205,19 +220,20 @@ class XMLHelper
         return $parent->appendChild($tag);
     }
 
-    /**
-     * Adds a tag with HTML content, like:
-     *
-     * <tagname><i>text</i></tagname>
-     *
-     * Tags will not be escaped.
-     *
-     * @param \DOMNode $parent
-     * @param string $name
-     * @param string $text
-     * @return \DOMNode
-     */
-    public function addFragmentTag($parent, $name, $text, $indent = 0)
+   /**
+    * Adds a tag with HTML content, like:
+    *
+    * <tagname><i>text</i></tagname>
+    *
+    * Tags will not be escaped.
+    *
+    * @param DOMNode $parent
+    * @param string $name
+    * @param string $text
+    * @param integer $indent
+    * @return DOMNode
+    */
+    public function addFragmentTag(DOMNode $parent, string $name, string $text, int $indent = 0)
     {
         if ($indent > 0) {
             $this->indent($parent, $indent);
@@ -244,17 +260,17 @@ class XMLHelper
         return $parent->appendChild($tag);
     }
 
-    /**
-     * Adds a tag with CDATA content, like:
-     *
-     * <tagname><![CDATA[value]]></tagname>
-     *
-     * @param \DOMNode $parent
-     * @param string $name
-     * @param string $content
-     * @return \DOMNode
-     */
-    public function addCDATATag($parent, $name, $content)
+   /**
+    * Adds a tag with CDATA content, like:
+    *
+    * <tagname><![CDATA[value]]></tagname>
+    *
+    * @param DOMNode $parent
+    * @param string $name
+    * @param string $content
+    * @return DOMNode
+    */
+    public function addCDATATag(DOMNode $parent, string $name, string $content) : DOMNode
     {
         $tag = $this->dom->createElement($name);
         $text = $this->dom->createCDATASection($content);
@@ -263,28 +279,33 @@ class XMLHelper
         return $parent->appendChild($tag);
     }
 
-    /**
-     * Creates the root element of the document.
-     * @param string $name
-     * @param array $attributes
-     * @return \DOMNode
-     */
-    public function createRoot($name, $attributes=array())
+   /**
+    * Creates the root element of the document.
+    * @param string $name
+    * @param array<string,mixed> $attributes
+    * @return DOMNode
+    */
+    public function createRoot(string $name, array $attributes=array())
     {
         $root = $this->dom->appendChild($this->dom->createElement($name));
         $this->addAttributes($root, $attributes);
         return $root;
     }
 
-    public function escape($string)
+   /**
+    * Escaped the string for use in XML.
+    * 
+    * @param string $string
+    * @return string
+    */
+    public function escape(string $string) : string
     {
-
         $string = preg_replace('#<p>(.*)</p>#isUm', '$1', $string);
 
         return $string;
     }
 
-    public function escapeText($string) 
+    public function escapeText(string $string) : string 
     {
         $string = str_replace('&amp;', 'AMPERSAND_ESCAPE', $string);
         $string = str_replace('&lt;', 'LT_ESCAPE', $string);
@@ -296,55 +317,60 @@ class XMLHelper
         return $string;
     }
 
-    /**
-     * Sends the specified XML string to the browser with
-     * the correct headers to trigger a download of the XML
-     * to a local file and terminates the request.
-     *
-     * @param string $xml
-     * @param string $filename
-     */
-    public static function downloadXML($xml, $filename = 'download.xml')
+   /**
+    * Sends the specified XML string to the browser with
+    * the correct headers to trigger a download of the XML
+    * to a local file.
+    * 
+    * NOTE: Ensure calling exit after this is done, and to
+    * not send additional content, which would corrupt the 
+    * download.
+    *
+    * @param string $xml
+    * @param string $filename
+    */
+    public static function downloadXML(string $xml, string $filename = 'download.xml') : void
     {
-        if(!headers_sent() && !self::$simulation) {
+        if(!headers_sent() && !self::$simulation) 
+        {
             header('Content-Disposition: attachment; filename="' . $filename . '"');
         }
         
         echo $xml;
-        exit;
     }
 
-    /**
-     * Sends the specified XML string to the browser with
-     * the correct headers and terminates the request.
-     *
-     * @param string $xml
-     */
-    public static function displayXML($xml)
+   /**
+    * Sends the specified XML string to the browser with
+    * the correct headers and terminates the request.
+    *
+    * @param string $xml
+    */
+    public static function displayXML(string $xml) : void
     {
-        if(!headers_sent() && !self::$simulation) {
+        if(!headers_sent() && !self::$simulation) 
+        {
             header('Content-Type:text/xml; charset=utf-8');
         }
         
-        if(self::$simulation) {
+        if(self::$simulation) 
+        {
             $xml = '<pre>'.htmlspecialchars($xml).'</pre>';
         }
         
         echo $xml;
-        exit;
     }
 
     /**
      * Shorthand method for building error xml and sending it
      * to the browser.
      *
-     * @param string $code
+     * @param string|number $code
      * @param string $message
      * @param string $title
-     * @param string[] $customInfo Associative array with name => value pairs for custom tags to add to the output xml
+     * @param array<string,string> $customInfo Associative array with name => value pairs for custom tags to add to the output xml
      * @see buildErrorXML()
      */
-    public static function displayErrorXML($code, $message, $title, $customInfo=array())
+    public static function displayErrorXML($code, string $message, string $title, array $customInfo=array())
     {
         if(!headers_sent() && !self::$simulation) {
             header('HTTP/1.1 400 Bad Request: ' . $title, true, 400);
@@ -353,9 +379,7 @@ class XMLHelper
         self::displayXML(self::buildErrorXML($code, $message, $title, $customInfo));
     }
     
-    protected static $simulation = false;
-    
-    public static function setSimulation($simulate=true)
+    public static function setSimulation(bool $simulate=true) : void
     {
         self::$simulation = $simulate;
     }
@@ -373,9 +397,9 @@ class XMLHelper
      * @param string $message
      * @return string
      */
-    public static function buildSuccessXML($message)
+    public static function buildSuccessXML(string $message) : string
     {
-        $xml = new \DOMDocument('1.0', 'UTF-8');
+        $xml = new DOMDocument('1.0', 'UTF-8');
         $xml->formatOutput = true;
 
         $helper = new XMLHelper($xml);
@@ -387,25 +411,26 @@ class XMLHelper
         return $xml->saveXML();
     }
 
-    /**
-     * Creates XML markup to describe an application error
-     * when using XML services. Creates XML with the
-     * following structure:
-     *
-     * <error>
-     *       <id>99</id>
-     *     <message>Full error message text</message>
-     *     <title>Short error label</title>
-     * </error>
-     *
-     * @param mixed $code
-     * @param string $message
-     * @param string $title
-     * @return string
-     */
-    public static function buildErrorXML($code, $message, $title, $customInfo=array())
+   /**
+    * Creates XML markup to describe an application error
+    * when using XML services. Creates XML with the
+    * following structure:
+    *
+    * <error>
+    *     <id>99</id>
+    *     <message>Full error message text</message>
+    *     <title>Short error label</title>
+    * </error>
+    *
+    * @param string|number $code
+    * @param string $message
+    * @param string $title
+    * @param array<string,string> $customInfo
+    * @return string
+    */
+    public static function buildErrorXML($code, string $message, string $title, array $customInfo=array())
     {
-        $xml = new \DOMDocument('1.0', 'UTF-8');
+        $xml = new DOMDocument('1.0', 'UTF-8');
         $xml->formatOutput = true;
 
         $helper = new XMLHelper($xml);
@@ -424,13 +449,13 @@ class XMLHelper
         return $xml->saveXML();
     }
 
-    public function appendNewline(\DOMNode $node)
+    public function appendNewline(DOMNode $node) : void
     {
         $nl = $this->dom->createTextNode("\n");
         $node->appendChild($nl);
     }
 
-    public function saveXML()
+    public function saveXML() : string
     {
         return $this->dom->saveXML();
     }
@@ -444,7 +469,7 @@ class XMLHelper
     * 
     * @return XMLHelper_SimpleXML
     */
-    public static function createSimplexml()
+    public static function createSimplexml() : XMLHelper_SimpleXML
     {
         return new XMLHelper_SimpleXML();
     }
