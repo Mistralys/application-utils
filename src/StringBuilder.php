@@ -184,7 +184,7 @@ class StringBuilder implements StringBuilder_Interface
     * Adds a text that is meant as a reference to an UI element,
     * like a menu item, button, etc.
     * 
-    * @param string|number|StringBuilder_Interface
+    * @param string|number|StringBuilder_Interface $string 
     * @return $this
     */
     public function reference($string) : StringBuilder
@@ -196,7 +196,7 @@ class StringBuilder implements StringBuilder_Interface
     * Add a string using the `sprintf` method.
     * 
     * @param string $format The format string
-    * @param string|number|StringBuilder_Interface $arguments The variables to inject
+    * @param string|number|StringBuilder_Interface ...$arguments The variables to inject
     * @return $this
     */
     public function sf(string $format, ...$arguments) : StringBuilder
