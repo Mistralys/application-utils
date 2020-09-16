@@ -21,11 +21,8 @@ namespace AppUtils;
 class ConvertHelper
 {
     const ERROR_MONTHTOSTRING_NOT_VALID_MONTH_NUMBER = 23303;
-    
     const ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE = 23304;
-    
     const ERROR_JSON_ENCODE_FAILED = 23305;
-    
     const ERROR_INVALID_BOOLEAN_STRING = 23306;
     
     /**
@@ -193,19 +190,45 @@ class ConvertHelper
          return $converter->convert();
     }
 
-    /**
-     * Adds syntax highlighting to the specified SQL string in HTML format
-     * @param string $sql
-     * @return string
-     */
-    public static function highlight_sql($sql)
+   /**
+    * Adds HTML syntax highlighting to the specified SQL string.
+    * 
+    * @param string $sql
+    * @return string
+    */
+    public static function highlight_sql(string $sql) : string
     {
-        $geshi = new  \GeSHi($sql, 'sql');
+        $geshi = new \GeSHi($sql, 'sql');
 
         return $geshi->parse_code();
     }
-    
-    public static function highlight_xml($xml, $formatSource=false)
+
+   /**
+    * Adds HTML syntax highlighting to a JSON string, or a data array/object. 
+    * 
+    * @param array|object|string $subject A JSON string, or data array/object to convert to JSON to highlight.
+    * @return string
+    */
+    public static function highlight_json($subject) : string
+    {
+        if(!is_string($subject))
+        {
+            $subject = json_encode($subject, JSON_PRETTY_PRINT);
+        }
+        
+        $geshi = new \GeSHi($subject, 'javascript');
+        
+        return $geshi->parse_code();
+    }
+
+   /**
+    * Adds HTML syntax highlighting to the specified XML code.
+    * 
+    * @param string $xml The XML to highlight.
+    * @param bool $formatSource Whether to format the source with indentation to make it readable.
+    * @return string
+    */
+    public static function highlight_xml(string $xml, bool $formatSource=false) : string
     {
         if($formatSource) 
         {
@@ -222,9 +245,9 @@ class ConvertHelper
         return $geshi->parse_code();
     }
 
-    public static function highlight_php($php)
+    public static function highlight_php(string $phpCode) : string
     {
-        $geshi = new \GeSHi($php, 'php');
+        $geshi = new \GeSHi($phpCode, 'php');
     
         return $geshi->parse_code();
     }
@@ -923,15 +946,23 @@ class ConvertHelper
         return !preg_match('/[^\x00-\x7F]/', $string);
     }
     
-    public static function highlight_url($url)
+   /**
+    * Adds HTML syntax highlighting to an URL.
+    * 
+    * NOTE: Includes the necessary CSS styles. When
+    * highlighting several URLs in the same page,
+    * prefer using the `parseURL` function instead.
+    * 
+    * @param string $url
+    * @return string
+    */
+    public static function highlight_url(string $url) : string
     {
-        $url = htmlspecialchars($url);
-        $url = str_replace(
-            array('/', '='), 
-            array('/<wbr>', '=<wbr>'), 
-            $url
-        );
-        return $url;
+        $info = parseURL($url);
+        
+        return 
+        '<style>'.$info->getHighlightCSS().'</style>'.
+        $info->getHighlighted();
     }
 
    /**
