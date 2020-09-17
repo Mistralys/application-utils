@@ -6,13 +6,23 @@ Drop-in static PHP utility classes for common tasks, from file system and image 
 
 ## Installation
 
-Simply require the package via composer:
+On the command line:
+
+```
+composer require mistralys/application-utils
+```
+
+Or via `composer.json`:
 
 ```json
 "require": {
    "mistralys/application-utils": "dev-master"
 }
 ```
+
+### Optional packages
+
+To enable localization of any translateable strings in the package, require `mistralys/application-localization` as well. German and french translations are included, and the integrated interface allows adding additional translations.
 
 ## Overview of helpers
 
@@ -34,6 +44,7 @@ This overview is an excerpt of the available utility classes in the package. It 
     - URLFinder: Allows detecting URLs in a string.
     - WordWrapper: Intelligently wrap text to a specific length.
 * CSVHelper: read and generate CSV files.
+* Highlighter: Syntax highlighting using GeSHi, as well as some custom variants.
 * JSHelper: generate JavaScript statements from PHP with automatic PHP > JS conversion of variables.
 * [FileHelper](https://github.com/Mistralys/application-utils/wiki/FileHelper): file system utility methods and file finder.
     - FileFinder: Fetching file lists by filters, recursive or not.
