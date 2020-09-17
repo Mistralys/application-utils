@@ -195,30 +195,12 @@ class ConvertHelper
     * 
     * @param string $sql
     * @return string
+    * @deprecated Use the Highlighter class directly instead.
+    * @see Highlighter::sql()
     */
     public static function highlight_sql(string $sql) : string
     {
-        $geshi = new \GeSHi($sql, 'sql');
-
-        return $geshi->parse_code();
-    }
-
-   /**
-    * Adds HTML syntax highlighting to a JSON string, or a data array/object. 
-    * 
-    * @param array|object|string $subject A JSON string, or data array/object to convert to JSON to highlight.
-    * @return string
-    */
-    public static function highlight_json($subject) : string
-    {
-        if(!is_string($subject))
-        {
-            $subject = json_encode($subject, JSON_PRETTY_PRINT);
-        }
-        
-        $geshi = new \GeSHi($subject, 'javascript');
-        
-        return $geshi->parse_code();
+        return Highlighter::sql($sql);
     }
 
    /**
@@ -227,29 +209,23 @@ class ConvertHelper
     * @param string $xml The XML to highlight.
     * @param bool $formatSource Whether to format the source with indentation to make it readable.
     * @return string
+    * @deprecated Use the Highlighter class directly instead.
+    * @see Highlighter::xml()
     */
     public static function highlight_xml(string $xml, bool $formatSource=false) : string
     {
-        if($formatSource) 
-        {
-            $dom = new \DOMDocument();
-            $dom->loadXML($xml);
-            $dom->preserveWhiteSpace = false;
-            $dom->formatOutput = true;
-            
-            $xml = $dom->saveXML();
-        }
-        
-        $geshi = new \GeSHi($xml, 'xml');
-        
-        return $geshi->parse_code();
+        return Highlighter::xml($xml, $formatSource);
     }
 
+   /**
+    * @param string $phpCode
+    * @return string
+    * @deprecated Use the Highlighter class directly instead.
+    * @see Highlighter::php()
+    */
     public static function highlight_php(string $phpCode) : string
     {
-        $geshi = new \GeSHi($phpCode, 'php');
-    
-        return $geshi->parse_code();
+        return Highlighter::php($phpCode);
     }
     
    /**
@@ -955,14 +931,12 @@ class ConvertHelper
     * 
     * @param string $url
     * @return string
+    * @deprecated Use the Highlighter class directly instead.
+    * @see Highlighter
     */
     public static function highlight_url(string $url) : string
     {
-        $info = parseURL($url);
-        
-        return 
-        '<style>'.$info->getHighlightCSS().'</style>'.
-        $info->getHighlighted();
+        return Highlighter::url($url);
     }
 
    /**
