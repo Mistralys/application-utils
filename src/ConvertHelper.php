@@ -82,75 +82,10 @@ class ConvertHelper
     * @param float $seconds
     * @return string
     */
-    public static function time2string($seconds)
+    public static function time2string($seconds) : string
     {
-        static $units = null;
-        if (is_null($units)) {
-            $units = array(
-                array(
-                    'value' => 31 * 7 * 24 * 3600,
-                    'singular' => t('month'),
-                    'plural' => t('months')
-                ),
-                array(
-                    'value' => 7 * 24 * 3600,
-                    'singular' => t('week'),
-                    'plural' => t('weeks')
-                ),
-                array(
-                    'value' => 24 * 3600,
-                    'singular' => t('day'),
-                    'plural' => t('days')
-                ),
-                array(
-                    'value' => 3600,
-                    'singular' => t('hour'),
-                    'plural' => t('hours')
-                ),
-                array(
-                    'value' => 60,
-                    'singular' => t('minute'),
-                    'plural' => t('minutes')
-                ),
-                array(
-                    'value' => 1,
-                    'singular' => t('second'),
-                    'plural' => t('seconds')
-                )
-            );
-        }
-
-        // specifically handle zero
-        if ($seconds <= 0) {
-            return '0 ' . t('seconds');
-        }
-        
-        if($seconds < 1) {
-            return t('less than a second');
-        }
-
-        $tokens = array();
-        foreach ($units as $def) {
-            $quot = intval($seconds / $def['value']);
-            if ($quot) {
-                $item = $quot . ' ';
-                if (abs($quot) > 1) {
-                    $item .= $def['plural'];
-                } else {
-                    $item .= $def['singular'];
-                }
-
-                $tokens[] = $item;
-                $seconds -= $quot * $def['value'];
-            }
-        }
-
-        $last = array_pop($tokens);
-        if (empty($tokens)) {
-            return $last;
-        }
-
-        return implode(', ', $tokens) . ' ' . t('and') . ' ' . $last;
+        $converter = new ConvertHelper_TimeConverter($seconds);
+        return $converter->toString();
     }
 
    /**
@@ -317,6 +252,9 @@ class ConvertHelper
         return $result;
     }
     
+   /**
+    * @var array<mixed,bool>
+    */
     protected static $booleanStrings = array(
         1 => true,
         0 => false,

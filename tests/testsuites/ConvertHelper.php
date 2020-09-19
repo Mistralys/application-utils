@@ -290,6 +290,18 @@ final class ConvertHelperTest extends TestCase
     {
         $tests = array(
             array(
+                'time' => -10,
+                'expected' => '0 seconds'
+            ),
+            array(
+                'time' => 0,
+                'expected' => '0 seconds'
+            ),
+            array(
+                'time' => 0.5,
+                'expected' => 'less than a second'
+            ),
+            array(
                 'time' => 20,
                 'expected' => '20 seconds'
             )
