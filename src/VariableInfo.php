@@ -124,6 +124,13 @@ class VariableInfo implements Interface_Optionable
         $this->value = $value;
         $this->type = strtolower(gettype($value));
         
+        // Gettype will return a string like "Resource(closed)" when
+        // working with a resource that has already been closed.
+        if(strstr($this->type, 'resource'))
+        {
+            $this->type = self::TYPE_RESOURCE;
+        }
+        
         if(is_array($value) && is_callable($value)) {
             $this->type = self::TYPE_CALLABLE;
         }
