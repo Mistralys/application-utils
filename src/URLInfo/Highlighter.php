@@ -199,6 +199,10 @@ class URLInfo_Highlighter
         
         foreach($params as $param => $value)
         {
+            // If the parameter is numeric, it will automatically
+            // be an integer, so we need the conversion here.
+            $param = strval($param);
+
             $parts = sprintf(
                 '<span class="link-param-name">%s</span>'.
                 '<span class="link-component param-equals">=</span>'.
