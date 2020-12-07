@@ -7,3 +7,4 @@ docs/phpstan/output.txt
 tests/config.php
 tests/assets/RequestHelper/curl-log.txt
 docs/libxml/LibXML.php
+.idea
