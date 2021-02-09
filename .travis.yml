@@ -5,7 +5,8 @@ matrix:
   include:
     - php: "7.2"
     - php: "7.3"
-    
+    - php: "7.4"
+
 before_script:
   # so composer knows which version of the package to use, since it is a cyclic dependency of the application-localization package.
   - COMPOSER_ROOT_VERSION=dev-master composer install
