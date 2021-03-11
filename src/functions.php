@@ -2,6 +2,9 @@
 
 namespace AppUtils;
 
+use DateInterval;
+use Throwable;
+
 /**
  * Error code for the CURL extension check.
  * @see \AppUtils\requireCURL()
@@ -11,10 +14,11 @@ define('APPUTILS_ERROR_CURL_NOT_INSTALLED', 44001);
 /**
  * Parses the specified number, and returns a NumberInfo instance.
  *
- * @param mixed $value
- * @return \AppUtils\NumberInfo
+ * @param NumberInfo|string|int|float $value
+ * @param bool $forceNew
+ * @return NumberInfo
  */
-function parseNumber($value, $forceNew=false)
+function parseNumber($value, bool $forceNew=false)
 {
     if($value instanceof NumberInfo && $forceNew !== true) {
         return $value;
@@ -28,9 +32,9 @@ function parseNumber($value, $forceNew=false)
  * information on it.
  * 
  * @param mixed $variable
- * @return \AppUtils\VariableInfo
+ * @return VariableInfo
  */
-function parseVariable($variable)
+function parseVariable($variable) : VariableInfo
 {
     return new VariableInfo($variable);
 }
@@ -41,7 +45,7 @@ function parseVariable($variable)
  * for a few things that the native function handles poorly.
  * 
  * @param string $url The URL to parse.
- * @return \AppUtils\URLInfo
+ * @return URLInfo
  */
 function parseURL(string $url) : URLInfo
 {
@@ -53,10 +57,10 @@ function parseURL(string $url) : URLInfo
  * which enables accessing additional information on it,
  * as well as serializing it to be able to persist it in storage.
  * 
- * @param \Throwable $e
+ * @param Throwable $e
  * @return ConvertHelper_ThrowableInfo
  */
-function parseThrowable(\Throwable $e) : ConvertHelper_ThrowableInfo
+function parseThrowable(Throwable $e) : ConvertHelper_ThrowableInfo
 {
     return ConvertHelper_ThrowableInfo::fromThrowable($e);
 }
@@ -77,10 +81,10 @@ function restoreThrowable(array $serialized) : ConvertHelper_ThrowableInfo
  * Creates an interval wrapper, that makes it a lot easier
  * to work with date intervals. It also solves
  *
- * @param \DateInterval $interval
+ * @param DateInterval $interval
  * @return ConvertHelper_DateInterval
  */
-function parseInterval(\DateInterval $interval) : ConvertHelper_DateInterval
+function parseInterval(DateInterval $interval) : ConvertHelper_DateInterval
 {
     return ConvertHelper_DateInterval::fromInterval($interval);
 }
@@ -92,18 +96,18 @@ function parseInterval(\DateInterval $interval) : ConvertHelper_DateInterval
  * 
  * @return string
  */
-function t()
+function t() : string
 {
     $args = func_get_args();
     
     // is the localization package installed?
-    if(class_exists('\AppLocalize\Localization')) 
+    if(function_exists('\AppLocalize\t'))
     {
         return call_user_func_array('\AppLocalize\t', $args);
     }
     
     // simulate the translation function
-    return call_user_func_array('sprintf', $args);
+    return strval(call_user_func_array('sprintf', $args));
 }
 
 /**
