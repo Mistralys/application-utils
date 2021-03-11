@@ -1,5 +1,4 @@
 vendor
-composer.lock
 .phpunit.result.cache
 localization/storage.json
 tests/assets/FileHelper/savetest.txt
