@@ -9,6 +9,8 @@
 
 namespace AppUtils;
 
+use ParseCsv\Csv;
+
 /**
  * Collection of file system related methods.
  * 
@@ -164,7 +166,14 @@ class FileHelper
         );
     }
 
-    public static function copyTree($source, $target)
+    /**
+     * Copies a folder tree to the target folder.
+     *
+     * @param string $source
+     * @param string $target
+     * @throws FileHelper_Exception
+     */
+    public static function copyTree(string $source, string $target) : void
     {
         self::createFolder($target);
 
@@ -175,20 +184,13 @@ class FileHelper
                 continue;
             }
 
-            $itemPath = $item->getRealPath();
-            if (!is_readable($itemPath)) {
-                throw new FileHelper_Exception(
-                    'Source file is not readable',
-                    sprintf('The file [%s] cannot be accessed for reading.', $itemPath),
-                    self::ERROR_FILE_NOT_READABLE
-                );
-            }
+            $itemPath = self::requireFileReadable($item->getPath());
             
             $baseName = basename($itemPath);
 
             if ($item->isDir()) 
             {
-                FileHelper::copyTree(str_replace('\\', '/', $itemPath), $target . '/' . $baseName);
+                FileHelper::copyTree($itemPath, $target . '/' . $baseName);
             } 
             else if($item->isFile()) 
             {
@@ -213,21 +215,10 @@ class FileHelper
     * @see FileHelper::ERROR_TARGET_COPY_FOLDER_NOT_WRITABLE
     * @see FileHelper::ERROR_CANNOT_COPY_FILE
     */
-    public static function copyFile($sourcePath, $targetPath)
+    public static function copyFile(string $sourcePath, string $targetPath) : void
     {
         self::requireFileExists($sourcePath, self::ERROR_SOURCE_FILE_NOT_FOUND);
-        
-        if(!is_readable($sourcePath))
-        {
-            throw new FileHelper_Exception(
-                sprintf('Source file [%s] to copy is not readable.', basename($sourcePath)),
-                sprintf(
-                    'Tried copying from path [%s].',
-                    $sourcePath
-                ),
-                self::ERROR_SOURCE_FILE_NOT_READABLE
-            );
-        }
+        self::requireFileReadable($sourcePath, self::ERROR_SOURCE_FILE_NOT_READABLE);
         
         $targetFolder = dirname($targetPath);
         
@@ -299,20 +290,18 @@ class FileHelper
     * @param string $enclosure
     * @param string $escape
     * @param bool $heading
-    * @return \parseCSV
-    * @todo Move this to the CSV helper.
+    * @return Csv
+     * @see CSVHelper::createParser()
     */
-    public static function createCSVParser(string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $heading=false) : \parseCSV
+    public static function createCSVParser(string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $heading=false) : Csv
     {
         if($delimiter==='') { $delimiter = ';'; }
         if($enclosure==='') { $enclosure = '"'; }
-        
-        $parser = new \parseCSV(null, null, null, array());
 
-        $parser->delimiter = $delimiter;
+        $parser = CSVHelper::createParser($delimiter);
         $parser->enclosure = $enclosure;
         $parser->heading = $heading;
-        
+
         return $parser;
     }
 
@@ -328,19 +317,18 @@ class FileHelper
     * @return array
     * @throws FileHelper_Exception
     * 
-    * @todo Move this to the CSVHelper.
-    *
     * @see parseCSVFile()
     * @see FileHelper::ERROR_PARSING_CSV
     */
     public static function parseCSVString(string $csv, string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $heading=false) : array
     {
-        $parser = self::createCSVParser($delimiter, $enclosure, $escape, $heading);
-        $result = $parser->parse_string(/** @scrutinizer ignore-type */ $csv);
-        if(is_array($result)) {
-            return $result;
+        $parser = self::createCSVParser($delimiter, $enclosure, '\\', $heading);
+
+        if($parser->parse($csv))
+        {
+            return $parser->data;
         }
-        
+
         throw new FileHelper_Exception(
             'Could not parse CSV string, possible formatting error.',
             'The parseCSV library returned an error, but exact details are not available.',
@@ -359,8 +347,6 @@ class FileHelper
      * @param bool $heading Whether to include headings.
      * @return array
      * @throws FileHelper_Exception
-     * 
-     * @todo Move this to the CSVHelper.
      * 
      * @see parseCSVString()
      * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
@@ -1349,7 +1335,7 @@ class FileHelper
     * 
     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
     */
-    public static function requireFileExists(string $path, $errorCode=null) : string
+    public static function requireFileExists(string $path, ?int $errorCode=null) : string
     {
         $result = realpath($path);
         if($result !== false) {
@@ -1363,6 +1349,25 @@ class FileHelper
         throw new FileHelper_Exception(
             sprintf('File [%s] does not exist.', basename($path)),
             sprintf('Tried finding the file in path [%s].', $path),
+            $errorCode
+        );
+    }
+
+    public static function requireFileReadable(string $path, ?int $errorCode=null) : string
+    {
+        $path = self::requireFileExists($path, $errorCode);
+
+        if(is_readable($path)) {
+            return $path;
+        }
+
+        if($errorCode === null) {
+            $errorCode = self::ERROR_FILE_NOT_READABLE;
+        }
+
+        throw new FileHelper_Exception(
+            sprintf('File [%s] is not readable.', basename($path)),
+            sprintf('Tried accessing the file in path [%s].', $path),
             $errorCode
         );
     }

@@ -9,6 +9,8 @@
 
 namespace AppUtils;
 
+use ParseCsv\Csv;
+
 /**
  * Helper class to parse and create/modify csv files or strings.
  *
@@ -36,13 +38,15 @@ namespace AppUtils;
 class CSVHelper
 {
     const ERROR_INVALID_HEADERS_POSITION = 561002;
-    
     const ERROR_INVALID_FILE_ENCODING = 561003;
-    
+    const ERROR_FILE_PARSING_FAILED = 561004;
+    const ERROR_CSV_FILE_NOT_READABLE = 561005;
+    const ERROR_STRING_PARSING_FAILED = 561006;
+
+    const DELIMITER_AUTO = 'auto';
+
     const HEADERS_LEFT = 'hleft';
-    
     const HEADERS_TOP = 'htop';
-    
     const HEADERS_NONE = 'hnone';
     
     public function __construct()
@@ -356,16 +360,15 @@ class CSVHelper
         // will not be parsed.
         $this->csv = rtrim($this->csv).PHP_EOL;
         
-        $parser = new \parseCSV(null, null, null, array());
-        $parser->heading = false; // we want to handle this ourselves
-        $parser->delimiter = $this->detectSeparator();
-        
-        $result = $parser->parse_string(/** @scrutinizer ignore-type */ $this->csv);
-        if(!$result) {
+        $parser = self::createParser();
+
+        if(!$parser->parse($this->csv)) {
             $this->addError('The CSV string could not be parsed.');
             return;
         }
-        
+
+        $result = $parser->data;
+
         switch($this->headersPosition)
         {
             case self::HEADERS_TOP:
@@ -441,5 +444,82 @@ class CSVHelper
         }
         
         return $this->separator;
+    }
+
+    /**
+     * Creates a new CSV parser instance.
+     *
+     * @param string $delimiter
+     * @return Csv
+     */
+    public static function createParser(string $delimiter=self::DELIMITER_AUTO) : Csv
+    {
+        $csv = new Csv();
+
+        if($delimiter !== self::DELIMITER_AUTO) {
+            $csv->delimiter = $delimiter;
+        }
+
+        return $csv;
+    }
+
+    /**
+     * Parses a CSV file in automatic mode (to detect the delimiter and
+     * enclosure), and returns the data rows, including the header row
+     * if any.
+     *
+     * @param string $path
+     * @return array
+     * @throws CSVHelper_Exception|FileHelper_Exception
+     *
+     * @see CSVHelper::ERROR_CSV_FILE_NOT_READABLE
+     * @see CSVHelper::ERROR_FILE_PARSING_FAILED
+     */
+    public static function parseFile(string $path) : array
+    {
+        $path = FileHelper::requireFileReadable($path, self::ERROR_CSV_FILE_NOT_READABLE);
+
+        $parser = self::createParser();
+        $result = $parser->parse($path);
+
+        if($result === true) {
+            return $parser->data;
+        }
+
+        throw new CSVHelper_Exception(
+            'Cannot parse CSV file',
+            sprintf(
+                'The file [%s] could not be parsed. No additional information is available.',
+                $path
+            ),
+            self::ERROR_FILE_PARSING_FAILED
+        );
+    }
+
+    /**
+     * Parses a CSV string in automatic mode (to detect the delimiter and
+     * enclosure), and returns the data rows, including the header row
+     * if any.
+     *
+     * @param string $string
+     * @return array
+     * @throws CSVHelper_Exception
+     *
+     * @see CSVHelper::ERROR_STRING_PARSING_FAILED
+     */
+    public static function parseString(string $string) : array
+    {
+        $parser = self::createParser();
+        $result = $parser->parse($string);
+
+        if($result === true) {
+            return $parser->data;
+        }
+
+        throw new CSVHelper_Exception(
+            'Cannot parse CSV string',
+            'The string could not be parsed. No additional information is available.',
+            self::ERROR_STRING_PARSING_FAILED
+        );
     }
 }
