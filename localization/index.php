@@ -9,7 +9,7 @@
     
     $root = __DIR__;
     
-    $autoload = realpath($root.'/../vendor/autoload.php');
+    $autoload = $root.'/vendor/autoload.php';
     
     // we need the autoloader to be present
     if($autoload === false) 
@@ -21,15 +21,6 @@
      * The composer autoloader
      */
     require_once $autoload;
-    
-    if(!class_exists('\AppLocalize\Localization')) 
-    {
-        die(
-            '<b>ERROR:</b> The translation user interface requires the 
-            <a href="https://packagist.org/packages/mistralys/application-localization">mistralys/application-localization</a> 
-            package to be installed via composer.'
-        );
-    }
     
     // add the locales we wish to manage (en_UK is always present)
     \AppLocalize\Localization::addAppLocale('de_DE');
