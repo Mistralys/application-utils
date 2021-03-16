@@ -12,17 +12,9 @@ On the command line:
 composer require mistralys/application-utils
 ```
 
-Or via `composer.json`:
-
-```json
-"require": {
-   "mistralys/application-utils": "dev-master"
-}
-```
-
 ### Optional packages
 
-To enable localization of any translateable strings in the package, require `mistralys/application-localization` as well. German and french translations are included, and the integrated interface allows adding additional translations.
+To enable localization of any translatable strings in the package, require `mistralys/application-localization` as well. German and french translations are included, and the integrated interface allows adding additional translations.
 
 ## Overview of helpers
 
@@ -82,6 +74,34 @@ This overview is an excerpt of the available utility classes in the package. It 
 ## Documentation
 
 Documentation for the helper classes is ongoing in the [Application Utils Wiki](https://github.com/Mistralys/application-utils/wiki).
+
+## The FileHelper
+
+### Reducing paths
+
+The paths reducer tool accepts a list of absolute paths, and attempts to reduce them
+to the closest common relative path.
+
+```php
+$reducer = \AppUtils\FileHelper::createPathsReducer();
+$reducer->addPath('/path/to/subfolder/and/file.txt');
+$reducer->addPath('/path/to/subfolder/name');
+$reducer->addPath('/path/to/subfolder/or/further/name.pdf');
+
+$result = $reducer->reduce();
+```
+
+This will return the following reduced paths:
+
+```
+and/file.txt
+name
+or/further/name.pdf
+```
+
+  > NOTE: The tool uses `realpath` to resolve paths with `...` in them, so 
+    symlinks will make it fail to reduce if the target file is not on the
+    same drive.
 
 ## Origin
 
