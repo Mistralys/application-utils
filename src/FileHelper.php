@@ -988,13 +988,14 @@ class FileHelper
             self::ERROR_SAVE_FILE_WRITE_FAILED
         );
     }
-    
-   /**
-    * Checks whether it is possible to run PHP command 
-    * line commands.
-    * 
-    * @return boolean
-    */
+
+    /**
+     * Checks whether it is possible to run PHP command
+     * line commands.
+     *
+     * @return boolean
+     * @throws FileHelper_Exception
+     */
     public static function canMakePHPCalls() : bool
     {
         return self::cliCommandExists('php');
@@ -1608,5 +1609,17 @@ class FileHelper
             ),
             self::ERROR_PATH_IS_NOT_A_FOLDER
         );
+    }
+
+    /**
+     * Creates an instance of the paths reducer tool, which can reduce
+     * a list of paths to the closest common root folder.
+     *
+     * @param string[] $paths
+     * @return FileHelper_PathsReducer
+     */
+    public static function createPathsReducer(array $paths=array()) : FileHelper_PathsReducer
+    {
+        return new FileHelper_PathsReducer();
     }
 }
