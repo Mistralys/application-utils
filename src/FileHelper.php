@@ -184,7 +184,7 @@ class FileHelper
                 continue;
             }
 
-            $itemPath = self::requireFileReadable($item->getPath());
+            $itemPath = self::requireFileReadable($item->getPathname());
             
             $baseName = basename($itemPath);
 
