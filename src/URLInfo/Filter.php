@@ -26,7 +26,13 @@ class URLInfo_Filter
     {
         // fix ampersands if it comes from HTML
         $url = str_replace('&amp;', '&', $url);
-        
+
+        // In the case of tel URLs, we convert the syntax to use double
+        // slashes to make them parsable.
+        if(strstr($url, 'tel:') !== false && strstr($url, 'tel://') === false) {
+            $url = str_replace('tel:', 'tel://', $url);
+        }
+
         // we remove any control characters from the URL, since these
         // may be copied when copy+pasting from word or pdf documents
         // for example.

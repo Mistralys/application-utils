@@ -63,7 +63,7 @@ class URLInfo_Normalizer
     
     protected function normalize_phone() : string
     {
-        return 'tel://'.$this->info->getHost();
+        return 'tel:'.$this->info->getHost();
     }
     
     protected function normalize_email() : string

@@ -207,25 +207,31 @@ final class URLInfoTest extends TestCase
                 'label' => 'Phone with +',
                 'url' => 'tel://+33 123456789',
                 'isPhone' => true,
-                'normalized' => 'tel://+33123456789',
+                'normalized' => 'tel:+33123456789',
             ),
             array(
                 'label' => 'Phone with 00',
                 'url' => 'tel://0033 12 34 56 78',
                 'isPhone' => true,
-                'normalized' => 'tel://003312345678',
+                'normalized' => 'tel:003312345678',
             ),
             array(
                 'label' => 'Free spacing',
                 'url' => 'tel://    +  33 12 34 56 78',
                 'isPhone' => true,
-                'normalized' => 'tel://+3312345678',
+                'normalized' => 'tel:+3312345678',
             ),
             array(
                 'label' => 'With newlines and tabs',
                 'url' => "tel://  \n  +  \r 33 12 34 \t 56 78",
                 'isPhone' => true,
-                'normalized' => 'tel://+3312345678',
+                'normalized' => 'tel:+3312345678',
+            ),
+            array(
+                'label' => 'Without slashes',
+                'url' => "tel:+33 12 34 56 78",
+                'isPhone' => true,
+                'normalized' => 'tel:+3312345678',
             )
         );
         
