@@ -9,6 +9,8 @@
 
 namespace AppUtils;
 
+use DateTime;
+
 /**
  * Static conversion helper class: offers a number of utility methods
  * to convert variable types, as well as specialized methods for working
@@ -35,12 +37,9 @@ class ConvertHelper
      * @param boolean $tabs2spaces
      * @return string
      */
-    public static function normalizeTabs(string $string, bool $tabs2spaces = false)
+    public static function normalizeTabs(string $string, bool $tabs2spaces = false) : string
     {
-        $normalizer = new ConvertHelper_TabsNormalizer();
-        $normalizer->convertTabsToSpaces($tabs2spaces);
-        
-        return $normalizer->normalize($string);
+        return ConvertHelper_String::normalizeTabs($string, $tabs2spaces);
     }
 
     /**
@@ -52,7 +51,7 @@ class ConvertHelper
      */
     public static function tabs2spaces(string $string, int $tabSize=4) : string
     {
-        return str_replace("\t", str_repeat(' ', $tabSize), $string);
+        return ConvertHelper_String::tabs2spaces($string, $tabSize);
     }
     
    /**
@@ -64,14 +63,19 @@ class ConvertHelper
     */
     public static function spaces2tabs(string $string, int $tabSize=4) : string
     {
-        return str_replace(str_repeat(' ', $tabSize), "\t", $string);
+        return ConvertHelper_String::spaces2tabs($string, $tabSize);
     }
-    
+
+    /**
+     * Makes all hidden characters visible in the target string,
+     * from spaces to control characters.
+     *
+     * @param string $string
+     * @return string
+     */
     public static function hidden2visible(string $string) : string
     {
-        $converter = new ConvertHelper_HiddenConverter();
-        
-        return $converter->convert($string);
+        return ConvertHelper_String::hidden2visible($string);
     }
     
    /**
@@ -96,15 +100,15 @@ class ConvertHelper
     * will be calculated between the two dates and not
     * the current time.
     *
-    * @param integer|\DateTime $datefrom
-    * @param integer|\DateTime $dateto
+    * @param integer|DateTime $datefrom
+    * @param integer|DateTime $dateto
     * @return string
     */
     public static function duration2string($datefrom, $dateto = -1) : string
     {
          $converter = new ConvertHelper_DurationConverter();
          
-         if($datefrom instanceof \DateTime)
+         if($datefrom instanceof DateTime)
          {
              $converter->setDateFrom($datefrom);
          }
@@ -113,7 +117,7 @@ class ConvertHelper
              $converter->setDateFrom(self::timestamp2date($datefrom)); 
          }
 
-         if($dateto instanceof \DateTime)
+         if($dateto instanceof DateTime)
          {
              $converter->setDateTo($dateto);
          }
@@ -203,14 +207,7 @@ class ConvertHelper
     */
     public static function text_cut(string $text, int $targetLength, string $append = '...') : string
     {
-        $length = mb_strlen($text);
-        if ($length <= $targetLength) {
-            return $text;
-        }
-
-        $text = trim(mb_substr($text, 0, $targetLength)) . $append;
-
-        return $text;
+        return ConvertHelper_String::cutText($text, $targetLength, $append);
     }
 
     public static function var_dump($var, $html=true) : string
@@ -253,57 +250,23 @@ class ConvertHelper
     }
     
    /**
-    * @var array<mixed,bool>
-    */
-    protected static $booleanStrings = array(
-        1 => true,
-        0 => false,
-        'true' => true,
-        'false' => false,
-        'yes' => true,
-        'no' => false
-    );
-
-   /**
     * Converts a string, number or boolean value to a boolean value.
-    * 
+    *
     * @param mixed $string
     * @throws ConvertHelper_Exception
     * @return bool
-    * 
+    *
     * @see ConvertHelper::ERROR_INVALID_BOOLEAN_STRING
     */
     public static function string2bool($string) : bool
     {
-        if($string === '' || $string === null || !is_scalar($string)) 
-        {
-            return false;
-        }
-        
-        if(is_bool($string)) 
-        {
-            return $string;
-        }
-
-        if(array_key_exists($string, self::$booleanStrings)) 
-        {
-            return self::$booleanStrings[$string];
-        }
-         
-        throw new ConvertHelper_Exception(
-            'Invalid string boolean representation',
-            sprintf(
-                'Cannot convert [%s] to a boolean value.',
-                parseVariable($string)->enableType()->toString()
-            ),
-            self::ERROR_INVALID_BOOLEAN_STRING
-        );
+        return ConvertHelper_Bool::fromString($string);
     }
-    
+
    /**
     * Whether the specified string is a boolean string or boolean value.
     * Alias for {@link ConvertHelper::isBoolean()}.
-    * 
+    *
     * @param mixed $string
     * @return bool
     * @deprecated
@@ -334,12 +297,12 @@ class ConvertHelper
      * - 12 Dec 2012 17:45
      * - 5 Aug
      *
-     * @param \DateTime $date
+     * @param DateTime $date
      * @return string
      */
-    public static function date2listLabel(\DateTime $date, $includeTime = false, $shortMonth = false)
+    public static function date2listLabel(DateTime $date, $includeTime = false, $shortMonth = false)
     {
-        $today = new \DateTime();
+        $today = new DateTime();
         if($date->format('d.m.Y') == $today->format('d.m.Y')) {
             $label = t('Today');
         } else {
@@ -413,13 +376,7 @@ class ConvertHelper
      */
     public static function transliterate(string $string, string $spaceChar = '-', bool $lowercase = true) : string
     {
-        $translit = new Transliteration();
-        $translit->setSpaceReplacement($spaceChar);
-        if ($lowercase) {
-            $translit->setLowercase();
-        }
-
-        return $translit->convert($string);
+        return ConvertHelper_String::transliterate($string, $spaceChar, $lowercase);
     }
     
    /**
@@ -456,16 +413,17 @@ class ConvertHelper
     {
         return self::createControlCharacters()->getCharsAsJSON();
     }
-    
-   /**
-    * Removes all control characters from the specified string
-    * that can cause problems in some cases, like creating
-    * valid XML documents. This includes invisible non-breaking
-    * spaces.
-    *
-    * @param string $string
-    * @return string
-    */
+
+    /**
+     * Removes all control characters from the specified string
+     * that can cause problems in some cases, like creating
+     * valid XML documents. This includes invisible non-breaking
+     * spaces.
+     *
+     * @param string $string
+     * @return string
+     * @throws ConvertHelper_Exception
+     */
     public static function stripControlCharacters(string $string) : string
     {
         return self::createControlCharacters()->stripControlCharacters($string);
@@ -598,27 +556,11 @@ class ConvertHelper
      * @param boolean|string $boolean
      * @param boolean $yesno
      * @return string
+     * @throws ConvertHelper_Exception
      */
     public static function bool2string($boolean, bool $yesno = false) : string
     {
-        // allow 'yes', 'true', 'no', 'false' string notations as well
-        if(!is_bool($boolean)) {
-            $boolean = self::string2bool($boolean);
-        }
-        
-        if ($boolean) {
-            if ($yesno) {
-                return 'yes';
-            }
-
-            return 'true';
-        }
-
-        if ($yesno) {
-            return 'no';
-        }
-
-        return 'false';
+        return ConvertHelper_Bool::toString($boolean, $yesno);
     }
     
    /**
@@ -637,25 +579,12 @@ class ConvertHelper
     * 
     * id="45" href="http://www.mistralys.com"
     * 
-    * @param array $array
+    * @param array<string,mixed> $array
     * @return string
     */
-    public static function array2attributeString($array)
+    public static function array2attributeString(array $array) : string
     {
-        $tokens = array();
-        foreach($array as $attr => $value) {
-            if($value == '' || $value == null) {
-                continue;
-            }
-            
-            $tokens[] = $attr.'="'.$value.'"';
-        }
-        
-        if(empty($tokens)) {
-            return '';
-        }
-        
-        return ' '.implode(' ', $tokens);
+        return ConvertHelper_Array::toAttributeString($array);
     }
     
    /**
@@ -665,15 +594,12 @@ class ConvertHelper
     * 
     * @param string $string
     * @return string
+    * @deprecated Use the JSHelper class instead.
+    * @see JSHelper::phpVariable2AttributeJS()
     */
-    public static function string2attributeJS($string, $quoted=true)
+    public static function string2attributeJS(string $string) : string
     {
-        $converted = addslashes(htmlspecialchars(strip_tags($string), ENT_QUOTES, 'UTF-8'));
-        if($quoted) {
-            $converted = "'".$converted."'";
-        } 
-        
-        return $converted;
+        return JSHelper::phpVariable2AttributeJS($string);
     }
     
    /**
@@ -687,41 +613,28 @@ class ConvertHelper
     */
     public static function isBoolean($value) : bool
     {
-        if(is_bool($value)) {
-            return true;
-        }
-        
-        if(!is_scalar($value)) {
-            return false;
-        }
-        
-        return array_key_exists($value, self::$booleanStrings);
+        return ConvertHelper_Bool::isBoolean($value);
     }
     
    /**
     * Converts an associative array to an HTML style attribute value string.
     * 
-    * @param array $subject
+    * @param array<string,mixed> $subject
     * @return string
     */
     public static function array2styleString(array $subject) : string
     {
-        $tokens = array();
-        foreach($subject as $name => $value) {
-            $tokens[] = $name.':'.$value;
-        }
-        
-        return implode(';', $tokens);
+        return ConvertHelper_Array::toStyleString($subject);
     }
     
    /**
     * Converts a DateTime object to a timestamp, which
     * is PHP 5.2 compatible.
     * 
-    * @param \DateTime $date
+    * @param DateTime $date
     * @return integer
     */
-    public static function date2timestamp(\DateTime $date) : int
+    public static function date2timestamp(DateTime $date) : int
     {
         return (int)$date->format('U');
     }
@@ -729,11 +642,11 @@ class ConvertHelper
    /**
     * Converts a timestamp into a DateTime instance.
     * @param int $timestamp
-    * @return \DateTime
+    * @return DateTime
     */
-    public static function timestamp2date(int $timestamp) : \DateTime
+    public static function timestamp2date(int $timestamp) : DateTime
     {
-        $date = new \DateTime();
+        $date = new DateTime();
         $date->setTimestamp($timestamp);
         return $date;
     }
@@ -829,13 +742,9 @@ class ConvertHelper
     * @param string $string
     * @return string
     */
-    public static function string2utf8($string)
+    public static function string2utf8(string $string) : string
     {
-        if(!self::isStringASCII($string)) {
-            return \ForceUTF8\Encoding::toUTF8($string);
-        }
-        
-        return $string;
+        return ConvertHelper_String::toUtf8($string);
     }
     
    /**
@@ -844,20 +753,12 @@ class ConvertHelper
     * Note: empty strings and NULL are considered ASCII.
     * Any variable types other than strings are not.
     * 
-    * @param mixed $string
+    * @param string|float|int|NULL $string
     * @return boolean
     */
     public static function isStringASCII($string) : bool
     {
-        if($string === '' || $string === NULL) {
-            return true;
-        }
-        
-        if(!is_string($string)) {
-            return false;
-        }
-        
-        return !preg_match('/[^\x00-\x7F]/', $string);
+        return ConvertHelper_String::isASCII(strval($string));
     }
     
    /**
@@ -1034,11 +935,11 @@ class ConvertHelper
    /**
     * Converts a date to the corresponding day name.
     * 
-    * @param \DateTime $date
+    * @param DateTime $date
     * @param bool $short
     * @return string|NULL
     */
-    public static function date2dayName(\DateTime $date, bool $short=false)
+    public static function date2dayName(DateTime $date, bool $short=false)
     {
         $day = $date->format('l');
         $invariant = self::getDayNamesInvariant();
@@ -1108,22 +1009,9 @@ class ConvertHelper
      * @param string $conjunction The word to use as conjunction with the last item in the list. NOTE: include spaces as needed.
      * @return string
      */
-    public static function implodeWithAnd(array $list, $sep = ', ', $conjunction = null)
+    public static function implodeWithAnd(array $list, string $sep = ', ', string $conjunction = '')
     {
-        if(empty($list)) {
-            return '';
-        }
-        
-        if(empty($conjunction)) {
-            $conjunction = t('and');
-        }
-        
-        $last = array_pop($list);
-        if($list) {
-            return implode($sep, $list) . $conjunction . ' ' . $last;
-        }
-        
-        return $last;
+        return ConvertHelper_Array::implodeWithAnd($list, $sep, $conjunction);
     }
     
    /**
@@ -1134,16 +1022,11 @@ class ConvertHelper
     * characters.
     * 
     * @param string $string
-    * @return array
+    * @return string[]
     */
     public static function string2array(string $string) : array
     {
-        $result = preg_split('//u', $string, null, PREG_SPLIT_NO_EMPTY);
-        if($result !== false) {
-            return $result;
-        }
-        
-        return array();
+        return ConvertHelper_String::toArray($string);
     }
     
    /**
@@ -1154,16 +1037,7 @@ class ConvertHelper
     */
     public static function isStringHTML(string $string) : bool
     {
-        if(preg_match('%<[a-z/][\s\S]*>%siU', $string)) {
-            return true;
-        }
-        
-        $decoded = html_entity_decode($string);
-        if($decoded !== $string) {
-            return true;
-        }
-        
-        return false;
+        return ConvertHelper_String::isHTML($string);
     }
     
    /**
@@ -1179,13 +1053,7 @@ class ConvertHelper
     */
     public static function wordwrap(string $str, int $width = 75, string $break = "\n", bool $cut = false) : string 
     {
-        $wrapper = new ConvertHelper_WordWrapper();
-        
-        return $wrapper
-        ->setLineWidth($width)
-        ->setBreakCharacter($break)
-        ->setCuttingEnabled($cut)
-        ->wrapText($str);
+        return ConvertHelper_String::wordwrap($str, $width, $break, $cut);
     }
     
    /**
@@ -1194,11 +1062,10 @@ class ConvertHelper
     * 
     * @param string $string
     * @return int
-    * @see https://stackoverflow.com/a/9718273/2298192
     */
-    public static function string2bytes($string)
+    public static function string2bytes(string $string): int
     {
-        return mb_strlen($string, '8bit');
+        return ConvertHelper_String::toBytes($string);
     }
     
    /**
@@ -1209,14 +1076,20 @@ class ConvertHelper
     * @param string $string
     * @return string
     */
-    public static function string2shortHash($string)
+    public static function string2shortHash(string $string) : string
     {
-        return hash('crc32', $string, false);
+        return ConvertHelper_String::toShortHash($string);
     }
-    
-    public static function string2hash($string)
+
+    /**
+     * Converts a string into an MD5 hash.
+     *
+     * @param string $string
+     * @return string
+     */
+    public static function string2hash(string $string): string
     {
-        return md5($string);
+        return ConvertHelper_String::toHash($string);
     }
     
     public static function callback2string($callback) : string
@@ -1268,29 +1141,9 @@ class ConvertHelper
     * @param bool $caseInsensitive
     * @return ConvertHelper_StringMatch[]
     */
-    public static function findString(string $needle, string $haystack, bool $caseInsensitive=false)
+    public static function findString(string $needle, string $haystack, bool $caseInsensitive=false): array
     {
-        if($needle === '') {
-            return array();
-        }
-        
-        $function = 'mb_strpos';
-        if($caseInsensitive) {
-            $function = 'mb_stripos';
-        }
-        
-        $pos = 0;
-        $positions = array();
-        $length = mb_strlen($needle);
-        
-        while( ($pos = $function($haystack, $needle, $pos)) !== false) 
-        {
-            $match = mb_substr($haystack, $pos, $length);
-            $positions[] = new ConvertHelper_StringMatch($pos, $match);
-            $pos += $length;
-        }
-        
-        return $positions;
+        return ConvertHelper_String::findString($needle, $haystack, $caseInsensitive);
     }
     
    /**
@@ -1303,25 +1156,9 @@ class ConvertHelper
     */
     public static function explodeTrim(string $delimiter, string $string) : array
     {
-        if(empty($string) || empty($delimiter)) {
-            return array();
-        }
-        
-        $tokens = explode($delimiter, $string);
-        $tokens = array_map('trim', $tokens);
-        
-        $keep = array();
-        foreach($tokens as $token) {
-            if($token !== '') {
-                $keep[] = $token;
-            }
-        }
-        
-        return $keep;
+        return ConvertHelper_String::explodeTrim($delimiter, $string);
     }
     
-    protected static $eolChars;
-
    /**
     * Detects the most used end-of-line character in the subject string.
     * 
@@ -1330,61 +1167,7 @@ class ConvertHelper
     */
     public static function detectEOLCharacter(string $subjectString) : ?ConvertHelper_EOL
     {
-        if(empty($subjectString)) {
-            return null;
-        }
-        
-        if(!isset(self::$eolChars))
-        {
-            $cr = chr((int)hexdec('0d'));
-            $lf = chr((int)hexdec('0a'));
-            
-           self::$eolChars = array(
-               array(
-                   'char' => $cr.$lf,
-                   'type' => ConvertHelper_EOL::TYPE_CRLF,
-                   'description' => t('Carriage return followed by a line feed'),
-               ),
-               array(
-                   'char' => $lf.$cr,
-                   'type' => ConvertHelper_EOL::TYPE_LFCR,
-                   'description' => t('Line feed followed by a carriage return'),
-               ),
-               array(
-                  'char' => $lf,
-                  'type' => ConvertHelper_EOL::TYPE_LF,
-                  'description' => t('Line feed'),
-               ),
-               array(
-                  'char' => $cr,
-                  'type' => ConvertHelper_EOL::TYPE_CR,
-                  'description' => t('Carriage Return'),
-               ),
-            );
-        }
-        
-        $max = 0;
-        $results = array();
-        foreach(self::$eolChars as $def) 
-        {
-            $amount = substr_count($subjectString, $def['char']);
-            
-            if($amount > $max)
-            {
-                $max = $amount;
-                $results[] = $def;
-            }
-        }
-        
-        if(empty($results)) {
-            return null;
-        }
-        
-        return new ConvertHelper_EOL(
-            $results[0]['char'], 
-            $results[0]['type'],
-            $results[0]['description']
-        );
+        return ConvertHelper_EOL::detect($subjectString);
     }
 
    /**
@@ -1396,12 +1179,7 @@ class ConvertHelper
     */
     public static function arrayRemoveKeys(array &$array, array $keys) : void
     {
-        foreach($keys as $key) 
-        {
-            if(array_key_exists($key, $array)) {
-                unset($array[$key]); 
-            }
-        }
+        ConvertHelper_Array::removeKeys($array, $keys);
     }
     
    /**
@@ -1479,5 +1257,10 @@ class ConvertHelper
     public static function createURLFinder(string $subject) : ConvertHelper_URLFinder
     {
         return new ConvertHelper_URLFinder($subject);
+    }
+
+    public static function arrayRemoveValues(array $sourceArray, array $values, bool $keepKeys=false) : array
+    {
+        return ConvertHelper_Array::removeValues($sourceArray, $values, $keepKeys);
     }
 }
