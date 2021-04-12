@@ -44,6 +44,9 @@ class ConvertHelper_EOL
     */
     protected $description;
 
+    /**
+     * @var array<int,array<string,string>>|NULL
+     */
     protected static $eolChars = null;
 
     public function __construct(string $char, string $type, string $description)
@@ -122,38 +125,11 @@ class ConvertHelper_EOL
             return null;
         }
 
-        if(!isset(self::$eolChars))
-        {
-            $cr = chr((int)hexdec('0d'));
-            $lf = chr((int)hexdec('0a'));
-
-            self::$eolChars = array(
-                array(
-                    'char' => $cr.$lf,
-                    'type' => ConvertHelper_EOL::TYPE_CRLF,
-                    'description' => t('Carriage return followed by a line feed'),
-                ),
-                array(
-                    'char' => $lf.$cr,
-                    'type' => ConvertHelper_EOL::TYPE_LFCR,
-                    'description' => t('Line feed followed by a carriage return'),
-                ),
-                array(
-                    'char' => $lf,
-                    'type' => ConvertHelper_EOL::TYPE_LF,
-                    'description' => t('Line feed'),
-                ),
-                array(
-                    'char' => $cr,
-                    'type' => ConvertHelper_EOL::TYPE_CR,
-                    'description' => t('Carriage Return'),
-                ),
-            );
-        }
-
         $max = 0;
         $results = array();
-        foreach(self::$eolChars as $def)
+        $chars = self::getEOLChars();
+
+        foreach($chars as $def)
         {
             $amount = substr_count($subjectString, $def['char']);
 
@@ -173,5 +149,43 @@ class ConvertHelper_EOL
             $results[0]['type'],
             $results[0]['description']
         );
+    }
+
+    /**
+     * @return array<int,array<string,string>>
+     */
+    public static function getEOLChars() : array
+    {
+        if(isset(self::$eolChars)) {
+            return self::$eolChars;
+        }
+
+        $cr = chr((int)hexdec('0d'));
+        $lf = chr((int)hexdec('0a'));
+
+        self::$eolChars = array(
+            array(
+                'char' => $cr.$lf,
+                'type' => ConvertHelper_EOL::TYPE_CRLF,
+                'description' => t('Carriage return followed by a line feed'),
+            ),
+            array(
+                'char' => $lf.$cr,
+                'type' => ConvertHelper_EOL::TYPE_LFCR,
+                'description' => t('Line feed followed by a carriage return'),
+            ),
+            array(
+                'char' => $lf,
+                'type' => ConvertHelper_EOL::TYPE_LF,
+                'description' => t('Line feed'),
+            ),
+            array(
+                'char' => $cr,
+                'type' => ConvertHelper_EOL::TYPE_CR,
+                'description' => t('Carriage Return'),
+            ),
+        );
+
+        return self::$eolChars;
     }
 }
