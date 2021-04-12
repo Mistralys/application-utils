@@ -108,7 +108,7 @@ class FileHelper_PathsReducer
     }
 
     /**
-     * @param array<int,string[]> &$split
+     * @param array<int,string[]> $split
      * @return bool
      */
     private function shiftPart(array &$split) : bool
