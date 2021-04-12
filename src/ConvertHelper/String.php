@@ -126,7 +126,7 @@ class ConvertHelper_String
      * @param mixed $string
      * @return boolean
      */
-    public static function isASCII(string $string) : bool
+    public static function isASCII($string) : bool
     {
         if($string === '' || $string === NULL) {
             return true;
