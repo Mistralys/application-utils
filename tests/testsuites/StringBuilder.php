@@ -26,4 +26,20 @@ final class StringBuilderTest extends TestCase
         
         $this->assertEquals('One here and Two', $result);
     }
+
+    public function test_para() : void
+    {
+        $this->assertEquals('<br><br>', (string)sb()->para());
+
+        $this->assertEquals('<p>Test</p>', (string)sb()->para('Test'));
+    }
+
+    public function test_nospace() : void
+    {
+        $this->assertEquals('Test', (string)sb()->nospace('Test'));
+
+        $this->assertEquals('TestFoo', (string)sb()->nospace('Test')->nospace('Foo'));
+
+        $this->assertEquals('Test YoFoo', (string)sb()->nospace('Test')->add('Yo')->nospace('Foo'));
+    }
 }
