@@ -33,7 +33,7 @@
         "mistralys/html_quickform2" : ">=2.1.2",
         "geshi/geshi" : ">=1.0.9.1",
         "neitanod/forceutf8" : ">=2.0.4",
-        "parsecsv/php-parsecsv" : ">=1.2.1",
+        "parsecsv/php-parsecsv" : "1.2.*",
         "php": ">=7.3",
         "ext-mbstring": "*",
         "ext-curl": "*"
