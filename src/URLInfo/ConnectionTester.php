@@ -89,8 +89,6 @@ class URLInfo_ConnectionTester implements Interface_Optionable
     */
     private function initCURL()
     {
-        requireCURL();
-        
         $ch = curl_init();
         
         if(!is_resource($ch))

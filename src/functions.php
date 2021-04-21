@@ -6,12 +6,6 @@ use DateInterval;
 use Throwable;
 
 /**
- * Error code for the CURL extension check.
- * @see \AppUtils\requireCURL()
- */
-define('APPUTILS_ERROR_CURL_NOT_INSTALLED', 44001);
-
-/**
  * Parses the specified number, and returns a NumberInfo instance.
  *
  * @param NumberInfo|string|int|float $value
@@ -111,26 +105,6 @@ function t() : string
 }
 
 /**
- * Ensures that the CURL extension is available, and throws
- * an exception if not.
- * 
- * @throws BaseException
- * @link \AppUtils\APPUTILS_ERROR_CURL_NOT_INSTALLED
- */
-function requireCURL() : void
-{
-    if(function_exists('curl_init')) {
-        return;
-    }
-    
-    throw new BaseException(
-        'The CURL extension is not installed or not available.',
-        null,
-        APPUTILS_ERROR_CURL_NOT_INSTALLED
-    );
-}
-
-/**
  * Creates a boolean value.
  * 
  * @param bool $initial The initial boolean value to use.
@@ -175,6 +149,15 @@ function valBoolFalse(bool $initial=true) : Value_Bool_False
 function sb() : StringBuilder
 {
     return new StringBuilder();
+}
+
+/**
+ * Whether the current request is run via the command line.
+ * @return bool
+ */
+function isCLI() : bool
+{
+    return php_sapi_name() === "cli";
 }
 
 /**

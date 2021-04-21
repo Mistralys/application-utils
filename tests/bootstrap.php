@@ -1,7 +1,5 @@
 <?php
 
-use function AppUtils\requireCURL;
-
 /**
  * Main bootstrapper used to set up the testsuites environment.
  * 

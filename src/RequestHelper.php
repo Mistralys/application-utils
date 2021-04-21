@@ -93,8 +93,6 @@ class RequestHelper
         $this->destination = $destinationURL;
         $this->mimeBoundary = str_repeat('-', 20).md5('request-helper-boundary');
         $this->boundaries = new RequestHelper_Boundaries($this);
-        
-        requireCURL();
     }
     
     public function getMimeBoundary() : string

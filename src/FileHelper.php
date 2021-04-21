@@ -440,8 +440,6 @@ class FileHelper
      */
     public static function downloadFile($url)
     {
-        requireCURL();
-        
         $ch = curl_init();
         if(!is_resource($ch)) 
         {
