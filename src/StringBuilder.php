@@ -224,10 +224,22 @@ class StringBuilder implements StringBuilder_Interface
     * Adds a HTML `br` tag.
     * 
     * @return $this
+    * @see StringBuilder::eol()
     */
     public function nl() : StringBuilder
     {
         return $this->html('<br>');
+    }
+
+    /**
+     * Adds an EOL character, without space.
+     *
+     * @return $this
+     * @see StringBuilder::nl()
+     */
+    public function eol() : StringBuilder
+    {
+        return $this->nospace(PHP_EOL);
     }
     
    /**
@@ -272,11 +284,16 @@ class StringBuilder implements StringBuilder_Interface
     
    /**
     * Adds two linebreaks.
-    * 
+    *
+    * @param StringBuilder_Interface|string|NULL
     * @return $this
     */
-    public function para() : StringBuilder
+    public function para($content=null) : StringBuilder
     {
+        if($content !== null) {
+            return $this->html('<p>')->nospace($content)->html('</p>');
+        }
+
         return $this->nl()->nl();
     }
     
