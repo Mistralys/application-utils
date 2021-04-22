@@ -112,6 +112,7 @@ class FileHelper_MimeTypes
         'nc' => 'application/x-netcdf',
         'nws' => 'message/rfc822',
         'oda' => 'application/oda',
+        'odt' => 'application/vnd.oasis.opendocument.text',
         'p10' => 'application/pkcs10',
         'p12' => 'application/x-pkcs12',
         'p7b' => 'application/x-pkcs7-certificates',
