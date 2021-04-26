@@ -9,6 +9,8 @@
 
 namespace AppUtils;
 
+use DateTime;
+use DirectoryIterator;
 use ParseCsv\Csv;
 
 /**
@@ -51,8 +53,13 @@ class FileHelper
     const ERROR_FOLDER_DOES_NOT_EXIST = 340033;
     const ERROR_PATH_IS_NOT_A_FOLDER = 340034;
     const ERROR_CANNOT_WRITE_TO_FOLDER = 340035;
-    
-   /**
+
+    /**
+     * @var array<string,string>|NULL
+     */
+    protected static $utfBoms;
+
+    /**
     * Opens a serialized file and returns the unserialized data.
     * 
     * @param string $file
@@ -78,7 +85,7 @@ class FileHelper
     * @see FileHelper::ERROR_SERIALIZED_FILE_CANNOT_BE_READ
     * @see FileHelper::ERROR_SERIALIZED_FILE_UNSERIALZE_FAILED
     */
-    public static function parseSerializedFile(string $file)
+    public static function parseSerializedFile(string $file) : array
     {
         self::requireFileExists($file);
         
@@ -111,14 +118,21 @@ class FileHelper
             self::ERROR_SERIALIZED_FILE_UNSERIALZE_FAILED
         );
     }
-    
-    public static function deleteTree($rootFolder)
+
+    /**
+     * Deletes a folder tree with all files therein, including
+     * the specified folder itself.
+     *
+     * @param string $rootFolder
+     * @return bool
+     */
+    public static function deleteTree(string $rootFolder) : bool
     {
         if(!file_exists($rootFolder)) {
             return true;
         }
         
-        $d = new \DirectoryIterator($rootFolder);
+        $d = new DirectoryIterator($rootFolder);
         foreach ($d as $item) {
             if ($item->isDot()) {
                 continue;
@@ -153,7 +167,7 @@ class FileHelper
     * @throws FileHelper_Exception
     * @see FileHelper::ERROR_CANNOT_CREATE_FOLDER
     */
-    public static function createFolder($path)
+    public static function createFolder(string $path) : void
     {
         if(is_dir($path) || mkdir($path, 0777, true)) {
             return;
@@ -177,7 +191,7 @@ class FileHelper
     {
         self::createFolder($target);
 
-        $d = new \DirectoryIterator($source);
+        $d = new DirectoryIterator($source);
         foreach ($d as $item) 
         {
             if ($item->isDot()) {
@@ -377,6 +391,25 @@ class FileHelper
     }
 
     /**
+     * Like `sendFile()`, but automatically determines whether
+     * the browser can open the target file type, to either
+     * send it directly to the browser, or force downloading
+     * it instead.
+     *
+     * @param string $filePath
+     * @param string $fileName
+     * @throws FileHelper_Exception
+     */
+    public function sendFileAuto(string $filePath, string $fileName = '') : void
+    {
+        self::sendFile(
+            $filePath,
+            $fileName,
+            !FileHelper_MimeTypes::canBrowserDisplay(self::getExtension($filePath))
+        );
+    }
+
+    /**
      * Detects the mime type of the target file automatically,
      * sends the required headers to trigger a download and
      * outputs the file. Returns false if the mime type could
@@ -438,7 +471,7 @@ class FileHelper
      * 
      * @see FileHelper::ERROR_CANNOT_OPEN_URL
      */
-    public static function downloadFile($url)
+    public static function downloadFile(string $url) : string
     {
         $ch = curl_init();
         if(!is_resource($ch)) 
@@ -493,32 +526,28 @@ class FileHelper
     * to the file can be a path to a file as a string, or a 
     * DirectoryIterator object instance.
     * 
-    * @param string|\DirectoryIterator $pathOrDirIterator
+    * @param string|DirectoryIterator $pathOrDirIterator
     * @return boolean
     */
-    public static function isPHPFile($pathOrDirIterator)
+    public static function isPHPFile($pathOrDirIterator) : bool
     {
-    	if(self::getExtension($pathOrDirIterator) == 'php') {
-    		return true;
-    	}
-    	
-    	return false;
+    	return self::getExtension($pathOrDirIterator) === 'php';
     }
     
    /**
     * Retrieves the extension of the specified file. Can be a path
     * to a file as a string, or a DirectoryIterator object instance.
     * 
-    * @param string|\DirectoryIterator $pathOrDirIterator
+    * @param string|DirectoryIterator $pathOrDirIterator
     * @param bool $lowercase
     * @return string
     */
     public static function getExtension($pathOrDirIterator, bool $lowercase = true) : string
     {
-        if($pathOrDirIterator instanceof \DirectoryIterator) {
+        if($pathOrDirIterator instanceof DirectoryIterator) {
             $filename = $pathOrDirIterator->getFilename();
         } else {
-            $filename = basename($pathOrDirIterator);
+            $filename = basename(strval($pathOrDirIterator));
         }
          
         $ext = pathinfo($filename, PATHINFO_EXTENSION);
@@ -537,14 +566,14 @@ class FileHelper
     * In case of folders, behaves like the pathinfo function: returns
     * the name of the folder.
     * 
-    * @param string|\DirectoryIterator $pathOrDirIterator
+    * @param string|DirectoryIterator $pathOrDirIterator
     * @param bool $extension
     * @return string
     */
-    public static function getFilename($pathOrDirIterator, $extension = true)
+    public static function getFilename($pathOrDirIterator, $extension = true) : string
     {
-        $path = $pathOrDirIterator;
-    	if($pathOrDirIterator instanceof \DirectoryIterator) {
+        $path = strval($pathOrDirIterator);
+    	if($pathOrDirIterator instanceof DirectoryIterator) {
     		$path = $pathOrDirIterator->getFilename();
     	}
     	
@@ -556,34 +585,26 @@ class FileHelper
     	
     	return pathinfo($path, PATHINFO_BASENAME); 
     }
-   
-   /**
-    * Tries to read the contents of the target file and
-    * treat it as JSON to return the decoded JSON data.
-    * 
-    * @param string $file
-    * @throws FileHelper_Exception
-    * @return array
-    * 
-    * @see FileHelper::ERROR_CANNOT_FIND_JSON_FILE
-    * @see FileHelper::ERROR_CANNOT_DECODE_JSON_FILE
-    */ 
-    public static function parseJSONFile(string $file, $targetEncoding=null, $sourceEncoding=null)
+
+    /**
+     * Tries to read the contents of the target file and
+     * treat it as JSON to return the decoded JSON data.
+     *
+     * @param string $file
+     * @param string $targetEncoding
+     * @param string|string[]|null $sourceEncoding
+     * @return array
+     *
+     * @throws FileHelper_Exception
+     * @see FileHelper::ERROR_CANNOT_FIND_JSON_FILE
+     * @see FileHelper::ERROR_CANNOT_DECODE_JSON_FILE
+     */
+    public static function parseJSONFile(string $file, string $targetEncoding='', $sourceEncoding=null) : array
     {
         self::requireFileExists($file, self::ERROR_CANNOT_FIND_JSON_FILE);
         
-        $content = file_get_contents($file);
-        if(!$content) {
-            throw new FileHelper_Exception(
-                'Cannot get file contents',
-                sprintf(
-                    'The file [%s] exists on disk, but its contents cannot be read.',
-                    $file    
-                ),
-                self::ERROR_JSON_FILE_CANNOT_BE_READ
-            );
-        }
-        
+        $content = self::readContents($file);
+
         if(isset($targetEncoding)) {
             $content = mb_convert_encoding($content, $targetEncoding, $sourceEncoding);
         }
@@ -641,49 +662,54 @@ class FileHelper
         
         return $name;
     }
-    
-   /**
-    * Creates an instance of the file finder, which is an easier
-    * alternative to the other manual findFile methods, since all
-    * options can be set by chaining.
-    * 
-    * @param string $path
-    * @return FileHelper_FileFinder
-    */
+
+    /**
+     * Creates an instance of the file finder, which is an easier
+     * alternative to the other manual findFile methods, since all
+     * options can be set by chaining.
+     *
+     * @param string $path
+     * @return FileHelper_FileFinder
+     * @throws FileHelper_Exception
+     *
+     * @see FileHelper_FileFinder::ERROR_PATH_DOES_NOT_EXIST
+     */
     public static function createFileFinder(string $path) : FileHelper_FileFinder
     {
         return new FileHelper_FileFinder($path);
     }
-    
-   /**
-    * Searches for all HTML files in the target folder.
-    * 
-    * NOTE: This method only exists for backwards compatibility.
-    * Use the `createFileFinder()` method instead, which offers
-    * an object oriented interface that is much easier to use.
-    * 
-    * @param string $targetFolder
-    * @param array $options
-    * @return array An indexed array with files.
-    * @see FileHelper::createFileFinder()
-    */
+
+    /**
+     * Searches for all HTML files in the target folder.
+     *
+     * NOTE: This method only exists for backwards compatibility.
+     * Use the `createFileFinder()` method instead, which offers
+     * an object oriented interface that is much easier to use.
+     *
+     * @param string $targetFolder
+     * @param array $options
+     * @return array An indexed array with files.
+     * @throws FileHelper_Exception
+     * @see FileHelper::createFileFinder()
+     */
     public static function findHTMLFiles(string $targetFolder, array $options=array()) : array
     {
         return self::findFiles($targetFolder, array('html'), $options);
     }
 
-   /**
-    * Searches for all PHP files in the target folder.
-    * 
-    * NOTE: This method only exists for backwards compatibility.
-    * Use the `createFileFinder()` method instead, which offers
-    * an object oriented interface that is much easier to use.
-    * 
-    * @param string $targetFolder
-    * @param array $options
-    * @return array An indexed array of PHP files.
-    * @see FileHelper::createFileFinder()
-    */
+    /**
+     * Searches for all PHP files in the target folder.
+     *
+     * NOTE: This method only exists for backwards compatibility.
+     * Use the `createFileFinder()` method instead, which offers
+     * an object oriented interface that is much easier to use.
+     *
+     * @param string $targetFolder
+     * @param array $options
+     * @return string[] An indexed array of PHP files.
+     * @throws FileHelper_Exception
+     * @see FileHelper::createFileFinder()
+     */
     public static function findPHPFiles(string $targetFolder, array $options=array()) : array
     {
         return self::findFiles($targetFolder, array('php'), $options);
@@ -697,16 +723,19 @@ class FileHelper
     * an object oriented interface that is much easier to use.
     *  
     * @param string $targetFolder
-    * @param array $extensions
-    * @param array $options
-    * @param array $files
+    * @param string[] $extensions
+    * @param array<string,mixed> $options
     * @throws FileHelper_Exception
-    * @return array
+    * @return string[]
     * @see FileHelper::createFileFinder()
     */
-    public static function findFiles(string $targetFolder, array $extensions=array(), array $options=array(), array $files=array()) : array
+    public static function findFiles(string $targetFolder, array $extensions=array(), array $options=array()) : array
     {
         $finder = self::createFileFinder($targetFolder);
+
+        foreach ($extensions as $extension) {
+            $finder->includeExtension($extension);
+        }
 
         $finder->setPathmodeStrip();
         
@@ -755,23 +784,26 @@ class FileHelper
         
         return implode('/', $parts);
     }
-    
-   /**
-    * Detects the UTF BOM in the target file, if any. Returns
-    * the encoding matching the BOM, which can be any of the
-    * following:
-    * 
-    * <ul>
-    * <li>UTF32-BE</li>
-    * <li>UTF32-LE</li>
-    * <li>UTF16-BE</li>
-    * <li>UTF16-LE</li>
-    * <li>UTF8</li>
-    * </ul>
-    * 
-    * @param string $filename
-    * @return string|NULL
-    */
+
+    /**
+     * Detects the UTF BOM in the target file, if any. Returns
+     * the encoding matching the BOM, which can be any of the
+     * following:
+     *
+     * <ul>
+     * <li>UTF32-BE</li>
+     * <li>UTF32-LE</li>
+     * <li>UTF16-BE</li>
+     * <li>UTF16-LE</li>
+     * <li>UTF8</li>
+     * </ul>
+     *
+     * @param string $filename
+     * @return string|NULL
+     * @throws FileHelper_Exception
+     *
+     * @see FileHelper::ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM
+     */
     public static function detectUTFBom(string $filename) : ?string
     {
         $fp = fopen($filename, 'r');
@@ -799,18 +831,16 @@ class FileHelper
         }
         
         return null;
-    }    
-    
-    protected static $utfBoms;
-    
+    }
+
    /**
     * Retrieves a list of all UTF byte order mark character
-    * sequences, as an assocative array with UTF encoding => bom sequence
+    * sequences, as an associative array with UTF encoding => bom sequence
     * pairs.
     * 
-    * @return array
+    * @return array<string,string>
     */
-    public static function getUTFBOMs()
+    public static function getUTFBOMs() : array
     {
         if(!isset(self::$utfBoms)) {
             self::$utfBoms = array(
@@ -854,9 +884,9 @@ class FileHelper
     
    /**
     * Retrieves a list of all known unicode file encodings.
-    * @return array
+    * @return string[]
     */
-    public static function getKnownUnicodeEncodings()
+    public static function getKnownUnicodeEncodings() : array
     {
         return array_keys(self::getUTFBOMs());
     }
@@ -886,7 +916,7 @@ class FileHelper
     * @see FileHelper::ERROR_SAVE_FILE_NOT_WRITABLE
     * @see FileHelper::ERROR_SAVE_FILE_WRITE_FAILED
     */
-    public static function saveAsJSON($data, string $file, bool $pretty=false)
+    public static function saveAsJSON($data, string $file, bool $pretty=false) : void
     {
         $options = null;
         if($pretty) {
@@ -1008,7 +1038,7 @@ class FileHelper
      * 
      * @todo Move this to a separate class.
      */
-    public static  function cliCommandExists($command)
+    public static  function cliCommandExists(string $command) : bool
     {
         static $checked = array();
         
@@ -1069,18 +1099,19 @@ class FileHelper
         
         return $result;
     }
-    
-   /**
-    * Validates a PHP file's syntax.
-    * 
-    * NOTE: This will fail silently if the PHP command line
-    * is not available. Use {@link FileHelper::canMakePHPCalls()}
-    * to check this beforehand as needed.
-    * 
-    * @param string $path
-    * @return boolean|array A boolean true if the file is valid, an array with validation messages otherwise.
-    */
-    public static function checkPHPFileSyntax($path)
+
+    /**
+     * Validates a PHP file's syntax.
+     *
+     * NOTE: This will fail silently if the PHP command line
+     * is not available. Use {@link FileHelper::canMakePHPCalls()}
+     * to check this beforehand as needed.
+     *
+     * @param string $path
+     * @return boolean|array A boolean true if the file is valid, an array with validation messages otherwise.
+     * @throws FileHelper_Exception
+     */
+    public static function checkPHPFileSyntax(string $path)
     {
         if(!self::canMakePHPCalls()) {
             return true;
@@ -1109,18 +1140,18 @@ class FileHelper
     * Note: If the target does not exist, returns null. 
     * 
     * @param string $path
-    * @return \DateTime|NULL
+    * @return DateTime|NULL
     */
-    public static function getModifiedDate($path)
+    public static function getModifiedDate(string $path) : ?DateTime
     {
         $time = filemtime($path);
-        if($time !== false) {
-            $date = new \DateTime();
-            $date->setTimestamp($time);
-            return $date;
+        if($time === false) {
+            return null;
         }
-        
-        return null; 
+
+        $date = new DateTime();
+        $date->setTimestamp($time);
+        return $date;
     }
     
    /**
@@ -1134,15 +1165,20 @@ class FileHelper
     * - absolute-paths: true/false
     *   Whether to return a list of absolute paths.
     * 
-    * @param string $targetFolder
+    * @param string|DirectoryIterator $targetFolder
     * @param array $options
     * @throws FileHelper_Exception
     * @return string[]
-    * 
+    *
+    * @see FileHelper::ERROR_FIND_SUBFOLDERS_FOLDER_DOES_NOT_EXIST
     * @todo Move this to a separate class.
     */
     public static function getSubfolders($targetFolder, $options = array())
     {
+        if($targetFolder instanceof DirectoryIterator) {
+            $targetFolder = $targetFolder->getPathname();
+        }
+
         if(!is_dir($targetFolder)) 
         {
             throw new FileHelper_Exception(
@@ -1165,7 +1201,7 @@ class FileHelper
         
         $result = array();
         
-        $d = new \DirectoryIterator($targetFolder);
+        $d = new DirectoryIterator($targetFolder);
         
         foreach($d as $item) 
         {
@@ -1352,6 +1388,12 @@ class FileHelper
         );
     }
 
+    /**
+     * @param string $path
+     * @param int|NULL $errorCode
+     * @return string
+     * @throws FileHelper_Exception
+     */
     public static function requireFileReadable(string $path, ?int $errorCode=null) : string
     {
         $path = self::requireFileExists($path, $errorCode);
