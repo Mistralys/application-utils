@@ -285,7 +285,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Adds two linebreaks.
     *
-    * @param StringBuilder_Interface|string|NULL
+    * @param StringBuilder_Interface|string|NULL $content
     * @return $this
     */
     public function para($content=null) : StringBuilder
