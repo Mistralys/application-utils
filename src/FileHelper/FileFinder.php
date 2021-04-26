@@ -106,7 +106,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     * Retrieves all extensions that were added to
     * the include list.
     * 
-    * @return array
+    * @return string[]
     */
     public function getIncludeExtensions() : array
     {
@@ -156,7 +156,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     * Retrieves a list of all extensions currently set as 
     * excluded from the search.
     * 
-    * @return array
+    * @return string[]
     */
     public function getExcludeExtensions() : array
     {
@@ -237,7 +237,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     * Subfolder/To/File.php => Subfolder_To_File.php
     * 
     * @param string $character
-    * @return \AppUtils\FileHelper_FileFinder
+    * @return FileHelper_FileFinder
     */
     public function setSlashReplacement(string $character) : FileHelper_FileFinder
     {
@@ -253,7 +253,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     * Retrieves a list of all matching file names/paths,
     * depending on the selected options.
     * 
-    * @return array
+    * @return string[]
     */
     public function getAll() : array
     {
@@ -266,7 +266,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     * Retrieves only PHP files. Can be combined with other
     * options like enabling recursion into subfolders.
     * 
-    * @return array
+    * @return string[]
     */
     public function getPHPFiles() : array
     {
@@ -278,7 +278,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     * Generates PHP class names from file paths: it replaces
     * slashes with underscores, and removes file extensions.
     * 
-    * @return array An array of PHP file names without extension.
+    * @return string[] An array of PHP file names without extension.
     */
     public function getPHPClassNames() : array
     {
