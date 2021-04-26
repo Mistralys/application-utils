@@ -1,9 +1,77 @@
 <?php
+/**
+ * File containing the class {@see FileHelper_MimeTypes}.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @see FileHelper_MimeTypes
+ */
+
+declare(strict_types=1);
 
 namespace AppUtils;
 
+/**
+ * Collection of file mime types by extension.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class FileHelper_MimeTypes
 {
+    /**
+     * List of extensions that can typically be opened in a
+     * browser natively, without needing separate software.
+     *
+     * @var string[]
+     */
+    protected static $browserExtensions = array(
+        // Text based files
+        'html',
+        'htm',
+        'php',
+        'txt',
+        'css',
+        'xml',
+        'js',
+        'json',
+        'sql',
+
+        // Documents
+        'pdf',
+        'csv',
+
+        // Images
+        'jpeg',
+        'jpg',
+        'png',
+        'gif',
+        'tif',
+        'tiff',
+        'bmp',
+        'ico',
+        'svg',
+        'tga',
+
+        // Video
+        'mpg',
+        'mpeg',
+        'avi',
+        'webm',
+        'mov',
+        'qt',
+        'mp4',
+        'divx',
+        'mkv',
+
+        // Audio
+        'mp3',
+        'wav',
+        'wma',
+        'm4a'
+    );
+
     /**
      * Table with file extension => mime type mappings
      * @var array
@@ -220,7 +288,7 @@ class FileHelper_MimeTypes
      * @param string $extension
      * @return string|NULL
      */
-    public static function getMime($extension)
+    public static function getMime(string $extension) :?string
     {
         if(isset(self::$mimeTypes[$extension])) {
             return self::$mimeTypes[$extension];
@@ -228,4 +296,16 @@ class FileHelper_MimeTypes
 
         return null;
     }
-} 
+
+    /**
+     * Checks whether a browser can typically display files
+     * natively that have the specified extension.
+     *
+     * @param string $extension
+     * @return bool
+     */
+    public static function canBrowserDisplay(string $extension) : bool
+    {
+        return in_array($extension, self::$browserExtensions);
+    }
+}
