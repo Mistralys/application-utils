@@ -605,7 +605,7 @@ class FileHelper
         
         $content = self::readContents($file);
 
-        if(isset($targetEncoding)) {
+        if(!empty($targetEncoding)) {
             $content = mb_convert_encoding($content, $targetEncoding, $sourceEncoding);
         }
         
