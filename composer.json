@@ -36,7 +36,8 @@
         "parsecsv/php-parsecsv" : "1.2.*",
         "php": ">=7.3",
         "ext-mbstring": "*",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-json": "*"
     },
     "require-dev" : 
     {
