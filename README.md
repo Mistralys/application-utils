@@ -65,7 +65,7 @@ This overview is an excerpt of the available utility classes in the package. It 
 * SVNHelper: working with a local SVN repository. Update, commit, etc.
 * Traits: Plug-in traits for common tasks, with matching interfaces.
     - [Classable][]: For elements that can have classes, like HTML elements.
-    - Optionable: For elements which allow setting options, with strong typing.
+    - [Optionable][]: For elements which allow setting options, with strong typing.
 * Transliteration: Simple transliteration to ASCII for any names. 
 * [URLInfo][]: An object oriented parse_url with fixes for a number of pitfalls.
     - Highlighter: Highlights URLs with integrated CSS.
@@ -99,3 +99,4 @@ Historically, these classes were integrated in several legacy applications, with
 [FileHelper]: https://github.com/Mistralys/application-utils/wiki/FileHelper
 [PathsReducer]: https://github.com/Mistralys/application-utils/wiki/PathsReducer
 [Classable]: https://github.com/Mistralys/application-utils/wiki/Classable
+[Optionable]: https://github.com/Mistralys/application-utils/wiki/Optionable
