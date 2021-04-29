@@ -86,7 +86,7 @@ final class VariableInfoTest extends TestCase
                 'label' => 'Named closure',
                 'value' => NamedClosure::fromClosure(Closure::fromCallable('trim'), 'Origin'),
                 'type' => VariableInfo::TYPE_CALLABLE,
-                'string' => 'Closure[Origin]'
+                'string' => 'Closure:Origin'
             )
         );
         
