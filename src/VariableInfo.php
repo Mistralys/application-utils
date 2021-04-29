@@ -51,12 +51,23 @@ class VariableInfo implements Interface_Optionable
     * @var string
     */
     protected $type;
-    
-   /**
-    * @param mixed $value
-    * @param array|null $serialized
-    */
-    public function __construct($value, $serialized=null)
+
+    /**
+     * @var string[]
+     */
+    protected $callableTypes = array(
+        'string',
+        'object',
+        'array',
+        'closure'
+    );
+
+    /**
+     * @param mixed $value
+     * @param array|null $serialized
+     * @throws BaseException
+     */
+    public function __construct($value, ?array $serialized=null)
     {
         if(is_array($serialized))
         {
@@ -67,27 +78,29 @@ class VariableInfo implements Interface_Optionable
             $this->parseValue($value);
         }
     }
-    
-   /**
-    * Creates a new variable info instance from a PHP variable
-    * of any type.
-    * 
-    * @param mixed $variable
-    * @return VariableInfo
-    */
+
+    /**
+     * Creates a new variable info instance from a PHP variable
+     * of any type.
+     *
+     * @param mixed $variable
+     * @return VariableInfo
+     * @throws BaseException
+     */
     public static function fromVariable($variable) : VariableInfo
     {
         return new VariableInfo($variable);
     }
-    
-   /**
-    * Restores a variable info instance using a previously serialized
-    * array using the serialize() method.
-    * 
-    * @param array $serialized
-    * @return VariableInfo
-    * @see VariableInfo::serialize()
-    */
+
+    /**
+     * Restores a variable info instance using a previously serialized
+     * array using the serialize() method.
+     *
+     * @param array $serialized
+     * @return VariableInfo
+     * @throws BaseException
+     * @see VariableInfo::serialize()
+     */
     public static function fromSerialized(array $serialized) : VariableInfo
     {
         return new VariableInfo(null, $serialized);
@@ -118,7 +131,7 @@ class VariableInfo implements Interface_Optionable
         
         $this->setOptions($serialized['options']);
     }
-    
+
     protected function parseValue($value)
     {
         $this->value = $value;
@@ -130,8 +143,8 @@ class VariableInfo implements Interface_Optionable
         {
             $this->type = self::TYPE_RESOURCE;
         }
-        
-        if(is_array($value) && is_callable($value)) {
+
+        if(in_array($this->type, $this->callableTypes) && is_callable($value)) {
             $this->type = self::TYPE_CALLABLE;
         }
         
