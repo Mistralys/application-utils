@@ -61,11 +61,11 @@ This overview is an excerpt of the available utility classes in the package. It 
     - URLComparer: Compare URLs, including query parameters.
     - RequestHelper: build raw requests from scratch with multipart support.
     - AcceptHeaders: Allows parsing the Accept: header.
-* StringBuilder: Easily concatenate strings, with formatting helpers, in a chainable interface.
+* [StringBuilder][]: Easily concatenate strings, with formatting helpers, in a chainable interface.
 * SVNHelper: working with a local SVN repository. Update, commit, etc.
 * Traits: Plug-in traits for common tasks, with matching interfaces.
-    - Classable: For elements that can have classes, like HTML elements.
-    - Optionable: For elements which allow setting options, with strong typing.
+    - [Classable][]: For elements that can have classes, like HTML elements.
+    - [Optionable][]: For elements which allow setting options, with strong typing.
 * Transliteration: Simple transliteration to ASCII for any names. 
 * [URLInfo][]: An object oriented parse_url with fixes for a number of pitfalls.
     - Highlighter: Highlights URLs with integrated CSS.
@@ -88,6 +88,7 @@ Documentation for the helper classes is ongoing in the [Application Utils Wiki](
 
 Historically, these classes were integrated in several legacy applications, with their code diverging over time. This repository consolidated them all to make it easier to maintain them. 
 
+[StringBuilder]: https://github.com/Mistralys/application-utils/wiki/StringBuilder
 [FileFinder]: https://github.com/Mistralys/application-utils/wiki/FileFinder
 [NamedClosure]: https://github.com/Mistralys/application-utils/wiki/NamedClosure
 [ConvertHelper]: https://github.com/Mistralys/application-utils/wiki/ConvertHelper
@@ -97,3 +98,5 @@ Historically, these classes were integrated in several legacy applications, with
 [Request]: https://github.com/Mistralys/application-utils/wiki/Request
 [FileHelper]: https://github.com/Mistralys/application-utils/wiki/FileHelper
 [PathsReducer]: https://github.com/Mistralys/application-utils/wiki/PathsReducer
+[Classable]: https://github.com/Mistralys/application-utils/wiki/Classable
+[Optionable]: https://github.com/Mistralys/application-utils/wiki/Optionable
