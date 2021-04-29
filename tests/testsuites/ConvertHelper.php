@@ -1524,4 +1524,20 @@ final class ConvertHelperTest extends TestCase
         
         $this->assertEquals($expected, $result);
     }
+
+    /**
+     * The callback2string method must work even if the
+     * target is not actually a callable. This is different
+     * from `parseVariable($callback)->toString()`, which
+     * can only detect callable arrays by checking if they
+     * are indeed callable. Here it is assumed that the
+     * specified value is a callable.
+     */
+    public function test_callback2string_notCallable() : void
+    {
+        $this->assertEquals(
+            'foo::bar()',
+            ConvertHelper::callback2string(array('foo', 'bar'))
+        );
+    }
 }

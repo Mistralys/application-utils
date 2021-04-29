@@ -1091,10 +1091,24 @@ class ConvertHelper
     {
         return ConvertHelper_String::toHash($string);
     }
-    
+
+    /**
+     * Converts the specified callable to string.
+     *
+     * NOTE: Will work even if the callable is not
+     * actually callable, as compared to
+     * `parseVariable($callback)->toString()`.
+     *
+     * @param callable $callback
+     * @return string
+     */
     public static function callback2string($callback) : string
     {
-        return parseVariable($callback)->toString();
+        // We are creating the renderer manually, to allow rendering
+        // callbacks to string even if they are not actually callable.
+        $renderer = new VariableInfo_Renderer_String_Callable(parseVariable($callback));
+
+        return $renderer->render();
     }
 
     public static function exception2info(\Throwable $e) : ConvertHelper_ThrowableInfo
