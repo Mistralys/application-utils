@@ -64,7 +64,7 @@ This overview is an excerpt of the available utility classes in the package. It 
 * [StringBuilder][]: Easily concatenate strings, with formatting helpers, in a chainable interface.
 * SVNHelper: working with a local SVN repository. Update, commit, etc.
 * Traits: Plug-in traits for common tasks, with matching interfaces.
-    - Classable: For elements that can have classes, like HTML elements.
+    - [Classable][]: For elements that can have classes, like HTML elements.
     - Optionable: For elements which allow setting options, with strong typing.
 * Transliteration: Simple transliteration to ASCII for any names. 
 * [URLInfo][]: An object oriented parse_url with fixes for a number of pitfalls.
@@ -98,3 +98,4 @@ Historically, these classes were integrated in several legacy applications, with
 [Request]: https://github.com/Mistralys/application-utils/wiki/Request
 [FileHelper]: https://github.com/Mistralys/application-utils/wiki/FileHelper
 [PathsReducer]: https://github.com/Mistralys/application-utils/wiki/PathsReducer
+[Classable]: https://github.com/Mistralys/application-utils/wiki/Classable
