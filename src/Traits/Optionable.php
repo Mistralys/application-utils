@@ -30,14 +30,15 @@ trait Traits_Optionable
     * @var array
     */
     protected $options;
-    
-   /**
-    * Sets an option to the specified value. This can be any
-    * kind of variable type, including objects, as needed.
-    * 
-    * @param string $name
-    * @param mixed $value
-    */
+
+    /**
+     * Sets an option to the specified value. This can be any
+     * kind of variable type, including objects, as needed.
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return $this
+     */
     public function setOption(string $name, $value)
     {
         if(!isset($this->options)) {
@@ -52,7 +53,8 @@ trait Traits_Optionable
     * Sets a collection of options at once, from an
     * associative array.
     * 
-    * @param array $options
+    * @param array<string,mixed> $options
+    * @return $this
     */
     public function setOptions(array $options)
     {
@@ -106,16 +108,17 @@ trait Traits_Optionable
         
         return $default;
     }
-    
-   /**
-    * Treats the option value as a boolean value: will return
-    * true if the value actually is a boolean true.
-    * 
-    * NOTE: boolean string representations are not accepted.
-    * 
-    * @param string $name
-    * @return bool
-    */
+
+    /**
+     * Treats the option value as a boolean value: will return
+     * true if the value actually is a boolean true.
+     *
+     * NOTE: boolean string representations are not accepted.
+     *
+     * @param string $name
+     * @param bool $default
+     * @return bool
+     */
     public function getBoolOption(string $name, bool $default=false) : bool
     {
         if($this->getOption($name) === true) {
@@ -180,7 +183,8 @@ trait Traits_Optionable
     
    /**
     * Returns all options in one associative array.
-    * @return array
+    *
+    * @return array<string,mixed>
     */
     public function getOptions() : array
     {
@@ -204,49 +208,10 @@ trait Traits_Optionable
     }
     
    /**
-    * Retrieves the default available options as an 
+    * Retrieves the default available options as an
     * associative array with option name => value pairs.
-    * 
-    * @return array
+    *
+    * @return array<string,mixed>
     */
     abstract public function getDefaultOptions() : array;
-}
-
-/**
- * Interface for classes that use the optionable trait.
- * The trait itself fulfills most of the interface, but
- * it is used to guarantee internal type checks will work,
- * as well as ensure the abstract methods are implemented.
- *
- * @package Application Utils
- * @subpackage Traits
- * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
- *
- * @see Traits_Optionable
- */
-interface Interface_Optionable
-{
-   /**
-    * @param string $name
-    * @param mixed $value
-    * @return $this
-    */
-    function setOption(string $name, $value);
-    
-   /**
-    * @param string $name
-    * @param mixed $default
-    * @return $this
-    */
-    function getOption(string $name, $default=null);
-    
-   /**
-    * @param array $options
-    * @return $this    
-    */
-    function setOptions(array $options);
-    function getOptions() : array;
-    function isOption(string $name, $value) : bool;
-    function hasOption(string $name) : bool;
-    function getDefaultOptions() : array;
 }
