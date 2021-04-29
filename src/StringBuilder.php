@@ -281,6 +281,11 @@ class StringBuilder implements StringBuilder_Interface
     {
         return $this->t('Hint:');
     }
+
+    public function hintBold() : StringBuilder
+    {
+        return $this->bold(sb()->hint());
+    }
     
    /**
     * Adds two linebreaks.
@@ -352,7 +357,7 @@ class StringBuilder implements StringBuilder_Interface
     * @param string|string[] $classes
     * @return $this
     */
-    protected function spanned($string, $classes) : StringBuilder
+    public function spanned($string, $classes) : StringBuilder
     {
         if(!is_array($classes)) 
         {
