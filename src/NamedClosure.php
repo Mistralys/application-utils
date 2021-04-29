@@ -1,4 +1,11 @@
 <?php
+/**
+ * File containing the class {@see NamedClosure}.
+ *
+ * @package Application Utils
+ * @subpackage Closures
+ * @see NamedClosure
+ */
 
 declare(strict_types=1);
 
@@ -6,6 +13,29 @@ namespace AppUtils;
 
 use Closure;
 
+/**
+ * Wrapper for closures, which allows specifying a descriptive
+ * string to make it possible to easily identify it again later.
+ *
+ * Usage:
+ *
+ * <pre>
+ * $closure = NamedClosure::fromClosure(
+ *     function() {
+ *         // do something
+ *     },
+ *     'Descriptive closure identifier'
+ * );
+ *
+ * if($closure instanceof NamedClosure) {
+ *     $origin = $closure->getOrigin();
+ * }
+ * </pre>
+ *
+ * @package Application Utils
+ * @subpackage Closures
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class NamedClosure
 {
     /**
@@ -54,7 +84,7 @@ class NamedClosure
     /**
      * @param object $object
      * @param string $method
-     * @param string|object $origin
+     * @param string|object $origin Optional origin. If not specified, the object and method name are used instead.
      * @return NamedClosure
      */
     public static function fromObject(object $object, string $method, $origin='') : NamedClosure
