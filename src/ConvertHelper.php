@@ -714,6 +714,20 @@ class ConvertHelper
             self::ERROR_JSON_ENCODE_FAILED
         );
     }
+
+    /**
+     * Converts any PHP variable to a human readable
+     * string representation, like "object ClassName"
+     *
+     * @param mixed $variable
+     * @return string
+     */
+    public function var2string($variable) : string
+    {
+        return parseVariable($variable)
+            ->enableType()
+            ->toString();
+    }
     
    /**
     * Strips all known UTF byte order marks from the specified string.
