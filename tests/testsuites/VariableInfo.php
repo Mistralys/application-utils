@@ -1,5 +1,6 @@
 <?php
 
+use AppUtils\NamedClosure;
 use PHPUnit\Framework\TestCase;
 use AppUtils\VariableInfo;
 use function AppUtils\parseVariable;
@@ -10,70 +11,93 @@ final class VariableInfoTest extends TestCase
     {
         $tests = array(
             array(
+                'label' => 'Static class method',
                 'value' => array('foo' => 'bar'),
                 'type' => VariableInfo::TYPE_ARRAY,
                 'string' => print_r(array('foo' => 'bar'), true)
             ),
             array(
+                'label' => 'Boolean value',
                 'value' => true,
                 'type' => VariableInfo::TYPE_BOOLEAN,
                 'string' => 'true'
             ),
             array(
+                'label' => 'Integer value',
                 'value' => 1,
                 'type' => VariableInfo::TYPE_INTEGER,
                 'string' => '1'
             ),
             array(
+                'label' => 'Float value',
                 'value' => 14.11,
                 'type' => VariableInfo::TYPE_DOUBLE,
                 'string' => '14.11'
             ),
             array(
+                'label' => 'Class instance',
                 'value' => new \VariableInfoTest_DummyClass(),
                 'type' => VariableInfo::TYPE_OBJECT,
                 'string' => 'VariableInfoTest_DummyClass'
             ),
             array(
+                'label' => 'String value',
                 'value' => 'Text',
                 'type' => VariableInfo::TYPE_STRING,
                 'string' => 'Text'
             ),
             array(
+                'label' => 'NULL',
                 'value' => null,
                 'type' => VariableInfo::TYPE_NULL,
                 'string' => 'null'
             ),
             array(
+                'label' => 'Resource',
                 'value' => imagecreate(1, 1),
                 'type' => VariableInfo::TYPE_RESOURCE,
                 'string' => null
             ),
             array(
+                'label' => 'Function closure',
                 'value' => function() {},
-                'type' => VariableInfo::TYPE_OBJECT,
+                'type' => VariableInfo::TYPE_CALLABLE,
                 'string' => 'Closure'
             ),
             array(
+                'label' => 'Object method',
                 'value' => array($this, 'dummyMethod'),
                 'type' => VariableInfo::TYPE_CALLABLE,
                 'string' => 'VariableInfoTest->dummyMethod()'
             ),
             array(
+                'label' => 'Static class method',
                 'value' => array('VariableInfoTest', 'dummyMethod'),
                 'type' => VariableInfo::TYPE_CALLABLE,
                 'string' => 'VariableInfoTest::dummyMethod()'
             ),
+            array(
+                'label' => 'Function name',
+                'value' => 'trim',
+                'type' => VariableInfo::TYPE_CALLABLE,
+                'string' => 'trim()'
+            ),
+            array(
+                'label' => 'Named closure',
+                'value' => NamedClosure::fromClosure(Closure::fromCallable('trim'), 'Origin'),
+                'type' => VariableInfo::TYPE_CALLABLE,
+                'string' => 'Closure[Origin]'
+            )
         );
         
         foreach($tests as $def)
         {
             $var = parseVariable($def['value']);
             
-            $this->assertEquals($def['type'], $var->getType(), 'The type does not match');
+            $this->assertEquals($def['type'], $var->getType(), $def['label'].PHP_EOL.'The type does not match.');
             
             if($def['string'] !== null) {
-                $this->assertEquals($def['string'], $var->toString(), 'The toString() result does not match');
+                $this->assertEquals($def['string'], $var->toString(), $def['label'].PHP_EOL.'The toString() result does not match');
             }
         }
     }
