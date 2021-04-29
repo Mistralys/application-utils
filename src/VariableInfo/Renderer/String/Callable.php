@@ -23,7 +23,7 @@ class VariableInfo_Renderer_String_Callable extends VariableInfo_Renderer_String
         }
 
         if($this->value instanceof NamedClosure) {
-            return 'Closure['.$this->value->getOrigin().']';
+            return 'Closure:'.$this->value->getOrigin();
         }
 
         if($this->value instanceof Closure) {
