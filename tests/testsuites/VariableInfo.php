@@ -72,9 +72,9 @@ final class VariableInfoTest extends TestCase
             ),
             array(
                 'label' => 'Static class method',
-                'value' => array('VariableInfoTest', 'dummyMethod'),
+                'value' => array('VariableInfoTest', 'dummyStaticMethod'),
                 'type' => VariableInfo::TYPE_CALLABLE,
-                'string' => 'VariableInfoTest::dummyMethod()'
+                'string' => 'VariableInfoTest::dummyStaticMethod()'
             ),
             array(
                 'label' => 'Function name',
@@ -99,6 +99,59 @@ final class VariableInfoTest extends TestCase
             if($def['string'] !== null) {
                 $this->assertEquals($def['string'], $var->toString(), $def['label'].PHP_EOL.'The toString() result does not match');
             }
+        }
+    }
+
+    public function test_isCallable() : void
+    {
+        $tests = array(
+            array(
+                'label' => 'Anonymous function',
+                'variable' => function() {},
+                'callable' => true
+            ),
+            array(
+                'label' => 'Regular PHP function',
+                'variable' => 'trim',
+                'callable' => true
+            ),
+            array(
+                'label' => 'Public class method array',
+                'variable' => array($this, 'dummyMethod'),
+                'callable' => true
+            ),
+            array(
+                'label' => 'Static class method',
+                'variable' => array(self::class, 'dummyStaticMethod'),
+                'callable' => true
+            ),
+            array(
+                'label' => 'Object method',
+                'variable' => array($this, 'dummyMethod'),
+                'callable' => true
+            ),
+            array(
+                'label' => 'Vanilla closure',
+                'variable' => Closure::fromCallable(array($this, 'dummyMethod')),
+                'callable' => true
+            ),
+            array(
+                'label' => 'Named closure',
+                'variable' => NamedClosure::fromObject($this, 'dummyMethod'),
+                'callable' => true
+            ),
+            array(
+                'label' => 'Unknown object method',
+                'variable' => array($this, 'unknownMethod'),
+                'callable' => false
+            ),
+        );
+
+        foreach($tests as $test)
+        {
+            $info = parseVariable($test['variable']);
+
+            $this->assertSame($test['callable'], $info->isCallable(), $test['label']);
         }
     }
 
@@ -220,8 +273,13 @@ final class VariableInfoTest extends TestCase
             $this->assertEquals($def['string'], $restored->toString(), $def['label']);
         }
     }
-    
-    public static function dummyMethod()
+
+    public function dummyMethod() : void
+    {
+
+    }
+
+    public static function dummyStaticMethod() : void
     {
         
     }
