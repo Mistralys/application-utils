@@ -243,6 +243,15 @@ final class URLInfoTest extends TestCase
             $this->assertEquals($test['normalized'], $info->getNormalized(), $test['label'].' Error: '.$info->getErrorMessage());
         }
     }
+
+    public function test_phoneScheme() : void
+    {
+        $info = parseURL('tel:+1111111111');
+        $this->assertEquals('tel', $info['scheme']);
+
+        $info = parseURL('tel://+1111111111');
+        $this->assertEquals('tel', $info['scheme']);
+    }
     
     public function test_globalFunction()
     {
@@ -505,7 +514,7 @@ final class URLInfoTest extends TestCase
                 'not-excluded' => 'http://test.com/feedback?ac=stripme&medium1=somevalue&medium2=othervalue'
             )
         );
-        
+
         foreach($tests as $entry)
         {
             $info = parseURL($entry['url']);
