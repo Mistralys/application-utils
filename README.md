@@ -28,6 +28,7 @@ To enable localization of any translatable strings in the package, require `mist
 This overview is an excerpt of the available utility classes in the package. It shows only the main functionality - classes like the ConvertHelper for example have a large number of static methods not shown here.
 
 * BaseException: exception class with extended functionality.
+* [BoolValue][]: OO boolean values with one-way "sticky" values.
 * [ConvertHelper][]: converting dates, strings, transliterating and more.
     - ByteConverter: Convert byte values to kilobytes, megabytes...
     - ControlCharacters: Detecting and stripping control characters from strings.
@@ -70,7 +71,6 @@ This overview is an excerpt of the available utility classes in the package. It 
 * [URLInfo][]: An object oriented parse_url with fixes for a number of pitfalls.
     - Highlighter: Highlights URLs with integrated CSS.
     - Normalizer: Normalizes a URL, including query parameter sorting.
-* Value_Bool: OO boolean values with optional true/false sticky values.
 * VariableInfo: OO information on any PHP variable types with string conversion.
 * XMLHelper: Simplifies working with some of the XML libraries like DOM or SimpleXML.
     - HTMLLoader: Easy loading of HTML fragments or whole documents.
@@ -88,6 +88,7 @@ Documentation for the helper classes is ongoing in the [Application Utils Wiki](
 
 Historically, these classes were integrated in several legacy applications, with their code diverging over time. This repository consolidated them all to make it easier to maintain them. 
 
+[BoolValue]: https://github.com/Mistralys/application-utils/wiki/BoolValue
 [StringBuilder]: https://github.com/Mistralys/application-utils/wiki/StringBuilder
 [FileFinder]: https://github.com/Mistralys/application-utils/wiki/FileFinder
 [NamedClosure]: https://github.com/Mistralys/application-utils/wiki/NamedClosure
