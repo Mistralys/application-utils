@@ -466,7 +466,7 @@ class URLInfo implements \ArrayAccess
     * @param string $reason A human readable explanation why this is excluded - used when highlighting links.
     * @return URLInfo
     */
-    public function excludeParam(string $name, string $reason) : URLInfo
+    public function excludeParam(string $name, string $reason='') : URLInfo
     {
         if(!isset($this->excludedParams[$name]))
         {
