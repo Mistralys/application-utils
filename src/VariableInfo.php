@@ -230,6 +230,11 @@ class VariableInfo implements Interface_Optionable
     {
         return $this->isType(self::TYPE_STRING);
     }
+
+    public function isCallable() : bool
+    {
+        return $this->isType(self::TYPE_CALLABLE);
+    }
     
     public function isBoolean() : bool
     {
