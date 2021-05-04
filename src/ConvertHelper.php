@@ -312,11 +312,18 @@ class ConvertHelper
             }
         }
         
+        $toolTipDateFormat = 'd.m.Y';
+
         if ($includeTime) {
             $label .= $date->format(' H:i');
+            $toolTipDateFormat .= ' H:i';
         }
 
-        return trim($label);
+        $labelHtml = '<span title="'.$date->format($toolTipDateFormat).'">'.
+                        trim($label).
+                     '</span>';
+
+        return $labelHtml;
     }
 
     protected static $months;
