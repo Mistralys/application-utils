@@ -316,7 +316,11 @@ class ConvertHelper
             $label .= $date->format(' H:i');
         }
 
-        return trim($label);
+        $labelHtml = '<span title="'.$date->format('d.m.Y H:i:s').'">'.
+                        trim($label).
+                     '</span>';
+
+        return $labelHtml;
     }
 
     protected static $months;
