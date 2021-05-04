@@ -312,11 +312,14 @@ class ConvertHelper
             }
         }
         
+        $toolTipDateFormat = 'd.m.Y';
+
         if ($includeTime) {
             $label .= $date->format(' H:i');
+            $toolTipDateFormat .= ' H:i';
         }
 
-        $labelHtml = '<span title="'.$date->format('d.m.Y H:i:s').'">'.
+        $labelHtml = '<span title="'.$date->format($toolTipDateFormat).'">'.
                         trim($label).
                      '</span>';
 
