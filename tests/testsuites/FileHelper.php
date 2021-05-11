@@ -391,6 +391,28 @@ final class FileHelperTest extends TestCase
         }
     }
 
+    /**
+     * @see FileHelper::detectMimeType()
+     */
+    function test_detectCustomMimeType()
+    {
+        $tests = array(
+            'mime.push' => 'application/json',
+            'mime.sms' => 'text/plain',
+            'mime.jpeg' => 'text/plain'
+        );
+
+        \AppUtils\FileHelper_MimeTypes::registerCustom('push', 'application/json');
+        \AppUtils\FileHelper_MimeTypes::registerCustom('sms', 'text/plain');
+        \AppUtils\FileHelper_MimeTypes::setMimeType('jpeg', 'text/plain');
+
+        foreach ($tests as $filename => $expected) {
+            $result = FileHelper::detectMimeType($filename);
+
+            $this->assertEquals($expected, $result, 'Mime type does not match file extension.');
+        }
+    }
+
    /**
     * @see FileHelper::getFilename()
     */
