@@ -90,9 +90,9 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * @see FileHelper::relativizePath()
-     */
+   /**
+    * @see FileHelper::relativizePath()
+    */
     public function test_relativizePath()
     {
         $tests = array(
@@ -167,9 +167,9 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * @see FileHelper::detectUTFBom()
-     */
+   /**
+    * @see FileHelper::detectUTFBom()
+    */
     public function test_detectUTF8BOM()
     {
         $files = array(
@@ -188,9 +188,9 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * @see FileHelper::isValidUnicodeEncoding()
-     */
+   /**
+    * @see FileHelper::isValidUnicodeEncoding()
+    */
     public function test_isValidUnicodeEncoding()
     {
         $tests = array(
@@ -213,9 +213,9 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * @see FileHelper::fixFileName()
-     */
+   /**
+    * @see FileHelper::fixFileName()
+    */
     public function test_fixFileName()
     {
         $tests = array(
@@ -239,9 +239,9 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * @see FileHelper::getExtension()
-     */
+   /**
+    * @see FileHelper::getExtension()
+    */
     public function test_getExtension()
     {
         $tests = array(
@@ -316,9 +316,9 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * @see FileHelper::getExtension()
-     */
+   /**
+    * @see FileHelper::getExtension()
+    */
     public function test_getExtension_directoryIterator()
     {
         $files = array(
@@ -366,9 +366,9 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * @see FileHelper::detectMimeType()
-     */
+   /**
+    * @see FileHelper::detectMimeType()
+    */
     function test_detectMimeType()
     {
         $tests = array(
@@ -392,8 +392,8 @@ final class FileHelperTest extends TestCase
     }
 
     /**
-        * @see FileHelper::detectMimeType()
-    */
+     * @see FileHelper::detectMimeType()
+     */
     function test_detectCustomMimeType()
     {
         $tests = array(
@@ -413,9 +413,9 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * @see FileHelper::getFilename()
-     */
+   /**
+    * @see FileHelper::getFilename()
+    */
     function test_getFileName()
     {
         $tests = array(
@@ -502,9 +502,9 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * @see FileHelper::getMaxUploadFilesize()
-     */
+   /**
+    * @see FileHelper::getMaxUploadFilesize()
+    */
     function test_getUploadMaxFilesize()
     {
         // configured for the tests in the tests batch file, or
@@ -524,9 +524,9 @@ final class FileHelperTest extends TestCase
         $this->assertEquals($expected, $result);
     }
 
-    /**
-     * @see FileHelper::normalizePath()
-     */
+   /**
+    * @see FileHelper::normalizePath()
+    */
     public function test_normalizePath()
     {
         $tests = array(
@@ -537,7 +537,7 @@ final class FileHelperTest extends TestCase
             '/with/file.txt' => '/with/file.txt',
             '/with//double//slashes' => '/with/double/slashes',
             '\\mixed\\style\/path\/windows\/style' => '/mixed/style/path/windows/style'
-        );
+         );
 
         foreach($tests as $path => $expected)
         {
@@ -547,9 +547,9 @@ final class FileHelperTest extends TestCase
         }
     }
 
-    /**
-     * @see FileHelper::parseSerializedFile()
-     */
+   /**
+    * @see FileHelper::parseSerializedFile()
+    */
     public function test_parseSerializedFile()
     {
         $file = $this->assetsFolder.'/serialized.ser';
@@ -562,9 +562,9 @@ final class FileHelperTest extends TestCase
         $this->assertEquals($expected, json_encode($result));
     }
 
-    /**
-     * @see FileHelper::parseSerializedFile()
-     */
+   /**
+    * @see FileHelper::parseSerializedFile()
+    */
     public function test_parseSerializedFile_fileNotExists()
     {
         $file = $this->assetsFolder.'/unknown.ser';
@@ -574,9 +574,9 @@ final class FileHelperTest extends TestCase
         $result = FileHelper::parseSerializedFile($file);
     }
 
-    /**
-     * @see FileHelper::parseSerializedFile()
-     */
+   /**
+    * @see FileHelper::parseSerializedFile()
+    */
     public function test_parseSerializedFile_fileNotUnserializable()
     {
         $file = $this->assetsFolder.'/serialized-broken.ser';
@@ -586,9 +586,9 @@ final class FileHelperTest extends TestCase
         $result = FileHelper::parseSerializedFile($file);
     }
 
-    /**
-     * @see FileHelper::cliCommandExists()
-     */
+   /**
+    * @see FileHelper::cliCommandExists()
+    */
     public function test_cliCommandExists()
     {
         $output = array();
@@ -599,9 +599,9 @@ final class FileHelperTest extends TestCase
         $this->assertEquals($available, FileHelper::cliCommandExists('php'));
     }
 
-    /**
-     * Try fetching a specific line from a file.
-     */
+   /**
+    * Try fetching a specific line from a file.
+    */
     public function test_getLineFromFile()
     {
         $file = $this->assetsFolder.'/line-seeking.txt';
@@ -611,9 +611,9 @@ final class FileHelperTest extends TestCase
         $this->assertEquals('3', $line3, 'Should read line nr 3');
     }
 
-    /**
-     * Try reading a line number that does not exist.
-     */
+   /**
+    * Try reading a line number that does not exist.
+    */
     public function test_getLineFromFile_outOfBounds()
     {
         $file = $this->assetsFolder.'/line-seeking.txt';
@@ -623,9 +623,9 @@ final class FileHelperTest extends TestCase
         $this->assertEquals(null, $line, 'Should be NULL when line number does not exist.');
     }
 
-    /**
-     * Try reading from a file that does not exist.
-     */
+   /**
+    * Try reading from a file that does not exist.
+    */
     public function test_getLineFromFile_fileNotExists()
     {
         $file = '/path/to/unknown/file.txt';
@@ -635,9 +635,9 @@ final class FileHelperTest extends TestCase
         FileHelper::getLineFromFile($file, 3);
     }
 
-    /**
-     * Test a simple line count.
-     */
+   /**
+    * Test a simple line count.
+    */
     public function test_countFileLines()
     {
         $file = $this->assetsFolder.'/line-seeking.txt';
@@ -647,10 +647,10 @@ final class FileHelperTest extends TestCase
         $this->assertEquals(10, $result, 'Should be 10 lines in the file.');
     }
 
-    /**
-     * Test counting the lines in a zero length file,
-     * meaning without any contents at all.
-     */
+   /**
+    * Test counting the lines in a zero length file,
+    * meaning without any contents at all.
+    */
     public function test_countFileLines_zeroLength()
     {
         $file = $this->assetsFolder.'/zero-length.txt';
@@ -660,10 +660,10 @@ final class FileHelperTest extends TestCase
         $this->assertEquals(0, $result, 'Should not be any lines at all in the file.');
     }
 
-    /**
-     * Test counting lines in a file with a single line, with
-     * no newline at the end.
-     */
+   /**
+    * Test counting lines in a file with a single line, with
+    * no newline at the end.
+    */
     public function test_countFileLines_singleLine()
     {
         $file = $this->assetsFolder.'/single-line.txt';
@@ -673,9 +673,9 @@ final class FileHelperTest extends TestCase
         $this->assertEquals(1, $result, 'Should be a single line in the file.');
     }
 
-    /**
-     * Test counting lines in a file with a single space as content.
-     */
+   /**
+    * Test counting lines in a file with a single space as content.
+    */
     public function test_countFileLines_whitespace()
     {
         $file = $this->assetsFolder.'/whitespace.txt';
@@ -687,11 +687,11 @@ final class FileHelperTest extends TestCase
 
     public function test_saveFile()
     {
-        $file = $this->assetsFolder.'/savetest.txt';
+         $file = $this->assetsFolder.'/savetest.txt';
 
-        FileHelper::saveFile($file, 'Hoho');
+         FileHelper::saveFile($file, 'Hoho');
 
-        $this->assertEquals('Hoho', file_get_contents($file));
+         $this->assertEquals('Hoho', file_get_contents($file));
     }
 
     public function test_saveFile_empty()
