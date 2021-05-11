@@ -1,9 +1,10 @@
 <?php
 
-use AppUtils\ConvertHelper_EOL;
+use PHPUnit\Framework\TestCase;
+
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
-use PHPUnit\Framework\TestCase;
+use AppUtils\ConvertHelper_EOL;
 
 final class FileHelperTest extends TestCase
 {
@@ -13,23 +14,25 @@ final class FileHelperTest extends TestCase
         'savetest.txt'
     );
 
-    protected function setUp(): void
+    protected function setUp() : void
     {
-        if (isset($this->assetsFolder)) {
+        if(isset($this->assetsFolder))
+        {
             // remove any test files from the last test
-            foreach ($this->deleteFiles as $fileName) {
-                $path = $this->assetsFolder . '/' . $fileName;
-                if (file_exists($path)) {
-                    $this->assertTrue(unlink($this->assetsFolder . '/savetest.txt'), 'Cannot remove test file.');
+            foreach($this->deleteFiles as $fileName)
+            {
+                $path = $this->assetsFolder.'/'.$fileName;
+                if(file_exists($path)) {
+                    $this->assertTrue(unlink($this->assetsFolder.'/savetest.txt'), 'Cannot remove test file.');
                 }
             }
 
             return;
         }
 
-        $this->assetsFolder = realpath(TESTS_ROOT . '/assets/FileHelper');
+        $this->assetsFolder = realpath(TESTS_ROOT.'/assets/FileHelper');
 
-        if ($this->assetsFolder === false) {
+        if($this->assetsFolder === false) {
             throw new Exception(
                 'The file helper assets folder could not be found.'
             );
@@ -81,7 +84,8 @@ final class FileHelperTest extends TestCase
             ),
         );
 
-        foreach ($tests as $def) {
+        foreach($tests as $def)
+        {
             $this->assertEquals($def['result'], FileHelper::relativizePathByDepth($def['path'], $def['depth']));
         }
     }
@@ -114,7 +118,8 @@ final class FileHelperTest extends TestCase
             ),
         );
 
-        foreach ($tests as $def) {
+        foreach($tests as $def)
+        {
             $this->assertEquals($def['result'], FileHelper::relativizePath($def['path'], $def['relativeTo']));
         }
     }
@@ -134,7 +139,8 @@ final class FileHelperTest extends TestCase
             '.ext' => ''
         );
 
-        foreach ($tests as $string => $expected) {
+        foreach($tests as $string => $expected)
+        {
             $actual = FileHelper::removeExtension($string);
 
             $this->assertEquals($expected, $actual);
@@ -153,7 +159,8 @@ final class FileHelperTest extends TestCase
             '.ext' => ''
         );
 
-        foreach ($tests as $string => $expected) {
+        foreach($tests as $string => $expected)
+        {
             $actual = FileHelper::removeExtension($string, true);
 
             $this->assertEquals($expected, $actual);
@@ -173,8 +180,9 @@ final class FileHelperTest extends TestCase
             '8' => 'UTF8'
         );
 
-        foreach ($files as $name => $expected) {
-            $result = FileHelper::detectUTFBom($this->assetsFolder . '/bom-utf' . $name . '.txt');
+        foreach($files as $name => $expected)
+        {
+            $result = FileHelper::detectUTFBom($this->assetsFolder.'/bom-utf'.$name.'.txt');
 
             $this->assertEquals($expected, $result, 'Did not detect the correct unicode file encoding.');
         }
@@ -197,10 +205,11 @@ final class FileHelperTest extends TestCase
             '' => false
         );
 
-        foreach ($tests as $encoding => $expected) {
+        foreach($tests as $encoding => $expected)
+        {
             $result = FileHelper::isValidUnicodeEncoding($encoding);
 
-            $this->assertEquals($expected, $result, 'Encoding [' . $encoding . '] does not match expected result.');
+            $this->assertEquals($expected, $result, 'Encoding ['.$encoding.'] does not match expected result.');
         }
     }
 
@@ -222,7 +231,8 @@ final class FileHelperTest extends TestCase
             'file here.ext' => 'file here.ext'
         );
 
-        foreach ($tests as $source => $expected) {
+        foreach($tests as $source => $expected)
+        {
             $result = FileHelper::fixFileName($source);
 
             $this->assertEquals($expected, $result, 'The corrected file name does not match.');
@@ -294,8 +304,9 @@ final class FileHelperTest extends TestCase
             )
         );
 
-        foreach ($tests as $def) {
-            if (!isset($def['lowercase'])) {
+        foreach($tests as $def)
+        {
+            if(!isset($def['lowercase'])) {
                 $result = FileHelper::getExtension($def['path']);
             } else {
                 $result = FileHelper::getExtension($def['path'], $def['lowercase']);
@@ -334,15 +345,17 @@ final class FileHelperTest extends TestCase
 
         $d = new DirectoryIterator($this->assetsFolder);
 
-        foreach ($d as $item) {
-            if (!isset($files[$item->getFilename()])) {
+        foreach($d as $item)
+        {
+            if(!isset($files[$item->getFilename()])) {
                 continue;
             }
 
             $tests = $files[$item->getFilename()];
 
-            foreach ($tests as $def) {
-                if (!isset($def['lowercase'])) {
+            foreach($tests as $def)
+            {
+                if(!isset($def['lowercase'])) {
                     $result = FileHelper::getExtension($item);
                 } else {
                     $result = FileHelper::getExtension($item, $def['lowercase']);
@@ -370,7 +383,8 @@ final class FileHelperTest extends TestCase
             'mime.unknown' => null
         );
 
-        foreach ($tests as $filename => $expected) {
+        foreach($tests as $filename => $expected)
+        {
             $result = FileHelper::detectMimeType($filename);
 
             $this->assertEquals($expected, $result, 'Mime type does not match file extension.');
@@ -378,8 +392,8 @@ final class FileHelperTest extends TestCase
     }
 
     /**
-     * @see FileHelper::detectMimeType()
-     */
+        * @see FileHelper::detectMimeType()
+    */
     function test_detectCustomMimeType()
     {
         $tests = array(
@@ -476,8 +490,9 @@ final class FileHelperTest extends TestCase
             )
         );
 
-        foreach ($tests as $def) {
-            if (!isset($def['extension'])) {
+        foreach($tests as $def)
+        {
+            if(!isset($def['extension'])) {
                 $result = FileHelper::getFilename($def['path']);
             } else {
                 $result = FileHelper::getFilename($def['path'], $def['extension']);
@@ -495,9 +510,9 @@ final class FileHelperTest extends TestCase
         // configured for the tests in the tests batch file, or
         // in the travis yaml setup.
         $mb = 6;
-        $string = $mb . 'M';
+        $string = $mb.'M';
 
-        if (ini_get('upload_max_filesize') !== $string || ini_get('post_max_size') !== $string) {
+        if(ini_get('upload_max_filesize') !== $string || ini_get('post_max_size') !== $string) {
             $this->markTestSkipped('The ini settings do not match the expected value.');
             return;
         }
@@ -524,7 +539,8 @@ final class FileHelperTest extends TestCase
             '\\mixed\\style\/path\/windows\/style' => '/mixed/style/path/windows/style'
         );
 
-        foreach ($tests as $path => $expected) {
+        foreach($tests as $path => $expected)
+        {
             $result = FileHelper::normalizePath($path);
 
             $this->assertEquals($expected, $result);
@@ -536,7 +552,7 @@ final class FileHelperTest extends TestCase
      */
     public function test_parseSerializedFile()
     {
-        $file = $this->assetsFolder . '/serialized.ser';
+        $file = $this->assetsFolder.'/serialized.ser';
 
         $refData = array('key' => 'value', 'utf8' => 'öäüé');
         $expected = json_encode($refData);
@@ -551,7 +567,7 @@ final class FileHelperTest extends TestCase
      */
     public function test_parseSerializedFile_fileNotExists()
     {
-        $file = $this->assetsFolder . '/unknown.ser';
+        $file = $this->assetsFolder.'/unknown.ser';
 
         $this->expectException(FileHelper_Exception::class);
 
@@ -563,7 +579,7 @@ final class FileHelperTest extends TestCase
      */
     public function test_parseSerializedFile_fileNotUnserializable()
     {
-        $file = $this->assetsFolder . '/serialized-broken.ser';
+        $file = $this->assetsFolder.'/serialized-broken.ser';
 
         $this->expectException(FileHelper_Exception::class);
 
@@ -588,7 +604,7 @@ final class FileHelperTest extends TestCase
      */
     public function test_getLineFromFile()
     {
-        $file = $this->assetsFolder . '/line-seeking.txt';
+        $file = $this->assetsFolder.'/line-seeking.txt';
 
         $line3 = trim(FileHelper::getLineFromFile($file, 3));
 
@@ -600,7 +616,7 @@ final class FileHelperTest extends TestCase
      */
     public function test_getLineFromFile_outOfBounds()
     {
-        $file = $this->assetsFolder . '/line-seeking.txt';
+        $file = $this->assetsFolder.'/line-seeking.txt';
 
         $line = FileHelper::getLineFromFile($file, 30);
 
@@ -624,7 +640,7 @@ final class FileHelperTest extends TestCase
      */
     public function test_countFileLines()
     {
-        $file = $this->assetsFolder . '/line-seeking.txt';
+        $file = $this->assetsFolder.'/line-seeking.txt';
 
         $result = FileHelper::countFileLines($file);
 
@@ -637,7 +653,7 @@ final class FileHelperTest extends TestCase
      */
     public function test_countFileLines_zeroLength()
     {
-        $file = $this->assetsFolder . '/zero-length.txt';
+        $file = $this->assetsFolder.'/zero-length.txt';
 
         $result = FileHelper::countFileLines($file);
 
@@ -650,7 +666,7 @@ final class FileHelperTest extends TestCase
      */
     public function test_countFileLines_singleLine()
     {
-        $file = $this->assetsFolder . '/single-line.txt';
+        $file = $this->assetsFolder.'/single-line.txt';
 
         $result = FileHelper::countFileLines($file);
 
@@ -662,7 +678,7 @@ final class FileHelperTest extends TestCase
      */
     public function test_countFileLines_whitespace()
     {
-        $file = $this->assetsFolder . '/whitespace.txt';
+        $file = $this->assetsFolder.'/whitespace.txt';
 
         $result = FileHelper::countFileLines($file);
 
@@ -671,7 +687,7 @@ final class FileHelperTest extends TestCase
 
     public function test_saveFile()
     {
-        $file = $this->assetsFolder . '/savetest.txt';
+        $file = $this->assetsFolder.'/savetest.txt';
 
         FileHelper::saveFile($file, 'Hoho');
 
@@ -680,7 +696,7 @@ final class FileHelperTest extends TestCase
 
     public function test_saveFile_empty()
     {
-        $file = $this->assetsFolder . '/savetest.txt';
+        $file = $this->assetsFolder.'/savetest.txt';
 
         FileHelper::saveFile($file);
 
@@ -689,7 +705,7 @@ final class FileHelperTest extends TestCase
 
     public function test_readLines_all()
     {
-        $file = $this->assetsFolder . '/line-seeking.txt';
+        $file = $this->assetsFolder.'/line-seeking.txt';
 
         $lines = FileHelper::readLines($file);
         $this->assertEquals(10, count($lines), 'Should have read all 10 lines from the file.');
@@ -697,7 +713,7 @@ final class FileHelperTest extends TestCase
 
     public function test_readLines()
     {
-        $file = $this->assetsFolder . '/line-seeking.txt';
+        $file = $this->assetsFolder.'/line-seeking.txt';
 
         $lines = FileHelper::readLines($file, 5);
         $lines = array_map('trim', $lines); // to make the comparison easier
@@ -707,7 +723,7 @@ final class FileHelperTest extends TestCase
 
     public function test_readLines_emptyFile()
     {
-        $file = $this->assetsFolder . '/zero-length.txt';
+        $file = $this->assetsFolder.'/zero-length.txt';
 
         $lines = FileHelper::readLines($file, 5);
 
@@ -716,7 +732,7 @@ final class FileHelperTest extends TestCase
 
     public function test_readLines_bomFile()
     {
-        $file = $this->assetsFolder . '/bom-utf8.txt';
+        $file = $this->assetsFolder.'/bom-utf8.txt';
 
         $lines = FileHelper::readLines($file, 5);
 
@@ -725,7 +741,7 @@ final class FileHelperTest extends TestCase
 
     public function test_readLines_fileNotExists()
     {
-        $file = $this->assetsFolder . '/unknown-file.txt';
+        $file = $this->assetsFolder.'/unknown-file.txt';
 
         $this->expectException(FileHelper_Exception::class);
 
@@ -764,14 +780,15 @@ final class FileHelperTest extends TestCase
             )
         );
 
-        foreach ($tests as $test) {
-            $file = $this->assetsFolder . '/' . $test['file'];
+        foreach($tests as $test)
+        {
+            $file = $this->assetsFolder.'/'.$test['file'];
 
             FileHelper::saveFile($file, str_repeat($test['char'], 10));
 
             $result = FileHelper::detectEOLCharacter($file);
 
-            $label = $test['label'] . ' in file ' . $test['file'];
+            $label = $test['label'].' in file '.$test['file'];
 
             $this->assertInstanceof(\AppUtils\ConvertHelper_EOL::class, $result, $label);
             $this->assertEquals($test['type'], $result->getType(), $label);
@@ -792,12 +809,12 @@ final class FileHelperTest extends TestCase
     {
         $this->expectException(FileHelper_Exception::class);
 
-        FileHelper::requireFolderExists($this->assetsFolder . '/single-line.txt');
+        FileHelper::requireFolderExists($this->assetsFolder.'/single-line.txt');
     }
 
     public function test_requireFolder_pathNormalized()
     {
-        $folder = realpath($this->assetsFolder . '/FileFinder');
+        $folder = realpath($this->assetsFolder.'/FileFinder');
 
         $this->assertIsString($folder);
 
