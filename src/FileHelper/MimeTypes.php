@@ -308,4 +308,35 @@ class FileHelper_MimeTypes
     {
         return in_array($extension, self::$browserExtensions);
     }
+
+    /**
+     * Register custom extensions and related mimetypes
+     * First check array is there any defined extension, if not register custom extension
+     *
+     * @param string $extension
+     * @param string $mimeType
+     * @return bool
+     */
+    public static function registerCustom(string $extension, string $mimeType): bool{
+        if(!isset(self::$mimeTypes[$extension])){
+            self::$mimeTypes[$extension] = $mimeType;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Change mime type of existing extension if there is defined extension
+     *
+     * @param string $extension
+     * @param string $mimeType
+     * @return bool
+     */
+    public static function setMimeType(string $extension, string $mimeType): bool{
+        if(isset(self::$mimeTypes[$extension])){
+            self::$mimeTypes[$extension] = $mimeType;
+            return true;
+        }
+        return false;
+    }
 }
