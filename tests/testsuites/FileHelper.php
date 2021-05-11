@@ -406,8 +406,7 @@ final class FileHelperTest extends TestCase
         \AppUtils\FileHelper_MimeTypes::registerCustom('sms', 'text/plain');
         \AppUtils\FileHelper_MimeTypes::setMimeType('jpeg', 'text/plain');
 
-        foreach($tests as $filename => $expected)
-        {
+        foreach ($tests as $filename => $expected) {
             $result = FileHelper::detectMimeType($filename);
 
             $this->assertEquals($expected, $result, 'Mime type does not match file extension.');
