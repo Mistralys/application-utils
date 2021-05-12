@@ -1,3 +1,16 @@
+v1.4.6
+- FileHelper: Added `FileHelper_MimeTypes::registerCustom()`.
+- FileHelper: Added `FileHelper_MimeTypes::setMimeType()`.
+- ConvertHelper: `date2listLabel` now includes a tooltip with the full date.
+- ConvertHelper: Added `var2string()`.
+- ConvertHelper: `callback2string()` now works with arrays that are not actually callable.
+- NamedClosure: Added the new `NamedClosure` class to access information on the original callable.
+- VariableInfo: Fixed some types of callable not being detected.
+- VariableInfo: Added the `isCallable()` method.
+- VariableInfo: Added support for named closures to fetch callable information.
+- URLInfo: Made the reason for excluding a parameter optional when using `excludeParam()`.
+- StringBuilder: The `spanned()` method is now public.
+
 v1.4.5
 - FileHelper: Added `sendFileAuto()`.
 - FileHelper: Added `FileHelper_MimeTypes::canBrowserDisplay()`.
