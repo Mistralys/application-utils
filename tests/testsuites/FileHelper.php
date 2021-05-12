@@ -3,6 +3,7 @@
 use AppUtils\ConvertHelper_EOL;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
+use AppUtils\FileHelper_MimeTypes;
 use PHPUnit\Framework\TestCase;
 
 final class FileHelperTest extends TestCase
@@ -410,9 +411,9 @@ final class FileHelperTest extends TestCase
             'mime.jpeg' => 'text/plain'
         );
 
-        \AppUtils\FileHelper_MimeTypes::registerCustom('push', 'application/json');
-        \AppUtils\FileHelper_MimeTypes::registerCustom('sms', 'text/plain');
-        \AppUtils\FileHelper_MimeTypes::setMimeType('jpeg', 'text/plain');
+        FileHelper_MimeTypes::registerCustom('push', 'application/json');
+        FileHelper_MimeTypes::registerCustom('sms', 'text/plain');
+        FileHelper_MimeTypes::setMimeType('jpeg', 'text/plain');
 
         foreach ($tests as $filename => $expected)
         {
