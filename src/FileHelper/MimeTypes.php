@@ -288,9 +288,10 @@ class FileHelper_MimeTypes
      * @param string $extension
      * @return string|NULL
      */
-    public static function getMime(string $extension) :?string
+    public static function getMime(string $extension) : ?string
     {
-        if(isset(self::$mimeTypes[$extension])) {
+        if (isset(self::$mimeTypes[$extension]))
+        {
             return self::$mimeTypes[$extension];
         }
 
@@ -317,11 +318,14 @@ class FileHelper_MimeTypes
      * @param string $mimeType
      * @return bool
      */
-    public static function registerCustom(string $extension, string $mimeType): bool{
-        if(!isset(self::$mimeTypes[$extension])){
+    public static function registerCustom(string $extension, string $mimeType) : bool
+    {
+        if (!isset(self::$mimeTypes[$extension]))
+        {
             self::$mimeTypes[$extension] = $mimeType;
             return true;
         }
+
         return false;
     }
 
@@ -332,11 +336,14 @@ class FileHelper_MimeTypes
      * @param string $mimeType
      * @return bool
      */
-    public static function setMimeType(string $extension, string $mimeType): bool{
-        if(isset(self::$mimeTypes[$extension])){
+    public static function setMimeType(string $extension, string $mimeType) : bool
+    {
+        if (isset(self::$mimeTypes[$extension]))
+        {
             self::$mimeTypes[$extension] = $mimeType;
             return true;
         }
+
         return false;
     }
 }
