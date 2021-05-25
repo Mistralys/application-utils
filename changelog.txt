@@ -1,3 +1,7 @@
+v1.5.0
+- HTMLHelper: Added the new helper.
+- HTMLHelper: Added `stripComments()`.
+
 v1.4.6
 - FileHelper: Added `FileHelper_MimeTypes::registerCustom()`.
 - FileHelper: Added `FileHelper_MimeTypes::setMimeType()`.
