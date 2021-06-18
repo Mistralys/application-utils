@@ -3,8 +3,7 @@
 # Application Utilities
 
 Drop-in static PHP utility classes for common tasks, from file system related
-operations and variable conversions to image manipulation, and even a pagination 
-calculator.
+operations and variable conversions to image manipulation.
 
 ## Requirements
 
@@ -21,15 +20,20 @@ composer require mistralys/application-utils
 
 ### Optional packages
 
-To enable localization of any translatable strings in the package, require `mistralys/application-localization` as well. German and french translations are included, and the integrated interface allows adding additional translations.
+To enable localization of any translatable strings in the package, 
+require `mistralys/application-localization` as well. German and 
+French translations are included, and the integrated interface 
+allows adding additional translations.
 
 ## Overview of helpers
 
-This overview is an excerpt of the available utility classes in the package. It shows only the main functionality - classes like the ConvertHelper for example have a large number of static methods not shown here.
+This overview is an excerpt of the available utility classes in the 
+package. It shows only the main functionality - classes like the 
+ConvertHelper for example have many static methods not shown here.
 
-* BaseException: exception class with extended functionality.
-* [BoolValue][]: OO boolean values with one-way "sticky" values.
-* [ConvertHelper][]: converting dates, strings, transliterating and more.
+* [BaseException][]: Exception class with extended functionality.
+* [BoolValue][]: Object oriented boolean values with one-way "sticky" values.
+* [ConvertHelper][]: Converting dates, strings, transliterating and more.
     - ByteConverter: Convert byte values to kilobytes, megabytes...
     - ControlCharacters: Detecting and stripping control characters from strings.
     - DateInterval: Wrapper around the native DateInterval to fix common pitfalls.
@@ -40,13 +44,13 @@ This overview is an excerpt of the available utility classes in the package. It 
     - QueryParser: Parse query formatted strings without the native limitations.
     - SizeNotation: Convert size strings (2 MB) to byte values.
     - TabsNormalizer: Allows intelligently left-adjusting indented text.
-    - [ThrowableInfo][]: OOP access for exception debugging, and persisting them to storage.
+    - [ThrowableInfo][]: Exception analysis tool for debugging, and persisting them to storage.
     - URLFinder: Allows detecting URLs in a string.
     - WordWrapper: Intelligently wrap text to a specific length.
 * CSVHelper: Read and generate CSV files.
 * Highlighter: Syntax highlighting using GeSHi, as well as some custom variants.
 * JSHelper: generate JavaScript statements from PHP with automatic PHP > JS conversion of variables.
-* [FileHelper][]: file system utility methods and file finder.
+* [FileHelper][]: File system utility methods and file finder.
     - [FileFinder][]: Fetching file lists by filters, recursive or not.
     - PHPClassInfo: Fetch basic class info from PHP files without reflection.
     - MimeTypes: List of commonly used mime types.
@@ -54,11 +58,11 @@ This overview is an excerpt of the available utility classes in the package. It 
 * ImageHelper: Image manipulation using native GD functions with alpha support.
 * [IniHelper][]: INI file reader and editor.
 * [NamedClosure][]: Wrapper for closures with the possibility to add a description.  
-* NumberInfo: Access and modify numbers with or without units.
-* OperationResult: Drop-in class to store the status of the result of any operation.
+* [NumberInfo][]: Access and modify numbers with or without units.
+* [OperationResult][]: Drop-in class to store the status of the result of any operation.
 * PaginationHelper: Calculates all required numbers for a pagination widget.
 * RegexHelper: Collection of typical validation Regexes.
-* [Request][]: class to validate, filter and access request variables.
+* [Request][]: Validate, filter and access request variables.
     - URLComparer: Compare URLs, including query parameters.
     - RequestHelper: build raw requests from scratch with multipart support.
     - AcceptHeaders: Allows parsing the Accept: header.
@@ -71,7 +75,7 @@ This overview is an excerpt of the available utility classes in the package. It 
 * [URLInfo][]: An object oriented parse_url with fixes for a number of pitfalls.
     - Highlighter: Highlights URLs with integrated CSS.
     - Normalizer: Normalizes a URL, including query parameter sorting.
-* VariableInfo: OO information on any PHP variable types with string conversion.
+* [VariableInfo][]: Information on any PHP variable types with string conversion.
 * XMLHelper: Simplifies working with some of the XML libraries like DOM or SimpleXML.
     - HTMLLoader: Easy loading of HTML fragments or whole documents.
     - DOMErrors: LibXML parsing errors made easy with OO interface.
@@ -82,12 +86,21 @@ This overview is an excerpt of the available utility classes in the package. It 
 
 ## Documentation
 
-Documentation for the helper classes is ongoing in the [Application Utils Wiki](https://github.com/Mistralys/application-utils/wiki).
+Documentation for the helper classes is ongoing in the [Application Utils Wiki][].
 
 ## Origin
 
-Historically, these classes were integrated in several legacy applications, with their code diverging over time. This repository consolidated them all to make it easier to maintain them. 
+These classes are still in use in a number of legacy applications. They were originally 
+scattered over all of these applications, with their code diverging over time. This 
+repository aims to consolidate them all into a single package to make it easier to maintain 
+them.
 
+As the legacy applications are still being maintained, this package is actively maintained
+and being modernized.
+
+
+[Application Utils Wiki]: https://github.com/Mistralys/application-utils/wiki
+[BaseException]: https://github.com/Mistralys/application-utils/wiki/BaseException
 [BoolValue]: https://github.com/Mistralys/application-utils/wiki/BoolValue
 [StringBuilder]: https://github.com/Mistralys/application-utils/wiki/StringBuilder
 [FileFinder]: https://github.com/Mistralys/application-utils/wiki/FileFinder
@@ -101,3 +114,6 @@ Historically, these classes were integrated in several legacy applications, with
 [PathsReducer]: https://github.com/Mistralys/application-utils/wiki/PathsReducer
 [Classable]: https://github.com/Mistralys/application-utils/wiki/Classable
 [Optionable]: https://github.com/Mistralys/application-utils/wiki/Optionable
+[NumberInfo]: https://github.com/Mistralys/application-utils/wiki/NumberInfo
+[OperationResult]: https://github.com/Mistralys/application-utils/wiki/OperationResult
+[VariableInfo]: https://github.com/Mistralys/application-utils/wiki/VariableInfo
