@@ -132,7 +132,11 @@ class NumberInfo
      */
     public function isZero() : bool
     {
-        return $this->getNumber() === 0;
+        if($this->isEmpty()) {
+            return false;
+        }
+
+        return (float)$this->getNumber() === 0.0;
     }
     
     public function isZeroOrEmpty() : bool
@@ -166,12 +170,12 @@ class NumberInfo
     
     /**
      * Changes the stored number, without modifying the units.
-     * @param int $number
+     * @param float|int $number
      * @return NumberInfo
      */
     public function setNumber($number)
     {
-        $this->info['number'] = $number;
+        $this->info['number'] = floatval($number);
         return $this;
     }
     
@@ -196,11 +200,24 @@ class NumberInfo
     
     /**
      * Retrieves the numeric value without units.
-     * @return mixed
+     * @return float|int
      */
     public function getNumber()
     {
-        return $this->info['number'];
+        $number = (float)$this->info['number'];
+
+        if($this->hasDecimals()) {
+            return $number;
+        }
+
+        return intval($number);
+    }
+
+    public function hasDecimals() : bool
+    {
+        $number = (float)$this->info['number'];
+
+        return floor($number) !== $number;
     }
     
     /**
@@ -221,6 +238,10 @@ class NumberInfo
      */
     public function getUnits()
     {
+        if($this->isEmpty()) {
+            return '';
+        }
+
         if(!$this->hasUnits()) {
             return 'px';
         }
