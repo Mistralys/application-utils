@@ -212,6 +212,8 @@ class ConvertHelper_URLFinder implements Interface_Optionable
      */
     private function filterSubject(string $subject) : string
     {
+        $subject = stripslashes($subject);
+
         foreach($this->preParse as $className)
         {
             $detector = $this->createDetector($className);
