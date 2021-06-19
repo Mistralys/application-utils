@@ -34,9 +34,14 @@ class ConvertHelper_URLFinder_Detector_Tel extends ConvertHelper_URLFinder_Detec
 {
     const REGEX = '/^tel:((?:\+[\d().-]*\d[\d().-]*|[0-9A-F*#().-]*[0-9A-F*#][0-9A-F*#().-]*(?:;[a-z\d-]+(?:=(?:[a-z\d\[\]\/:&+$_!~*\'().-]|%[\dA-F]{2})+)?)*;phone-context=(?:\+[\d().-]*\d[\d().-]*|(?:[a-z0-9]\.|[a-z0-9][a-z0-9-]*[a-z0-9]\.)*(?:[a-z]|[a-z][a-z0-9-]*[a-z0-9])))(?:;[a-z\d-]+(?:=(?:[a-z\d\[\]\/:&+$_!~*\'().-]|%[\dA-F]{2})+)?)*(?:,(?:\+[\d().-]*\d[\d().-]*|[0-9A-F*#().-]*[0-9A-F*#][0-9A-F*#().-]*(?:;[a-z\d-]+(?:=(?:[a-z\d\[\]\/:&+$_!~*\'().-]|%[\dA-F]{2})+)?)*;phone-context=\+[\d().-]*\d[\d().-]*)(?:;[a-z\d-]+(?:=(?:[a-z\d\[\]\/:&+$_!~*\'().-]|%[\dA-F]{2})+)?)*)*)$/s';
 
-    public function getScheme() : string
+    public function getRunPosition() : string
     {
-        return 'tel:';
+        return self::RUN_BEFORE;
+    }
+
+    public function isValidFor(string $subject) : bool
+    {
+        return stristr($subject, 'tel:') !== false;
     }
 
     protected function filterSubject(string $subject) : string
