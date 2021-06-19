@@ -99,6 +99,36 @@ final class URLFinderTest extends TestCase
                 'expected' => array(
                     'https://redirect.to?url='.urlencode('https://target.com#jumpmark')
                 )
+            ),
+            array(
+                'label' => 'Escaped URL in JavaScript block',
+                'text' =>
+                    '<script>
+                        var pageBaseURL = "http:\/\/127.0.0.1\/tools\/appframework-manager\/?action=Errorcodes";
+                    </script>',
+                'expected' => array(
+                    'http://127.0.0.1/tools/appframework-manager/?action=Errorcodes'
+                )
+            ),
+            array(
+                'label' => 'IP addresses without scheme',
+                'text' =>
+                    'The IP address 192.168.0.1 is what you need.',
+                'expected' => array(
+                    '192.168.0.1'
+                )
+            ),
+            array(
+                'label' => 'Relative URLs in HTML attributes',
+                'text' =>
+                    '<link href="css/ui-dark.css" rel="stylesheet">
+                    <script src="vendor/twbs/bootstrap/dist/js/bootstrap.min.js"></script>
+                    <a href="Mistralys/appframework-manager">Framework Manager</a>',
+                'expected' => array(
+                    'css/ui-dark.css',
+                    'vendor/twbs/bootstrap/dist/js/bootstrap.min.js',
+                    'Mistralys/appframework-manager'
+                )
             )
         );
 
