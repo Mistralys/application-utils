@@ -103,7 +103,7 @@ class URLInfo_Parser
         $this->filterUnicodeChars();
         
         $this->info = parse_url($this->url);
-        
+
         $this->filterParsed();
         
         // if the URL contains any URL characters, and we
@@ -121,7 +121,7 @@ class URLInfo_Parser
     */
     protected function filterUnicodeChars() : void
     {
-        $chars = \AppUtils\ConvertHelper::string2array($this->url);
+        $chars = ConvertHelper::string2array($this->url);
         
         $keep = array();
         
@@ -245,7 +245,12 @@ class URLInfo_Parser
     {
         $this->info['params'] = array();
         $this->info['type'] = URLInfo::TYPE_URL;
-        
+
+        if(isset($this->info['scheme']))
+        {
+            $this->info['scheme'] = strtolower($this->info['scheme']);
+        }
+
         if(isset($this->info['user'])) {
             $this->info['user'] = urldecode($this->info['user']);
         }
@@ -255,6 +260,7 @@ class URLInfo_Parser
         }
         
         if(isset($this->info['host'])) {
+            $this->info['host'] = strtolower($this->info['host']);
             $this->info['host'] = str_replace(' ', '', $this->info['host']);
         }
         
@@ -264,7 +270,7 @@ class URLInfo_Parser
         
         if(isset($this->info['query']) && !empty($this->info['query']))
         {
-            $this->info['params'] = \AppUtils\ConvertHelper::parseQueryString($this->info['query']);
+            $this->info['params'] = ConvertHelper::parseQueryString($this->info['query']);
             ksort($this->info['params']);
         }
     }
