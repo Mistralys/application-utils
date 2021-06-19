@@ -40,7 +40,9 @@ class ConvertHelper_URLFinder implements Interface_Optionable
      * @var string[]
      */
     private $preParse = array(
-        ConvertHelper_URLFinder_Detector_Tel::class
+        ConvertHelper_URLFinder_Detector_Tel::class,
+        ConvertHelper_URLFinder_Detector_HTMLAttributes::class,
+        ConvertHelper_URLFinder_Detector_IPV4::class
     );
 
     /**
@@ -64,8 +66,18 @@ class ConvertHelper_URLFinder implements Interface_Optionable
         '>'
     );
 
+    /**
+     * @var ConvertHelper_URLFinder_Detector[]
+     */
+    private $detectors = array();
+
     public function __construct(string $subject)
     {
+        foreach($this->preParse as $className)
+        {
+            $this->detectors[] = $this->createDetector($className);
+        }
+
         $this->parse($subject);
     }
     
@@ -138,12 +150,9 @@ class ConvertHelper_URLFinder implements Interface_Optionable
      *
      * @param string $subject
      * @return string[]
-     * @throws ConvertHelper_Exception
      */
     private function splitSubject(string $subject) : array
     {
-        $subject = $this->filterSubject($subject);
-
         $subject = str_replace($this->boundaries, ' ', $subject);
         $lines = ConvertHelper::explodeTrim(' ', $subject);
 
@@ -208,18 +217,15 @@ class ConvertHelper_URLFinder implements Interface_Optionable
      *
      * @param string $subject
      * @return string
-     * @throws ConvertHelper_Exception
      */
-    private function filterSubject(string $subject) : string
+    private function filterSubjectBefore(string $subject) : string
     {
         $subject = stripslashes($subject);
 
-        foreach($this->preParse as $className)
+        foreach($this->detectors as $detector)
         {
-            $detector = $this->createDetector($className);
-
-            // Avoid processing the string if the scheme is not present.
-            if(stristr($subject, $detector->getScheme()) === false) {
+            // Avoid processing the string if it is not needed.
+            if($detector->getRunPosition() !== ConvertHelper_URLFinder_Detector::RUN_BEFORE || !$detector->isValidFor($subject)) {
                 continue;
             }
 
@@ -353,6 +359,8 @@ class ConvertHelper_URLFinder implements Interface_Optionable
      */
     private function detectMatches(string $subject) : void
     {
+        $subject = $this->filterSubjectBefore($subject);
+
         $lines = $this->splitSubject($subject);
         $domains = new ConvertHelper_URLFinder_DomainExtensions();
 
@@ -369,6 +377,31 @@ class ConvertHelper_URLFinder implements Interface_Optionable
             if($domains->nameExists($extension)) {
                 $this->matches[] = $line;
             }
+        }
+
+        $this->filterSubjectAfter($subject);
+    }
+
+    private function filterSubjectAfter(string $subject) : void
+    {
+        // Sort the matches from longest to shortest, to avoid
+        // replacing parts of URLs.
+        $remove = $this->matches;
+        usort($remove, function(string $a, string $b) {
+            return strlen($b) - strlen($a);
+        });
+
+        $subject = str_replace($remove, ' ', $subject);
+
+        foreach($this->detectors as $detector)
+        {
+            if($detector->getRunPosition() !== ConvertHelper_URLFinder_Detector::RUN_AFTER || !$detector->isValidFor($subject)) {
+                continue;
+            }
+
+            $subject = $detector->processString($subject);
+
+            $this->matches = array_merge($this->matches, $detector->getMatches());
         }
     }
 
