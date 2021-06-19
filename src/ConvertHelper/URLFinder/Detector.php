@@ -6,6 +6,9 @@ namespace AppUtils;
 
 abstract class ConvertHelper_URLFinder_Detector
 {
+    const RUN_BEFORE = 'before';
+    const RUN_AFTER = 'after';
+
     /**
      * @var string[]
      */
@@ -28,7 +31,9 @@ abstract class ConvertHelper_URLFinder_Detector
         return $this->matches;
     }
 
-    abstract public function getScheme() : string;
+    abstract public function getRunPosition() : string;
+
+    abstract public function isValidFor(string $subject) : bool;
 
     abstract protected function filterSubject(string $subject) : string;
 
