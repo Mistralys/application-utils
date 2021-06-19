@@ -53,7 +53,8 @@ class URLInfo_Parser
         'mailto',
         'tel',
         'data',
-        'file'
+        'file',
+        'git'
     );
     
    /**
@@ -212,7 +213,7 @@ class URLInfo_Parser
         
         // no scheme found: it may be an email address without the mailto:
         // It can't be a variable, since without the scheme it would already
-        // have been recognized as a vaiable only link.
+        // have been recognized as a variable only link.
         $this->setError(
             URLInfo::ERROR_MISSING_SCHEME,
             t('Cannot determine the link\'s scheme, e.g. %1$s.', 'http')
@@ -249,6 +250,13 @@ class URLInfo_Parser
         if(isset($this->info['scheme']))
         {
             $this->info['scheme'] = strtolower($this->info['scheme']);
+        }
+        else
+        {
+            $scheme = URLInfo_Schemes::detectScheme($this->url);
+            if(!empty($scheme)) {
+                $this->info['scheme'] = substr($scheme,0, strpos($scheme, ':'));
+            }
         }
 
         if(isset($this->info['user'])) {
