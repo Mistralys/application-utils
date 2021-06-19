@@ -88,6 +88,24 @@ final class URLInfoTest extends TestCase
                 'url' => "http://www.spaceparams.com?%20%20foo%20%20=bar",
                 'valid' => true,
                 'normalized' => 'http://www.spaceparams.com?%20%20foo%20%20=bar'
+            ),
+            array(
+                'label' => 'Uppercase local parts',
+                'url' => 'HTTPS://DOMAIN.COM',
+                'valid' => true,
+                'normalized' => 'https://domain.com'
+            ),
+            array(
+                'label' => 'Phone URL',
+                'url' => 'tel:0033458874545',
+                'valid' => true,
+                'normalized' => 'tel:0033458874545'
+            ),
+            array(
+                'label' => 'GIT URL',
+                'url' => 'git://github.com/user/project-name.git',
+                'valid' => true,
+                'normalized' => 'git://github.com/user/project-name.git'
             )
         );
         
@@ -95,7 +113,7 @@ final class URLInfoTest extends TestCase
         {
             $info = new URLInfo($test['url']);
             
-            $this->assertEquals($test['valid'], $info->isValid(), $test['label']);
+            $this->assertEquals($test['valid'], $info->isValid(), $test['label'].'.'.PHP_EOL.'URL: '.$test['url'].PHP_EOL.'Reason: '.$info->getErrorMessage());
             $this->assertEquals($test['normalized'], $info->getNormalized(), $test['label']);
         }
     }
