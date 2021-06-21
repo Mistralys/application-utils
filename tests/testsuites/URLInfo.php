@@ -106,6 +106,18 @@ final class URLInfoTest extends TestCase
                 'url' => 'git://github.com/user/project-name.git',
                 'valid' => true,
                 'normalized' => 'git://github.com/user/project-name.git'
+            ),
+            array(
+                'label' => 'IP Address',
+                'url' => 'https://192.168.0.1',
+                'valid' => true,
+                'normalized' => 'https://192.168.0.1'
+            ),
+            array(
+                'label' => 'IP Address without scheme',
+                'url' => '192.168.0.1',
+                'valid' => true,
+                'normalized' => 'https://192.168.0.1'
             )
         );
         
@@ -721,5 +733,12 @@ final class URLInfoTest extends TestCase
             
             $this->assertEquals($entry['expected'], $result, $entry['label']);
         }
+    }
+
+    public function test_detectIPAddress() : void
+    {
+        $this->assertTrue(parseURL('192.168.0.1')->hasIPAddress());
+        $this->assertTrue(parseURL('https://192.168.0.1')->hasIPAddress());
+        $this->assertFalse(parseURL('https://192.domain.com')->hasIPAddress());
     }
 }

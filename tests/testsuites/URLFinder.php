@@ -117,18 +117,6 @@ final class URLFinderTest extends TestCase
                 'expected' => array(
                     '192.168.0.1'
                 )
-            ),
-            array(
-                'label' => 'Relative URLs in HTML attributes',
-                'text' =>
-                    '<link href="css/ui-dark.css" rel="stylesheet">
-                    <script src="vendor/twbs/bootstrap/dist/js/bootstrap.min.js"></script>
-                    <a href="Mistralys/appframework-manager">Framework Manager</a>',
-                'expected' => array(
-                    'css/ui-dark.css',
-                    'vendor/twbs/bootstrap/dist/js/bootstrap.min.js',
-                    'Mistralys/appframework-manager'
-                )
             )
         );
 
@@ -139,6 +127,25 @@ final class URLFinderTest extends TestCase
 
             $this->assertEquals($test['expected'], $result, $test['label']);
         }
+    }
+
+    public function test_findInHTMLAttributes() : void
+    {
+        $subject = '<link href="css/ui-dark.css" rel="stylesheet">
+                    <script src="vendor/twbs/bootstrap/dist/js/bootstrap.min.js"></script>
+                    <a href="Mistralys/appframework-manager">Framework Manager</a>';
+
+        $expected = array(
+            'css/ui-dark.css',
+            'vendor/twbs/bootstrap/dist/js/bootstrap.min.js',
+            'Mistralys/appframework-manager'
+        );
+
+        $result = ConvertHelper::createURLFinder($subject)
+            ->enableHTMLAttributes()
+            ->getURLs();
+
+        $this->assertEquals($expected, $result);
     }
 
     public function test_findEmails() : void
