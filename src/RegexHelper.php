@@ -106,4 +106,9 @@ class RegexHelper
     * @var string
     */
     const REGEX_HEX_COLOR_CODE = '/\A(?:[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\z/iU';
+
+    /**
+     * IPV4 IP Address. Does only some basic checks.
+     */
+    const REGEX_IPV4 = '/((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/siU';
 }

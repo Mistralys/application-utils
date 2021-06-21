@@ -19,8 +19,6 @@ namespace AppUtils;
  */
 class ConvertHelper_URLFinder_Detector_IPV4 extends ConvertHelper_URLFinder_Detector
 {
-    const REGEX = '/((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/siU';
-
     public function getRunPosition() : string
     {
         return self::RUN_AFTER;
@@ -39,7 +37,7 @@ class ConvertHelper_URLFinder_Detector_IPV4 extends ConvertHelper_URLFinder_Dete
     protected function detect(string $subject) : array
     {
         $matches = array();
-        preg_match_all(self::REGEX, $subject, $matches, PREG_PATTERN_ORDER);
+        preg_match_all(RegexHelper::REGEX_IPV4, $subject, $matches, PREG_PATTERN_ORDER);
 
         return array_unique($matches[0]);
     }
