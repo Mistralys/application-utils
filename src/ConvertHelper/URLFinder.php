@@ -39,10 +39,10 @@ class ConvertHelper_URLFinder implements Interface_Optionable
     /**
      * @var string[]
      */
-    private $preParse = array(
-        ConvertHelper_URLFinder_Detector_Tel::class,
-        ConvertHelper_URLFinder_Detector_HTMLAttributes::class,
-        ConvertHelper_URLFinder_Detector_IPV4::class
+    private $enabledDetectorClasses = array(
+        ConvertHelper_URLFinder_Detector_Tel::class => true,
+        ConvertHelper_URLFinder_Detector_HTMLAttributes::class => false,
+        ConvertHelper_URLFinder_Detector_IPV4::class => true
     );
 
     /**
@@ -71,14 +71,19 @@ class ConvertHelper_URLFinder implements Interface_Optionable
      */
     private $detectors = array();
 
+    /**
+     * @var string
+     */
+    private $subject;
+
+    /**
+     * @var bool
+     */
+    private $parsed = false;
+
     public function __construct(string $subject)
     {
-        foreach($this->preParse as $className)
-        {
-            $this->detectors[] = $this->createDetector($className);
-        }
-
-        $this->parse($subject);
+        $this->subject = $subject;
     }
     
     public function getDefaultOptions() : array
@@ -269,6 +274,8 @@ class ConvertHelper_URLFinder implements Interface_Optionable
     */
     public function getURLs() : array
     {
+        $this->parse();
+
         $result = $this->getItemsAsString($this->urls);
 
         if($this->getBoolOption('include-emails'))
@@ -310,17 +317,41 @@ class ConvertHelper_URLFinder implements Interface_Optionable
     }
 
     /**
+     * Instantiates the selected detector classes, which are
+     * used to detect specific elements in the target string
+     * (beyond regular URLs and Email addresses).
+     *
+     * @throws ConvertHelper_Exception
+     */
+    private function initDetectors() : void
+    {
+        foreach($this->enabledDetectorClasses as $className => $enabled)
+        {
+            if($enabled) {
+                $this->detectors[] = $this->createDetector($className);
+            }
+        }
+    }
+
+    /**
      * Parses the specified string to detect all URLs and Email addresses.
      * For accurate results, this does not use a regex, but splits the
      * string into a list of strings that are likely to be either an URL
      * or Email address. Each of these is then checked for a valid scheme
      * or domain name extension.
-     *
-     * @param string $subject
      */
-    private function parse(string $subject) : void
+    private function parse() : void
     {
-        $this->detectMatches($subject);
+        if($this->parsed) {
+            return;
+        }
+
+        $this->parsed = true;
+
+        $this->initDetectors();
+        $this->detectMatches($this->subject);
+
+        unset($this->subject);
 
         foreach($this->matches as $match)
         {
@@ -334,6 +365,18 @@ class ConvertHelper_URLFinder implements Interface_Optionable
 
             $this->urls[$match] = $info;
         }
+    }
+
+    /**
+     * Enables the search for relative URLs in HTML attributes.
+     *
+     * @param bool $enable
+     * @return $this
+     */
+    public function enableHTMLAttributes(bool $enable=true) : ConvertHelper_URLFinder
+    {
+        $this->enabledDetectorClasses[ConvertHelper_URLFinder_Detector_HTMLAttributes::class] = $enable;
+        return $this;
     }
 
     /**
@@ -440,6 +483,8 @@ class ConvertHelper_URLFinder implements Interface_Optionable
     */
     public function getEmails() : array
     {
+        $this->parse();
+
         $result = $this->getItemsAsString($this->emails);
 
         if($this->getBoolOption('omit-mailto')) {
@@ -468,6 +513,8 @@ class ConvertHelper_URLFinder implements Interface_Optionable
     */
     public function getInfos() : array
     {
+        $this->parse();
+
         $result = array();
         $normalize = $this->getBoolOption('normalize');
 
