@@ -114,7 +114,7 @@ class URLInfo_Parser
             $this->info = $this->restoreUnicodeChars($this->info);
         }
     }
-    
+
    /**
     * Finds any non-url encoded unicode characters in 
     * the URL, and encodes them before the URL is 
@@ -150,7 +150,8 @@ class URLInfo_Parser
         $types = array(
             'email',
             'fragmentLink',
-            'phoneLink'
+            'phoneLink',
+            'ipAddress'
         );
         
         foreach($types as $type)
@@ -242,7 +243,7 @@ class URLInfo_Parser
     * array, and attempts to fix any user errors in formatting
     * that can be recovered from, mostly regarding stray spaces.
     */
-    protected function filterParsed()
+    protected function filterParsed() : void
     {
         $this->info['params'] = array();
         $this->info['type'] = URLInfo::TYPE_URL;
@@ -337,7 +338,7 @@ class URLInfo_Parser
             return true;
         }
         
-        if(isset($this->info['path']) && preg_match(\AppUtils\RegexHelper::REGEX_EMAIL, $this->info['path']))
+        if(isset($this->info['path']) && preg_match(RegexHelper::REGEX_EMAIL, $this->info['path']))
         {
             $this->info['scheme'] = 'mailto';
             $this->info['type'] = URLInfo::TYPE_EMAIL;
@@ -346,7 +347,33 @@ class URLInfo_Parser
         
         return false;
     }
-    
+
+    protected function detectType_ipAddress() : bool
+    {
+        if($this->isPathOnly() && preg_match(RegexHelper::REGEX_IPV4, $this->info['path'])) {
+            $this->info['host'] = $this->info['path'];
+            $this->info['scheme'] = 'https';
+            unset($this->info['path']);
+        }
+
+        if($this->isHostOnly() && preg_match(RegexHelper::REGEX_IPV4, $this->info['host'])) {
+            $this->info['ip'] = $this->info['host'];
+            return true;
+        }
+
+        return false;
+    }
+
+    private function isPathOnly() : bool
+    {
+        return isset($this->info['path']) && !isset($this->info['host']) && !isset($this->info['scheme']);
+    }
+
+    private function isHostOnly() : bool
+    {
+        return isset($this->info['host']) && !isset($this->info['path']) && !isset($this->info['query']);
+    }
+
     protected function detectType_fragmentLink() : bool
     {
         if(isset($this->info['fragment']) && !isset($this->info['scheme'])) {
