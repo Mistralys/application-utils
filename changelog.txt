@@ -1,3 +1,15 @@
+v1.5.1
+- URLInfo: Added host IP address detection.
+- URLInfo: Added the `hasIPAddress()` method to check if the host is an IP address.
+- URLInfo: Fixed case sensitivity issues in scheme and hostname.
+- URLFinder: Parser moved from a regex to a more reliable detection system.
+- URLFinder: Added detection of relative paths in HTML documents.
+- URLFinder: Added IPv4 address detection, with or without scheme.
+- URLFinder: Added `tel:` link detection.
+- URLFinder: Added a top level domain extensions lookup helper under `ConvertHelper_URLFinder_DomainExtensions`.
+- RegexHelper: Added the `REGEX_IPV4` regex.
+- Documentation: Added wiki pages for additional helpers.
+
 v1.5.0
 - HTMLHelper: Added the new helper.
 - HTMLHelper: Added `stripComments()`.
