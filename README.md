@@ -45,7 +45,7 @@ ConvertHelper for example have many static methods not shown here.
     - SizeNotation: Convert size strings (2 MB) to byte values.
     - TabsNormalizer: Allows intelligently left-adjusting indented text.
     - [ThrowableInfo][]: Exception analysis tool for debugging, and persisting them to storage.
-    - URLFinder: Allows detecting URLs in a string.
+    - [URLFinder][]: Allows detecting URLs in a string.
     - WordWrapper: Intelligently wrap text to a specific length.
 * CSVHelper: Read and generate CSV files.
 * Highlighter: Syntax highlighting using GeSHi, as well as some custom variants.
@@ -117,3 +117,4 @@ and being modernized.
 [NumberInfo]: https://github.com/Mistralys/application-utils/wiki/NumberInfo
 [OperationResult]: https://github.com/Mistralys/application-utils/wiki/OperationResult
 [VariableInfo]: https://github.com/Mistralys/application-utils/wiki/VariableInfo
+[URLFinder]: https://github.com/Mistralys/application-utils/wiki/URLFinder
