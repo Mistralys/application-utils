@@ -33,7 +33,7 @@ class URLInfo implements \ArrayAccess
     const TYPE_FRAGMENT = 'fragment';
     const TYPE_PHONE = 'phone';
     const TYPE_URL = 'url';
-    
+
    /**
     * The original URL that was passed to the constructor.
     * @var string
@@ -114,7 +114,7 @@ class URLInfo implements \ArrayAccess
         $this->parser = new URLInfo_Parser($this->url, $this->encodeUTFChars);
         $this->info = $this->parser->getInfo();
     }
-    
+
    /**
     * Whether to URL encode any non-encoded UTF8 characters in the URL.
     * Default is to leave them as-is for better readability, since 
@@ -724,5 +724,10 @@ class URLInfo implements \ArrayAccess
         }
         
         return $this;
+    }
+
+    public function hasIPAddress() : bool
+    {
+        return isset($this->info['ip']);
     }
 }
