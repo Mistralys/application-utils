@@ -1,9 +1,7 @@
-v1.5.1
-- HTMLHelper: Added `injectAtEnd()`.
-
 v1.5.0
 - HTMLHelper: Added the new helper.
 - HTMLHelper: Added `stripComments()`.
+- HTMLHelper: Added `injectAtEnd()`.
 - NumberInfo: Added `hasDecimals()`.
 - URLInfo: Added host IP address detection.
 - URLInfo: Added the `hasIPAddress()` method to check if the host is an IP address.
