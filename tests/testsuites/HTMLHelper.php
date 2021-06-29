@@ -37,4 +37,55 @@ final class HTMLHelperTest extends TestCase
             $this->assertEquals($test['expected'], HTMLHelper::stripComments($test['source']), $test['label']);
         }
     }
+
+    public function test_inject() : void
+    {
+        $tests = array(
+            array(
+                'label' => 'Empty string',
+                'html' => '',
+                'expected' => '<p>{INSERT}</p>'
+            ),
+            array(
+                'label' => 'Single paragraph',
+                'html' => '<p>Some text</p>',
+                'expected' => '<p>Some text{INSERT}</p>'
+            ),
+            array(
+                'label' => 'Several paragraphs',
+                'html' => '<p>Some text</p><p>Another text</p>',
+                'expected' => '<p>Some text</p><p>Another text{INSERT}</p>'
+            ),
+            array(
+                'label' => 'Ordered list',
+                'html' => '<p>Some text</p><ul><li>Another text</li></ul>',
+                'expected' => '<p>Some text</p><ul><li>Another text</li></ul><p>{INSERT}</p>'
+            ),
+            array(
+                'label' => 'Ordered list, uppercase tags',
+                'html' => '<P>Some text</P><UL><LI>Another text</LI></UL>',
+                'expected' => '<P>Some text</P><UL><LI>Another text</LI></UL><p>{INSERT}</p>'
+            ),
+            array(
+                'label' => 'Duplicate content tags',
+                'html' => '<p>Some text</p><p>Another text</p><p>Some text</p>',
+                'expected' => '<p>Some text</p><p>Another text</p><p>Some text{INSERT}</p>'
+            ),
+            array(
+                'label' => 'Table',
+                'html' => '<table><tr><td>Some text</td></tr></table>',
+                'expected' => '<table><tr><td>Some text</td></tr></table><p>{INSERT}</p>'
+            )
+        );
+
+        $insert = '<a href="https://mistralys.eu">Mistralys</a>';
+
+        foreach ($tests as $test)
+        {
+            $result = HTMLHelper::injectAtEnd($insert, $test['html']);
+            $expected = str_replace('{INSERT}', $insert, $test['expected']);
+
+            $this->assertEquals($expected, $result, $test['label']);
+        }
+    }
 }
