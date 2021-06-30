@@ -18,7 +18,7 @@ namespace AppUtils;
  * 
  * @see StringBuilder
  */
-interface StringBuilder_Interface
+interface StringBuilder_Interface extends Interface_Stringable
 {
     /**
      * Renders the string builder to a string.
@@ -26,13 +26,6 @@ interface StringBuilder_Interface
      * @return string
      */
      function render() : string;
-     
-    /**
-     * Converts the string builder to a string.
-     * 
-     * @return string
-     */
-     function __toString();
      
     /**
      * Renders the string and echos it.
