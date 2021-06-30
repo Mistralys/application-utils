@@ -92,18 +92,19 @@ class ConvertHelper
         return $converter->toString();
     }
 
-   /**
-    * Converts a timestamp into an easily understandable
-    * format, e.g. "2 hours", "1 day", "3 months"
-    *
-    * If you set the date to parameter, the difference
-    * will be calculated between the two dates and not
-    * the current time.
-    *
-    * @param integer|DateTime $datefrom
-    * @param integer|DateTime $dateto
-    * @return string
-    */
+    /**
+     * Converts a timestamp into an easily understandable
+     * format, e.g. "2 hours", "1 day", "3 months"
+     *
+     * If you set the date to parameter, the difference
+     * will be calculated between the two dates and not
+     * the current time.
+     *
+     * @param integer|DateTime $datefrom
+     * @param integer|DateTime $dateto
+     * @return string
+     * @throws ConvertHelper_Exception
+     */
     public static function duration2string($datefrom, $dateto = -1) : string
     {
          $converter = new ConvertHelper_DurationConverter();
@@ -564,6 +565,7 @@ class ConvertHelper
      * @param boolean $yesno
      * @return string
      * @throws ConvertHelper_Exception
+     * @see ConvertHelper::ERROR_INVALID_BOOLEAN_STRING
      */
     public static function bool2string($boolean, bool $yesno = false) : string
     {
