@@ -66,6 +66,11 @@ class Microtime extends DateTime implements Interface_Stringable
         }
     }
 
+    public static function createFromDate(DateTime $date) : Microtime
+    {
+        return new Microtime($date->format(self::FORMAT_ISO));
+    }
+
     /**
      * Sets the default time zone to use when none is specified.
      * @param string $timeZone
