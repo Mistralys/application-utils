@@ -1,5 +1,6 @@
 v1.5.1
 - ConvertHelper: Added `boolStrict2string()`, a variant of `string2bool` that only accepts boolean values.
+- DateTime: Added the `Microtime` class that extends `DateTime` to add millisecond and microsecond capability.
 
 v1.5.0
 - HTMLHelper: Added the new helper.
