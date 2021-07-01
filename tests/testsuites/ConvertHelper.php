@@ -128,6 +128,14 @@ final class ConvertHelperTest extends TestCase
             $this->assertEquals($expected, $actual);
         }
     }
+
+    public function test_boolStrict2string() : void
+    {
+        $this->assertSame('true', ConvertHelper::boolStrict2string(true));
+        $this->assertSame('false', ConvertHelper::boolStrict2string(false));
+        $this->assertSame('yes', ConvertHelper::boolStrict2string(true, true));
+        $this->assertSame('no', ConvertHelper::boolStrict2string(false, true));
+    }
     
     public function test_string2bool()
     {

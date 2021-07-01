@@ -1,3 +1,6 @@
+v1.5.1
+- ConvertHelper: Added `boolStrict2string()`, a variant of `string2bool` that only accepts boolean values.
+
 v1.5.0
 - HTMLHelper: Added the new helper.
 - HTMLHelper: Added `stripComments()`.

@@ -62,7 +62,9 @@ class ConvertHelper_Bool
      * @param boolean|string $boolean
      * @param boolean $yesno
      * @return string
+     *
      * @throws ConvertHelper_Exception
+     * @see ConvertHelper::ERROR_INVALID_BOOLEAN_STRING
      */
     public static function toString($boolean, bool $yesno = false) : string
     {
@@ -71,6 +73,32 @@ class ConvertHelper_Bool
             $boolean = self::fromString($boolean);
         }
 
+        if ($boolean) {
+            if ($yesno) {
+                return 'yes';
+            }
+
+            return 'true';
+        }
+
+        if ($yesno) {
+            return 'no';
+        }
+
+        return 'false';
+    }
+
+    /**
+     * Converts a strict boolean value to string. Compared to
+     * {@see ConvertHelper_Bool::toString()}, this cannot
+     * throw an exception.
+     *
+     * @param bool $boolean
+     * @param bool $yesno
+     * @return string
+     */
+    public static function toStringStrict(bool $boolean, bool $yesno = false) : string
+    {
         if ($boolean) {
             if ($yesno) {
                 return 'yes';

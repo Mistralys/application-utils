@@ -571,7 +571,21 @@ class ConvertHelper
     {
         return ConvertHelper_Bool::toString($boolean, $yesno);
     }
-    
+
+    /**
+     * Converts a strict boolean value to string.
+     * Cannot throw an exception like {@see ConvertHelper::bool2string()}
+     * does.
+     *
+     * @param bool $boolean
+     * @param bool $yesno
+     * @return string
+     */
+    public static function boolStrict2string(bool $boolean, bool $yesno = false) : string
+    {
+        return ConvertHelper_Bool::toStringStrict($boolean, $yesno);
+    }
+
    /**
     * Converts an associative array with attribute name > value pairs
     * to an attribute string that can be used in an HTML tag. Empty 
