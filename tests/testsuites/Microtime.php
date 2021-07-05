@@ -33,4 +33,12 @@ final class MicrotimeTest extends TestCase
 
         $this->assertSame(555500, $time2->getMicroseconds());
     }
+
+    public function test_timeZone() : void
+    {
+        $vanilla = new DateTime();
+        $micro = new Microtime();
+
+        $this->assertSame($vanilla->format('Y-m-d H:i:s'), $micro->format('Y-m-d H:i:s'));
+    }
 }

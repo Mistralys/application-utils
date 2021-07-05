@@ -16,11 +16,6 @@ class Microtime extends DateTime implements Interface_Stringable
     const FORMAT_ISO = 'Y-m-d H:i:s.u';
 
     /**
-     * @var string
-     */
-    private static $defaultTimeZone = 'Europe/Paris';
-
-    /**
      * @param string $datetime
      * @param DateTimeZone|null $timeZone
      * @throws ConvertHelper_Exception
@@ -30,13 +25,14 @@ class Microtime extends DateTime implements Interface_Stringable
      */
     public function __construct($datetime='now', DateTimeZone $timeZone=null)
     {
-        if($timeZone === null) {
-            $timeZone = new DateTimeZone(self::$defaultTimeZone);
+        if($timeZone === null)
+        {
+            $timeZone = new DateTimeZone(date_default_timezone_get());
         }
 
         if(empty($datetime) || $datetime === 'now')
         {
-            $dateObj = DateTime::createFromFormat('0.u00 U', microtime());
+            $dateObj = DateTime::createFromFormat('0.u00 U', microtime(), new DateTimeZone('America/Denver'));
 
             if($dateObj === false) {
                 throw new ConvertHelper_Exception(
@@ -46,6 +42,7 @@ class Microtime extends DateTime implements Interface_Stringable
                 );
             }
 
+            $dateObj->setTimezone($timeZone);
             $datetime = $dateObj->format(self::FORMAT_ISO);
         }
 
@@ -68,16 +65,7 @@ class Microtime extends DateTime implements Interface_Stringable
 
     public static function createFromDate(DateTime $date) : Microtime
     {
-        return new Microtime($date->format(self::FORMAT_ISO));
-    }
-
-    /**
-     * Sets the default time zone to use when none is specified.
-     * @param string $timeZone
-     */
-    public static function setDefaultTimeZone(string $timeZone) : void
-    {
-        self::$defaultTimeZone = $timeZone;
+        return new Microtime($date->format(self::FORMAT_ISO), $date->getTimezone());
     }
 
     /**
