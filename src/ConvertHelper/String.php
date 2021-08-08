@@ -1,4 +1,11 @@
 <?php
+/**
+ * File containing the {@see \AppUtils\ConvertHelper_String} class.
+ *
+ * @package Application Utils
+ * @subpackage ConvertHelper
+ * @see \AppUtils\ConvertHelper_String
+ */
 
 declare(strict_types=1);
 
@@ -6,12 +13,19 @@ namespace AppUtils;
 
 use ForceUTF8\Encoding;
 
+/**
+ * String conversion helper: focuses on string operations.
+ *
+ * @package Application Utils
+ * @subpackage ConvertHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class ConvertHelper_String
 {
     /**
      * Searches for needle in the specified string, and returns a list
      * of all occurrences, including the matched string. The matched
-     * string is useful when doing a case insensitive search, as it
+     * string is useful when doing a case-insensitive search, as it
      * shows the exact matched case of needle.
      *
      * @param string $needle
@@ -217,7 +231,7 @@ class ConvertHelper_String
 
     /**
      * UTF8-safe wordwrap method: works like the regular wordwrap
-     * PHP function but compatible with UTF8. Otherwise the lengths
+     * PHP function but compatible with UTF8. Otherwise, the lengths
      * are not calculated correctly.
      *
      * @param string $str
@@ -247,13 +261,15 @@ class ConvertHelper_String
      */
     public static function transliterate(string $string, string $spaceChar = '-', bool $lowercase = true) : string
     {
-        $translit = new Transliteration();
-        $translit->setSpaceReplacement($spaceChar);
-        if ($lowercase) {
-            $translit->setLowercase();
+        $transliterate = new Transliteration();
+        $transliterate->setSpaceReplacement($spaceChar);
+
+        if ($lowercase)
+        {
+            $transliterate->setLowercase();
         }
 
-        return $translit->convert($string);
+        return $transliterate->convert($string);
     }
 
     /**
@@ -273,9 +289,7 @@ class ConvertHelper_String
             return $text;
         }
 
-        $text = trim(mb_substr($text, 0, $targetLength)) . $append;
-
-        return $text;
+        return trim(mb_substr($text, 0, $targetLength)) . $append;
     }
 
     /**
