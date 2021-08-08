@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use DateTime;
+
 /**
  * Converts a timespan to a human readable duration string,
  * e.g. "2 months", "4 minutes".
@@ -372,5 +374,45 @@ class ConvertHelper_DurationConverter
         
         // seconds
         return $this->difference;
+    }
+
+    /**
+     * Converts a timestamp into an easily understandable
+     * format, e.g. "2 hours", "1 day", "3 months"
+     *
+     * If you set the date to parameter, the difference
+     * will be calculated between the two dates and not
+     * the current time.
+     *
+     * @param integer|DateTime $datefrom
+     * @param integer|DateTime $dateto
+     * @return string
+     *
+     * @throws ConvertHelper_Exception
+     * @see ConvertHelper_DurationConverter::ERROR_NO_DATE_FROM_SET
+     */
+    public static function toString($datefrom, $dateto = -1) : string
+    {
+        $converter = new ConvertHelper_DurationConverter();
+
+        if($datefrom instanceof DateTime)
+        {
+            $converter->setDateFrom($datefrom);
+        }
+        else
+        {
+            $converter->setDateFrom(ConvertHelper_Date::fromTimestamp($datefrom));
+        }
+
+        if($dateto instanceof DateTime)
+        {
+            $converter->setDateTo($dateto);
+        }
+        else if($dateto > 0)
+        {
+            $converter->setDateTo(ConvertHelper_Date::fromTimestamp($dateto));
+        }
+
+        return $converter->convert();
     }
 }
