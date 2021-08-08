@@ -80,7 +80,7 @@ class ConvertHelper
     
    /**
     * Converts the specified amount of seconds into
-    * a human readable string split in months, weeks,
+    * a human-readable string split in months, weeks,
     * days, hours, minutes and seconds.
     *
     * @param float $seconds
@@ -103,7 +103,9 @@ class ConvertHelper
      * @param integer|DateTime $datefrom
      * @param integer|DateTime $dateto
      * @return string
+     *
      * @throws ConvertHelper_Exception
+     * @see ConvertHelper_DurationConverter::ERROR_NO_DATE_FROM_SET
      */
     public static function duration2string($datefrom, $dateto = -1) : string
     {
