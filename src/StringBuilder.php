@@ -145,32 +145,58 @@ class StringBuilder implements StringBuilder_Interface
     */
     public function t(string $format, ...$arguments) : StringBuilder
     {
-        array_unshift($arguments, $format);
-        
         if(!class_exists('\AppLocalize\Localization'))
         {
+            array_unshift($arguments, $format);
             return $this->sf(...$arguments);
         }
         
-        return $this->add(call_user_func_array(
+        return $this->add(call_user_func(
             array(AppLocalize\Localization::getTranslator(), 'translate'),
+            $format,
             $arguments
         ));
     }
-    
-   /**
-    * Adds a "5 months ago" age since the specified date.
-    * 
-    * @param DateTime $since
-    * @return $this
-    */
+
+    /**
+     * Add a translated text with translation context information.
+     *
+     * @param string $format The native string to translate.
+     * @param string $context Translation context hints, shown in the translation UI.
+     * @param mixed ...$arguments
+     * @return $this
+     */
+    public function tex(string $format, string $context, ...$arguments) : StringBuilder
+    {
+        unset($context); // Only used by the localization parser.
+
+        if(!class_exists('\AppLocalize\Localization'))
+        {
+            array_unshift($arguments, $format);
+            return $this->sf(...$arguments);
+        }
+
+        return $this->add(call_user_func(
+            array(AppLocalize\Localization::getTranslator(), 'translate'),
+            $format,
+            $arguments
+        ));
+    }
+
+    /**
+     * Adds a "5 months ago" age since the specified date.
+     *
+     * @param DateTime $since
+     * @return $this
+     * @throws ConvertHelper_Exception
+     */
     public function age(DateTime $since) : StringBuilder
     {
         return $this->add(ConvertHelper::duration2string($since));
     }
     
    /**
-    * Adds HTML quotes around the string.
+    * Adds HTML double quotes around the string.
     * 
     * @param string|number|StringBuilder_Interface $string
     * @return $this
@@ -221,7 +247,10 @@ class StringBuilder implements StringBuilder_Interface
     }
     
    /**
-    * Adds a HTML `br` tag.
+    * Adds an HTML `<br>` tag.
+    *
+    * Note: for adding a newline character instead,
+    * use {@see StringBuilder::eol()}.
     * 
     * @return $this
     * @see StringBuilder::eol()
@@ -263,7 +292,7 @@ class StringBuilder implements StringBuilder_Interface
     }
     
    /**
-    * Like `note()`, but as bold text.
+    * Like {@see StringBuilder::note()}, but as bold text.
     * 
     * @return $this
     */
@@ -276,12 +305,18 @@ class StringBuilder implements StringBuilder_Interface
     * Adds the "Hint:" text.
     * 
     * @return $this
+    * @see StringBuilder::hintBold()
     */
     public function hint() : StringBuilder
     {
         return $this->t('Hint:');
     }
 
+    /**
+     * Like {@see StringBuilder::hint()}, but as bold text.
+     *
+     * @return $this
+     */
     public function hintBold() : StringBuilder
     {
         return $this->bold(sb()->hint());
