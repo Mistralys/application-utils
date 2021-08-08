@@ -9,6 +9,8 @@
 
 namespace AppUtils;
 
+use Throwable;
+
 /**
  * Extended exception class with additional tools. Allows setting
  * developer-only information that does not get shown along with
@@ -54,7 +56,7 @@ class BaseException extends \Exception
    /**
     * Displays pertinent information on the exception.
     */
-    public function display()
+    public function display() : void
     {
         if(!headers_sent()) {
             header('Content-type:text/plain; charset=utf-8');
@@ -75,9 +77,9 @@ class BaseException extends \Exception
     }
     
    /**
-    * Dumps a current PHP function trace, as a textonly string.
+    * Dumps a current PHP function trace, as a text only string.
     */
-    public static function dumpTraceAsString()
+    public static function dumpTraceAsString() : void
     {
         try
         {
@@ -92,7 +94,7 @@ class BaseException extends \Exception
    /**
     * Dumps a current PHP function trace, with HTML styling.
     */
-    public static function dumpTraceAsHTML()
+    public static function dumpTraceAsHTML() : void
     {
         try
         {
@@ -109,11 +111,11 @@ class BaseException extends \Exception
    /**
     * Creates an exception info instance from a throwable instance.
     * 
-    * @param \Throwable $e
+    * @param Throwable $e
     * @return ConvertHelper_ThrowableInfo
     * @see ConvertHelper::throwable2info()
     */
-    public static function createInfo(\Throwable $e) : ConvertHelper_ThrowableInfo
+    public static function createInfo(Throwable $e) : ConvertHelper_ThrowableInfo
     {
         return ConvertHelper::throwable2info($e);
     }
