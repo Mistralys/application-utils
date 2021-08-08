@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace AppUtils;
 
 /**
- * Converts date intervals to human readable strings.
+ * Converts date intervals to human-readable strings.
  * 
  * @package Application Utils
  * @subpackage ConvertHelper
@@ -51,7 +51,7 @@ class ConvertHelper_IntervalConverter
     }
     
    /**
-    * Converts the specified interval to a human readable
+    * Converts the specified interval to a human-readable
     * string, e.g. "2 hours and 4 minutes".
     * 
     * @param \DateInterval $interval
