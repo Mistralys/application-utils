@@ -21,54 +21,35 @@ namespace AppUtils;
 class ImageHelper
 {
     const ERROR_CANNOT_CREATE_IMAGE_CANVAS = 513001;
-    
     const ERROR_IMAGE_FILE_DOES_NOT_EXIST = 513002;
-    
     const ERROR_CANNOT_GET_IMAGE_SIZE = 513003;
-    
     const ERROR_UNSUPPORTED_IMAGE_TYPE = 513004;
-    
     const ERROR_FAILED_TO_CREATE_NEW_IMAGE = 513005;
-
     const ERROR_SAVE_NO_IMAGE_CREATED = 513006;
-    
     const ERROR_CANNOT_WRITE_NEW_IMAGE_FILE = 513007;
-    
     const ERROR_CREATED_AN_EMPTY_FILE = 513008;
-    
     const ERROR_QUALITY_VALUE_BELOW_ZERO = 513009;
-    
     const ERROR_QUALITY_ABOVE_ONE_HUNDRED = 513010;
-    
     const ERROR_CANNOT_CREATE_IMAGE_OBJECT = 513011;
-    
-    const ERROR_CANNOT_COPY_RESAMPLED_IMAGE_DATA = 513012; 
-    
+    const ERROR_CANNOT_COPY_RESAMPLED_IMAGE_DATA = 513012;
     const ERROR_HEADERS_ALREADY_SENT = 513013;
-    
     const ERROR_CANNOT_READ_SVG_IMAGE = 513014;
-    
     const ERROR_SVG_SOURCE_VIEWBOX_MISSING = 513015;
-    
     const ERROR_SVG_VIEWBOX_INVALID = 513016;
-    
     const ERROR_NOT_A_RESOURCE = 513017;
-
     const ERROR_INVALID_STREAM_IMAGE_TYPE = 513018;
-
     const ERROR_NO_TRUE_TYPE_FONT_SET = 513019;
-    
     const ERROR_POSITION_OUT_OF_BOUNDS = 513020;
-
     const ERROR_IMAGE_CREATION_FAILED = 513021;
-
     const ERROR_CANNOT_CREATE_IMAGE_CROP = 513023;
-    
     const ERROR_GD_LIBRARY_NOT_INSTALLED = 513024;
-    
     const ERROR_UNEXPECTED_COLOR_VALUE = 513025;
+    const ERROR_HASH_NO_IMAGE_LOADED = 513026;
 
-   /**
+    const COLORFORMAT_RGB = 1;
+    const COLORFORMAT_HEX = 2;
+
+    /**
     * @var string
     */
     protected $file;
@@ -117,7 +98,10 @@ class ImageHelper
     * @var int
     */
     protected $quality = 85;
-    
+
+    /**
+     * @var array<string,string>
+     */
     protected static $imageTypes = array(
         'png' => 'png',
         'jpg' => 'jpeg',
@@ -125,18 +109,32 @@ class ImageHelper
         'gif' => 'gif',
         'svg' => 'svg'
     );
-    
+
+    /**
+     * @var array<string,mixed>
+     */
     protected static $config = array(
         'auto-memory-adjustment' => true
     );
 
+    /**
+     * @var string[]
+     */
     protected static $streamTypes = array(
         'jpeg',
         'png',
         'gif'
     );
-    
-    public function __construct($sourceFile=null, $resource=null, $type=null)
+
+    /**
+     * @param string|null $sourceFile
+     * @param resource|null $resource
+     * @param string|null $type The image type, e.g. "png", "jpeg".
+     *
+     * @throws ImageHelper_Exception
+     * @see ImageHelper::ERROR_GD_LIBRARY_NOT_INSTALLED
+     */
+    public function __construct(?string $sourceFile=null, $resource=null, ?string $type=null)
     {
         // ensure that the GD library is installed
         if(!function_exists('imagecreate')) 
@@ -856,23 +854,17 @@ class ImageHelper
     *
     * @param resource $resource
     * @param string $imageType The image format to send, i.e. "jpeg", "png"
-    * @param int $quality The quality to use for the image. This is 0-9 (0=no compression, 9=max) for PNG, and 0-100 (0=lowest, 100=highest quality) for JPG 
+    * @param int $quality The quality to use for the image. This is 0-9 (0=no compression, 9=max) for PNG, and 0-100 (0=lowest, 100=highest quality) for JPG
+    *
+    * @throws ImageHelper_Exception
+    * @see ImageHelper::ERROR_NOT_A_RESOURCE
+    * @see ImageHelper::ERROR_INVALID_STREAM_IMAGE_TYPE
     */
-    public static function displayImageStream($resource, $imageType, $quality=-1)
+    public static function displayImageStream($resource, string $imageType, int $quality=-1) : void
     {
-        $imageType = strtolower($imageType);
-        
-        if(!in_array($imageType, self::$streamTypes)) 
-        {
-            throw new ImageHelper_Exception(
-                'Invalid image stream type',
-                sprintf(
-                    'The image type [%s] cannot be used for a stream.',
-                    $imageType
-                ),
-                self::ERROR_INVALID_STREAM_IMAGE_TYPE
-            );
-        }
+        self::requireResource($resource);
+
+        $imageType = self::requireValidStreamType($imageType);
         
         header('Content-type:image/' . $imageType);
 
@@ -882,10 +874,37 @@ class ImageHelper
     }
 
     /**
+     * @param string $imageType
+     * @return string
+     *
+     * @throws ImageHelper_Exception
+     * @see ImageHelper::ERROR_INVALID_STREAM_IMAGE_TYPE
+     * @see ImageHelper::$streamTypes
+     */
+    public static function requireValidStreamType(string $imageType) : string
+    {
+        $imageType = strtolower($imageType);
+
+        if(in_array($imageType, self::$streamTypes))
+        {
+            return $imageType;
+        }
+
+        throw new ImageHelper_Exception(
+            'Invalid image stream type',
+            sprintf(
+                'The image type [%s] cannot be used for a stream.',
+                $imageType
+            ),
+            self::ERROR_INVALID_STREAM_IMAGE_TYPE
+        );
+    }
+
+    /**
      * Displays an image from an existing image file.
      * @param string $imageFile
      */
-    public static function displayImage($imageFile)
+    public static function displayImage(string $imageFile) : void
     {
         $file = null;
         $line = null;
@@ -925,18 +944,28 @@ class ImageHelper
     
    /**
     * Displays the current image.
+    *
+    * NOTE: You must call `exit()` manually after this.
     */
-    public function display()
+    public function display() : void
     {
-        $this->displayImageStream($this->newImage, $this->getType(), $this->resolveQuality());
+        $this->displayImageStream(
+            $this->newImage,
+            $this->getType(),
+            $this->resolveQuality()
+        );
     }
-    
-   /**
-    * Trims the current loaded image.
-    * 
-    * @param array $color A color definition, as an associative array with red, green, and blue keys. If not specified, the color at pixel position 0,0 will be used.
-    */
-    public function trim($color=null)
+
+    /**
+     * Trims the current loaded image.
+     *
+     * @param array|NULL $color A color definition, as an associative array with red, green, and blue keys. If not specified, the color at pixel position 0,0 will be used.
+     *
+     * @throws ImageHelper_Exception
+     * @see ImageHelper::ERROR_NOT_A_RESOURCE
+     * @see ImageHelper::ERROR_CANNOT_CREATE_IMAGE_CANVAS
+     */
+    public function trim(?array $color=null) : ImageHelper
     {
         return $this->trimImage($this->newImage, $color);
     }
@@ -945,11 +974,16 @@ class ImageHelper
     * Retrieves a color definition by its index.
     * 
     * @param resource $img A valid image resource.
-    * @param int $colorIndex The color index, as returned by imagecolorat for example.
-    * @return array An array with red, green, blue and alpha keys.
+    * @param int $colorIndex The color index, as returned by `imagecolorat` for example.
+    * @return array<string,int> An array with red, green, blue and alpha keys.
+    *
+    * @throws ImageHelper_Exception
+    * @see ImageHelper::ERROR_NOT_A_RESOURCE
     */
     public function getIndexedColors($img, int $colorIndex) : array
     {
+        self::requireResource($img);
+
         $color = imagecolorsforindex($img, $colorIndex);
         
         // it seems imagecolorsforindex may return false (undocumented, unproven)
@@ -970,8 +1004,12 @@ class ImageHelper
     * Also works with transparency.
     * 
     * @param resource $img
-    * @param array $color A color definition, as an associative array with red, green, blue and alpha keys. If not specified, the color at pixel position 0,0 will be used.
+    * @param array|NULL $color A color definition, as an associative array with red, green, blue and alpha keys. If not specified, the color at pixel position 0,0 will be used.
     * @return ImageHelper
+    *
+    * @throws ImageHelper_Exception
+    * @see ImageHelper::ERROR_NOT_A_RESOURCE
+    * @see ImageHelper::ERROR_CANNOT_CREATE_IMAGE_CANVAS
     */
     protected function trimImage($img, ?array $color=null) : ImageHelper
     {
@@ -1025,7 +1063,7 @@ class ImageHelper
         }
         
         // no trimming border found
-        if($ymax === null && $ymax === null) {
+        if($ymax === null) {
             return $this;
         }
         
@@ -1059,29 +1097,36 @@ class ImageHelper
 
         return $this;
     }
-    
-   /**
-    * Sets the new image after a transformation operation:
-    * automatically adjusts the new size information.
-    * 
-    * @param resource $image
-    */
-    protected function setNewImage($image)
+
+    /**
+     * Sets the new image after a transformation operation:
+     * automatically adjusts the new size information.
+     *
+     * @param resource $image
+     *
+     * @throws ImageHelper_Exception
+     * @see ImageHelper::ERROR_NOT_A_RESOURCE
+     */
+    protected function setNewImage($image) : ImageHelper
     {
         self::requireResource($image);
         
         $this->newImage = $image;
         $this->newWidth = imagesx($image);
         $this->newHeight= imagesy($image);
+
+        return $this;
     }
     
    /**
     * Requires the subject to be a resource.
     * 
-    * @param resource $subject
+    * @param resource|mixed $subject
+    *
     * @throws ImageHelper_Exception
+    * @see ImageHelper::ERROR_NOT_A_RESOURCE
     */
-    protected static function requireResource($subject)
+    protected static function requireResource($subject) : void
     {
         if(is_resource($subject)) {
             return;
@@ -1126,11 +1171,11 @@ class ImageHelper
    /**
     * Whether the two specified colors are the same.
     * 
-    * @param array $a
-    * @param array $b
+    * @param array<string,int> $a
+    * @param array<string,int> $b
     * @return boolean
     */
-	protected function colorsMatch($a, $b) : bool
+	protected function colorsMatch(array $a, array $b) : bool
 	{
 		$parts = array('red', 'green', 'blue');
 		foreach($parts as $part) {
@@ -1558,22 +1603,21 @@ class ImageHelper
         );
     }
     
-    const COLORFORMAT_RGB = 1;
-    
-    const COLORFORMAT_HEX = 2;
-    
-   /**
-    * Retrieves the color value at the specified pixel
-    * coordinates in the image.
-    * 
-    * @param int $x
-    * @param int $y
-    * @param int $format The format in which to return the color value.
-    * @return array|string
-    * 
-    * @see ImageHelper::COLORFORMAT_RGB
-    * @see ImageHelper::COLORFORMAT_HEX
-    */
+    /**
+     * Retrieves the color value at the specified pixel
+     * coordinates in the image.
+     *
+     * @param int $x
+     * @param int $y
+     * @param int $format The format in which to return the color value.
+     * @return array|string
+     *
+     * @see ImageHelper::COLORFORMAT_HEX
+     * @see ImageHelper::COLORFORMAT_RGB
+     *
+     * @throws ImageHelper_Exception
+     * @see ImageHelper::ERROR_POSITION_OUT_OF_BOUNDS
+     */
     public function getColorAt(int $x, int $y, int $format=self::COLORFORMAT_RGB)
     {
         if($x > $this->getWidth() || $y > $this->getHeight()) 
@@ -1604,40 +1648,50 @@ class ImageHelper
    /**
     * Converts an RGB value to its luminance equivalent.
     * 
-    * @param array $rgb
+    * @param array<string,int> $rgb
     * @return integer Integer, from 0 to 255 (0=black, 255=white)
     */
     public static function rgb2luma(array $rgb) : int
     {
         return (int)floor((($rgb['red']*2)+$rgb['blue']+($rgb['green']*3))/6);
     }
-    
-   /**
-    * Retrieves the brightness of the image, in percent.
-    * @return number
-    */
-    public function getBrightness()
+
+    /**
+     * Retrieves the brightness of the image, in percent.
+     *
+     * @return float
+     *
+     * @throws ImageHelper_Exception
+     * @see ImageHelper::ERROR_UNEXPECTED_COLOR_VALUE
+     */
+    public function getBrightness() : float
     {
         $luma = self::rgb2luma($this->calcAverageColorRGB());
-        $percent = $luma * 100 / 255;
-        return $percent;
+        return $luma * 100 / 255;
     }
     
    /**
     * Retrieves an md5 hash of the source image file.
     * 
     * NOTE: Only works when the helper has been created
-    * from a file. Otherwise an exception is thrown.
+    * from a file. Otherwise, an exception is thrown.
     * 
     * @return string
-    * @throws ImageHelper_Exception
+    * @throws ImageHelper_Exception|OutputBuffering_Exception
     */
-    public function getHash()
+    public function getHash() : string
     {
-        ob_start();
+        if($this->newImage === null)
+        {
+            throw new ImageHelper_Exception(
+                'No image loaded to create a hash for.',
+                'The newImage property is null.',
+                self::ERROR_HASH_NO_IMAGE_LOADED
+            );
+        }
+
+        OutputBuffering::start();
         imagepng($this->newImage);
-        $md5 = md5(ob_get_clean());
-        
-        return $md5;
+        return md5(OutputBuffering::get());
     }
 }
