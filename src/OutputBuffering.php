@@ -39,23 +39,24 @@ class OutputBuffering
     private static $stack = array();
 
     /**
-     * @var int
-     */
-    private static $baseLevel = 0;
-
-    /**
-     * Checks whether any level of output buffering is currently active.
-     *
-     * NOTE: Assumes by default that 0 is the inactive buffer level.
-     * If this is not the case, see the {@see OutputBuffering::setBaseBufferLevel()}
-     * method to adjust it.
+     * Checks whether any level of output buffering is currently active,
+     * but only the helper's output buffering. The native PHP buffering
+     * is ignored.
      *
      * @return bool
      * @see OutputBuffering::setBaseBufferLevel()
      */
     public static function isActive() : bool
     {
-        return ob_get_level() > self::$baseLevel;
+        return self::getLevel() > 0;
+    }
+
+    /**
+     * @return int
+     */
+    public static function getLevel() : int
+    {
+        return count(self::$stack);
     }
 
     /**
@@ -168,34 +169,5 @@ class OutputBuffering
             'ob_get_contents returned false.',
             self::ERROR_CANNOT_GET_BUFFER
         );
-    }
-
-    /**
-     * Configure the output buffer to work in unit testing
-     * mode, which assumes that the testing framework does
-     * some output buffering of its own. This skews the
-     * {@see OutputBuffering::isActive()} method, since it
-     * assumes the buffer level must be 0 to be inactive.
-     */
-    public static function enableUnitTesting() : void
-    {
-        self::setBaseBufferLevel(1);
-    }
-
-    /**
-     * Sets the base output buffering level. Any level
-     * above this value is considered an active output
-     * buffering level.
-     *
-     * Use this in case scripts outside your control
-     * already have output buffering active. For example,
-     * if your script always runs with 1 output buffering
-     * level already being active, set the level to 1.
-     *
-     * @param int $level
-     */
-    public static function setBaseBufferLevel(int $level) : void
-    {
-        self::$baseLevel = $level;
     }
 }

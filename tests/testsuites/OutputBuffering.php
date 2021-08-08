@@ -8,15 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 final class OutputBufferingTests extends TestCase
 {
-    protected function setUp() : void
-    {
-        parent::setUp();
-
-        // Since PHPUnit does output buffering, we have
-        // to compensate for it.
-        OutputBuffering::enableUnitTesting();
-    }
-
     public function test_getClean() : void
     {
         OutputBuffering::start();
