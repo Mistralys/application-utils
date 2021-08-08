@@ -37,7 +37,7 @@ class ConvertHelper_URLFinder implements Interface_Optionable
     private $emails = array();
 
     /**
-     * @var string[]
+     * @var array<string,bool>
      */
     private $enabledDetectorClasses = array(
         ConvertHelper_URLFinder_Detector_Tel::class => true,
@@ -208,12 +208,7 @@ class ConvertHelper_URLFinder implements Interface_Optionable
             return null;
         }
 
-        // Check again if there are still dots present
-        if(strstr($line, '.') !== false) {
-            return $line;
-        }
-
-        return null;
+        return $line;
     }
 
     /**
