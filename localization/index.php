@@ -10,6 +10,7 @@
     declare(strict_types=1);
 
     use AppLocalize\Localization;
+    use function AppLocalize\t;
 
     $root = __DIR__;
     $autoload = $root.'/vendor/autoload.php';
@@ -38,13 +39,21 @@
     // so they can be found, and use the bundled localization
     // files.
     Localization::addSourceFolder(
-        'application-utils-localization',
-        'AppUtils Localization',
+        'application-utils-translation-ui',
+        'Application Utils translation UI',
         'Composer Packages',
         $installFolder.'/localization',
-        $installFolder.'/src'
-    );
+        $root
+    )->excludeFolder('vendor');
 
     // create the editor UI and start it
     $editor = Localization::createEditor();
+
+    $editor->setAppName(t('AppUtils translation UI'));
+
+    $editor->setBackURL(
+        'https://github.com/Mistralys/application-utils',
+        t('Project Github page')
+    );
+
     $editor->display();
