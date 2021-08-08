@@ -101,6 +101,7 @@ ConvertHelper for example have many static methods not shown here.
 * [NamedClosure][]: Wrapper for closures with the possibility to add a description.  
 * [NumberInfo][]: Access and modify numbers with or without units.
 * [OperationResult][]: Drop-in class to store the status of the result of any operation.
+* [OutputBuffering][]: Output buffering wrapper with exception error management.
 * PaginationHelper: Calculates all required numbers for a pagination widget.
 * RegexHelper: Collection of typical validation Regexes.
 * [Request][]: Validate, filter and access request variables.
@@ -161,3 +162,4 @@ and being modernized.
 [OperationResult]: https://github.com/Mistralys/application-utils/wiki/OperationResult
 [VariableInfo]: https://github.com/Mistralys/application-utils/wiki/VariableInfo
 [URLFinder]: https://github.com/Mistralys/application-utils/wiki/URLFinder
+[OutputBuffering]: https://github.com/Mistralys/application-utils/wiki/OutputBuffering
