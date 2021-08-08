@@ -37,7 +37,8 @@
         "php": ">=7.3",
         "ext-mbstring": "*",
         "ext-curl": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-gd": "*"
     },
     "require-dev" : 
     {
