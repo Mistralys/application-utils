@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e55e7b4db1c9efdc579269af532f5b2d",
+    "content-hash": "b25de732b979e5a507570f8882b040f8",
     "packages": [
         {
             "name": "geshi/geshi",
@@ -54,16 +54,16 @@
         },
         {
             "name": "mistralys/application-localization",
-            "version": "dev-master",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Mistralys/application-localization.git",
-                "reference": "c19a70f444cd5bd9978978eb45b4722e08fe4b97"
+                "reference": "824d3b15ac63185293cb0094cad3e41e893af820"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Mistralys/application-localization/zipball/c19a70f444cd5bd9978978eb45b4722e08fe4b97",
-                "reference": "c19a70f444cd5bd9978978eb45b4722e08fe4b97",
+                "url": "https://api.github.com/repos/Mistralys/application-localization/zipball/824d3b15ac63185293cb0094cad3e41e893af820",
+                "reference": "824d3b15ac63185293cb0094cad3e41e893af820",
                 "shasum": ""
             },
             "require": {
@@ -77,7 +77,6 @@
                 "phpstan/phpstan": "^0.12",
                 "phpunit/phpunit": "8.2.5"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -104,29 +103,33 @@
             "description": "PHP and Javascript localization library.",
             "support": {
                 "issues": "https://github.com/Mistralys/application-localization/issues",
-                "source": "https://github.com/Mistralys/application-localization/tree/1.3.0"
+                "source": "https://github.com/Mistralys/application-localization/tree/1.4.0"
             },
-            "time": "2021-03-12T09:19:46+00:00"
+            "time": "2021-08-08T10:51:38+00:00"
         },
         {
             "name": "mistralys/application-utils",
-            "version": "dev-master",
+            "version": "1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Mistralys/application-utils.git",
-                "reference": "68f91ec1573a48b031478d1b4c0c605229a81e67"
+                "reference": "289f9df6e00ca3502044def6295419b82fa3c197"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Mistralys/application-utils/zipball/68f91ec1573a48b031478d1b4c0c605229a81e67",
-                "reference": "68f91ec1573a48b031478d1b4c0c605229a81e67",
+                "url": "https://api.github.com/repos/Mistralys/application-utils/zipball/289f9df6e00ca3502044def6295419b82fa3c197",
+                "reference": "289f9df6e00ca3502044def6295419b82fa3c197",
                 "shasum": ""
             },
             "require": {
-                "geshi/geshi": "1.0.9.1",
-                "mistralys/html_quickform2": ">=2.1",
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "geshi/geshi": ">=1.0.9.1",
+                "mistralys/html_quickform2": ">=2.1.2",
                 "neitanod/forceutf8": ">=2.0.4",
-                "parsecsv/php-parsecsv": "^1.2.1"
+                "parsecsv/php-parsecsv": "1.2.*",
+                "php": ">=7.3"
             },
             "require-dev": {
                 "phpstan/phpstan": ">=0.12.74",
@@ -135,7 +138,6 @@
             "suggest": {
                 "mistralys/application-localization": "Required to translate available texts, from date related methods or file size labels for example."
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -162,22 +164,22 @@
             "description": "Drop-in utilities for PHP applications.",
             "support": {
                 "issues": "https://github.com/Mistralys/application-utils/issues",
-                "source": "https://github.com/Mistralys/application-utils/tree/master"
+                "source": "https://github.com/Mistralys/application-utils/tree/1.5.1"
             },
-            "time": "2021-02-17T13:20:57+00:00"
+            "time": "2021-07-08T07:38:45+00:00"
         },
         {
             "name": "mistralys/html_quickform2",
-            "version": "dev-trunk",
+            "version": "2.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Mistralys/HTML_QuickForm2.git",
-                "reference": "7ad28fa05f353d8103006781e576a3ef162f7a26"
+                "reference": "ccafac485aa663f5f826b334882d8c9553346122"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Mistralys/HTML_QuickForm2/zipball/7ad28fa05f353d8103006781e576a3ef162f7a26",
-                "reference": "7ad28fa05f353d8103006781e576a3ef162f7a26",
+                "url": "https://api.github.com/repos/Mistralys/HTML_QuickForm2/zipball/ccafac485aa663f5f826b334882d8c9553346122",
+                "reference": "ccafac485aa663f5f826b334882d8c9553346122",
                 "shasum": ""
             },
             "require": {
@@ -188,7 +190,6 @@
                 "phpstan/phpstan": ">=0.12.70",
                 "phpunit/phpunit": "8.4"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-0": {
@@ -216,8 +217,8 @@
                     "role": "Contributor"
                 }
             ],
-            "description": "Standalone fork of HTML_QuickForm2 for PHP 7.3+.",
-            "homepage": "https://github.com/Mistralys/HTML_QuickForm2",
+            "description": "Provides methods to create, validate and render HTML forms in PHP.",
+            "homepage": "https://pear.php.net/package/HTML_QuickForm2/",
             "keywords": [
                 "Forms",
                 "PEAR",
@@ -228,14 +229,14 @@
             ],
             "support": {
                 "docs": "https://pear.php.net/manual/en/package.html.html-quickform2.php",
-                "issues": "https://github.com/Mistralys/HTML_QuickForm2/issues",
-                "source": "https://github.com/Mistralys/HTML_QuickForm2"
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=HTML_QuickForm2",
+                "source": "https://github.com/pear/HTML_QuickForm2"
             },
-            "time": "2021-01-28T09:15:37+00:00"
+            "time": "2021-01-28T08:54:13+00:00"
         },
         {
             "name": "mistralys/jtokenizer",
-            "version": "dev-main",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Mistralys/jtokenizer.git",
@@ -254,7 +255,6 @@
                 "phpstan/phpstan": ">=0.12",
                 "phpunit/phpunit": ">=8.2.5"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -291,7 +291,7 @@
         },
         {
             "name": "neitanod/forceutf8",
-            "version": "dev-master",
+            "version": "v2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/neitanod/forceutf8.git",
@@ -306,7 +306,6 @@
             "require": {
                 "php": ">=5.3.0"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-0": {
@@ -327,7 +326,7 @@
             "homepage": "https://github.com/neitanod/forceutf8",
             "support": {
                 "issues": "https://github.com/neitanod/forceutf8/issues",
-                "source": "https://github.com/neitanod/forceutf8/tree/v2.0.4"
+                "source": "https://github.com/neitanod/forceutf8/tree/master"
             },
             "time": "2019-12-10T14:09:14+00:00"
         },
@@ -397,25 +396,28 @@
         },
         {
             "name": "pear/html_common2",
-            "version": "v2.1.2",
+            "version": "v2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pear/HTML_Common2.git",
-                "reference": "a7867b8deb887765a431a5877d90d3430624dea7"
+                "reference": "b945e83eb1dc615d092a348e00623133856d8074"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pear/HTML_Common2/zipball/a7867b8deb887765a431a5877d90d3430624dea7",
-                "reference": "a7867b8deb887765a431a5877d90d3430624dea7",
+                "url": "https://api.github.com/repos/pear/HTML_Common2/zipball/b945e83eb1dc615d092a348e00623133856d8074",
+                "reference": "b945e83eb1dc615d092a348e00623133856d8074",
                 "shasum": ""
             },
+            "require": {
+                "php": ">=5.4.0"
+            },
             "require-dev": {
-                "phpunit/phpunit": "^3.7|^4.8|^5.7"
+                "phpunit/phpunit": "^4.8|^5.7"
             },
             "type": "library",
             "autoload": {
                 "psr-0": {
-                    "HTML": "./"
+                    "HTML_Common2": ""
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -446,29 +448,28 @@
                 "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=HTML_Common2",
                 "source": "https://github.com/pear/HTML_Common2"
             },
-            "time": "2019-04-07T10:59:56+00:00"
+            "time": "2021-04-25T13:27:00+00:00"
         },
         {
             "name": "pear/pear_exception",
-            "version": "dev-master",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pear/PEAR_Exception.git",
-                "reference": "abf2c21ed0180752c2e38655c7998678131dd05b"
+                "reference": "b14fbe2ddb0b9f94f5b24cf08783d599f776fff0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pear/PEAR_Exception/zipball/abf2c21ed0180752c2e38655c7998678131dd05b",
-                "reference": "abf2c21ed0180752c2e38655c7998678131dd05b",
+                "url": "https://api.github.com/repos/pear/PEAR_Exception/zipball/b14fbe2ddb0b9f94f5b24cf08783d599f776fff0",
+                "reference": "b14fbe2ddb0b9f94f5b24cf08783d599f776fff0",
                 "shasum": ""
             },
             "require": {
-                "php": ">=4.4.0"
+                "php": ">=5.2.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "<6"
+                "phpunit/phpunit": "<9"
             },
-            "default-branch": true,
             "type": "class",
             "extra": {
                 "branch-alias": {
@@ -506,14 +507,14 @@
                 "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=PEAR_Exception",
                 "source": "https://github.com/pear/PEAR_Exception"
             },
-            "time": "2020-04-19T14:25:26+00:00"
+            "time": "2021-03-21T15:43:46+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": [],
-    "prefer-stable": false,
+    "prefer-stable": true,
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],

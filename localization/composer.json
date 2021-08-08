@@ -2,6 +2,7 @@
   "name": "mistralys/application-utils-localization",
   "description": "Translation UI for the tools",
   "minimum-stability": "dev",
+  "prefer-stable": true,
   "authors": [
     {
       "name": "Sebastian Mordziol",
@@ -9,6 +10,6 @@
     }
   ],
   "require": {
-    "mistralys/application-localization": ">=1.3.0"
+    "mistralys/application-localization": ">=1.4.0"
   }
 }
