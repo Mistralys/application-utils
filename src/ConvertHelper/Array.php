@@ -10,8 +10,8 @@ class ConvertHelper_Array
      * Removes the specified keys from the target array,
      * if they exist.
      *
-     * @param array $sourceArray
-     * @param array $keys
+     * @param array<number|string,mixed> $sourceArray
+     * @param string[] $keys
      */
     public static function removeKeys(array &$sourceArray, array $keys) : void
     {
@@ -24,11 +24,12 @@ class ConvertHelper_Array
     }
 
     /**
+     * Removes the target values from the source array.
      *
-     * @param array $sourceArray The indexed or associative array
-     * @param array $values Indexed list of values to remove
+     * @param array<number|string,mixed> $sourceArray The indexed or associative array
+     * @param array<number|string,mixed> $values Indexed list of values to remove
      * @param bool $keepKeys Whether to maintain index association
-     * @return array
+     * @return array<number|string,mixed>
      */
     public static function removeValues(array $sourceArray, array $values, bool $keepKeys=false) : array
     {
@@ -56,9 +57,9 @@ class ConvertHelper_Array
      * Removes values from the target array, while maintaining index
      * association. Returns the modified array.
      *
-     * @param array $sourceArray
-     * @param array $values
-     * @return array
+     * @param array<number|string,mixed> $sourceArray
+     * @param array<number|string,mixed> $values
+     * @return array<number|string,mixed>
      */
     public static function removeValuesAssoc(array $sourceArray, array $values) : array
     {
@@ -128,7 +129,7 @@ class ConvertHelper_Array
      *
      * array('One', 'two', 'three') = "One, two and three"
      *
-     * @param array $list The indexed array with items to implode.
+     * @param array<int,mixed> $list The indexed array with items to implode.
      * @param string $sep The separator character to use.
      * @param string $conjunction The word to use as conjunction with the last item in the list. NOTE: include spaces as needed.
      * @return string
