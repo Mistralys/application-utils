@@ -27,7 +27,12 @@ class ConvertHelper
     const ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE = 23304;
     const ERROR_JSON_ENCODE_FAILED = 23305;
     const ERROR_INVALID_BOOLEAN_STRING = 23306;
-    
+
+    const INTERVAL_DAYS = 'days';
+    const INTERVAL_HOURS = 'hours';
+    const INTERVAL_MINUTES = 'minutes';
+    const INTERVAL_SECONDS = 'seconds';
+
     /**
      * Normalizes tabs in the specified string by indenting everything
      * back to the minimum tab distance. With the second parameter,
@@ -152,7 +157,7 @@ class ConvertHelper
     }
     
    /**
-    * Converts a number of bytes to a human readable form,
+    * Converts a number of bytes to a human-readable form,
     * e.g. xx Kb / xx Mb / xx Gb
     *
     * @param int $bytes The amount of bytes to convert.
@@ -268,14 +273,15 @@ class ConvertHelper
         return self::isBoolean($string);
     }
 
-   /**
-    * Alias for the {@\AppUtils\XMLHelper::string2xml()} method.
-    * 
-    * @param string $text
-    * @return string
-    * @deprecated
-    */
-    public static function text_makeXMLCompliant($text)
+    /**
+     * Alias for the {@\AppUtils\XMLHelper::string2xml()} method.
+     *
+     * @param string $text
+     * @return string
+     * @throws XMLHelper_Exception
+     * @deprecated Use the XMLHelper method instead.
+     */
+    public static function text_makeXMLCompliant(string $text) : string
     {
         return XMLHelper::string2xml($text);
     }
@@ -454,44 +460,7 @@ class ConvertHelper
      */
     public static function areVariablesEqual($a, $b) : bool
     {
-        $a = self::convertScalarForComparison($a);
-        $b = self::convertScalarForComparison($b);
-
-        return $a === $b;
-    }
-
-    /**
-     * Converts any scalar value to a string for comparison purposes.
-     *
-     * @param mixed|null $scalar
-     * @return string|null
-     *
-     * @throws ConvertHelper_Exception
-     * @see ConvertHelper::ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE
-     */
-    protected static function convertScalarForComparison($scalar) : ?string
-    {
-        if($scalar === '' || is_null($scalar)) {
-            return null;
-        }
-        
-        if(is_bool($scalar)) {
-            return self::bool2string($scalar);
-        }
-        
-        if(is_array($scalar)) {
-            $scalar = md5(serialize($scalar));
-        }
-        
-        if($scalar !== null && !is_scalar($scalar)) {
-            throw new ConvertHelper_Exception(
-                'Not a scalar value in comparison',
-                null,
-                self::ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE
-            );
-        }
-        
-        return strval($scalar);
+        return ConvertHelper_Comparator::areVariablesEqual($a, $b);
     }
 
     /**
@@ -507,7 +476,7 @@ class ConvertHelper
      */
     public static function areStringsEqual(?string $a, ?string $b) : bool
     {
-        return self::areVariablesEqual($a, $b);
+        return ConvertHelper_Comparator::areStringsEqual($a, $b);
     }
 
     /**
@@ -523,7 +492,7 @@ class ConvertHelper
      */
     public static function areNumbersEqual($a, $b) : bool
     {
-        return self::areVariablesEqual($a, $b);
+        return ConvertHelper_Comparator::areNumbersEqual($a, $b);
     }
 
     /**
@@ -728,13 +697,17 @@ class ConvertHelper
     * @param string $string
     * @return string
     */
-    public static function stripUTFBom($string)
+    public static function stripUTFBom(string $string) : string
     {
         $boms = FileHelper::getUTFBOMs();
-        foreach($boms as $bomChars) {
+
+        foreach($boms as $bomChars)
+        {
             $length = mb_strlen($bomChars);
             $text = mb_substr($string, 0, $length);
-            if($text==$bomChars) {
+
+            if($text===$bomChars)
+            {
                 return mb_substr($string, $length);
             }
         }
@@ -800,48 +773,34 @@ class ConvertHelper
     * @param string $target
     * @param array<string,mixed> $options
     * @return float
+    *
+    * @see ConvertHelper_TextComparer
+    * @see ConvertHelper_TextComparer::OPTION_MAX_LEVENSHTEIN_DISTANCE
+    * @see ConvertHelper_TextComparer::OPTION_PRECISION
     */
     public static function matchString(string $source, string $target, array $options=array()) : float
     {
-        $defaults = array(
-            'maxLevenshtein' => 10,
-            'precision' => 1
-        );
-        
-        $options = array_merge($defaults, $options);
-        
-        // avoid doing this via levenshtein
-        if($source == $target) {
-            return 100;
-        }
-        
-        $diff = levenshtein($source, $target);
-        if($diff > $options['maxLevenshtein']) {
-            return 0;
-        }
-        
-        $percent = $diff * 100 / ($options['maxLevenshtein'] + 1);
-        return round(100 - $percent, $options['precision']);
+        return (new ConvertHelper_TextComparer())
+            ->setOptions($options)
+            ->match($source, $target);
     }
     
    /**
-    * Converts a date interval to a human readable string with
+    * Converts a date interval to a human-readable string with
     * all necessary time components, e.g. "1 year, 2 months and 4 days".
     * 
     * @param DateInterval $interval
     * @return string
     * @see ConvertHelper_IntervalConverter
+    *
+    * @throws ConvertHelper_Exception
+    * @see ConvertHelper_IntervalConverter::ERROR_MISSING_TRANSLATION
     */
     public static function interval2string(DateInterval $interval) : string
     {
-        $converter = new ConvertHelper_IntervalConverter();
-        return $converter->toString($interval);
+        return (new ConvertHelper_IntervalConverter())
+            ->toString($interval);
     }
-    
-    const INTERVAL_DAYS = 'days';
-    const INTERVAL_HOURS = 'hours';
-    const INTERVAL_MINUTES = 'minutes';
-    const INTERVAL_SECONDS = 'seconds';
     
    /**
     * Converts an interval to its total amount of days.
@@ -1080,7 +1039,7 @@ class ConvertHelper
    /**
     * Searches for needle in the specified string, and returns a list
     * of all occurrences, including the matched string. The matched 
-    * string is useful when doing a case insensitive search, as it 
+    * string is useful when doing a case-insensitive search, as it
     * shows the exact matched case of needle.
     *   
     * @param string $needle
