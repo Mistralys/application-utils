@@ -117,7 +117,7 @@ class ConvertHelper_DurationConverter
     }
     
    /**
-    * Converts the specified dates to a human readable string.
+    * Converts the specified dates to a human-readable string.
     * 
     * @throws ConvertHelper_Exception
     * @return string
