@@ -1,6 +1,8 @@
 v1.5.2
 - Dependencies: Translation now requires `mistralys/application-localization` v1.4.0.
 - StringBuilder: Added `tex()` for translation with context information for translators.
+- OutputBuffering: Added the `OutputBuffering` helper class for simplifying output buffers.
+- Composer: Added `ext-gd` to the list of requirements for the `ImageHelper`.
 
 v1.5.1
 - ConvertHelper: Added `boolStrict2string()`, a variant of `string2bool` that only accepts boolean values.
