@@ -12,18 +12,59 @@ operations and variable conversions to image manipulation.
 
 ## Installation
 
-On the command line:
+Simply require the package with Composer:
 
 ```
 composer require mistralys/application-utils
 ```
 
-### Optional packages
+Also see the [Packagist][] page.
+
+### Translation support
 
 To enable localization of any translatable strings in the package, 
-require `mistralys/application-localization` as well. German and 
+require the [Application Localization][] package as well. German and 
 French translations are included, and the integrated interface 
 allows adding additional translations.
+
+Other translation solutions are not supported.
+
+```
+composer require mistralys/application-localization
+```
+
+> Note: The `StringBuilder` helper's translation methods depend
+> on the package being installed.
+
+## Quickstart
+
+The package is meant to simplify day to day development tasks, from
+common file system related access to converting data types. It uses
+exception-based error handling, so there is no need for checking 
+PHP function return values for `false`.
+
+There is no central factory for accessing the helpers. Instead, each
+static helper class has its own factory methods and acts as hub for 
+all related tasks.
+
+For example, all file related tasks live in the `FileHelper` class.
+
+```php
+use AppUtils\FileHelper;
+
+// Replacement for file_get_contents
+$content = FileHelper::readContents('path/to/file');
+```
+
+Likewise, conversion methods live in the `ConvertHelper` class.
+
+```php
+use AppUtils\ConvertHelper;
+
+$bool = ConvertHelper::string2bool('yes');
+```
+
+The helpers overview below can give you an idea of what is available.
 
 ## Overview of helpers
 
@@ -37,10 +78,10 @@ ConvertHelper for example have many static methods not shown here.
     - ByteConverter: Convert byte values to kilobytes, megabytes...
     - ControlCharacters: Detecting and stripping control characters from strings.
     - DateInterval: Wrapper around the native DateInterval to fix common pitfalls.
-    - DurationConverter: Convert time durations to human readable formats.
+    - DurationConverter: Convert time durations to human-readable formats.
     - EOL: Detect the newline style used in a string or file.
     - HiddenConverter: Converts hidden characters to readable for debugging.
-    - IntervalConverter: Convert date intervals to human readable formats.
+    - IntervalConverter: Convert date intervals to human-readable formats.
     - QueryParser: Parse query formatted strings without the native limitations.
     - SizeNotation: Convert size strings (2 MB) to byte values.
     - TabsNormalizer: Allows intelligently left-adjusting indented text.
@@ -65,18 +106,18 @@ ConvertHelper for example have many static methods not shown here.
 * [Request][]: Validate, filter and access request variables.
     - URLComparer: Compare URLs, including query parameters.
     - RequestHelper: build raw requests from scratch with multipart support.
-    - AcceptHeaders: Allows parsing the Accept: header.
+    - AcceptHeaders: Allows parsing the `Accept:` header.
 * [StringBuilder][]: Easily concatenate strings, with formatting helpers, in a chainable interface.
 * SVNHelper: working with a local SVN repository. Update, commit, etc.
 * Traits: Plug-in traits for common tasks, with matching interfaces.
     - [Classable][]: For elements that can have classes, like HTML elements.
     - [Optionable][]: For elements which allow setting options, with strong typing.
 * Transliteration: Simple transliteration to ASCII for any names. 
-* [URLInfo][]: An object oriented parse_url with fixes for a number of pitfalls.
+* [URLInfo][]: An object-oriented parse_url with fixes for a number of pitfalls.
     - Highlighter: Highlights URLs with integrated CSS.
     - Normalizer: Normalizes a URL, including query parameter sorting.
 * [VariableInfo][]: Information on any PHP variable types with string conversion.
-* XMLHelper: Simplifies working with some of the XML libraries like DOM or SimpleXML.
+* XMLHelper: Simplifies working with some XML libraries like DOM or SimpleXML.
     - HTMLLoader: Easy loading of HTML fragments or whole documents.
     - DOMErrors: LibXML parsing errors made easy with OO interface.
     - LibXML: Constants for all LibXML validation errors.
@@ -99,6 +140,8 @@ As the legacy applications are still being maintained, this package is actively 
 and being modernized.
 
 
+[Packagist]: https://packagist.org/packages/mistralys/application-utils
+[Application Localization]: https://github.com/Mistralys/application-localization
 [Application Utils Wiki]: https://github.com/Mistralys/application-utils/wiki
 [BaseException]: https://github.com/Mistralys/application-utils/wiki/BaseException
 [BoolValue]: https://github.com/Mistralys/application-utils/wiki/BoolValue
