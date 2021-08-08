@@ -9,6 +9,7 @@
 
 namespace AppUtils;
 
+use DateInterval;
 use DateTime;
 
 /**
@@ -109,27 +110,7 @@ class ConvertHelper
      */
     public static function duration2string($datefrom, $dateto = -1) : string
     {
-         $converter = new ConvertHelper_DurationConverter();
-         
-         if($datefrom instanceof DateTime)
-         {
-             $converter->setDateFrom($datefrom);
-         }
-         else
-         {
-             $converter->setDateFrom(self::timestamp2date($datefrom)); 
-         }
-
-         if($dateto instanceof DateTime)
-         {
-             $converter->setDateTo($dateto);
-         }
-         else if($dateto > 0)
-         {
-             $converter->setDateTo(self::timestamp2date($dateto));
-         }
-
-         return $converter->convert();
+         return ConvertHelper_DurationConverter::toString($datefrom, $dateto);
     }
 
    /**
@@ -213,7 +194,14 @@ class ConvertHelper
         return ConvertHelper_String::cutText($text, $targetLength, $append);
     }
 
-    public static function var_dump($var, $html=true) : string
+    /**
+     * Pretty `var_dump`.
+     *
+     * @param mixed $var
+     * @param bool $html
+     * @return string
+     */
+    public static function var_dump($var, bool $html=true) : string
     {
         $info = parseVariable($var);
         
@@ -225,7 +213,7 @@ class ConvertHelper
     }
     
    /**
-    * Pretty print_r.
+    * Pretty `print_r`.
     * 
     * @param mixed $var The variable to dump.
     * @param bool $return Whether to return the dumped code.
@@ -293,7 +281,7 @@ class ConvertHelper
     }
 
     /**
-     * Transforms a date into a generic human readable date, optionally with time.
+     * Transforms a date into a generic human-readable date, optionally with time.
      * If the year is the same as the current one, it is omitted.
      *
      * - 6 Jan 2012
@@ -301,79 +289,33 @@ class ConvertHelper
      * - 5 Aug
      *
      * @param DateTime $date
+     * @param bool $includeTime
+     * @param bool $shortMonth
      * @return string
+     *
+     * @throws ConvertHelper_Exception
+     * @see ConvertHelper::ERROR_MONTHTOSTRING_NOT_VALID_MONTH_NUMBER
      */
-    public static function date2listLabel(DateTime $date, $includeTime = false, $shortMonth = false)
+    public static function date2listLabel(DateTime $date, bool $includeTime = false, bool $shortMonth = false) : string
     {
-        $today = new DateTime();
-        if($date->format('d.m.Y') == $today->format('d.m.Y')) {
-            $label = t('Today');
-        } else {
-            $label = $date->format('d') . '. ' . self::month2string((int)$date->format('m'), $shortMonth) . ' ';
-            if ($date->format('Y') != date('Y')) {
-                $label .= $date->format('Y');
-            }
-        }
-        
-        $toolTipDateFormat = 'd.m.Y';
-
-        if ($includeTime) {
-            $label .= $date->format(' H:i');
-            $toolTipDateFormat .= ' H:i';
-        }
-
-        $labelHtml = '<span title="'.$date->format($toolTipDateFormat).'">'.
-                        trim($label).
-                     '</span>';
-
-        return $labelHtml;
+        return ConvertHelper_Date::toListLabel($date, $includeTime, $shortMonth);
     }
 
-    protected static $months;
-
     /**
-     * Returns a human readable month name given the month number. Can optionally
+     * Returns a human-readable month name given the month number. Can optionally
      * return the shorthand version of the month. Translated into the current
      * application locale.
      *
      * @param int|string $monthNr
      * @param boolean $short
-     * @throws ConvertHelper_Exception
      * @return string
+     *
+     * @throws ConvertHelper_Exception
+     * @see ConvertHelper::ERROR_MONTHTOSTRING_NOT_VALID_MONTH_NUMBER
      */
-    public static function month2string($monthNr, $short = false)
+    public static function month2string($monthNr, bool $short = false) : string
     {
-        if (!isset(self::$months)) {
-            self::$months = array(
-                1 => array(t('January'), t('Jan')),
-                2 => array(t('February'), t('Feb')),
-                3 => array(t('March'), t('Mar')),
-                4 => array(t('April'), t('Apr')),
-                5 => array(t('May'), t('May')),
-                6 => array(t('June'), t('Jun')),
-                7 => array(t('July'), t('Jul')),
-                8 => array(t('August'), t('Aug')),
-                9 => array(t('September'), t('Sep')),
-                10 => array(t('October'), t('Oct')),
-                11 => array(t('November'), t('Nov')),
-                12 => array(t('December'), t('Dec'))
-            );
-        }
-
-        $monthNr = intval($monthNr);
-        if (!isset(self::$months[$monthNr])) {
-            throw new ConvertHelper_Exception(
-                'Invalid month number',
-                sprintf('%1$s is not a valid month number.', $monthNr),
-                self::ERROR_MONTHTOSTRING_NOT_VALID_MONTH_NUMBER
-            );
-        }
-
-        if ($short) {
-            return self::$months[$monthNr][1];
-        }
-
-        return self::$months[$monthNr][0];
+        return ConvertHelper_Date::month2string($monthNr, $short);
     }
 
     /**
@@ -396,7 +338,7 @@ class ConvertHelper
     * 
     * @return string[]
     */
-    public static function getControlCharactersAsHex()
+    public static function getControlCharactersAsHex() : array
     {
         return self::createControlCharacters()->getCharsAsHex();
     }
@@ -408,7 +350,7 @@ class ConvertHelper
     * 
     * @return string[]
     */
-    public static function getControlCharactersAsUTF8()
+    public static function getControlCharactersAsUTF8() : array
     {
         return self::createControlCharacters()->getCharsAsUTF8();
     }
@@ -419,7 +361,7 @@ class ConvertHelper
     * 
     * @return string[]
     */
-    public static function getControlCharactersAsJSON()
+    public static function getControlCharactersAsJSON() : array
     {
         return self::createControlCharacters()->getCharsAsJSON();
     }
@@ -451,7 +393,7 @@ class ConvertHelper
     }
 
    /**
-    * Converts a unicode character to the PHPO notation.
+    * Converts a unicode character to the PHP notation.
     * 
     * Example:
     * 
@@ -486,19 +428,30 @@ class ConvertHelper
      * Removes the extension from the specified filename
      * and returns the name without the extension.
      *
-     * Example:
-     * filename.html > filename
-     * passed.test.jpg > passed.test
-     * path/to/file/document.txt > document
+     * Examples:
+     *
+     * <ul>
+     *   <li>filename.html > filename</li>
+     *   <li>passed.test.jpg > passed.test</li>
+     *   <li>path/to/file/document.txt > document</li>
+     * </ul>
      *
      * @param string $filename
      * @return string
      */
-    public static function filenameRemoveExtension($filename)
+    public static function filenameRemoveExtension(string $filename) : string
     {
         return FileHelper::removeExtension($filename);
     }
-    
+
+    /**
+     * @param mixed $a
+     * @param mixed $b
+     * @return bool
+     *
+     * @throws ConvertHelper_Exception
+     * @see ConvertHelper::ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE
+     */
     public static function areVariablesEqual($a, $b) : bool
     {
         $a = self::convertScalarForComparison($a);
@@ -506,8 +459,17 @@ class ConvertHelper
 
         return $a === $b;
     }
-    
-    protected static function convertScalarForComparison($scalar)
+
+    /**
+     * Converts any scalar value to a string for comparison purposes.
+     *
+     * @param mixed|null $scalar
+     * @return string|null
+     *
+     * @throws ConvertHelper_Exception
+     * @see ConvertHelper::ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE
+     */
+    protected static function convertScalarForComparison($scalar) : ?string
     {
         if($scalar === '' || is_null($scalar)) {
             return null;
@@ -536,11 +498,14 @@ class ConvertHelper
      * Compares two strings to check whether they are equal.
      * null and empty strings are considered equal.
      *
-     * @param string $a
-     * @param string $b
+     * @param string|NULL $a
+     * @param string|NULL $b
      * @return boolean
+     *
+     * @throws ConvertHelper_Exception
+     * @see ConvertHelper::ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE
      */
-    public static function areStringsEqual($a, $b) : bool
+    public static function areStringsEqual(?string $a, ?string $b) : bool
     {
         return self::areVariablesEqual($a, $b);
     }
@@ -549,9 +514,12 @@ class ConvertHelper
      * Checks whether the two specified numbers are equal.
      * null and empty strings are considered as 0 values.
      *
-     * @param number|string $a
-     * @param number|string $b
+     * @param number|string|NULL $a
+     * @param number|string|NULL $b
      * @return boolean
+     *
+     * @throws ConvertHelper_Exception
+     * @see ConvertHelper::ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE
      */
     public static function areNumbersEqual($a, $b) : bool
     {
@@ -564,14 +532,14 @@ class ConvertHelper
      * return the 'yes' and 'no' variants.
      *
      * @param boolean|string $boolean
-     * @param boolean $yesno
+     * @param boolean $yesNo
      * @return string
      * @throws ConvertHelper_Exception
      * @see ConvertHelper::ERROR_INVALID_BOOLEAN_STRING
      */
-    public static function bool2string($boolean, bool $yesno = false) : string
+    public static function bool2string($boolean, bool $yesNo = false) : string
     {
-        return ConvertHelper_Bool::toString($boolean, $yesno);
+        return ConvertHelper_Bool::toString($boolean, $yesNo);
     }
 
     /**
@@ -580,12 +548,12 @@ class ConvertHelper
      * does.
      *
      * @param bool $boolean
-     * @param bool $yesno
+     * @param bool $yesNo
      * @return string
      */
-    public static function boolStrict2string(bool $boolean, bool $yesno = false) : string
+    public static function boolStrict2string(bool $boolean, bool $yesNo = false) : string
     {
-        return ConvertHelper_Bool::toStringStrict($boolean, $yesno);
+        return ConvertHelper_Bool::toStringStrict($boolean, $yesNo);
     }
 
    /**
@@ -613,7 +581,7 @@ class ConvertHelper
     }
     
    /**
-    * Converts a string so it can safely be used in a javascript
+    * Converts a string, so it can safely be used in a javascript
     * statement in an HTML tag: uses single quotes around the string
     * and encodes all special characters as needed.
     * 
@@ -661,7 +629,7 @@ class ConvertHelper
     */
     public static function date2timestamp(DateTime $date) : int
     {
-        return (int)$date->format('U');
+        return ConvertHelper_Date::toTimestamp($date);
     }
     
    /**
@@ -671,9 +639,7 @@ class ConvertHelper
     */
     public static function timestamp2date(int $timestamp) : DateTime
     {
-        $date = new DateTime();
-        $date->setTimestamp($timestamp);
-        return $date;
+        return ConvertHelper_Date::fromTimestamp($timestamp);
     }
     
    /**
@@ -699,11 +665,11 @@ class ConvertHelper
     *
     * @param string $regex A PHP preg regex
     * @param string $statementType The type of statement to return: Defaults to a statement to create a RegExp object.
-    * @return array|string Depending on the specified return type.
+    * @return string Depending on the specified return type.
     * 
     * @see JSHelper::buildRegexStatement()
     */
-    public static function regex2js(string $regex, string $statementType=JSHelper::JS_REGEX_OBJECT)
+    public static function regex2js(string $regex, string $statementType=JSHelper::JS_REGEX_OBJECT) : string
     {
         return JSHelper::buildRegexStatement($regex, $statementType);
     }
@@ -717,8 +683,10 @@ class ConvertHelper
     * @param mixed $variable
     * @param int $options JSON encode options.
     * @param int $depth 
-    * @throws ConvertHelper_Exception
     * @return string
+    *
+    * @throws ConvertHelper_Exception
+    * @see ConvertHelper::ERROR_JSON_ENCODE_FAILED
     */
     public static function var2json($variable, int $options=0, int $depth=512) : string
     {
@@ -741,7 +709,7 @@ class ConvertHelper
     }
 
     /**
-     * Converts any PHP variable to a human readable
+     * Converts any PHP variable to a human-readable
      * string representation, like "object ClassName"
      *
      * @param mixed $variable
@@ -830,10 +798,10 @@ class ConvertHelper
     * 
     * @param string $source
     * @param string $target
-    * @param array $options
+    * @param array<string,mixed> $options
     * @return float
     */
-    public static function matchString($source, $target, $options=array())
+    public static function matchString(string $source, string $target, array $options=array()) : float
     {
         $defaults = array(
             'maxLevenshtein' => 10,
@@ -860,70 +828,67 @@ class ConvertHelper
     * Converts a date interval to a human readable string with
     * all necessary time components, e.g. "1 year, 2 months and 4 days".
     * 
-    * @param \DateInterval $interval
+    * @param DateInterval $interval
     * @return string
     * @see ConvertHelper_IntervalConverter
     */
-    public static function interval2string(\DateInterval $interval) : string
+    public static function interval2string(DateInterval $interval) : string
     {
         $converter = new ConvertHelper_IntervalConverter();
         return $converter->toString($interval);
     }
     
     const INTERVAL_DAYS = 'days';
-    
     const INTERVAL_HOURS = 'hours';
-    
     const INTERVAL_MINUTES = 'minutes';
-    
     const INTERVAL_SECONDS = 'seconds';
     
    /**
     * Converts an interval to its total amount of days.
-    * @param \DateInterval $interval
+    * @param DateInterval $interval
     * @return int
     */
-    public static function interval2days(\DateInterval $interval) : int
+    public static function interval2days(DateInterval $interval) : int
     {
-        return self::interval2total($interval, self::INTERVAL_DAYS);
+        return ConvertHelper_DateInterval::toDays($interval);
     }
 
    /**
     * Converts an interval to its total amount of hours.
-    * @param \DateInterval $interval
+    * @param DateInterval $interval
     * @return int
     */
-    public static function interval2hours(\DateInterval $interval) : int
+    public static function interval2hours(DateInterval $interval) : int
     {
-        return self::interval2total($interval, self::INTERVAL_HOURS);
+        return ConvertHelper_DateInterval::toHours($interval);
     }
     
    /**
     * Converts an interval to its total amount of minutes. 
-    * @param \DateInterval $interval
+    * @param DateInterval $interval
     * @return int
     */
-    public static function interval2minutes(\DateInterval $interval) : int
+    public static function interval2minutes(DateInterval $interval) : int
     {
-        return self::interval2total($interval, self::INTERVAL_MINUTES);
+        return ConvertHelper_DateInterval::toMinutes($interval);
     }
     
    /**
     * Converts an interval to its total amount of seconds.
-    * @param \DateInterval $interval
+    * @param DateInterval $interval
     * @return int
     */    
-    public static function interval2seconds(\DateInterval $interval) : int
+    public static function interval2seconds(DateInterval $interval) : int
     {
-        return self::interval2total($interval, self::INTERVAL_SECONDS);
+        return ConvertHelper_DateInterval::toSeconds($interval);
     }
     
    /**
     * Calculates the total amount of days / hours / minutes or seconds
-    * of a date interval object (depending in the specified units), and 
+    * of a date interval object (depending on the specified units), and
     * returns the total amount.
     * 
-    * @param \DateInterval $interval
+    * @param DateInterval $interval
     * @param string $unit What total value to calculate.
     * @return integer
     * 
@@ -932,45 +897,11 @@ class ConvertHelper
     * @see ConvertHelper::INTERVAL_HOURS
     * @see ConvertHelper::INTERVAL_DAYS
     */
-    public static function interval2total(\DateInterval $interval, $unit=self::INTERVAL_SECONDS) : int
+    public static function interval2total(DateInterval $interval, string $unit=self::INTERVAL_SECONDS) : int
     {
-        $total = (int)$interval->format('%a');
-        if ($unit == self::INTERVAL_DAYS) {
-            return $total;
-        }
-        
-        $total = ($total * 24) + ((int)$interval->h );
-        if ($unit == self::INTERVAL_HOURS) {
-            return $total;
-        }
-    
-        $total = ($total * 60) + ((int)$interval->i );
-        if ($unit == self::INTERVAL_MINUTES) {
-            return $total;
-        }
-
-        $total = ($total * 60) + ((int)$interval->s );
-        if ($unit == self::INTERVAL_SECONDS) {
-            return $total;
-        }
-        
-        return 0;
+        return ConvertHelper_DateInterval::toTotal($interval, $unit);
     }
 
-    protected static $days;
-    
-    protected static $daysShort;
-
-    protected static $daysInvariant = array(
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'
-    );
-    
    /**
     * Converts a date to the corresponding day name.
     * 
@@ -978,77 +909,40 @@ class ConvertHelper
     * @param bool $short
     * @return string|NULL
     */
-    public static function date2dayName(DateTime $date, bool $short=false)
+    public static function date2dayName(DateTime $date, bool $short=false) : ?string
     {
-        $day = $date->format('l');
-        $invariant = self::getDayNamesInvariant();
-        
-        $idx = array_search($day, $invariant);
-        if($idx !== false) {
-            $localized = self::getDayNames($short);
-            return $localized[$idx];
-        }
-        
-        return null;
+        return ConvertHelper_Date::toDayName($date, $short);
     }
     
    /**
     * Retrieves a list of english day names.
     * @return string[]
     */
-    public static function getDayNamesInvariant()
+    public static function getDayNamesInvariant() : array
     {
-        return self::$daysInvariant;
+        return ConvertHelper_Date::getDayNamesInvariant();
     }
     
    /**
     * Retrieves the day names list for the current locale.
     * 
     * @param bool $short
-    * @return array
+    * @return string[]
     */
     public static function getDayNames(bool $short=false) : array
     {
-        if($short) {
-            if(!isset(self::$daysShort)) {
-                self::$daysShort = array(
-                    t('Mon'),
-                    t('Tue'),
-                    t('Wed'),
-                    t('Thu'),
-                    t('Fri'),
-                    t('Sat'),
-                    t('Sun')
-                );
-            }
-            
-            return self::$daysShort;
-        }
-        
-        if(!isset(self::$days)) {
-            self::$days = array(
-                t('Monday'),
-                t('Tuesday'),
-                t('Wednesday'),
-                t('Thursday'),
-                t('Friday'),
-                t('Saturday'),
-                t('Sunday')
-            );
-        }
-        
-        return self::$days;
+        return ConvertHelper_Date::getDayNames($short);
     }
 
     /**
      * Implodes an array with a separator character, and the last item with "add".
      * 
-     * @param array $list The indexed array with items to implode.
+     * @param string[] $list The indexed array with items to implode.
      * @param string $sep The separator character to use.
      * @param string $conjunction The word to use as conjunction with the last item in the list. NOTE: include spaces as needed.
      * @return string
      */
-    public static function implodeWithAnd(array $list, string $sep = ', ', string $conjunction = '')
+    public static function implodeWithAnd(array $list, string $sep = ', ', string $conjunction = '') : string
     {
         return ConvertHelper_Array::implodeWithAnd($list, $sep, $conjunction);
     }
@@ -1174,7 +1068,7 @@ class ConvertHelper
     * after parsing, as needed.
     * 
     * @param string $queryString
-    * @return array
+    * @return array<string,string>
     * @see ConvertHelper_QueryParser
     */
     public static function parseQueryString(string $queryString) : array
@@ -1227,8 +1121,8 @@ class ConvertHelper
     * Removes the specified keys from the target array,
     * if they exist.
     * 
-    * @param array $array
-    * @param array $keys
+    * @param array<string|int,mixed> $array
+    * @param string[] $keys
     */
     public static function arrayRemoveKeys(array &$array, array $keys) : void
     {
@@ -1265,19 +1159,19 @@ class ConvertHelper
     * Converts an amount of seconds to a DateInterval object.
     * 
     * @param int $seconds
-    * @return \DateInterval
+    * @return DateInterval
     * @throws ConvertHelper_Exception If the date interval cannot be created.
     * 
     * @see ConvertHelper::ERROR_CANNOT_GET_DATE_DIFF
     */
-    public static function seconds2interval(int $seconds) : \DateInterval
+    public static function seconds2interval(int $seconds) : DateInterval
     {
         return ConvertHelper_DateInterval::fromSeconds($seconds)->getInterval();
     }
     
    /**
     * Converts a size string like "50 MB" to the corresponding byte size.
-    * It is case insensitive, ignores spaces, and supports both traditional
+    * It is case-insensitive, ignores spaces, and supports both traditional
     * "MB" and "MiB" notations.
     * 
     * @param string $size
@@ -1312,6 +1206,14 @@ class ConvertHelper
         return new ConvertHelper_URLFinder($subject);
     }
 
+    /**
+     * Removes the target values from the source array.
+     *
+     * @param array<number|string,mixed> $sourceArray
+     * @param array<number|string,mixed> $values
+     * @param bool $keepKeys
+     * @return array<number|string,mixed>
+     */
     public static function arrayRemoveValues(array $sourceArray, array $values, bool $keepKeys=false) : array
     {
         return ConvertHelper_Array::removeValues($sourceArray, $values, $keepKeys);
