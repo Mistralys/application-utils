@@ -13,8 +13,8 @@ namespace AppUtils;
 
 /**
  * Static class used to handle possible storage sizes,
- * like Kilobytes, Megabytes and the like. Offers an easy
- * to use interface to access information on these sizes,
+ * like Kilobytes, Megabytes and the like. Offers an easy-to-use
+ * interface to access information on these sizes,
  * and to translate their labels to the application locale. 
  * 
  * It supports both Base 10 and Base 2 sizes.
@@ -105,7 +105,7 @@ class ConvertHelper_StorageSizeEnum
    /**
     * Retrieves all known sizes.
     * 
-    * @return \AppUtils\ConvertHelper_StorageSizeEnum_Size[]
+    * @return ConvertHelper_StorageSizeEnum_Size[]
     */
     public static function getSizes() : array
     {
@@ -117,7 +117,7 @@ class ConvertHelper_StorageSizeEnum
    /**
     * Retrieves a size definition instance by its name.
     * 
-    * @param string $name Case insensitive. For example "kb", "MiB"...
+    * @param string $name Case-insensitive. For example "kb", "MiB"...
     * @throws ConvertHelper_Exception
     * @return ConvertHelper_StorageSizeEnum_Size
     * 
@@ -136,7 +136,7 @@ class ConvertHelper_StorageSizeEnum
         throw new ConvertHelper_Exception(
             'Unknown storage size name '.$name.'.',
             sprintf(
-                'The storage size name [%s] does not exist. Avaialable names are: [%s].',
+                'The storage size name [%s] does not exist. Available names are: [%s].',
                 $name,
                 implode(', ', self::getSizeNames())
             ),
@@ -160,7 +160,7 @@ class ConvertHelper_StorageSizeEnum
     * base value.
     * 
     * @param int $base
-    * @return \AppUtils\ConvertHelper_StorageSizeEnum_Size[]
+    * @return ConvertHelper_StorageSizeEnum_Size[]
     * 
     * @see ConvertHelper_StorageSizeEnum::BASE_10
     * @see ConvertHelper_StorageSizeEnum::BASE_2

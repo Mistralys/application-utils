@@ -74,7 +74,10 @@ class ConvertHelper_SizeNotation
    /**
     * Create a new instance for the specified size string.
     * 
-    * @param string $sizeString A size notation in the format "50 MB", or a number of bytes without units. Spaces are ignored, so "50MB" = "50 MB" = "  50   MB   ". Floating point values are accepted, both with dot and comma notation ("50.5" = "50,5"). To use Base 2 values, ose appropriate units, e.g. "50 MiB", "1.5 GiB". The units are case insensitive, so "50 MB" = "50 mb". 
+    * @param string $sizeString A size notation in the format "50 MB", or a number of bytes without units. Spaces are ignored, so "50MB" = "50 MB" = "  50   MB   ". Floating point values are accepted, both with dot and comma notation ("50.5" = "50,5"). To use Base 2 values, ose appropriate units, e.g. "50 MiB", "1.5 GiB". The units are case-insensitive, so "50 MB" = "50 mb".
+    *
+    * @throws ConvertHelper_Exception
+    * @see ConvertHelper_StorageSizeEnum::ERROR_UNKNOWN_UNIT_NAME
     */
     public function __construct(string $sizeString)
     {
@@ -93,7 +96,7 @@ class ConvertHelper_SizeNotation
     }
     
    /**
-    * Converts the size notation to a human readable string, e.g. "50 MB".
+    * Converts the size notation to a human-readable string, e.g. "50 MB".
     * 
     * @param int $precision
     * @return string
@@ -168,9 +171,7 @@ class ConvertHelper_SizeNotation
         $result = str_replace(',', '.', $result);
         
         // for case insensitivity, treat it all lowercase
-        $result = strtolower($result);
-        
-        return $result;
+        return strtolower($result);
     }
     
     protected function parseSize() : void
@@ -268,7 +269,11 @@ class ConvertHelper_SizeNotation
     {
         return $this->errorCode;
     }
-    
+
+    /**
+     * @throws ConvertHelper_Exception
+     * @see ConvertHelper_StorageSizeEnum::ERROR_UNKNOWN_UNIT_NAME
+     */
     protected function convert() : void
     {
         $this->parseSize();
