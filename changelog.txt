@@ -1,7 +1,7 @@
-v1.5.2
-- Dependencies: Translation now requires `mistralys/application-localization` v1.4.0.
-- StringBuilder: Added `tex()` for translation with context information for translators.
+v1.6.0
 - OutputBuffering: Added the `OutputBuffering` helper class for simplifying output buffers.
+- StringBuilder: Added `tex()` for translation with context information for translators.
+- Dependencies: Translation now requires `mistralys/application-localization` v1.4.0.
 - Composer: Added `ext-gd` to the list of requirements for the `ImageHelper`.
 
 v1.5.1
