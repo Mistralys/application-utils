@@ -8,7 +8,7 @@ use Throwable;
 /**
  * Parses the specified number, and returns a NumberInfo instance.
  *
- * @param NumberInfo|string|int|float $value
+ * @param NumberInfo|string|int|float|NULL $value
  * @param bool $forceNew
  * @return NumberInfo
  */
@@ -19,6 +19,20 @@ function parseNumber($value, bool $forceNew=false)
     }
     
     return new NumberInfo($value);
+}
+
+/**
+ * Like {@see parseNumber()}, but returns an immutable
+ * instance where any operations that modify the value
+ * return a new instance, leaving the original instance
+ * intact.
+ *
+ * @param NumberInfo|string|int|float|NULL $value
+ * @return NumberInfo_Immutable
+ */
+function parseNumberImmutable($value) : NumberInfo_Immutable
+{
+    return new NumberInfo_Immutable($value);
 }
 
 /**
