@@ -8,11 +8,13 @@
  * @see NumberInfo
  */
 
+declare(strict_types=1);
+
 namespace AppUtils;
 
 /**
  * Abstraction class for numeric values for elements: offers
- * an easy to use API to work with pixel values, percentual
+ * an easy-to-use API to work with pixel values, percentage
  * values and the like.
  *
  * Usage: use the global function {@link parseNumber()} to
@@ -39,12 +41,12 @@ namespace AppUtils;
 class NumberInfo
 {
    /**
-    * @var mixed
+    * @var string|int|float|null
     */
     protected $rawValue;
     
    /**
-    * @var array
+    * @var array<string,mixed>
     */
     protected $info;
     
@@ -52,9 +54,15 @@ class NumberInfo
     * @var bool
     */
     protected $empty = false;
-    
-   /**
-    * @var array
+
+    /**
+     * @var bool
+     */
+    protected $postProcess = false;
+
+    /**
+     * Units and whether they allow decimal values.
+    * @var array<string,bool>
     */
     protected $knownUnits = array(
         '%' => true,
@@ -70,28 +78,66 @@ class NumberInfo
         'in' => true,
         'pc' => true
     );
-    
+
+    /**
+     * @var int
+     */
+    private static $instanceCounter = 0;
+
+    /**
+     * @var int
+     */
+    protected $instanceID;
+
+    /**
+     * @param string|int|float|NumberInfo|NULL $value
+     */
     public function __construct($value)
     {
-        $this->setValue($value);
+        self::$instanceCounter++;
+        $this->instanceID = self::$instanceCounter;
+
+        $this->_setValue($value);
     }
-    
+
+    /**
+     * Gets the ID of this NumberInfo instance: every unique
+     * instance gets assigned an ID to be able to distinguish
+     * them (mainly used in the unit tests, but also has a few
+     * practical applications).
+     *
+     * @return int
+     */
+    public function getInstanceID() : int
+    {
+        return $this->instanceID;
+    }
+
     /**
      * Sets the value of the number, including the units.
      *
-     * @param string|NumberInfo $value e.g. "10", "45px", "100%", ... or an existing NumberInfo instance.
-     * @return NumberInfo
+     * @param string|int|float|NumberInfo|NULL $value e.g. "10", "45px", "100%", ... or an existing NumberInfo instance.
+     * @return $this
      */
-    public function setValue($value) : NumberInfo
+    public function setValue($value)
+    {
+        return $this->_setValue($value);
+    }
+
+    /**
+     * @param string|int|float|NumberInfo|NULL $value
+     * @return $this
+     */
+    protected function _setValue($value)
     {
         if($value instanceof NumberInfo) {
             $value = $value->getValue();
         }
-        
+
         $this->rawValue = $value;
         $this->info = $this->parseValue($value);
         $this->empty = $this->info['empty'];
-        
+
         return $this;
     }
     
@@ -99,7 +145,7 @@ class NumberInfo
     * Retrieves the raw, internal information array resulting
     * from the parsing of the number.
     *  
-    * @return array
+    * @return array<string,mixed>
     */
     public function getRawInfo() : array
     {
@@ -114,25 +160,33 @@ class NumberInfo
     {
         return $this->empty;
     }
-    
+
+    /**
+     * Whether the number is bigger than 0.
+     *
+     * NOTE: Empty numbers (NULL) will always return false.
+     *
+     * @return bool
+     */
     public function isPositive() : bool
     {
-        if(!$this->isEmpty()) {
-            $number = $this->getNumber();
-            return $number > 0;
+        if($this->isEmpty())
+        {
+            return false;
         }
-        
-        return false;
+
+        return $this->getNumber() > 0;
     }
-    
-    
+
     /**
-     * Whether the number is 0.
+     * Whether the number is exactly `0`.
+     *
      * @return boolean
      */
     public function isZero() : bool
     {
-        if($this->isEmpty()) {
+        if($this->isEmpty())
+        {
             return false;
         }
 
@@ -152,11 +206,7 @@ class NumberInfo
      */
     public function hasValue() : bool
     {
-        if(!$this->isEmpty() && !$this->isZero()) {
-            return true;
-        }
-        
-        return false;
+        return !$this->isEmpty() && !$this->isZero();
     }
     
     /**
@@ -169,13 +219,41 @@ class NumberInfo
     }
     
     /**
-     * Changes the stored number, without modifying the units.
-     * @param float|int $number
-     * @return NumberInfo
+     * Changes the stored number.
+     *
+     * NOTE: Will be ignored if the specified number's
+     * units do not match.
+     *
+     * @param string|int|float|NULL|NumberInfo $number
+     * @return $this
      */
     public function setNumber($number)
     {
-        $this->info['number'] = floatval($number);
+        // Append the units if the value is a number,
+        // so they can be inherited.
+        if($this->hasUnits() && is_numeric($number))
+        {
+            $number .= $this->getUnits();
+        }
+
+        $new = parseNumber($number);
+
+        if($new->isEmpty())
+        {
+            return $this;
+        }
+
+        if($new->getUnits() === $this->getUnits())
+        {
+            $value = $new->getNumber();
+
+            if($this->hasUnits()) {
+                $value .= $this->getUnits();
+            }
+
+            $this->_setValue($value);
+        }
+
         return $this;
     }
     
@@ -184,18 +262,23 @@ class NumberInfo
      * also if the px suffix is omitted.
      * @return boolean
      */
-    public function isPixels()
+    public function isPixels() : bool
     {
-        return !$this->isEmpty() && $this->getUnits() == 'px';
+        return !$this->isEmpty() && $this->getUnits() === 'px';
     }
     
     /**
      * Whether the number is a percent value.
      * @return boolean
      */
-    public function isPercent()
+    public function isPercent() : bool
     {
-        return !$this->isEmpty() && $this->getUnits() == '%';
+        return !$this->isEmpty() && $this->getUnits() === '%';
+    }
+
+    public function isEM() : bool
+    {
+        return !$this->isEmpty() && $this->getUnits() === 'em';
     }
     
     /**
@@ -206,7 +289,8 @@ class NumberInfo
     {
         $number = (float)$this->info['number'];
 
-        if($this->hasDecimals()) {
+        if($this->hasDecimals())
+        {
             return $number;
         }
 
@@ -224,7 +308,7 @@ class NumberInfo
      * Checks whether the number is an even number.
      * @return boolean
      */
-    public function isEven()
+    public function isEven() : bool
     {
         return !$this->isEmpty() && !($this->getNumber() & 1);
     }
@@ -234,9 +318,12 @@ class NumberInfo
      * have been initially specified, this will always
      * return 'px'.
      *
-     * @return mixed
+     * NOTE: If the number itself is empty (NULL), this
+     * will return an empty string.
+     *
+     * @return string
      */
-    public function getUnits()
+    public function getUnits() : string
     {
         if($this->isEmpty()) {
             return '';
@@ -253,14 +340,14 @@ class NumberInfo
      * Whether specific units have been specified for the number.
      * @return boolean
      */
-    public function hasUnits()
+    public function hasUnits() : bool
     {
         return !empty($this->info['units']);
     }
     
     /**
      * Retrieves the raw value as is, with or without units depending on how it was given.
-     * @return number
+     * @return string|int|float|NULL
      */
     public function getValue()
     {
@@ -319,48 +406,91 @@ class NumberInfo
     
     /**
      * Checks if this number is bigger than the specified
-     * number. Note that this will always return false if
-     * the numbers do not have the same units.
+     * number.
      *
-     * @param string|number|NumberInfo $number
+     * NOTE: Always returns false if the units are not the same.
+     *
+     * NOTE: If this number or the one being compared is empty
+     * (NULL), this will return false even if it translates
+     * to a `0` value.
+     *
+     * @param string|int|float|NULL|NumberInfo $number
      * @return boolean
      */
-    public function isBiggerThan($number)
+    public function isBiggerThan($number) : bool
     {
-        $number = parseNumber($number);
-        if($number->getUnits() != $this->getUnits()) {
-            return false;
-        }
-        
-        return $this->getNumber() > $number->getNumber();
+        return (new NumberInfo_Comparer($this, parseNumber($number)))->isBiggerThan();
     }
     
     /**
      * Checks if this number is smaller than the specified
-     * number. Note that this will always return false if
-     * the numbers do not have the same units.
+     * number.
      *
-     * @param string|number|NumberInfo $number
+     * NOTE: Always returns false if the units are not the same.
+     *
+     * NOTE: If this number or the one being compared is empty
+     * (NULL), this will return false even if it translates
+     * to a `0` value.
+     *
+     * @param string|int|float|NULL|NumberInfo $number
      * @return boolean
      */
-    public function isSmallerThan($number)
+    public function isSmallerThan($number) : bool
     {
-        $number = parseNumber($number);
-        if($number->getUnits() != $this->getUnits()) {
-            return false;
-        }
-        
-        return $this->getNumber() < $number->getNumber();
+        return (new NumberInfo_Comparer($this, parseNumber($number)))->isSmallerThan();
     }
-    
-    public function isBiggerEqual($number)
+
+    /**
+     * Checks if this number is smaller than the specified
+     * number.
+     *
+     * NOTE: Always returns false if the units are not the same.
+     *
+     * NOTE: If this number or the one being compared is empty
+     * (NULL), this will return false even if it translates
+     * to a `0` value.
+     *
+     * @param string|int|float|NULL|NumberInfo $number
+     * @return boolean
+     */
+    public function isSmallerEqual($number) : bool
     {
-        $number = parseNumber($number);
-        if($number->getUnits() != $this->getUnits()) {
-            return false;
-        }
-        
-        return $this->getNumber() >= $number->getNumber();
+        return (new NumberInfo_Comparer($this, parseNumber($number)))->isSmallerEqual();
+    }
+
+    /**
+     * Checks if this number is bigger or equals the
+     * specified number.
+     *
+     * NOTE: Always returns false if the units are not the same.
+     *
+     * NOTE: If this number or the one being compared is empty
+     * (NULL), this will return false even if it translates
+     * to a `0` value.
+     *
+     * @param string|int|float|NULL|NumberInfo $number
+     * @return bool
+     */
+    public function isBiggerEqual($number) : bool
+    {
+        return (new NumberInfo_Comparer($this, parseNumber($number)))->isBiggerEqual();
+    }
+
+    /**
+     * Checks if this number equals the specified number.
+     *
+     * NOTE: Always returns false if the units are not the same.
+     *
+     * NOTE: If this number or the one being compared is empty
+     * (NULL), this will return false even if it translates
+     * to a `0` value.
+     *
+     * @param string|int|float|NULL|NumberInfo $number
+     * @return bool
+     */
+    public function isEqual($number) : bool
+    {
+        return (new NumberInfo_Comparer($this, parseNumber($number)))->isEqual();
     }
     
     /**
@@ -368,22 +498,29 @@ class NumberInfo
      * they are compatible - i.e. they have the same units
      * or a percentage.
      *
-     * @param string|NumberInfo $value
-     * @return NumberInfo
+     * @param string|int|float|null|NumberInfo $value
+     * @return $this
      */
     public function add($value)
     {
-        if($this->isEmpty()) {
+        if($this->isEmpty())
+        {
             $this->setValue($value);
             return $this;
         }
         
         $number = parseNumber($value);
         
-        if($number->getUnits() == $this->getUnits() || !$number->hasUnits())
+        if($number->getUnits() === $this->getUnits() || !$number->hasUnits())
         {
             $new = $this->getNumber() + $number->getNumber();
-            $this->setValue($new.$this->getUnits());
+
+            if($this->hasUnits())
+            {
+                $new .= $this->getUnits();
+            }
+
+            $this->setValue($new);
         }
         
         return $this;
@@ -394,12 +531,13 @@ class NumberInfo
      * they are compatible - i.e. they have the same units, or
      * a percentage.
      *
-     * @param string|NumberInfo $value
-     * @return NumberInfo
+     * @param string|int|float|NumberInfo|NULL $value
+     * @return $this
      */
     public function subtract($value)
     {
-        if($this->isEmpty()) {
+        if($this->isEmpty())
+        {
             $this->setValue($value);
             return $this;
         }
@@ -409,13 +547,25 @@ class NumberInfo
         if($number->getUnits() == $this->getUnits() || !$number->hasUnits())
         {
             $new = $this->getNumber() - $number->getNumber();
-            $this->setValue($new.$this->getUnits());
+
+            if($this->hasUnits())
+            {
+                $new .= $this->getUnits();
+            }
+
+            $this->setValue($new);
         }
         
         return $this;
     }
-    
-    public function subtractPercent($percent)
+
+    /**
+     * Subtracts the specified percentage from the number.
+     *
+     * @param float $percent
+     * @return $this
+     */
+    public function subtractPercent(float $percent)
     {
         return $this->percentOperation('-', $percent);
     }
@@ -423,22 +573,29 @@ class NumberInfo
     /**
      * Increases the current value by the specified percent amount.
      *
-     * @param number $percent
-     * @return NumberInfo
+     * @param float $percent
+     * @return $this
      */
-    public function addPercent($percent)
+    public function addPercent(float $percent)
     {
         return $this->percentOperation('+', $percent);
     }
-    
-    protected function percentOperation($operation, $percent)
+
+    /**
+     * @param string $operation
+     * @param int|float $percent
+     * @return $this
+     */
+    protected function percentOperation(string $operation, $percent)
     {
         if($this->isZeroOrEmpty()) {
             return $this;
         }
         
         $percent = parseNumber($percent);
-        if($percent->hasUnits() && !$percent->isPercent()) {
+
+        if($percent->hasUnits() && !$percent->isPercent())
+        {
             return $this;
         }
         
@@ -451,24 +608,43 @@ class NumberInfo
             $number = $number + $value;
         }
         
-        if($this->isUnitInteger()) {
+        if($this->isUnitInteger())
+        {
             $number = intval($number);
         }
-        
-        $this->setValue($number.$this->getUnits());
+
+        if($this->hasUnits())
+        {
+            $number .= $this->getUnits();
+        }
+
+        $this->setValue($number);
         
         return $this;
-        
     }
     
-    public function isUnitInteger()
+    public function isUnitInteger() : bool
     {
-        return $this->isPixels();
+        $units = $this->getUnits();
+
+        if(isset($this->knownUnits[$units]))
+        {
+            return !$this->knownUnits[$units];
+        }
+
+        return false;
     }
     
-    public function isUnitDecimal()
+    public function isUnitDecimal() : bool
     {
-        return $this->isPercent();
+        $units = $this->getUnits();
+
+        if(isset($this->knownUnits[$units]))
+        {
+            return $this->knownUnits[$units];
+        }
+
+        return false;
     }
     
     /**
@@ -493,8 +669,8 @@ class NumberInfo
      *     'units' => '%'
      * )
      *
-     * @param mixed $value
-     * @return array
+     * @param string|int|float|NULL $value
+     * @return array<string,mixed>
      */
     private function parseValue($value) : array
     {
@@ -557,7 +733,7 @@ class NumberInfo
     * Parses a string number notation with units included, e.g. 14px, 50%...
     * 
     * @param string $test
-    * @return array
+    * @return array<string,mixed>
     */
     private function parseStringValue(string $test) : array
     {
@@ -614,7 +790,7 @@ class NumberInfo
     * in the string. Returns NULL if none could be matched.
     * 
     * @param string $value
-    * @return array|NULL
+    * @return array<string,mixed>|NULL
     */
     private function findUnits(string $value) : ?array
     {
@@ -658,16 +834,14 @@ class NumberInfo
 
         return (string)$value;
     }
-    
-    protected $postProcess = false;
-    
+
    /**
     * Called if explicitly enabled: allows filtering the 
     * number after the detection process has completed.
     * 
     * @param string|NULL $number The adjusted number
     * @param string $originalString The original value before it was parsed
-    * @return mixed
+    * @return string|null
     */
     protected function postProcess(?string $number, /** @scrutinizer ignore-unused */ string $originalString)
     {
@@ -678,11 +852,11 @@ class NumberInfo
     * Filters the value before it is parsed, but only if it is a string.
     * 
     * NOTE: This may be overwritten in a subclass, to allow custom filtering
-    * the the values. An example of a use case would be a preprocessor for
+    * the values. An example of a use case would be a preprocessor for
     * variables in a templating system.
     * 
     * @param string $trimmedString The trimmed value.
-    * @param array $cache The internal values cache array.
+    * @param array<string,mixed> $cache The internal values cache array.
     * @param string $originalValue The original value that the NumberInfo was created for.
     * @return string
     * 
@@ -694,11 +868,11 @@ class NumberInfo
     }
     
    /**
-    * Enables the post processing so the postProcess method gets called.
+    * Enables the post-processing so the postProcess method gets called.
     * This should be called in the {@link NumberInfo::preProcess()}
     * method as needed.
     * 
-    * @return NumberInfo
+    * @return $this
     * @see NumberInfo::postProcess()
     */
     protected function enablePostProcess() : NumberInfo
@@ -711,8 +885,8 @@ class NumberInfo
     * Filters the number info array to adjust the units
     * and number according to the required rules.
     * 
-    * @param array $info
-    * @return array
+    * @param array<string,mixed> $info
+    * @return array<string,mixed>
     */
     protected function filterInfo(array $info) : array
     {
@@ -722,11 +896,50 @@ class NumberInfo
         }
         
         // the units are non-decimal: convert decimal values
-        if($useUnits !== null && $this->knownUnits[$useUnits] === false && !$info['empty'] && is_numeric($info['number']))
+        if($this->knownUnits[$useUnits] === false && !$info['empty'] && is_numeric($info['number']))
         {
             $info['number'] = intval($info['number']);
         }
         
         return $info;
+    }
+
+    /**
+     * Rounds fractions down in the number, and
+     * decreases it to the nearest even number
+     * if necessary.
+     *
+     * Examples:
+     *
+     * - 4 -> 4
+     * - 5 -> 4
+     * - 5.2 -> 4
+     * - 5.8 -> 4
+     *
+     * @return $this
+     */
+    public function floorEven()
+    {
+        $number = floor($this->getNumber());
+
+        if($number % 2 == 1) $number--;
+
+        return $this->setNumber($number);
+    }
+
+    /**
+     * Rounds fractions up in the number, and
+     * increases it to the nearest even number
+     * if necessary.
+     *
+     * @return $this
+     */
+    public function ceilEven()
+    {
+        $number = ceil($this->getNumber());
+
+        if($number % 2 == 1) $number++;
+
+        return $this->setNumber($number);
     }
 }
