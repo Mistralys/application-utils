@@ -23,8 +23,14 @@ namespace AppUtils;
  */
 class ConvertHelper_StringMatch
 {
+    /**
+     * @var int
+     */
     protected $position;
-    
+
+    /**
+     * @var string
+     */
     protected $match;
     
     public function __construct(int $position, string $matchedString)

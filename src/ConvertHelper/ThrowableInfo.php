@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use DateTime;
+use Exception;
+use Throwable;
+
 class ConvertHelper_ThrowableInfo implements Interface_Optionable
 {
     use Traits_Optionable;
@@ -15,7 +19,7 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     const CONTEXT_WEB = 'web';
     
    /**
-    * @var \Throwable
+    * @var Throwable
     */
     protected $exception;
     
@@ -50,7 +54,7 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     protected $referer = '';
     
    /**
-    * @var \DateTime
+    * @var DateTime
     */
     protected $date;
     
@@ -58,7 +62,10 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     * @var string
     */
     protected $context = self::CONTEXT_WEB;
-    
+
+    /**
+     * @param array<string,mixed>|Throwable $subject
+     */
     protected function __construct($subject)
     {
         if(is_array($subject))
@@ -71,12 +78,16 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
         }
     }
     
-    public static function fromThrowable(\Throwable $e)
+    public static function fromThrowable(Throwable $e) : ConvertHelper_ThrowableInfo
     {
         return new ConvertHelper_ThrowableInfo($e);
     }
-    
-    public static function fromSerialized(array $serialized)
+
+    /**
+     * @param array<string,mixed> $serialized
+     * @return ConvertHelper_ThrowableInfo
+     */
+    public static function fromSerialized(array $serialized) : ConvertHelper_ThrowableInfo
     {
         return new ConvertHelper_ThrowableInfo($serialized);
     }
@@ -212,9 +223,9 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     * since exceptions do not store time, this is captured the 
     * moment the ThrowableInfo is created.
     * 
-    * @return \DateTime
+    * @return DateTime
     */
-    public function getDate() : \DateTime
+    public function getDate() : DateTime
     {
         return $this->date;
     }
@@ -225,7 +236,7 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     * session...), and later be restored into a throwable
     * info instance using the fromSerialized() method.
     * 
-    * @return array
+    * @return array<string,mixed>
     * @see ConvertHelper_ThrowableInfo::fromSerialized()
     */
     public function serialize() : array
@@ -299,10 +310,15 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     {
         return $this->callsCount;
     }
-    
+
+
+    /**
+     * @param array<string,mixed> $serialized
+     * @throws Exception
+     */
     protected function parseSerialized(array $serialized) : void
     {
-        $this->date = new \DateTime($serialized['date']);
+        $this->date = new DateTime($serialized['date']);
         $this->code = $serialized['code'];
         $this->message = $serialized['message'];
         $this->referer = $serialized['referer'];
@@ -322,11 +338,11 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
         }
     }
     
-    protected function parseException(\Throwable $e) : void
+    protected function parseException(Throwable $e) : void
     {
-        $this->date = new \DateTime();
+        $this->date = new DateTime();
         $this->message = $e->getMessage();
-        $this->code = intval($e->getCode());
+        $this->code = $e->getCode();
         
         if(!isset($_REQUEST['REQUEST_URI'])) {
             $this->context = self::CONTEXT_COMMAND_LINE;

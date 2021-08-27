@@ -25,12 +25,12 @@ class ConvertHelper_IntervalConverter
     const ERROR_MISSING_TRANSLATION = 43501;
     
    /**
-    * @var array|NULL
+    * @var array<string,string>|NULL
     */
     protected static $texts = null;
     
    /**
-    * @var array
+    * @var string[]
     */
     protected $tokens = array('y', 'm', 'd', 'h', 'i', 's');
     
@@ -45,7 +45,7 @@ class ConvertHelper_IntervalConverter
     * Called whenever the application locale has changed,
     * to reset the internal translation cache.
     */
-    public function handle_localeChanged()
+    public function handle_localeChanged() : void
     {
         self::$texts = null;
     }
@@ -128,7 +128,7 @@ class ConvertHelper_IntervalConverter
     * the subject interval, depending on its length.
     * 
     * @param ConvertHelper_DateInterval $interval
-    * @return array
+    * @return string[]
     */
     protected function resolveTokens(ConvertHelper_DateInterval $interval) : array
     {

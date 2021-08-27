@@ -22,9 +22,11 @@ namespace AppUtils;
 class ConvertHelper_HiddenConverter
 {
     const CHARS_WHITESPACE = 'whitespace';
-    
     const CHARS_CONTROL = 'control';
-    
+
+    /**
+     * @var array<string,array<string,string>>
+     */
     protected $characters = array(
         'whitespace' => array(
             "\t" => '[TAB]',
@@ -70,7 +72,7 @@ class ConvertHelper_HiddenConverter
     );
     
    /**
-    * @var array
+    * @var string[]
     */
     protected $selected = array();
     
@@ -103,7 +105,7 @@ class ConvertHelper_HiddenConverter
    /**
     * Resolves the list of characters to make visible.
     * 
-    * @return array
+    * @return string[]
     */
     protected function resolveSelection() : array
     {

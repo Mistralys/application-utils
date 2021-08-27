@@ -35,7 +35,7 @@ class ConvertHelper_QueryParser
     * than PHP variable names.
     * 
     * @param string $queryString
-    * @return array
+    * @return array<string,string>
     */
     public function parse(string $queryString) : array
     {

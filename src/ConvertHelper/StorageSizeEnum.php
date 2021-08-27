@@ -28,11 +28,10 @@ class ConvertHelper_StorageSizeEnum
     const ERROR_UNKNOWN_UNIT_NAME = 43901;
     
     const BASE_10 = 1000;
-    
     const BASE_2 = 1024;
     
    /**
-    * @var ConvertHelper_StorageSizeEnum_Size[]
+    * @var array<string,ConvertHelper_StorageSizeEnum_Size>
     */
     protected static $sizes = array();
     
@@ -111,7 +110,7 @@ class ConvertHelper_StorageSizeEnum
     {
         self::init();
         
-        return self::$sizes;
+        return array_values(self::$sizes);
     }
     
    /**
@@ -146,7 +145,7 @@ class ConvertHelper_StorageSizeEnum
     
    /**
     * Retrieves a list of all size names, e.g. "mb", "kib" (lowercase).
-    * @return array
+    * @return string[]
     */
     public static function getSizeNames() : array
     {

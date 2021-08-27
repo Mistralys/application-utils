@@ -65,7 +65,7 @@ class ConvertHelper_DurationConverter
     protected $dateDiff = 0;
     
    /**
-    * @var array|NULL
+    * @var array<string,array<string,string>>|NULL
     */
     protected static $texts = null;
     
@@ -80,7 +80,7 @@ class ConvertHelper_DurationConverter
      * Called whenever the application locale has changed,
      * to reset the internal translation cache.
      */
-    public function handle_localeChanged()
+    public function handle_localeChanged() : void
     {
         // force the texts to be refreshed when needed.
         self::$texts = null;
@@ -94,10 +94,10 @@ class ConvertHelper_DurationConverter
     * calculation for something to come, i.e. 
     * "In two days".
     *  
-    * @param \DateTime $date
+    * @param DateTime $date
     * @return ConvertHelper_DurationConverter
     */
-    public function setDateFrom(\DateTime $date) : ConvertHelper_DurationConverter
+    public function setDateFrom(DateTime $date) : ConvertHelper_DurationConverter
     {
         $this->dateFrom = ConvertHelper::date2timestamp($date);
         
@@ -108,10 +108,10 @@ class ConvertHelper_DurationConverter
     * Sets the date to calculate to. Defaults to 
     * the current time if not set.
     * 
-    * @param \DateTime $date
+    * @param DateTime $date
     * @return ConvertHelper_DurationConverter
     */
-    public function setDateTo(\DateTime $date) : ConvertHelper_DurationConverter
+    public function setDateTo(DateTime $date) : ConvertHelper_DurationConverter
     {
         $this->dateTo = ConvertHelper::date2timestamp($date);
         
@@ -148,7 +148,7 @@ class ConvertHelper_DurationConverter
         return str_replace('$value', (string)$this->dateDiff, $text);
     }
     
-    protected function initTexts()
+    protected function initTexts() : void
     {
         if(isset(self::$texts)) {
             return;

@@ -7,20 +7,13 @@ namespace AppUtils;
 class ConvertHelper_ThrowableInfo_Call
 {
     const TYPE_FUNCTION_CALL = 'function';
-    
     const TYPE_METHOD_CALL = 'method';
-    
     const TYPE_SCRIPT_START = 'start';
     
    /**
     * @var ConvertHelper_ThrowableInfo
     */
     protected $info;
-    
-   /**
-    * @var array
-    */
-    protected $trace;
     
    /**
     * @var VariableInfo[]
@@ -57,7 +50,11 @@ class ConvertHelper_ThrowableInfo_Call
     * @var string
     */
     protected $type = self::TYPE_SCRIPT_START;
-    
+
+    /**
+     * @param ConvertHelper_ThrowableInfo $info
+     * @param array<string,mixed> $data
+     */
     protected function __construct(ConvertHelper_ThrowableInfo $info, array $data)
     {
         $this->info = $info;
@@ -160,8 +157,12 @@ class ConvertHelper_ThrowableInfo_Call
     {
         return $this->class;
     }
-    
-    protected function parseSerialized(array $data)
+
+    /**
+     * @param array<string,mixed> $data
+     * @throws BaseException
+     */
+    protected function parseSerialized(array $data) : void
     {
         $this->type = $data['type'];
         $this->line = $data['line'];
@@ -175,8 +176,11 @@ class ConvertHelper_ThrowableInfo_Call
             $this->args[] = VariableInfo::fromSerialized($arg);
         }
     }
-    
-    protected function parseTrace(array $trace)
+
+    /**
+     * @param array<string,mixed> $trace
+     */
+    protected function parseTrace(array $trace) : void
     {
         if(isset($trace['line']))
         {
@@ -207,7 +211,7 @@ class ConvertHelper_ThrowableInfo_Call
         }
     }
     
-    public function toString()
+    public function toString() : string
     {
         $tokens = array();
         
@@ -228,7 +232,7 @@ class ConvertHelper_ThrowableInfo_Call
         return implode(' ', $tokens);
     }
     
-    public function argumentsToString()
+    public function argumentsToString() : string
     {
         $tokens = array();
         
@@ -241,7 +245,7 @@ class ConvertHelper_ThrowableInfo_Call
     }
     
    /**
-    * Retrieves the type of call: typcially a function 
+    * Retrieves the type of call: typically a function
     * call, or a method call of an object. Note that the
     * first call in a script does not have either.
     * 
@@ -263,7 +267,7 @@ class ConvertHelper_ThrowableInfo_Call
     * necessary information. Can be used to restore
     * the call later using {@link ConvertHelper_ThrowableInfo_Call::fromSerialized()}.
     * 
-    * @return array
+    * @return array<string,mixed>
     */
     public function serialize() : array
     {
@@ -285,7 +289,13 @@ class ConvertHelper_ThrowableInfo_Call
         return $result;
     }
 
-    public static function fromTrace(ConvertHelper_ThrowableInfo $info, int $position, array $trace)
+    /**
+     * @param ConvertHelper_ThrowableInfo $info
+     * @param int $position
+     * @param array<string,mixed> $trace
+     * @return ConvertHelper_ThrowableInfo_Call
+     */
+    public static function fromTrace(ConvertHelper_ThrowableInfo $info, int $position, array $trace) : ConvertHelper_ThrowableInfo_Call
     {
         return new ConvertHelper_ThrowableInfo_Call(
             $info, 
@@ -295,8 +305,13 @@ class ConvertHelper_ThrowableInfo_Call
             )
         );
     }
-    
-    public static function fromSerialized(ConvertHelper_ThrowableInfo $info, array $serialized)
+
+    /**
+     * @param ConvertHelper_ThrowableInfo $info
+     * @param array<string,mixed> $serialized
+     * @return ConvertHelper_ThrowableInfo_Call
+     */
+    public static function fromSerialized(ConvertHelper_ThrowableInfo $info, array $serialized) : ConvertHelper_ThrowableInfo_Call
     {
         return new ConvertHelper_ThrowableInfo_Call(
             $info,

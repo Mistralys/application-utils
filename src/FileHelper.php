@@ -64,7 +64,7 @@ class FileHelper
     * 
     * @param string $file
     * @throws FileHelper_Exception
-    * @return array
+    * @return array<int|string,mixed>
     * @deprecated Use parseSerializedFile() instead.
     * @see FileHelper::parseSerializedFile()
     */
@@ -78,7 +78,7 @@ class FileHelper
     *
     * @param string $file
     * @throws FileHelper_Exception
-    * @return array
+    * @return array<int|string,mixed>
     * @see FileHelper::parseSerializedFile()
     * 
     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
@@ -328,7 +328,7 @@ class FileHelper
     * @param string $enclosure
     * @param string $escape
     * @param bool $heading
-    * @return array
+    * @return array<int,array<string,string>>
     * @throws FileHelper_Exception
     * 
     * @see parseCSVFile()
@@ -359,7 +359,7 @@ class FileHelper
      * @param string $enclosure The character to use to quote literal strings
      * @param string $escape The character to use to escape special characters.
      * @param bool $heading Whether to include headings.
-     * @return array
+     * @return array<int,array<string,string>>
      * @throws FileHelper_Exception
      * 
      * @see parseCSVString()
@@ -423,7 +423,7 @@ class FileHelper
      * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
      * @see FileHelper::ERROR_UNKNOWN_FILE_MIME_TYPE
      */
-    public static function sendFile(string $filePath, $fileName = null, bool $asAttachment=true)
+    public static function sendFile(string $filePath, ?string $fileName = null, bool $asAttachment=true) : void
     {
         self::requireFileExists($filePath);
         
@@ -593,7 +593,7 @@ class FileHelper
      * @param string $file
      * @param string $targetEncoding
      * @param string|string[]|null $sourceEncoding
-     * @return array
+     * @return array<int|string,mixed>
      *
      * @throws FileHelper_Exception
      * @see FileHelper::ERROR_CANNOT_FIND_JSON_FILE
@@ -684,11 +684,11 @@ class FileHelper
      *
      * NOTE: This method only exists for backwards compatibility.
      * Use the `createFileFinder()` method instead, which offers
-     * an object oriented interface that is much easier to use.
+     * an object-oriented interface that is much easier to use.
      *
      * @param string $targetFolder
-     * @param array $options
-     * @return array An indexed array with files.
+     * @param array<string,mixed> $options
+     * @return string[] An indexed array with files.
      * @throws FileHelper_Exception
      * @see FileHelper::createFileFinder()
      */
@@ -702,10 +702,10 @@ class FileHelper
      *
      * NOTE: This method only exists for backwards compatibility.
      * Use the `createFileFinder()` method instead, which offers
-     * an object oriented interface that is much easier to use.
+     * an object-oriented interface that is much easier to use.
      *
      * @param string $targetFolder
-     * @param array $options
+     * @param array<string,mixed> $options
      * @return string[] An indexed array of PHP files.
      * @throws FileHelper_Exception
      * @see FileHelper::createFileFinder()
@@ -1108,7 +1108,7 @@ class FileHelper
      * to check this beforehand as needed.
      *
      * @param string $path
-     * @return boolean|array A boolean true if the file is valid, an array with validation messages otherwise.
+     * @return boolean|string[] A boolean true if the file is valid, an array with validation messages otherwise.
      * @throws FileHelper_Exception
      */
     public static function checkPHPFileSyntax(string $path)
@@ -1155,25 +1155,25 @@ class FileHelper
     }
     
    /**
-    * Retrieves the names of all subfolders in the specified path.
+    * Retrieves the names of all sub-folders in the specified path.
     * 
     * Available options:
     * 
     * - recursive: true/false
-    *   Whether to search for subfolders recursively. 
+    *   Whether to search for sub-folders recursively.
     *   
     * - absolute-paths: true/false
     *   Whether to return a list of absolute paths.
     * 
     * @param string|DirectoryIterator $targetFolder
-    * @param array $options
+    * @param array<string,mixed> $options
     * @throws FileHelper_Exception
     * @return string[]
     *
     * @see FileHelper::ERROR_FIND_SUBFOLDERS_FOLDER_DOES_NOT_EXIST
     * @todo Move this to a separate class.
     */
-    public static function getSubfolders($targetFolder, $options = array())
+    public static function getSubfolders($targetFolder, array $options = array())
     {
         if($targetFolder instanceof DirectoryIterator) {
             $targetFolder = $targetFolder->getPathname();
@@ -1184,7 +1184,7 @@ class FileHelper
             throw new FileHelper_Exception(
                 'Target folder does not exist',
                 sprintf(
-                    'Cannot retrieve subfolders from [%s], the folder does not exist.',
+                    'Cannot retrieve sub-folders from [%s], the folder does not exist.',
                     $targetFolder
                 ),
                 self::ERROR_FIND_SUBFOLDERS_FOLDER_DOES_NOT_EXIST
@@ -1513,19 +1513,20 @@ class FileHelper
         
         return ConvertHelper::detectEOLCharacter($string);
     }
-    
-   /**
-    * Reads the specified amount of lines from the target file.
-    * Unicode BOM compatible: any byte order marker is stripped
-    * from the resulting lines.
-    * 
-    * @param string $filePath
-    * @param int $amount Set to 0 to read all lines.
-    * @return array
-    * 
-    * @see FileHelper::ERROR_CANNOT_OPEN_FILE_TO_READ_LINES
-    * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
-    */
+
+    /**
+     * Reads the specified amount of lines from the target file.
+     * Unicode BOM compatible: any byte order marker is stripped
+     * from the resulting lines.
+     *
+     * @param string $filePath
+     * @param int $amount Set to 0 to read all lines.
+     * @return string[]
+     *
+     * @throws FileHelper_Exception
+     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
+     * @see FileHelper::ERROR_CANNOT_OPEN_FILE_TO_READ_LINES
+     */
     public static function readLines(string $filePath, int $amount=0) : array
     {
         self::requireFileExists($filePath);

@@ -36,7 +36,7 @@ class ConvertHelper_TabsNormalizer
     protected $tabs2spaces = false;
     
    /**
-    * @var array
+    * @var string[]
     */
     protected $lines = array();
 
