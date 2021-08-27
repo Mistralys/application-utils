@@ -32,7 +32,7 @@ interface Interface_Classable
     public function addClass(string $name);
 
     /**
-     * @param array $names
+     * @param string[] $names
      * @return $this
      */
     public function addClasses(array $names);
@@ -50,7 +50,7 @@ interface Interface_Classable
     public function removeClass(string $name);
 
     /**
-     * @return array
+     * @return string[]
      */
     public function getClasses() : array;
 
