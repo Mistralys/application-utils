@@ -315,7 +315,7 @@ class PaginationHelper
         return $this->offsetEnd;
     }
     
-    protected function calculate()
+    protected function calculate() : void
     {
         $pages = (int)ceil($this->total / $this->perPage);
         
