@@ -14,7 +14,7 @@ namespace AppUtils;
  * Request helper exception class: all exceptions in the
  * request helper are of this type. If available, this
  * allows accessing the request response if the error 
- * occurred in the context of a sent request. 
+ * occurred in the context of a request that was sent.
  *
  * @package Application Utils
  * @subpackage RequestHelper
@@ -26,10 +26,15 @@ class RequestHelper_Exception extends BaseException
     * @var RequestHelper_Response|NULL
     */
     protected $response = null;
- 
+
+    /**
+     * @param RequestHelper_Response $response
+     * @return $this
+     */
     public function setResponse(RequestHelper_Response $response)
     {
         $this->response = $response;
+        return $this;
     }
     
    /**
