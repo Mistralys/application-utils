@@ -1,3 +1,11 @@
+v1.7.0
+- NumberInfo: Added the immutable variant with `parseNumberImmutable()`.
+- NumberInfo: Added `ceilEven()` and `floorEven()`.
+- NumberInfo: Modernized the class, now using strict typing.
+- NumberInfo: Fixed some minor consistency issues with empty numbers.
+- NumberInfo: Fixed the value not being updated when using `setNumber()`.
+- NumberInfo: Fixed the value having units when the raw value did not have any.
+
 v1.6.0
 - OutputBuffering: Added the `OutputBuffering` helper class for simplifying output buffers.
 - StringBuilder: Added `tex()` for translation with context information for translators.
