@@ -1,6 +1,6 @@
 v1.7.1
 - NamedClosure: Added array support for the `$origin` parameter.
-
+- Internals: Added type hints to improve static code analysis.
 
 v1.7.0
 - NumberInfo: Added the immutable variant with `parseNumberImmutable()`.
