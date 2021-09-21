@@ -141,7 +141,7 @@ class FileHelper_PHPClassInfo_Class
     
    /**
     * A list of interfaces the class implements, if any.
-    * @return array
+    * @return string[]
     */
     public function getImplements() : array
     {
@@ -182,7 +182,7 @@ class FileHelper_PHPClassInfo_Class
         return $this->keyword;
     }
     
-    protected function analyzeCode()
+    protected function analyzeCode() : void
     {
         if($this->keyword == 'abstract') {
             $this->abstract = true;

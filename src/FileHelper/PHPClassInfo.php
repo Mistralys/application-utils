@@ -33,7 +33,11 @@ class FileHelper_PHPClassInfo
      * @var string
      */
     protected $path;
-    
+
+
+    /**
+     * @var array<string,FileHelper_PHPClassInfo_Class>
+     */
     protected $classes = array();
     
    /**
@@ -118,15 +122,15 @@ class FileHelper_PHPClassInfo
     * 
     * @return FileHelper_PHPClassInfo_Class[]
     */
-    public function getClasses()
+    public function getClasses() : array
     {
-        return $this->classes;
+        return array_values($this->classes);
     }
     
    /**
     * @throws FileHelper_Exception
     */
-    protected function parseFile()
+    protected function parseFile() : void
     {
         $code = file_get_contents($this->path);
         
