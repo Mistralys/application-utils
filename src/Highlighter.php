@@ -103,7 +103,7 @@ class Highlighter
    /**
     * Adds HTML syntax highlighting to a JSON string, or a data array/object.
     *
-    * @param array|object|string $subject A JSON string, or data array/object to convert to JSON to highlight.
+    * @param array<int|string,mixed>|object|string $subject A JSON string, or data array/object to convert to JSON to highlight.
     * @return string
     */
     public static function json($subject) : string
