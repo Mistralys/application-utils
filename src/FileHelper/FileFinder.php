@@ -32,14 +32,17 @@ class FileHelper_FileFinder implements Interface_Optionable
     const PATH_MODE_RELATIVE = 'relative';
     
     const PATH_MODE_STRIP = 'strip';
-    
-   /**
+    const OPTION_INCLUDE_EXTENSIONS = 'include-extensions';
+    const OPTION_EXCLUDE_EXTENSIONS = 'exclude-extensions';
+    const OPTION_PATHMODE = 'pathmode';
+
+    /**
     * @var string
     */
     protected $path;
     
    /**
-    * @var array
+    * @var string[]
     */
     protected $found;
     
@@ -75,9 +78,9 @@ class FileHelper_FileFinder implements Interface_Optionable
         return array(
             'recursive' => false,
             'strip-extensions' => false,
-            'include-extensions' => array(),
-            'exclude-extensions' => array(),
-            'pathmode' => self::PATH_MODE_ABSOLUTE,
+            self::OPTION_INCLUDE_EXTENSIONS => array(),
+            self::OPTION_EXCLUDE_EXTENSIONS => array(),
+            self::OPTION_PATHMODE => self::PATH_MODE_ABSOLUTE,
             'slash-replacement' => null
         );
     }
@@ -110,7 +113,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     */
     public function getIncludeExtensions() : array
     {
-        return $this->getArrayOption('include-extensions');
+        return $this->getArrayOption(self::OPTION_INCLUDE_EXTENSIONS);
     }
     
    /**
@@ -138,7 +141,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     * extensions. If any excluded extensions are specified, they
     * will be ignored.
     * 
-    * @param array $extensions Extension names, without dot (`php` for example).
+    * @param string[] $extensions Extension names, without dot (`php` for example).
     * @return FileHelper_FileFinder
     * @see FileHelper_FileFinder::includeExtension()
     */
@@ -148,7 +151,7 @@ class FileHelper_FileFinder implements Interface_Optionable
         $items = array_merge($items, $extensions);
         $items = array_unique($items);
         
-        $this->setOption('include-extensions', $items);
+        $this->setOption(self::OPTION_INCLUDE_EXTENSIONS, $items);
         return $this;
     }
 
@@ -160,7 +163,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     */
     public function getExcludeExtensions() : array
     {
-        return $this->getArrayOption('exclude-extensions');
+        return $this->getArrayOption(self::OPTION_EXCLUDE_EXTENSIONS);
     }
     
    /**
@@ -179,7 +182,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     * Add several extensions to the list of extensions to
     * exclude from the file search.
     *  
-    * @param array $extensions Extension names, without dot (`php` for example).
+    * @param string[] $extensions Extension names, without dot (`php` for example).
     * @return FileHelper_FileFinder
     * @see FileHelper_FileFinder::excludeExtension()
     */
@@ -189,7 +192,7 @@ class FileHelper_FileFinder implements Interface_Optionable
         $items = array_merge($items, $extensions);
         $items = array_unique($items);
         
-        $this->setOption('exclude-extensions', $items);
+        $this->setOption(self::OPTION_EXCLUDE_EXTENSIONS, $items);
         return $this;
     }
     
@@ -243,10 +246,22 @@ class FileHelper_FileFinder implements Interface_Optionable
     {
         return $this->setOption('slash-replacement', $character);
     }
-    
-    protected function setPathmode($mode) : FileHelper_FileFinder
+
+
+    /**
+     * Sets how paths should be handled in the file names
+     * that are returned.
+     *
+     * @param string $mode
+     * @return FileHelper_FileFinder
+     *
+     * @see FileHelper_FileFinder::PATH_MODE_ABSOLUTE
+     * @see FileHelper_FileFinder::PATH_MODE_RELATIVE
+     * @see FileHelper_FileFinder::PATH_MODE_STRIP
+     */
+    protected function setPathmode(string $mode) : FileHelper_FileFinder
     {
-        return $this->setOption('pathmode', $mode);
+        return $this->setOption(self::OPTION_PATHMODE, $mode);
     }
     
    /**
@@ -359,8 +374,8 @@ class FileHelper_FileFinder implements Interface_Optionable
     */
     protected function filterExclusion(string $extension) : bool
     {
-        $include = $this->getOption('include-extensions');
-        $exclude = $this->getOption('exclude-extensions');
+        $include = $this->getOption(self::OPTION_INCLUDE_EXTENSIONS);
+        $exclude = $this->getOption(self::OPTION_EXCLUDE_EXTENSIONS);
         
         if(!empty($include))
         {
@@ -386,7 +401,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     */
     protected function filterPath(string $path) : string
     {
-        switch($this->getStringOption('pathmode'))
+        switch($this->getStringOption(self::OPTION_PATHMODE))
         {
             case self::PATH_MODE_STRIP:
                 return basename($path);
