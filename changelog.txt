@@ -1,3 +1,7 @@
+v1.7.1
+- NamedClosure: Added array support for the `$origin` parameter.
+
+
 v1.7.0
 - NumberInfo: Added the immutable variant with `parseNumberImmutable()`.
 - NumberInfo: Added `ceilEven()` and `floorEven()`.

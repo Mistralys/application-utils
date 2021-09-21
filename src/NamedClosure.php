@@ -68,17 +68,56 @@ class NamedClosure
     }
 
     /**
+     * Creates a named closure from a native closure. This allows
+     * using private class methods as callbacks.
+     *
+     * Usage example:
+     *
+     * <pre>
+     * class ClosureExample
+     * {
+     *     private function doSomething() : void
+     *     {
+     *         $callback = array($this, 'callbackMethod');
+     *
+     *         $closure = NamedClosure::fromClosure(
+     *              Closure::fromCallable($callback),
+     *              $callback
+     *         );
+     *     }
+     *
+     *     private function callbackMethod() void
+     *     {
+     *
+     *     }
+     * }
+     * </pre>
+     *
      * @param Closure $closure
-     * @param object|string $origin
+     * @param object|string|array $origin Describes the origin of the closure, i.e.
+     *          the owner who created the closure, to easily identify it in
+     *          the logs. Accepts the following types:
+     *          - An object instance will use the class name as description
+     *          - An array will assume it's a callback array, and convert this
+     *          - A string will be used as is.
      * @return NamedClosure
      */
     public static function fromClosure(Closure $closure, $origin) : NamedClosure
     {
-        if(is_object($origin)) {
-            $origin = get_class($origin);
+        if(is_object($origin))
+        {
+            $description = get_class($origin);
+        }
+        else if(is_array($origin))
+        {
+            $description = ConvertHelper::callback2string($origin);
+        }
+        else
+        {
+            $description = $origin;
         }
 
-        return new NamedClosure($closure, $origin);
+        return new NamedClosure($closure, $description);
     }
 
     /**
