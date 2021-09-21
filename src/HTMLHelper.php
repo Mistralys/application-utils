@@ -1,16 +1,39 @@
 <?php
+/**
+ * File containing the class {@see HTMLHelper}.
+ *
+ * @package Application Utils
+ * @subpackage HTMLHelper
+ * @see HTMLHelper
+ */
 
 declare(strict_types=1);
 
 namespace AppUtils;
 
+/**
+ * Helper for common HTML-related tasks.
+ *
+ * @package Application Utils
+ * @subpackage HTMLHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class HTMLHelper
 {
+    /**
+     * Removes all HTML comments from the string.
+     *
+     * @param string $html
+     * @return string
+     */
     public static function stripComments(string $html) : string
     {
         return preg_replace('/<!--(?!<!)[^\[>].*?-->/si', '', $html);
     }
 
+    /**
+     * @var string[]
+     */
     private static $newParaTags = array(
         'ul',
         'ol',
