@@ -143,6 +143,9 @@ class FileHelper_PathsReducer
         return true;
     }
 
+    /**
+     * @return array<int,string[]>
+     */
     private function splitPaths() : array
     {
         $split = array();

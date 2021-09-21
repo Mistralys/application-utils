@@ -74,7 +74,7 @@ class FileHelper_MimeTypes
 
     /**
      * Table with file extension => mime type mappings
-     * @var array
+     * @var array<string|int,string>
      */
     protected static $mimeTypes = array(
         '323' => 'text/h323',
