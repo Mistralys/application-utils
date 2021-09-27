@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use Throwable;
+
 /**
  * Operation result container: can be used to store 
  * details on the results of an operation, and its
@@ -246,5 +248,33 @@ class OperationResult
         }
         
         return $this->message;
+    }
+
+    /**
+     * Marks the result as an error using the exception
+     * to automatically create the error message.
+     *
+     * @param Throwable $e
+     * @param int $code Optional code to use instead of inheriting the exception's code.
+     * @param bool $withDeveloperInfo Whether to add exception developer information to the error message.
+     * @return $this
+     *
+     * @see ConvertHelper_ThrowableInfo::renderErrorMessage()
+     *
+     * @throws ConvertHelper_Exception
+     */
+    public function makeException(Throwable $e, int $code=0, bool $withDeveloperInfo=false) : OperationResult
+    {
+        $info = parseThrowable($e);
+
+        if($code === 0)
+        {
+            $code = $info->getCode();
+        }
+
+        return $this->makeError(
+            $info->renderErrorMessage($withDeveloperInfo),
+            $code
+        );
     }
 }
