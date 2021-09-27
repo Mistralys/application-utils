@@ -294,12 +294,25 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     }
     
    /**
-    * Retrieves all function calls that led to the error.
+    * Retrieves all function calls that led to the error,
+    * ordered from latest to earliest (the first one in
+    * the stack is actually the last call).
+    *
     * @return ConvertHelper_ThrowableInfo_Call[]
     */
     public function getCalls()
     {
         return $this->calls;
+    }
+
+    /**
+     * Retrieves the last call that led to the error.
+     *
+     * @return ConvertHelper_ThrowableInfo_Call
+     */
+    public function getFinalCall() : ConvertHelper_ThrowableInfo_Call
+    {
+        return $this->calls[0];
     }
     
    /**
@@ -378,6 +391,86 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
         $this->calls = array_reverse($this->calls, false);
         
         $this->callsCount = count($this->calls);
+    }
+
+    /**
+     * Retrieves the class name of the exception.
+     *
+     * @return string
+     */
+    public function getClass() : string
+    {
+        return get_class($this->exception);
+    }
+
+    /**
+     * Converts the exception's information into a human-
+     * readable string containing the exception's essentials.
+     *
+     * It includes any previous exceptions as well, recursively.
+     *
+     * @param bool $withDeveloperInfo Whether to include developer-specific info
+     *                                when available (which may include sensitive
+     *                                information).
+     * @return string
+     * @throws ConvertHelper_Exception
+     */
+    public function renderErrorMessage(bool $withDeveloperInfo=false) : string
+    {
+        $finalCall = $this->getFinalCall();
+
+        $message = sb()
+            ->t('A %1$s exception occurred.', $this->getClass())
+            ->eol()
+            ->t('Code:')
+            ->add($this->getCode())
+            ->t('Message:')
+            ->add($this->getMessage());
+
+        if($withDeveloperInfo)
+        {
+            $message
+            ->eol()
+            ->t('Final call:')
+            ->add($finalCall->toString());
+        }
+
+        if($withDeveloperInfo && $this->hasDetails())
+        {
+            $message
+                ->t('Developer details:')
+                ->eol()
+                ->add($this->getDetails());
+        }
+
+        $previous = $this->getPrevious();
+
+        if($previous !== null)
+        {
+            $message
+                ->eol()
+                ->eol()
+                ->t('Previous exception:')
+                ->eol()
+                ->add($previous->renderErrorMessage($withDeveloperInfo));
+        }
+
+        return (string)$message;
+    }
+
+    public function getDetails() : string
+    {
+        if($this->exception instanceof BaseException)
+        {
+            return $this->exception->getDetails();
+        }
+
+        return '';
+    }
+
+    public function hasDetails() : bool
+    {
+        return $this->exception instanceof BaseException;
     }
     
     public function __toString()
