@@ -34,14 +34,79 @@ class RGBAColor_Converter
      */
     public static function color2HEX(RGBAColor $color) : string
     {
-        $hex =
-            self::int2hex($color->getRed()).
-            self::int2hex($color->getGreen()).
-            self::int2hex($color->getBlue());
+        return self::array2hex($color->toArray());
+    }
 
-        if($color->hasTransparency())
+    /**
+     * Checks if the array is a valid color array with
+     * all expected color keys present. The `alpha` key
+     * is optional. If it's not valid, throws an exception.
+     *
+     * @param array $color
+     * @throws RGBAColor_Exception
+     * @see RGBAColor::ERROR_INVALID_COLOR_ARRAY
+     */
+    public static function requireValidColorArray(array $color) : void
+    {
+        if(self::isColorArray($color))
         {
-            $hex .= self::int2hex($color->getAlpha());
+            return;
+        }
+
+        throw new RGBAColor_Exception(
+            'Not a valid color array.',
+            sprintf(
+                'The color array is in the wrong format, or is missing required keys. '.
+                'Given: '.PHP_EOL.
+                '%s',
+                parseVariable($color)->toString()
+            ),
+            RGBAColor::ERROR_INVALID_COLOR_ARRAY
+        );
+    }
+
+    /**
+     * Checks whether the specified array contains all required
+     * color keys.
+     *
+     * @param array $color
+     * @return bool
+     */
+    public static function isColorArray(array $color) : bool
+    {
+        $keys = array(
+            RGBAColor::COMPONENT_RED,
+            RGBAColor::COMPONENT_GREEN,
+            RGBAColor::COMPONENT_BLUE
+        );
+
+        foreach($keys as $key)
+        {
+            if(!isset($color[$key]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array{red:int,green:int,blue:int,alpha:int} $color
+     * @return string
+     */
+    public static function array2hex(array $color) : string
+    {
+        self::requireValidColorArray($color);
+
+        $hex =
+            self::int2hex($color[RGBAColor::COMPONENT_RED]).
+            self::int2hex($color[RGBAColor::COMPONENT_GREEN]).
+            self::int2hex($color[RGBAColor::COMPONENT_BLUE]);
+
+        if(isset($color[RGBAColor::COMPONENT_ALPHA]) && $color[RGBAColor::COMPONENT_ALPHA] < 255)
+        {
+            $hex .= self::int2hex($color[RGBAColor::COMPONENT_ALPHA]);
         }
 
         return strtoupper($hex);
