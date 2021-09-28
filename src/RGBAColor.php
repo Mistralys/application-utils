@@ -28,6 +28,7 @@ use ArrayAccess;
  * @package Application Utils
  * @subpackage RGBAColor
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ * @implements ArrayAccess<string,float>
  */
 class RGBAColor implements ArrayAccess, Interface_Stringable
 {
@@ -38,6 +39,7 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     const ERROR_INVALID_HEX_LENGTH = 93505;
     const ERROR_INVALID_AMOUNT_COLOR_KEYS = 93506;
     const ERROR_UNKNOWN_COLOR_PRESET = 93507;
+    const ERROR_INVALID_COLOR_ARRAY = 93508;
 
     const COMPONENT_RED = 'red';
     const COMPONENT_GREEN = 'green';
@@ -237,10 +239,27 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
      * is an alpha channel value.
      *
      * @return string
+     * @throws RGBAColor_Exception
      */
     public function toHEX() : string
     {
         return RGBAColor_Converter::color2HEX($this);
+    }
+
+    /**
+     * Converts the color to a color array.
+     *
+     * @return array{red:int,green:int,blue:int,alpha:int}
+     * @throws RGBAColor_Exception
+     */
+    public function toArray() : array
+    {
+        return array(
+            self::COMPONENT_RED => $this->getRed(),
+            self::COMPONENT_GREEN => $this->getBlue(),
+            self::COMPONENT_BLUE => $this->getBlue(),
+            self::COMPONENT_ALPHA => $this->getAlpha()
+        );
     }
 
     /**
