@@ -54,7 +54,7 @@ class RGBAColor_Factory
      * - An existing `RGBAColor` instance (is returned as-is)
      * - A color array with color keys (`red`, `green`, `blue`, `alpha`)
      *
-     * @param array<string,int>|RGBAColor $subject
+     * @param array<string,int>|RGBAColor|string|mixed $subject
      * @return RGBAColor
      * @throws RGBAColor_Exception
      */
@@ -67,12 +67,17 @@ class RGBAColor_Factory
 
         if(is_array($subject))
         {
-            if(isset($subject[RGBAColor::COMPONENT_RED]))
+            if(RGBAColor_Converter::isColorArray($subject))
             {
                 return self::createFromColor($subject);
             }
 
             return self::createFromIndexedColor($subject);
+        }
+
+        if(is_string($subject))
+        {
+            return self::createFromHEX($subject);
         }
 
         throw new RGBAColor_Exception(
