@@ -242,4 +242,75 @@ final class RGBAColorTests extends TestCase
         $this->assertEquals(0, $opaque->getTransparency());
         $this->assertEquals(100, $opaque->getOpacity());
     }
+
+    public function test_createAuto_colorArray() : void
+    {
+        $color = RGBAColor_Factory::createAuto(array(
+            RGBAColor::COMPONENT_RED => self::RED_INTEGER,
+            RGBAColor::COMPONENT_GREEN => self::GREEN_INTEGER,
+            RGBAColor::COMPONENT_BLUE => self::BLUE_INTEGER
+        ));
+
+        $this->assertSame(self::RED_INTEGER, $color->getRed());
+        $this->assertSame(self::GREEN_INTEGER, $color->getGreen());
+        $this->assertSame(self::BLUE_INTEGER, $color->getBlue());
+    }
+
+    public function test_createAuto_indexedColorArray() : void
+    {
+        $color = RGBAColor_Factory::createAuto(array(
+            self::RED_INTEGER,
+            self::GREEN_INTEGER,
+            self::BLUE_INTEGER
+        ));
+
+        $this->assertSame(self::RED_INTEGER, $color->getRed());
+        $this->assertSame(self::GREEN_INTEGER, $color->getGreen());
+        $this->assertSame(self::BLUE_INTEGER, $color->getBlue());
+    }
+
+    public function test_createAuto_hexString() : void
+    {
+        $hex = RGBAColor_Converter::array2hex(array(
+            RGBAColor::COMPONENT_RED => self::RED_INTEGER,
+            RGBAColor::COMPONENT_GREEN => self::GREEN_INTEGER,
+            RGBAColor::COMPONENT_BLUE => self::BLUE_INTEGER
+        ));
+
+        $color = RGBAColor_Factory::createAuto($hex);
+
+        $this->assertSame(self::RED_INTEGER, $color->getRed());
+        $this->assertSame(self::GREEN_INTEGER, $color->getGreen());
+        $this->assertSame(self::BLUE_INTEGER, $color->getBlue());
+    }
+
+    public function test_isValidColorArray() : void
+    {
+        $this->assertFalse(RGBAColor_Converter::isColorArray(array()));
+
+        $this->assertFalse(RGBAColor_Converter::isColorArray(array(
+            RGBAColor::COMPONENT_RED => self::RED_INTEGER,
+            RGBAColor::COMPONENT_GREEN => self::GREEN_INTEGER
+        )));
+
+        $this->assertTrue(RGBAColor_Converter::isColorArray(array(
+            RGBAColor::COMPONENT_RED => self::RED_INTEGER,
+            RGBAColor::COMPONENT_GREEN => self::GREEN_INTEGER,
+            RGBAColor::COMPONENT_BLUE => self::BLUE_INTEGER
+        )));
+
+        $this->assertTrue(RGBAColor_Converter::isColorArray(array(
+            RGBAColor::COMPONENT_RED => self::RED_INTEGER,
+            RGBAColor::COMPONENT_GREEN => self::GREEN_INTEGER,
+            RGBAColor::COMPONENT_BLUE => self::BLUE_INTEGER,
+            RGBAColor::COMPONENT_ALPHA => self::ALPHA_INTEGER
+        )));
+    }
+
+    public function test_requireValidColorArray() : void
+    {
+        $this->expectExceptionCode(RGBAColor::ERROR_INVALID_COLOR_ARRAY);
+
+        RGBAColor_Converter::requireValidColorArray(array());
+    }
 }
