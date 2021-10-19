@@ -12,8 +12,8 @@ declare(strict_types=1);
 namespace AppUtils;
 
 /**
- * Static class with utility methods to handle filtering 
- * an URL string, by removing any unwanted special characters 
+ * Static class with utility methods to handle filtering
+ * an URL string, by removing any unwanted special characters
  * and the like.
  *
  * @package Application Utils
@@ -29,7 +29,8 @@ class URLInfo_Filter
 
         // In the case of tel URLs, we convert the syntax to use double
         // slashes to make them parsable.
-        if(strstr($url, 'tel:') !== false && strstr($url, 'tel://') === false) {
+        if (strstr($url, 'tel:') !== false && strstr($url, 'tel://') === false)
+        {
             $url = str_replace('tel:', 'tel://', $url);
         }
 
@@ -37,16 +38,16 @@ class URLInfo_Filter
         // may be copied when copy+pasting from word or pdf documents
         // for example.
         $url = \AppUtils\ConvertHelper::stripControlCharacters($url);
-        
+
         // fix the pesky unicode hyphen that looks like a regular hyphen,
         // but isn't and can cause all sorts of problems
         $url = str_replace('‐', '-', $url);
-        
-        // remove newlines and tabs
-        $url = str_replace(array("\n", "\r", "\t"), '', $url);
-        
+
+        // remove url encoded and characters of newlines and tabs
+        $url = str_replace(array("\n", "\r", "\t", '%0D', '%0A', '%09'), '', $url);
+
         $url = trim($url);
-        
+
         return $url;
     }
 }
