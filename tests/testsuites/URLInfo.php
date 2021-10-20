@@ -30,6 +30,18 @@ final class URLInfoTest extends TestCase
                 'normalized' => ''
             ),
             array(
+                'label' => 'Whitespace string with newlines as encoded url',
+                'url' => "    %0D    %0A   %09    ",
+                'valid' => false,
+                'normalized' => ''
+            ),
+            array(
+                'label' => 'Whitespace string with newlines as encoded url and normal characters',
+                'url' => "    \n    \r   \t    %0D    %0A   %09    ",
+                'valid' => false,
+                'normalized' => ''
+            ),
+            array(
                 'label' => 'Random non-URL string',
                 'url' => 'Foo and bar jump over the fox',
                 'valid' => false,
