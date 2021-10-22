@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use PHPUnit\Framework\TestCase;
 use AppUtils\ConvertHelper_ThrowableInfo;
 use function AppUtils\parseThrowable;
@@ -62,9 +64,6 @@ final class ThrowableInfoTest extends TestCase
             $serialized = $info->serialize();
             $string = $info->toString();
             
-            $save = json_encode($serialized);
-            $load = json_decode($save, true);
-            
             $restored = restoreThrowable($serialized);
             
             $this->assertEquals('Test message', $restored->getMessage());
@@ -72,6 +71,28 @@ final class ThrowableInfoTest extends TestCase
             $this->assertEquals(ConvertHelper_ThrowableInfo::CONTEXT_COMMAND_LINE, $restored->getContext());
             $this->assertSame('', $restored->getReferer());
             $this->assertEquals($string, $restored->toString());
+        }
+    }
+
+    public function test_invalidSerializedData() : void
+    {
+        try
+        {
+            throw new Exception(
+                'Test message',
+                12345
+            );
+        }
+        catch(Exception $e)
+        {
+            $info = parseThrowable($e);
+            $serialized = $info->serialize();
+
+            $serialized[ConvertHelper_ThrowableInfo::SERIALIZED_CODE] = 'string code';
+
+            $this->expectExceptionCode(ConvertHelper_ThrowableInfo::ERROR_INVALID_SERIALIZED_DATA_TYPE);
+
+            restoreThrowable($serialized);
         }
     }
 }
