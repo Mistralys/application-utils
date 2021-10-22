@@ -19,16 +19,6 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     const CONTEXT_COMMAND_LINE = 'cli';
     const CONTEXT_WEB = 'web';
 
-    const SERIALIZED_CODE = 'code';
-    const SERIALIZED_MESSAGE = 'message';
-    const SERIALIZED_REFERER = 'referer';
-    const SERIALIZED_CONTEXT = 'context';
-    const SERIALIZED_AMOUNT_CALLS = 'amountCalls';
-    const SERIALIZED_DATE = 'date';
-    const SERIALIZED_PREVIOUS = 'previous';
-    const SERIALIZED_CALLS = 'calls';
-    const SERIALIZED_OPTIONS = 'options';
-
     /**
     * @var Throwable
     */
@@ -75,7 +65,18 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     protected $context = self::CONTEXT_WEB;
 
     /**
+     * @var string
+     */
+    private $class = '';
+
+    /**
+     * @var string
+     */
+    private $details = '';
+
+    /**
      * @param array<string,mixed>|Throwable $subject
+     * @throws Exception
      */
     protected function __construct($subject)
     {
@@ -97,10 +98,11 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     /**
      * @param array<string,mixed> $serialized
      * @return ConvertHelper_ThrowableInfo
+     * @throws ConvertHelper_Exception
      */
     public static function fromSerialized(array $serialized) : ConvertHelper_ThrowableInfo
     {
-        return new ConvertHelper_ThrowableInfo($serialized);
+        return new ConvertHelper_ThrowableInfo(ConvertHelper_ThrowableInfo_Serializer::unserialize($serialized));
     }
     
     public function getCode() : int
@@ -158,29 +160,8 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     */
     public function toString() : string
     {
-        $calls = $this->getCalls();
-        
-        $string = 'Exception';
-        
-        if($this->hasCode()) {
-            $string .= ' #'.$this->code;
-        }
-        
-        $string .= ': '.$this->getMessage().PHP_EOL;
-        
-        foreach($calls as $call) 
-        {
-            $string .= $call->toString().PHP_EOL;
-        }
-        
-        if($this->hasPrevious())
-        {
-            $string .= PHP_EOL.PHP_EOL.
-            'Previous error:'.PHP_EOL.PHP_EOL.
-            $this->previous->toString();
-        }
-        
-        return $string;
+        return (new ConvertHelper_ThrowableInfo_StringConverter($this))
+            ->toString();
     }
     
    /**
@@ -240,40 +221,20 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     {
         return $this->date;
     }
-    
-   /**
-    * Serializes all information on the exception to an
-    * associative array. This can be saved (file, database, 
-    * session...), and later be restored into a throwable
-    * info instance using the fromSerialized() method.
-    * 
-    * @return array<string,mixed>
-    * @see ConvertHelper_ThrowableInfo::fromSerialized()
-    */
+
+    /**
+     * Serializes all information on the exception to an
+     * associative array. This can be saved (file, database,
+     * session...), and later be restored into a throwable
+     * info instance using the fromSerialized() method.
+     *
+     * @return array<string,mixed>
+     * @throws ConvertHelper_Exception
+     * @see ConvertHelper_ThrowableInfo::fromSerialized()
+     */
     public function serialize() : array
     {
-        $result = array(
-            self::SERIALIZED_MESSAGE => $this->getMessage(),
-            self::SERIALIZED_CODE => $this->getCode(),
-            self::SERIALIZED_DATE => $this->date->getISODate(),
-            self::SERIALIZED_REFERER => $this->getReferer(),
-            self::SERIALIZED_CONTEXT => $this->getContext(),
-            self::SERIALIZED_AMOUNT_CALLS => $this->callsCount,
-            self::SERIALIZED_OPTIONS => $this->getOptions(),
-            self::SERIALIZED_CALLS => array(),
-            self::SERIALIZED_PREVIOUS => null,
-        );
-        
-        if($this->hasPrevious()) {
-            $result[self::SERIALIZED_PREVIOUS] =  $this->previous->serialize();
-        }
-        
-        foreach($this->calls as $call)
-        {
-            $result[self::SERIALIZED_CALLS][] = $call->serialize();
-        }
-        
-        return $result;
+        return ConvertHelper_ThrowableInfo_Serializer::serialize($this);
     }
 
    /**
@@ -340,25 +301,21 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
      * @param array<string,mixed> $serialized
      * @throws Exception
      */
-    protected function parseSerialized(array $serialized) : void
+    private function parseSerialized(array $serialized) : void
     {
-        $this->validateSerializedData($serialized);
+        $this->date = new Microtime($serialized[ConvertHelper_ThrowableInfo_Serializer::SERIALIZED_DATE]);
+        $this->class = $serialized[ConvertHelper_ThrowableInfo_Serializer::SERIALIZED_CLASS];
+        $this->details = $serialized[ConvertHelper_ThrowableInfo_Serializer::SERIALIZED_DETAILS];
+        $this->code = $serialized[ConvertHelper_ThrowableInfo_Serializer::SERIALIZED_CODE];
+        $this->message = $serialized[ConvertHelper_ThrowableInfo_Serializer::SERIALIZED_MESSAGE];
+        $this->referer = $serialized[ConvertHelper_ThrowableInfo_Serializer::SERIALIZED_REFERER];
+        $this->context = $serialized[ConvertHelper_ThrowableInfo_Serializer::SERIALIZED_CONTEXT];
+        $this->callsCount = $serialized[ConvertHelper_ThrowableInfo_Serializer::SERIALIZED_AMOUNT_CALLS];
+        $this->previous = $serialized[ConvertHelper_ThrowableInfo_Serializer::SERIALIZED_PREVIOUS];
 
-        $this->date = new Microtime($serialized[self::SERIALIZED_DATE]);
-        $this->code = $serialized[self::SERIALIZED_CODE];
-        $this->message = $serialized[self::SERIALIZED_MESSAGE];
-        $this->referer = $serialized[self::SERIALIZED_REFERER];
-        $this->context = $serialized[self::SERIALIZED_CONTEXT];
-        $this->callsCount = $serialized[self::SERIALIZED_AMOUNT_CALLS];
+        $this->setOptions($serialized[ConvertHelper_ThrowableInfo_Serializer::SERIALIZED_OPTIONS]);
         
-        $this->setOptions($serialized[self::SERIALIZED_OPTIONS]);
-        
-        if(!empty($serialized[self::SERIALIZED_PREVIOUS]))
-        {
-            $this->previous = ConvertHelper_ThrowableInfo::fromSerialized($serialized[self::SERIALIZED_PREVIOUS]);
-        }
-        
-        foreach($serialized[self::SERIALIZED_CALLS] as $def)
+        foreach($serialized[ConvertHelper_ThrowableInfo_Serializer::SERIALIZED_CALLS] as $def)
         {
             $this->calls[] = ConvertHelper_ThrowableInfo_Call::fromSerialized($this, $def);
         }
@@ -367,53 +324,17 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     protected function parseException(Throwable $e) : void
     {
         $this->date = new Microtime();
-        $this->message = $e->getMessage();
+        $this->class = get_class($e);
 
-        $code = $e->getCode();
-
-        if(is_integer($code))
+        if($e instanceof BaseException)
         {
-            $this->code = $code;
-        }
-        else
-        {
-            $this->message = 'Original error code: ['.$code.']. ';
+            $this->details = $e->getDetails();
         }
 
-        if(!isset($_REQUEST['REQUEST_URI'])) {
-            $this->context = self::CONTEXT_COMMAND_LINE;
-        }
-        
-        $previous = $e->getPrevious();
-        if(!empty($previous)) {
-            $this->previous = ConvertHelper::throwable2info($previous);
-        }
-        
-        if(isset($_SERVER['REQUEST_URI'])) {
-            $this->referer = $_SERVER['REQUEST_URI'];
-        }
-        
-        $trace = $e->getTrace();
-        
-        // add the origin file as entry
-        array_unshift($trace, array(
-            'file' => $e->getFile(),
-            'line' => $e->getLine()
-        ));
-        
-        $idx = 1;
-        
-        foreach($trace as $entry)
-        {
-            $this->calls[] = ConvertHelper_ThrowableInfo_Call::fromTrace($this, $idx, $entry);
-            
-            $idx++;
-        }
-        
-        // we want the last function call first
-        $this->calls = array_reverse($this->calls, false);
-        
-        $this->callsCount = count($this->calls);
+        $this->parseMessage($e);
+        $this->parsePrevious($e);
+        $this->parseContext();
+        $this->parseTrace($e);
     }
 
     /**
@@ -423,7 +344,7 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
      */
     public function getClass() : string
     {
-        return get_class($this->exception);
+        return $this->class;
     }
 
     /**
@@ -440,60 +361,18 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
      */
     public function renderErrorMessage(bool $withDeveloperInfo=false) : string
     {
-        $finalCall = $this->getFinalCall();
-
-        $message = sb()
-            ->t('A %1$s exception occurred.', $this->getClass())
-            ->eol()
-            ->t('Code:')
-            ->add($this->getCode())
-            ->t('Message:')
-            ->add($this->getMessage());
-
-        if($withDeveloperInfo)
-        {
-            $message
-            ->eol()
-            ->t('Final call:')
-            ->add($finalCall->toString());
-        }
-
-        if($withDeveloperInfo && $this->hasDetails())
-        {
-            $message
-                ->t('Developer details:')
-                ->eol()
-                ->add($this->getDetails());
-        }
-
-        $previous = $this->getPrevious();
-
-        if($previous !== null)
-        {
-            $message
-                ->eol()
-                ->eol()
-                ->t('Previous exception:')
-                ->eol()
-                ->add($previous->renderErrorMessage($withDeveloperInfo));
-        }
-
-        return (string)$message;
+        return (new ConvertHelper_ThrowableInfo_MessageRenderer($this, $withDeveloperInfo))
+            ->render();
     }
 
     public function getDetails() : string
     {
-        if($this->exception instanceof BaseException)
-        {
-            return $this->exception->getDetails();
-        }
-
-        return '';
+        return $this->details;
     }
 
     public function hasDetails() : bool
     {
-        return $this->exception instanceof BaseException;
+        return !empty($this->details);
     }
     
     public function __toString()
@@ -501,38 +380,75 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
         return $this->toString();
     }
 
-    private function validateSerializedData(array $serialized)
+    /**
+     * @param Throwable $e
+     */
+    private function parseTrace(Throwable $e) : void
     {
-        $keys = array(
-            self::SERIALIZED_CODE => 'integer',
-            self::SERIALIZED_MESSAGE => 'string',
-            self::SERIALIZED_DATE => 'string',
-            self::SERIALIZED_REFERER => 'string',
-            self::SERIALIZED_CONTEXT => 'string',
-            self::SERIALIZED_AMOUNT_CALLS => 'integer',
-            self::SERIALIZED_OPTIONS => 'array',
-            self::SERIALIZED_CALLS => 'array'
-        );
+        $trace = $e->getTrace();
 
-        foreach($keys as $key => $type)
+        // add the origin file as entry
+        array_unshift($trace, array(
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ));
+
+        $idx = 1;
+
+        foreach ($trace as $entry)
         {
-            if(!isset($serialized[$key]) || gettype($serialized[$key]) !== $type)
-            {
-                throw $this->createTypeException($key, $type);
-            }
+            $this->calls[] = ConvertHelper_ThrowableInfo_Call::fromTrace($this, $idx, $entry);
+
+            $idx++;
+        }
+
+        // we want the last function call first
+        $this->calls = array_reverse($this->calls, false);
+
+        $this->callsCount = count($this->calls);
+    }
+
+    private function parseContext() : void
+    {
+        if (!isset($_REQUEST['REQUEST_URI']))
+        {
+            $this->context = self::CONTEXT_COMMAND_LINE;
+        }
+
+        if (isset($_SERVER['REQUEST_URI']))
+        {
+            $this->referer = $_SERVER['REQUEST_URI'];
         }
     }
 
-    private function createTypeException(string $keyName, string  $expectedType) : ConvertHelper_Exception
+    /**
+     * @param Throwable $e
+     */
+    private function parseMessage(Throwable $e) : void
     {
-        return new ConvertHelper_Exception(
-            'Invalid serialized throwable key',
-            sprintf(
-                'The key [%s] does not have the expected data type [%s].',
-                $keyName,
-                $expectedType
-            ),
-            self::ERROR_INVALID_SERIALIZED_DATA_TYPE
-        );
+        $code = $e->getCode();
+        $this->message = $e->getMessage();
+
+        if (is_integer($code))
+        {
+            $this->code = $code;
+        }
+        else
+        {
+            $this->message = 'Original error code: [' . $code . ']. ' . $this->message;
+        }
+    }
+
+    /**
+     * @param Throwable $e
+     */
+    protected function parsePrevious(Throwable $e) : void
+    {
+        $previous = $e->getPrevious();
+
+        if (!empty($previous))
+        {
+            $this->previous = ConvertHelper::throwable2info($previous);
+        }
     }
 }
