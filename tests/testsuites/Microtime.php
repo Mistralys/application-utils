@@ -39,6 +39,52 @@ final class MicrotimeTest extends TestCase
         $vanilla = new DateTime();
         $micro = new Microtime();
 
+        $this->assertSame($vanilla->getTimezone()->getName(), $micro->getTimezone()->getName());
         $this->assertSame($vanilla->format('Y-m-d H:i:s'), $micro->format('Y-m-d H:i:s'));
+    }
+
+    public function test_createNow() : void
+    {
+        $now = Microtime::createNow();
+
+        $this->assertInstanceOf(Microtime::class, $now);
+    }
+
+    public function test_createFromMicrotime() : void
+    {
+        $micro = Microtime::createFromString('1975-02-07 14:45:12.5555');
+
+        $new = Microtime::createFromMicrotime($micro);
+
+        $this->assertNotSame($micro, $new);
+        $this->assertEquals(1975, $new->getYear());
+        $this->assertEquals(555500, $new->getMicroseconds());
+    }
+
+    public function test_createFromDateTime() : void
+    {
+        $date = new DateTime('1975-02-07 14:45:12.5555');
+
+        $micro = Microtime::createFromDate($date);
+
+        $this->assertEquals(1975, $micro->getYear());
+        $this->assertEquals(555500, $micro->getMicroseconds());
+    }
+
+    public function test_timeMethods() : void
+    {
+        $date = Microtime::createFromString('1975-02-07 14:45:12.5555');
+
+        $this->assertSame('pm', $date->getMeridiem());
+        $this->assertTrue($date->isPM());
+        $this->assertFalse($date->isAM());
+        $this->assertSame(1975, $date->getYear());
+        $this->assertSame(2, $date->getMonth());
+        $this->assertSame(7, $date->getDay());
+        $this->assertSame(14, $date->getHour24());
+        $this->assertSame(2, $date->getHour12());
+        $this->assertSame(45, $date->getMinutes());
+        $this->assertSame(12, $date->getSeconds());
+        $this->assertSame(555500, $date->getMicroseconds());
     }
 }
