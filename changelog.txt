@@ -1,5 +1,7 @@
 v1.8.1
 - ThrowableInfo: Added support for string-based codes.
+- ThrowableInfo: Added serialized data validation.
+- ThrowableInfo: Added Microtime support.
 
 v1.8.0
 - RGBAColor: Added the new color information handling tool.
