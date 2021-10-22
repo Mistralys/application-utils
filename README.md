@@ -98,6 +98,7 @@ ConvertHelper for example have many static methods not shown here.
     - [PathsReducer][]: Reduce a list of absolute paths to a common root. 
 * ImageHelper: Image manipulation using native GD functions with alpha support.
 * [IniHelper][]: INI file reader and editor.
+* [Microtime][]: `DateTime` class with microseconds support and friendly methods interface.
 * [NamedClosure][]: Wrapper for closures with the possibility to add a description.  
 * [NumberInfo][]: Access and modify numbers with or without units.
 * [OperationResult][]: Drop-in class to store the status of the result of any operation.
@@ -163,3 +164,4 @@ and being modernized.
 [VariableInfo]: https://github.com/Mistralys/application-utils/wiki/VariableInfo
 [URLFinder]: https://github.com/Mistralys/application-utils/wiki/URLFinder
 [OutputBuffering]: https://github.com/Mistralys/application-utils/wiki/OutputBuffering
+[Microtime]: https://github.com/Mistralys/application-utils/wiki/Microtime
