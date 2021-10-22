@@ -102,7 +102,7 @@ class Microtime extends DateTime implements Interface_Stringable
      * If you already know what type of date to create, use the `createXXX()`
      * methods instead, which perform slightly better.
      *
-     * @param string|DateTime|Microtime|Microtime_ParseResult $datetime
+     * @param string|DateTime|Microtime|Microtime_ParseResult|mixed $datetime
      * @param DateTimeZone|null $timeZone
      * @throws Microtime_Exception
      *
@@ -143,7 +143,7 @@ class Microtime extends DateTime implements Interface_Stringable
     }
 
     /**
-     * @param string|DateTime|Microtime $datetime
+     * @param string|DateTime|Microtime|mixed $datetime
      * @param DateTimeZone|null $timeZone
      * @return Microtime_ParseResult
      * @throws Microtime_Exception
