@@ -3,6 +3,8 @@ v1.8.1
 - ThrowableInfo: Added support for string-based codes.
 - ThrowableInfo: Added serialized data validation.
 - ThrowableInfo: Added Microtime support.
+- ThrowableInfo: Split some parts into subclasses for maintainability.
+- ThrowableInfo: Fixed accessing and persisting exception class name and details.
 - Microtime: Added `createNow()`.
 - Microtime: Added `createFromDate()`.
 - Microtime: Added `createFromMicrotime()`.
