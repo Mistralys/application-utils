@@ -139,10 +139,10 @@ class OperationResult
     }
     
    /**
-    * Makes the result a succes, with the specified message.
+    * Makes the result a success, with the specified message.
     * 
     * @param string $message Should not contain a date, just the system specific info.
-    * @return OperationResult
+    * @return $this
     */
     public function makeSuccess(string $message, int $code=0) : OperationResult
     {
@@ -153,23 +153,40 @@ class OperationResult
     * Sets the result as an error.
     * 
     * @param string $message Should be as detailed as possible.
-    * @return OperationResult
+    * @return $this
     */
     public function makeError(string $message, int $code=0) : OperationResult
     {
         return $this->setMessage(self::TYPE_ERROR, $message, $code, false);
     }
-    
+
+    /**
+     * @param string $message
+     * @param int $code
+     * @return $this
+     */
     public function makeNotice(string $message, int $code) : OperationResult
     {
         return $this->setMessage(self::TYPE_NOTICE, $message, $code, true);
     }
-    
+
+    /**
+     * @param string $message
+     * @param int $code
+     * @return $this
+     */
     public function makeWarning(string $message, int $code) : OperationResult
     {
         return $this->setMessage(self::TYPE_WARNING, $message, $code, true);
     }
-    
+
+    /**
+     * @param string $type
+     * @param string $message
+     * @param int $code
+     * @param bool $valid
+     * @return $this
+     */
     protected function setMessage(string $type, string $message, int $code, bool $valid) : OperationResult
     {
         $this->type = $type;

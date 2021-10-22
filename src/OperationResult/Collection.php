@@ -30,27 +30,53 @@ class OperationResult_Collection extends OperationResult
     * @var OperationResult[]
     */
     protected $results = array();
-    
+
+    /**
+     * @param string $message
+     * @param int $code
+     * @return $this
+     */
     public function makeError(string $message, int $code=0) : OperationResult
     {
         return $this->add('makeError', $message, $code);
     }
-    
+
+    /**
+     * @param string $message
+     * @param int $code
+     * @return $this
+     */
     public function makeSuccess(string $message, int $code=0) : OperationResult
     {
         return $this->add('makeSuccess', $message, $code);
     }
 
+    /**
+     * @param string $message
+     * @param int $code
+     * @return $this
+     */
     public function makeWarning(string $message, int $code=0) : OperationResult
     {
         return $this->add('makeWarning', $message, $code);
     }
-    
+
+    /**
+     * @param string $message
+     * @param int $code
+     * @return $this
+     */
     public function makeNotice(string $message, int $code=0) : OperationResult
     {
         return $this->add('makeNotice', $message, $code);
     }
-    
+
+    /**
+     * @param string $method
+     * @param string $message
+     * @param int $code
+     * @return $this
+     */
     protected function add(string $method, string $message, int $code=0) : OperationResult
     {
         $result = new OperationResult($this->subject);
@@ -60,7 +86,13 @@ class OperationResult_Collection extends OperationResult
         
         return $this;
     }
-    
+
+    /**
+     * Adds a result to the collection.
+     *
+     * @param OperationResult $result
+     * @return $this
+     */
     public function addResult(OperationResult $result) : OperationResult_Collection
     {
         if($result instanceof OperationResult_Collection)
@@ -72,7 +104,13 @@ class OperationResult_Collection extends OperationResult
         
         return $this;
     }
-    
+
+    /**
+     * Merges the target collection's results with this collection.
+     *
+     * @param OperationResult_Collection $collection
+     * @return $this
+     */
     private function importCollection(OperationResult_Collection $collection) : OperationResult_Collection
     {
         $results = $collection->getResults();
