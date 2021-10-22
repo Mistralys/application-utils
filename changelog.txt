@@ -1,12 +1,10 @@
-v1.8.1
-- URLInfo: Added filtering of URL-Encoded newlines and tabs.
-
 v1.8.0
 - RGBAColor: Added the new color information handling tool.
 - ThrowableInfo: Added `getFinalCall()` for information on the most recent call.
 - ThrowableInfo: Added `hasDetails()` and `getDetails()`.
 - ThrowableInfo: Added `renderErrorMessage()` for a human-readable error message.
 - OperationResult: Added `makeException()` to use an exception as error message.
+- URLInfo: Added filtering of URL-Encoded newlines and tabs.
 
 v1.7.1
 - NamedClosure: Added array support for the `$origin` parameter.
