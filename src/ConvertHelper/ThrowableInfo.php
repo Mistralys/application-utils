@@ -42,7 +42,7 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
    /**
     * @var integer
     */
-    protected $code;
+    protected $code = 0;
     
    /**
     * @var string
@@ -368,8 +368,18 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     {
         $this->date = new Microtime();
         $this->message = $e->getMessage();
-        $this->code = $e->getCode();
-        
+
+        $code = $e->getCode();
+
+        if(is_integer($code))
+        {
+            $this->code = $code;
+        }
+        else
+        {
+            $this->message = 'Original error code: ['.$code.']. ';
+        }
+
         if(!isset($_REQUEST['REQUEST_URI'])) {
             $this->context = self::CONTEXT_COMMAND_LINE;
         }
