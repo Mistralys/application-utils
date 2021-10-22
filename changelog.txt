@@ -1,3 +1,6 @@
+v1.8.1
+- ThrowableInfo: Added support for string-based codes.
+
 v1.8.0
 - RGBAColor: Added the new color information handling tool.
 - ThrowableInfo: Added `getFinalCall()` for information on the most recent call.
