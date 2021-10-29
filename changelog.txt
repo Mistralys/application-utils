@@ -1,3 +1,7 @@
+v1.8.2
+- StringBuilder: Added `ifTrue()`, `ifFalse()`, `ifEmpty()`, `ifNotEmpty()`.
+- DateInterval: Fixed an issue with negative hour values.
+
 v1.8.1
 - ThrowableInfo: Fixed exception on unserializing a PDO exception.
 - ThrowableInfo: Added support for string-based codes.
