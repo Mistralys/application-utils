@@ -966,6 +966,11 @@ final class ConvertHelperTest extends TestCase
                 'expected' => '1 hour and 25 seconds'
             ),
             array(
+                'label' => '3 days',
+                'interval' => new DateInterval('PT'.(60*60*24*3).'S'),
+                'expected' => '3 days'
+            ),
+            array(
                 'label' => '6 days',
                 'interval' => new DateInterval('PT'.(60*60*24*6).'S'),
                 'expected' => '6 days'

@@ -42,4 +42,28 @@ final class StringBuilderTest extends TestCase
 
         $this->assertEquals('Test YoFoo', (string)sb()->nospace('Test')->add('Yo')->nospace('Foo'));
     }
+
+    public function test_ifTrue() : void
+    {
+        $this->assertEquals('Test', (string)sb()->ifTrue(true, 'Test'));
+        $this->assertEquals('', (string)sb()->ifTrue(false, 'Test'));
+    }
+
+    public function test_ifFalse() : void
+    {
+        $this->assertEquals('Test', (string)sb()->ifFalse(false, 'Test'));
+        $this->assertEquals('', (string)sb()->ifFalse(true, 'Test'));
+    }
+
+    public function test_ifEmpty() : void
+    {
+        $this->assertEquals('Test', (string)sb()->ifEmpty('', 'Test'));
+        $this->assertEquals('', (string)sb()->ifEmpty('Not empty', 'Test'));
+    }
+
+    public function test_ifNotEmpty() : void
+    {
+        $this->assertEquals('Test', (string)sb()->ifNotEmpty('Not empty', 'Test'));
+        $this->assertEquals('', (string)sb()->ifNotEmpty('', 'Test'));
+    }
 }
