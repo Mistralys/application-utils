@@ -405,7 +405,73 @@ class StringBuilder implements StringBuilder_Interface
             strval($string)
         );
     }
-    
+
+    /**
+     * @param bool $condition
+     * @param string|number|StringBuilder_Interface $string
+     * @return StringBuilder
+     */
+    public function ifTrue(bool $condition, $string) : StringBuilder
+    {
+        if($condition === true)
+        {
+            $this->add($string);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param bool $condition
+     * @param string|number|StringBuilder_Interface $string
+     * @return StringBuilder
+     */
+    public function ifFalse(bool $condition, $string) : StringBuilder
+    {
+        if($condition === false)
+        {
+            $this->add($string);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param mixed $subject
+     * @param string|number|StringBuilder_Interface $string
+     * @return $this
+     */
+    public function ifEmpty($subject, $string) : StringBuilder
+    {
+        return $this->ifTrue(empty($subject), $string);
+    }
+
+    /**
+     * @param mixed $subject
+     * @param string|number|StringBuilder_Interface $string
+     * @return $this
+     */
+    public function ifNotEmpty($subject, $string) : StringBuilder
+    {
+        return $this->ifFalse(empty($subject), $string);
+    }
+
+    /**
+     * @param bool $condition
+     * @param string|number|StringBuilder_Interface $ifTrue
+     * @param string|number|StringBuilder_Interface $ifFalse
+     * @return $this
+     */
+    public function ifOr(bool $condition, $ifTrue, $ifFalse) : StringBuilder
+    {
+        if($condition === true)
+        {
+            return $this->add($ifTrue);
+        }
+
+        return $this->add($ifFalse);
+    }
+
     public function render() : string
     {
         $result = implode($this->separator, $this->strings);
