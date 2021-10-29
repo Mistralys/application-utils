@@ -1,7 +1,3 @@
-v1.8.2
-- StringBuilder: Added `ifTrue()`, `ifFalse()`, `ifEmpty()`, `ifNotEmpty()`.
-- DateInterval: Fixed an issue with negative hour values.
-
 v1.8.1
 - ThrowableInfo: Fixed exception on unserializing a PDO exception.
 - ThrowableInfo: Added support for string-based codes.
@@ -15,6 +11,8 @@ v1.8.1
 - Microtime: Added `createFromString()`.
 - Microtime: Added a specific exception class, `Microtime_Exception`.
 - Microtime: Added getter methods for the relevant parts (year, month, date...)
+- StringBuilder: Added `ifTrue()`, `ifFalse()`, `ifEmpty()`, `ifNotEmpty()`.
+- DateInterval: Fixed an issue with negative hour values.
 
 v1.8.0
 - RGBAColor: Added the new color information handling tool.
