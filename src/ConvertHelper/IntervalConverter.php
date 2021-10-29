@@ -72,7 +72,7 @@ class ConvertHelper_IntervalConverter
         foreach($keep as $token)
         {
             $value = $interval->getToken($token);
-            if($value === 0) {
+            if($value <= 0) {
                 continue;
             }
             
