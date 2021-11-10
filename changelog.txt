@@ -1,3 +1,8 @@
+v1.8.2
+- PHPClassInfo: Fixed the class needlessly requiring the parsed files.
+- PHPClassInfo: Added support for traits.
+- PHPClassInfo: Fixed false positives found in comments.
+
 v1.8.1
 - ThrowableInfo: Fixed exception on unserializing a PDO exception.
 - ThrowableInfo: Added support for string-based codes.
