@@ -25,10 +25,8 @@ namespace AppUtils;
  */
 class FileHelper_PHPClassInfo
 {
-    const ERROR_TARGET_FILE_DOES_NOT_EXIST = 41401;
-    
-    const ERROR_CANNOT_READ_FILE = 41402;
-    
+    public const ERROR_TARGET_FILE_DOES_NOT_EXIST = 41401;
+
     /**
      * @var string
      */
@@ -127,30 +125,10 @@ class FileHelper_PHPClassInfo
         return array_values($this->classes);
     }
     
-   /**
-    * @throws FileHelper_Exception
-    */
     protected function parseFile() : void
     {
-        $code = file_get_contents($this->path);
-        
-        if($code === false) 
-        {
-            throw new FileHelper_Exception(
-                'Cannot open file for parsing.',
-                sprintf(
-                    'The file to parse exists, but it cannot be opened for reading, located at [%s].',
-                    $this->path
-                ),
-                self::ERROR_CANNOT_READ_FILE
-            );
-        }
-        
-        // require the file so all interfaces etc. are loaded:
-        // this is need for the is_subclass_of function to work
-        // properly, as it does not do this.
-        require_once $this->path;
-        
+        $code = php_strip_whitespace($this->path);
+
         $result = array();
         preg_match_all('/namespace[\s]+([^;]+);/six', $code, $result, PREG_PATTERN_ORDER);
         if(isset($result[0]) && isset($result[0][0])) {
@@ -158,7 +136,7 @@ class FileHelper_PHPClassInfo
         }
         
         $result = array();
-        preg_match_all('/(abstract|final)[\s]+class[\s]+([\sa-z0-9\\\\_,]+){|class[\s]+([\sa-z0-9\\\\_,]+){/six', $code, $result, PREG_PATTERN_ORDER);
+        preg_match_all('/(abstract|final)[\s]+(class|trait)[\s]+([\sa-z0-9\\\\_,]+){|(class|trait)[\s]+([\sa-z0-9\\\\_,]+){/six', $code, $result, PREG_PATTERN_ORDER);
 
         if(!isset($result[0]) || !isset($result[0][0])) {
             return;
@@ -169,21 +147,24 @@ class FileHelper_PHPClassInfo
         foreach($indexes as $idx)
         {
             $keyword = $result[1][$idx];
-            $declaration = $result[2][$idx];
+            $declaration = $result[3][$idx];
+            $type = $result[2][$idx];
             if(empty($keyword)) {
-                $declaration = $result[3][$idx];
+                $type = $result[4][$idx];
+                $declaration = $result[5][$idx];
             }
             
             $class = new FileHelper_PHPClassInfo_Class(
                 $this, 
                 $this->stripWhitespace($declaration), 
-                trim($keyword)
+                trim($keyword),
+                $type
             );
             
             $this->classes[$class->getNameNS()] = $class;
         }
     }
-    
+
    /**
     * Strips all whitespace from the string, replacing it with 
     * regular spaces (newlines, tabs, etc.).
