@@ -61,7 +61,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Adds a subject as a string. Is ignored if empty.
     * 
-    * @param string|number|StringBuilder_Interface $string
+    * @param string|number|StringBuilder_Interface|NULL $string
     * @return $this
     */
     public function add($string) : StringBuilder
@@ -408,7 +408,7 @@ class StringBuilder implements StringBuilder_Interface
 
     /**
      * @param bool $condition
-     * @param string|number|StringBuilder_Interface $string
+     * @param string|number|StringBuilder_Interface|NULL $string
      * @return StringBuilder
      */
     public function ifTrue(bool $condition, $string) : StringBuilder
@@ -438,7 +438,7 @@ class StringBuilder implements StringBuilder_Interface
 
     /**
      * @param mixed $subject
-     * @param string|number|StringBuilder_Interface $string
+     * @param string|number|StringBuilder_Interface|NULL $string
      * @return $this
      */
     public function ifEmpty($subject, $string) : StringBuilder
