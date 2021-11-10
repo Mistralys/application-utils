@@ -61,17 +61,23 @@ class FileHelper_PHPClassInfo_Class
     * @var string
     */
     protected $keyword;
-    
-   /**
+
+    /**
+     * @var string
+     */
+    private $type;
+
+    /**
     * @param FileHelper_PHPClassInfo $info The class info instance.
     * @param string $declaration The full class declaration, e.g. "class SomeName extends SomeOtherClass".
     * @param string $keyword The class keyword, if any, i.e. "abstract" or "final".
     */
-    public function __construct(FileHelper_PHPClassInfo $info, string $declaration, string $keyword)
+    public function __construct(FileHelper_PHPClassInfo $info, string $declaration, string $keyword, string $type)
     {
         $this->info = $info;
         $this->declaration = $declaration;
         $this->keyword = $keyword;
+        $this->type = $type;
         
         $this->analyzeCode();
     }
@@ -157,7 +163,7 @@ class FileHelper_PHPClassInfo_Class
     public function getDeclaration() : string
     {
         $parts = array();
-        $parts[] = 'class';
+        $parts[] = $this->type;
         $parts[] = $this->getName();
         
         if(!empty($this->extends)) {
@@ -181,12 +187,17 @@ class FileHelper_PHPClassInfo_Class
     {
         return $this->keyword;
     }
-    
+
+    public function isTrait() : bool
+    {
+        return $this->type === 'trait';
+    }
+
     protected function analyzeCode() : void
     {
-        if($this->keyword == 'abstract') {
+        if($this->keyword === 'abstract') {
             $this->abstract = true;
-        } else if($this->keyword == 'final') {
+        } else if($this->keyword === 'final') {
             $this->final = true;
         }
         
@@ -212,7 +223,7 @@ class FileHelper_PHPClassInfo_Class
             }
             
             $name = strtolower($part);
-            if($name == 'extends' || $name == 'implements') {
+            if($name === 'extends' || $name === 'implements') {
                 $tokenName = $name;
                 continue;
             }
