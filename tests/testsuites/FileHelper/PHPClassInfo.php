@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use PHPUnit\Framework\TestCase;
 
 use AppUtils\FileHelper;
@@ -24,14 +26,14 @@ final class FileHelper_PHPClassInfoTest extends TestCase
         }
     }
     
-    public function test_fileNotExists()
+    public function test_fileNotExists() : void
     {
         $this->expectException(FileHelper_Exception::class);
         
-        $info = FileHelper::findPHPClasses('/path/to/unknown/file.php');
+        FileHelper::findPHPClasses('/path/to/unknown/file.php');
     }
     
-    public function test_getInfo()
+    public function test_getInfo() : void
     {
         $tests = array(
             array(
@@ -112,6 +114,23 @@ final class FileHelper_PHPClassInfoTest extends TestCase
                 ),
             ),
             array(
+                'label' => 'A trait',
+                'file' => 'trait',
+                'classes' => array(
+                    'SupahTrait' => array(
+                        'name' => 'SupahTrait',
+                        'extends' => '',
+                        'implements' => array(),
+                        'declaration' => 'trait SupahTrait'
+                    )
+                ),
+            ),
+            array(
+                'label' => 'Class names in comments',
+                'file' => 'comment-class',
+                'classes' => array(),
+            ),
+            array(
                 'label' => 'Multiple classes',
                 'file' => 'multi-class',
                 'classes' => array(
@@ -154,7 +173,7 @@ final class FileHelper_PHPClassInfoTest extends TestCase
             
             $classes = $info->getClasses();
             
-            $this->assertEquals(
+            $this->assertSame(
                 count($test['classes']), 
                 count($classes), 
                 $test['label'].': The amount of classes should match.'

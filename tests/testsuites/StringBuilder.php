@@ -49,6 +49,12 @@ final class StringBuilderTest extends TestCase
         $this->assertEquals('', (string)sb()->ifTrue(false, 'Test'));
     }
 
+    public function test_ifTrue_emptyString() : void
+    {
+        $this->assertEquals('', (string)sb()->ifTrue(true, null));
+        $this->assertEquals('', (string)sb()->ifTrue(true, ''));
+    }
+
     public function test_ifFalse() : void
     {
         $this->assertEquals('Test', (string)sb()->ifFalse(false, 'Test'));
@@ -59,6 +65,13 @@ final class StringBuilderTest extends TestCase
     {
         $this->assertEquals('Test', (string)sb()->ifEmpty('', 'Test'));
         $this->assertEquals('', (string)sb()->ifEmpty('Not empty', 'Test'));
+    }
+
+    public function test_ifEmpty_objectNullable() : void
+    {
+        $subject = null;
+
+        $this->assertEquals('', (string)sb()->ifEmpty($subject, $subject));
     }
 
     public function test_ifNotEmpty() : void
