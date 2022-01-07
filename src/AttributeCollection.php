@@ -1,11 +1,28 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\AttributeCollection}.
+ *
+ * @package AppUtils
+ * @subpackage HTML
+ * @see \AppUtils\AttributeCollection
+ */
 
 declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\AttributeCollection\Filtering;
 use Throwable;
 
+/**
+ * Utility class used to hold HTML attributes, with
+ * chainable methods and an easy-to-use API for handling
+ * and filtering values.
+ *
+ * @package AppUtils
+ * @subpackage HTML
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class AttributeCollection implements Interface_Stringable, Interface_Classable
 {
     use Traits_Classable;
@@ -109,10 +126,15 @@ class AttributeCollection implements Interface_Stringable, Interface_Classable
 
         if(isset($this->attributes[$name]))
         {
-            $this->attributes[$name] = $this->filterQuotes($this->attributes[$name]);
+            $this->attributes[$name] = Filtering::quotes($this->attributes[$name]);
         }
 
         return $this;
+    }
+
+    public function attrURL(string $name, string $url) : AttributeCollection
+    {
+        return $this->attr($name, Filtering::URL($url));
     }
 
     public function remove(string $name) : AttributeCollection
@@ -187,18 +209,6 @@ class AttributeCollection implements Interface_Stringable, Interface_Classable
         );
     }
 
-    /**
-     * Escapes double quotes in an attribute value by replacing
-     * them with HTML entities.
-     *
-     * @param string $value
-     * @return string
-     */
-    private function filterQuotes(string $value) : string
-    {
-        return str_replace('"', '&quot;', $value);
-    }
-
     public function __toString()
     {
         try
@@ -213,16 +223,19 @@ class AttributeCollection implements Interface_Stringable, Interface_Classable
 
     // region: Flavors
 
+    public function name(string $name) : AttributeCollection
+    {
+        return $this->attr('name', $name);
+    }
+
+    public function id(string $id) : AttributeCollection
+    {
+        return $this->attr('id', $id);
+    }
+
     public function href(string $url) : AttributeCollection
     {
-        // Normalize ampersands, keeping already encoded ones.
-        $url = str_replace(
-            array('&amp;', '&', '__AMP__'),
-            array('__AMP__', '__AMP__', '&amp;'),
-            $url
-        );
-
-        return $this->attr('href', $url);
+        return $this->attrURL('href', $url);
     }
 
     public const TARGET_BLANK = '_blank';
