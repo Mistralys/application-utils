@@ -1,11 +1,31 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\HTMLTag}.
+ *
+ * @package AppUtils
+ * @subpackage HTML
+ * @see \AppUtils\HTMLTag
+ */
 
 declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\HTMLTag\GlobalOptions;
+
+/**
+ * Helper class for generating individual HTML tags,
+ * with chainable methods.
+ *
+ * @package AppUtils
+ * @subpackage HTML
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class HTMLTag implements Interface_Stringable, Interface_Classable
 {
+    public const SELF_CLOSE_STYLE_SLASH = 'slash';
+    public const SELF_CLOSE_STYLE_NONE = 'none';
+
     /**
      * @var AttributeCollection
      */
@@ -30,6 +50,11 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
      * @var bool
      */
     private $allowEmpty = false;
+
+    /**
+     * @var GlobalOptions|NULL
+     */
+    private static $globalOptions;
 
     private function __construct(string $name, AttributeCollection $attributes)
     {
@@ -112,18 +137,33 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
             $this->renderClose();
     }
 
-    public function renderOpen() : string
+    public static function getGlobalOptions() : GlobalOptions
     {
-        $selfClose = '';
-        if($this->selfClosing) {
-            $selfClose = '/';
+        if(!isset(self::$globalOptions))
+        {
+            self::$globalOptions = new GlobalOptions();
         }
 
+        return self::$globalOptions;
+    }
+
+    public function getSelfClosingChar() : string
+    {
+        if($this->selfClosing && self::getGlobalOptions()->getSelfCloseStyle() === self::SELF_CLOSE_STYLE_SLASH)
+        {
+            return '/';
+        }
+
+        return '';
+    }
+
+    public function renderOpen() : string
+    {
         return sprintf(
             '<%s%s%s>',
             $this->name,
             $this->attributes,
-            $selfClose
+            $this->getSelfClosingChar()
         );
     }
 
@@ -138,16 +178,30 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
     }
 
     /**
+     * Adds a bit of text to the content (with an automatic space at the end).
+     *
      * @param string|number|StringBuilder_Interface|NULL $content
      * @return $this
      */
-    public function append($content) : HTMLTag
+    public function addText($content) : HTMLTag
     {
         $this->content->add($content);
         return $this;
     }
 
-    public function content($content) : HTMLTag
+    /**
+     * Adds a bit of HTML at the end of the content.
+     *
+     * @param $content
+     * @return $this
+     */
+    public function addHTML($content) : HTMLTag
+    {
+        $this->content->html($content);
+        return $this;
+    }
+
+    public function setContent($content) : HTMLTag
     {
         $this->content = sb()->add($content);
         return $this;
@@ -179,6 +233,34 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
         $this->attributes->prop($name, $enabled);
         return $this;
     }
+
+    // region: Flavors
+
+    public function name(string $name) : HTMLTag
+    {
+        $this->attributes->name($name);
+        return $this;
+    }
+
+    public function id(string $id) : HTMLTag
+    {
+        $this->attributes->id($id);
+        return $this;
+    }
+
+    public function href(string $url) : HTMLTag
+    {
+        $this->attributes->href($url);
+        return $this;
+    }
+
+    public function src(string $url) : HTMLTag
+    {
+        $this->attributes->attrURL('src', $url);
+        return $this;
+    }
+
+    // endregion
 
     // region: Classable interface
 
