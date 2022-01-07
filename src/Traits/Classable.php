@@ -29,7 +29,12 @@ trait Traits_Classable
     * @var string[]
     */
     protected $classes = array();
-    
+
+    public function hasClasses() : bool
+    {
+        return !empty($this->classes);
+    }
+
     public function addClass(string $name)
     {
         if(!in_array($name, $this->classes)) {
