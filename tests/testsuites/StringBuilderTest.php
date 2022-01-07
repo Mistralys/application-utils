@@ -30,23 +30,24 @@ final class StringBuilderTest extends TestCase
     public function test_para() : void
     {
         $this->assertEquals('<br><br>', (string)sb()->para());
-
         $this->assertEquals('<p>Test</p>', (string)sb()->para('Test'));
     }
 
     public function test_nospace() : void
     {
         $this->assertEquals('Test', (string)sb()->nospace('Test'));
-
         $this->assertEquals('TestFoo', (string)sb()->nospace('Test')->nospace('Foo'));
-
         $this->assertEquals('Test YoFoo', (string)sb()->nospace('Test')->add('Yo')->nospace('Foo'));
+        $this->assertEquals('', (string)sb()->nospace(null));
+        $this->assertEquals('', (string)sb()->nospace(''));
     }
 
     public function test_ifTrue() : void
     {
         $this->assertEquals('Test', (string)sb()->ifTrue(true, 'Test'));
         $this->assertEquals('', (string)sb()->ifTrue(false, 'Test'));
+        $this->assertEquals('Yup', (string)sb()->ifTrue(true, static function() { return 'Yup';}));
+        $this->assertEquals('', (string)sb()->ifTrue(false, static function() { return 'Yup';}));
     }
 
     public function test_ifTrue_emptyString() : void
@@ -78,5 +79,7 @@ final class StringBuilderTest extends TestCase
     {
         $this->assertEquals('Test', (string)sb()->ifNotEmpty('Not empty', 'Test'));
         $this->assertEquals('', (string)sb()->ifNotEmpty('', 'Test'));
+        $this->assertEquals('Test', (string)sb()->ifNotEmpty('Not empty callback', static function() { return 'Test'; }));
+        $this->assertEquals('', (string)sb()->ifNotEmpty('', static function() { return 'Test'; }));
     }
 }
