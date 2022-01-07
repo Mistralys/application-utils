@@ -20,6 +20,8 @@ use AppUtils\HTMLTag\GlobalOptions;
  * @package AppUtils
  * @subpackage HTML
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ *
+ * @link https://github.com/Mistralys/application-utils/wiki/HTMLTag
  */
 class HTMLTag implements Interface_Stringable, Interface_Classable
 {
