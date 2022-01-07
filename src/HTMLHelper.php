@@ -15,7 +15,7 @@ namespace AppUtils;
  * Helper for common HTML-related tasks.
  *
  * @package Application Utils
- * @subpackage HTMLHelper
+ * @subpackage HTML
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
 class HTMLHelper
