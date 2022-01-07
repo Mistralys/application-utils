@@ -26,6 +26,11 @@ namespace AppUtils;
 interface Interface_Classable
 {
     /**
+     * @return bool
+     */
+    public function hasClasses() : bool;
+
+    /**
      * @param string $name
      * @return $this
      */
