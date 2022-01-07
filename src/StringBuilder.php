@@ -13,6 +13,7 @@ namespace AppUtils;
 
 use DateTime;
 use AppLocalize;
+use Throwable;
 
 /**
  * Utility class used to easily concatenate strings
@@ -33,6 +34,8 @@ use AppLocalize;
  */
 class StringBuilder implements StringBuilder_Interface
 {
+    public const ERROR_CALLABLE_THREW_ERROR = 99601;
+
    /**
     * @var string
     */
@@ -66,7 +69,7 @@ class StringBuilder implements StringBuilder_Interface
     */
     public function add($string) : StringBuilder
     {
-        $string = strval($string);
+        $string = (string)$string;
         
         if(!empty($string)) 
         {
@@ -79,12 +82,19 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Adds a string without appending an automatic space.
     * 
-    * @param string|number|StringBuilder_Interface $string
+    * @param string|number|StringBuilder_Interface|NULL $string
     * @return $this
     */
     public function nospace($string) : StringBuilder
     {
-        return $this->add($this->noSpace.strval($string));
+        $flattened = (string)$string;
+
+        if($flattened !== "")
+        {
+            $this->add($this->noSpace.$flattened);
+        }
+
+        return $this;
     }
     
    /**
@@ -201,13 +211,13 @@ class StringBuilder implements StringBuilder_Interface
     * @param string|number|StringBuilder_Interface $string
     * @return $this
     */
-    public function quote($string)
+    public function quote($string) : StringBuilder
     {
-        return $this->sf('&quot;%s&quot;', strval($string));
+        return $this->sf('&quot;%s&quot;', (string)$string);
     }
     
    /**
-    * Adds a text that is meant as a reference to an UI element,
+    * Adds a text that is meant as a reference to a UI element,
     * like a menu item, button, etc.
     * 
     * @param string|number|StringBuilder_Interface $string 
@@ -229,7 +239,7 @@ class StringBuilder implements StringBuilder_Interface
     {
         array_unshift($arguments, $format);
         
-        return $this->add(call_user_func_array('sprintf', $arguments));
+        return $this->add(sprintf(...$arguments));
     }
     
    /**
@@ -241,8 +251,8 @@ class StringBuilder implements StringBuilder_Interface
     public function bold($string) : StringBuilder
     {
         return $this->sf(
-            '<b>%s</b>', 
-            strval($string)
+            '<b>%s</b>',
+            (string)$string
         );
     }
     
@@ -321,7 +331,7 @@ class StringBuilder implements StringBuilder_Interface
     {
         return $this->bold(sb()->hint());
     }
-    
+
    /**
     * Adds two linebreaks.
     *
@@ -347,19 +357,59 @@ class StringBuilder implements StringBuilder_Interface
     */
     public function link(string $label, string $url, bool $newTab=false) : StringBuilder
     {
-        $target = '';
-        if($newTab) {
-            $target = ' target="_blank"';
+        $attributes = AttributeCollection::create()
+            ->href($url);
+
+        if($newTab)
+        {
+            $attributes->target();
         }
-       
-        return $this->sf(
-            '<a href="%s"%s>%s</a>',
-            $url,
-            $target,
-            $label
+
+        return $this->html(
+            HTMLTag::create('a', $attributes)
+                ->content->add($label)
         );
     }
-    
+
+    private function createLink(string $label, string $url, bool $newTab=false) : HTMLTag
+    {
+        $attributes = AttributeCollection::create()
+            ->href($url);
+
+        if($newTab)
+        {
+            $attributes->target();
+        }
+
+        $tag = HTMLTag::create('a', $attributes);
+        $tag->content->add($label);
+
+        return $tag;
+    }
+
+
+    public function linkOpen(string $url, bool $newTab=false, ?AttributeCollection $attributes=null) : StringBuilder
+    {
+        if($attributes === null)
+        {
+            $attributes = AttributeCollection::create();
+        }
+
+        $attributes->href($url);
+
+        if($newTab)
+        {
+            $attributes->target();
+        }
+
+        return $this->html(HTMLTag::create('a', $attributes));
+    }
+
+    public function linkClose() : StringBuilder
+    {
+        return $this->html(HTMLTag::create('a')->renderClose());
+    }
+
    /**
     * Wraps the string in a `code` tag.
     * 
@@ -370,7 +420,7 @@ class StringBuilder implements StringBuilder_Interface
     {
         return $this->sf(
             '<code>%s</code>',
-            strval($string)
+            (string)$string
         );
     }
     
@@ -382,7 +432,7 @@ class StringBuilder implements StringBuilder_Interface
     */
     public function pre($string) : StringBuilder
     {
-        return $this->sf('<pre>%s</pre>', strval($string));
+        return $this->sf('<pre>%s</pre>', (string)$string);
     }
     
    /**
@@ -396,80 +446,142 @@ class StringBuilder implements StringBuilder_Interface
     {
         if(!is_array($classes)) 
         {
-            $classes = array(strval($classes));
+            $classes = array((string)$classes);
         }
         
         return $this->sf(
             '<span class="%s">%s</span>',
             implode(' ', $classes),
-            strval($string)
+            (string)$string
         );
     }
 
     /**
+     * Adds the specified content only if the condition is true.
+     * Use a callback to render the content to avoid rendering it
+     * even if the condition is false.
+     *
      * @param bool $condition
-     * @param string|number|StringBuilder_Interface|NULL $string
+     * @param string|number|StringBuilder_Interface|NULL|callable $content
      * @return StringBuilder
+     *
+     * @throws StringBuilder_Exception
+     * @see StringBuilder::ERROR_CALLABLE_THREW_ERROR
      */
-    public function ifTrue(bool $condition, $string) : StringBuilder
+    public function ifTrue(bool $condition, $content) : StringBuilder
     {
         if($condition === true)
         {
-            $this->add($string);
+            $this->add($this->renderContent($content));
         }
 
         return $this;
     }
 
     /**
+     * Adds the specified content only if the condition is false.
+     * Use a callback to render the content to avoid rendering it
+     * even if the condition is true.
+     *
      * @param bool $condition
-     * @param string|number|StringBuilder_Interface $string
+     * @param string|number|StringBuilder_Interface|callable|NULL $string
      * @return StringBuilder
+     *
+     * @throws StringBuilder_Exception
+     * @see StringBuilder::ERROR_CALLABLE_THREW_ERROR
      */
     public function ifFalse(bool $condition, $string) : StringBuilder
     {
         if($condition === false)
         {
-            $this->add($string);
+            $this->add($this->renderContent($string));
         }
 
         return $this;
     }
 
     /**
-     * @param mixed $subject
-     * @param string|number|StringBuilder_Interface|NULL $string
-     * @return $this
+     * Handles callbacks used to render content on demand when
+     * it is needed. All other values are simply passed through.
+     *
+     * @param string|number|StringBuilder_Interface|callable|NULL $content
+     * @return string|number|StringBuilder_Interface|NULL
+     *
+     * @throws StringBuilder_Exception
+     * @see StringBuilder::ERROR_CALLABLE_THREW_ERROR
      */
-    public function ifEmpty($subject, $string) : StringBuilder
+    private function renderContent($content)
     {
-        return $this->ifTrue(empty($subject), $string);
+        if (!is_callable($content))
+        {
+            return $content;
+        }
+
+        try
+        {
+            return $content();
+        }
+        catch (Throwable $e)
+        {
+            throw new StringBuilder_Exception(
+                'The callable has thrown an error.',
+                sprintf(
+                    'The callable [%s] has thrown an exception when it was called.',
+                    ConvertHelper::callback2string($content)
+                ),
+                self::ERROR_CALLABLE_THREW_ERROR,
+                $e
+            );
+        }
     }
 
     /**
      * @param mixed $subject
-     * @param string|number|StringBuilder_Interface $string
+     * @param string|number|StringBuilder_Interface|callable|NULL $content
      * @return $this
+     *
+     * @throws StringBuilder_Exception
+     * @see StringBuilder::ERROR_CALLABLE_THREW_ERROR
      */
-    public function ifNotEmpty($subject, $string) : StringBuilder
+    public function ifEmpty($subject, $content) : StringBuilder
     {
-        return $this->ifFalse(empty($subject), $string);
+        return $this->ifTrue(empty($subject), $content);
     }
 
     /**
+     * @param mixed $subject
+     * @param string|number|StringBuilder_Interface|callable|NULL $content
+     * @return $this
+     *
+     * @throws StringBuilder_Exception
+     * @see StringBuilder::ERROR_CALLABLE_THREW_ERROR
+     */
+    public function ifNotEmpty($subject, $content) : StringBuilder
+    {
+        return $this->ifFalse(empty($subject), $content);
+    }
+
+    /**
+     * Adds the contents depending on the condition is true.
+     * Use callbacks to render the contents to avoid rendering
+     * them even when they are not needed.
+     *
      * @param bool $condition
-     * @param string|number|StringBuilder_Interface $ifTrue
-     * @param string|number|StringBuilder_Interface $ifFalse
+     * @param string|number|StringBuilder_Interface|callable|NULL $ifTrue
+     * @param string|number|StringBuilder_Interface|callable|NULL $ifFalse
      * @return $this
+     *
+     * @throws StringBuilder_Exception
+     * @see StringBuilder::ERROR_CALLABLE_THREW_ERROR
      */
     public function ifOr(bool $condition, $ifTrue, $ifFalse) : StringBuilder
     {
         if($condition === true)
         {
-            return $this->add($ifTrue);
+            return $this->add($this->renderContent($ifTrue));
         }
 
-        return $this->add($ifFalse);
+        return $this->add($this->renderContent($ifFalse));
     }
 
     public function render() : string
