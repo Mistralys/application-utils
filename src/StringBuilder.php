@@ -367,7 +367,7 @@ class StringBuilder implements StringBuilder_Interface
 
         return $this->html(
             HTMLTag::create('a', $attributes)
-                ->content->add($label)
+                ->addText($label)
         );
     }
 
