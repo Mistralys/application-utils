@@ -8,6 +8,8 @@
 
 namespace AppUtils;
 
+use ZipArchive;
+
 /**
  * ZIP helper class to simplify working with the native 
  * PHP ZIPArchive functions.
@@ -42,7 +44,7 @@ class ZIPHelper
     protected $file;
     
    /**
-    * @var \ZipArchive
+    * @var ZipArchive|NULL
     */
     protected $zip;
     
@@ -121,22 +123,29 @@ class ZIPHelper
         
         return $this->zip->addFromString($zipPath, $contents);
     }
-    
+
+    /**
+     * @var bool
+     */
     protected $open = false;
-    
-    protected function open()
+
+    /**
+     * @throws ZIPHelper_Exception
+     * @see ZIPHelper::ERROR_OPENING_ZIP_FILE
+     */
+    protected function open() : void
     {
         if($this->open) {
             return;
         }
         
         if(!isset($this->zip)) {
-            $this->zip = new \ZipArchive();
+            $this->zip = new ZipArchive();
         }
         
         $flag = null;
         if(!file_exists($this->file)) {
-            $flag = \ZipArchive::CREATE;
+            $flag = ZipArchive::CREATE;
         }
         
         if ($this->zip->open($this->file, $flag) !== true) {
@@ -153,6 +162,9 @@ class ZIPHelper
         $this->open = true;
     }
 
+    /**
+     * @var int
+     */
     protected $fileTracker = 0;
 
     /**
@@ -171,7 +183,7 @@ class ZIPHelper
      * @see addFileToZip()
      * @see $zipWriteThreshold
      */
-    protected function releaseFileHandles()
+    protected function releaseFileHandles() : void
     {
         $this->fileTracker++;
 
@@ -186,7 +198,7 @@ class ZIPHelper
         }
     }
     
-    protected function close()
+    protected function close() : void
     {
         if(!$this->open) {
             return;
@@ -209,7 +221,7 @@ class ZIPHelper
         $this->open = false;
     }
     
-    public function save()
+    public function save() : ZIPHelper
     {
         $this->open();
         
@@ -226,6 +238,8 @@ class ZIPHelper
         }
         
         $this->close();
+
+        return $this;
     }
 
     /**
@@ -241,7 +255,8 @@ class ZIPHelper
     {
         $this->save();
         
-        if(empty($fileName)) {
+        if(empty($fileName))
+        {
             $fileName = basename($this->file);
         }
         
@@ -254,19 +269,24 @@ class ZIPHelper
         
         return $fileName;
     }
-    
-   /**
-    * Like {@link ZIPHelper::download()}, but deletes the
-    * file after sending it to the browser.
-    * 
-    * @param string|NULL $fileName Override the ZIP's file name for the download
-    * @see ZIPHelper::download()
-    */
-    public function downloadAndDelete(?string $fileName=null)
+
+    /**
+     * Like {@link ZIPHelper::download()}, but deletes the
+     * file after sending it to the browser.
+     *
+     * @param string|NULL $fileName Override the ZIP's file name for the download
+     * @return $this
+     * @throws FileHelper_Exception
+     * @throws ZIPHelper_Exception
+     * @see ZIPHelper::download()
+     */
+    public function downloadAndDelete(?string $fileName=null) : ZIPHelper
     {
         $this->download($fileName);
         
         FileHelper::deleteFile($this->file);
+
+        return $this;
     }
 
    /**
@@ -288,11 +308,10 @@ class ZIPHelper
         return $this->zip->extractTo($outputFolder);
     }
 
-    
    /**
-    * @return \ZipArchive
+    * @return ZipArchive
     */
-    public function getArchive() : \ZipArchive
+    public function getArchive() : ZipArchive
     {
         $this->open();
         
@@ -307,10 +326,10 @@ class ZIPHelper
     * @param string $zipPath
     * @return boolean
     */
-    public function addJSON($data, $zipPath)
+    public function addJSON($data, string $zipPath) : bool
     {
         return $this->addString(
-            json_encode($data), 
+            json_encode($data, JSON_THROW_ON_ERROR),
             $zipPath
         );
     }
@@ -323,6 +342,6 @@ class ZIPHelper
     {
         $this->open();
         
-        return intval($this->zip->numFiles);
+        return (int)$this->zip->numFiles;
     }
 }

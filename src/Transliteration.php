@@ -14,7 +14,7 @@ namespace AppUtils;
 /**
  * Transliteration class that can be used to convert a regular
  * string to an ascii-only text, while preserving as many characters
- * as possible. Characters are replaced by their ascci equivalents
+ * as possible. Characters are replaced by their ascii equivalents
  * with the closest visual representation.
  *
  * @package Application Utils
@@ -24,16 +24,15 @@ namespace AppUtils;
 class Transliteration implements Interface_Optionable
 {
     use Traits_Optionable;
-    
-    /**
-     * Transliteration options
-     * @var array
-     */
+
+    public const OPTION_SPACE_CHARACTER = 'space';
+    public const OPTION_LOWER_CASE = 'lowercase';
+
     public function getDefaultOptions() : array
     {
         return array(
-            'space' => '_',
-            'lowercase' => false
+            self::OPTION_SPACE_CHARACTER => '_',
+            self::OPTION_LOWER_CASE => false
         );
     }
 
@@ -51,18 +50,20 @@ class Transliteration implements Interface_Optionable
      */
     public function setSpaceReplacement(string $char) : Transliteration
     {
-        $this->setOption('space', $char);
+        $this->setOption(self::OPTION_SPACE_CHARACTER, $char);
 
         return $this;
     }
 
     /**
      * The converted string will be all lowercase.
+     *
+     * @param bool $lowercase
      * @return Transliteration
      */
     public function setLowercase(bool $lowercase=true) : Transliteration
     {
-        $this->setOption('lowercase', $lowercase);
+        $this->setOption(self::OPTION_LOWER_CASE, $lowercase);
 
         return $this;
     }
@@ -75,21 +76,22 @@ class Transliteration implements Interface_Optionable
      */
     public function convert(string $string) : string
     {
-        $space = $this->getStringOption('space');
+        $space = $this->getStringOption(self::OPTION_SPACE_CHARACTER);
         
         $result = str_replace(array_keys(self::$charTable), array_values(self::$charTable), $string);
         $result = str_replace('_', $space, $result);
 
         $regex = '/\A[a-zA-Z0-9_%s]+\Z/';
         $additionalChar = '';
-        if ($space != '_') {
+        if ($space !== '_') {
             $additionalChar = $space;
         }
 
         $regex = sprintf($regex, $additionalChar);
 
         $keep = array();
-        for ($i = 0; $i < strlen($result); $i++) {
+        $max = strlen($result);
+        for ($i = 0; $i < $max; $i++) {
             if (preg_match($regex, $result[$i])) {
                 $keep[] = $result[$i];
             }
@@ -97,13 +99,13 @@ class Transliteration implements Interface_Optionable
 
         $result = implode('', $keep);
 
-        while (strstr($result, $space . $space)) {
+        while (strpos($result, $space . $space) !== false) {
             $result = str_replace($space . $space, $space, $result);
         }
 
         $result = trim($result, $space);
 
-        if ($this->getBoolOption('lowercase')) {
+        if ($this->getBoolOption(self::OPTION_LOWER_CASE)) {
             $result = mb_strtolower($result);
         }
 

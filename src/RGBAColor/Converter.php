@@ -92,7 +92,7 @@ class RGBAColor_Converter
     }
 
     /**
-     * @param array{red:int,green:int,blue:int,alpha:int} $color
+     * @param array{red:int,green:int,blue:int}|array{red:int,green:int,blue:int,alpha:int} $color
      * @return string
      */
     public static function array2hex(array $color) : string

@@ -35,12 +35,12 @@ class ConvertHelper_DurationConverter
     const SECONDS_PER_YEAR = 31536000;
     
    /**
-    * @var int
+    * @var int|NULL
     */
     protected $dateFrom;
     
    /**
-    * @var int
+    * @var int|NULL
     */
     protected $dateTo;
     

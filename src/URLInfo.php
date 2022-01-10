@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use ArrayAccess;
+
 /**
  * Replacement for PHP's native `parse_url` function, which
  * handles some common pitfalls and issues that are hard to 
@@ -20,7 +22,7 @@ namespace AppUtils;
  * @subpackage URLInfo
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class URLInfo implements \ArrayAccess
+class URLInfo implements ArrayAccess
 {
     const ERROR_MISSING_SCHEME = 42101;
     const ERROR_INVALID_SCHEME = 42102;
@@ -57,10 +59,10 @@ class URLInfo implements \ArrayAccess
     protected $paramExclusion = false;
     
    /**
-    * @var array
+    * @var array<string,string>|NULL
     * @see URLInfo::getTypeLabel()
     */
-    protected static $typeLabels;
+    protected static $typeLabels = null;
     
    /**
     * @var bool
@@ -92,7 +94,7 @@ class URLInfo implements \ArrayAccess
     protected $parser;
     
    /**
-    * @var URLInfo_Normalizer
+    * @var URLInfo_Normalizer|NULL
     */
     protected $normalizer;
     

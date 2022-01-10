@@ -45,9 +45,9 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
     protected $callsCount = 0;
     
    /**
-    * @var ConvertHelper_ThrowableInfo
+    * @var ConvertHelper_ThrowableInfo|NULL
     */
-    protected $previous;
+    protected $previous = null;
     
    /**
     * @var string

@@ -39,7 +39,7 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
     private $name;
 
     /**
-     * @var StringBuilder_Interface
+     * @var StringBuilder
      */
     public $content;
 
@@ -194,7 +194,7 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
     /**
      * Adds a bit of HTML at the end of the content.
      *
-     * @param $content
+     * @param string|number|StringBuilder_Interface|NULL $content
      * @return $this
      */
     public function addHTML($content) : HTMLTag

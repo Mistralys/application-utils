@@ -29,7 +29,7 @@ class ConvertHelper_TimeConverter
     private $seconds;
 
    /**
-    * @var array<int,array<string,string|int>>
+    * @var array<int,array<string,string|int>>|NULL
     */
     private static $units;
     

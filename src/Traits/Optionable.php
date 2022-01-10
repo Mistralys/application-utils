@@ -27,9 +27,9 @@ namespace AppUtils;
 trait Traits_Optionable
 {
    /**
-    * @var array
+    * @var array|NULL
     */
-    protected $options;
+    protected $options = null;
 
     /**
      * Sets an option to the specified value. This can be any
