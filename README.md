@@ -95,8 +95,12 @@ ConvertHelper for example have many static methods not shown here.
     - [FileFinder][]: Fetching file lists by filters, recursive or not.
     - PHPClassInfo: Fetch basic class info from PHP files without reflection.
     - MimeTypes: List of commonly used mime types.
-    - [PathsReducer][]: Reduce a list of absolute paths to a common root. 
+    - [PathsReducer][]: Reduce a list of absolute paths to a common root.
+* HTMLHelper: Common HTML utility methods.
+    - [HTMLTag][]: Object-Oriented HTML tag generation.
+    - AttributeCollection: Collection class for attributes (HTML or other).
 * ImageHelper: Image manipulation using native GD functions with alpha support.
+    - RGBAColor: Color container class with alpha channel support. 
 * [IniHelper][]: INI file reader and editor.
 * [Microtime][]: `DateTime` class with microseconds support and friendly methods interface.
 * [NamedClosure][]: Wrapper for closures with the possibility to add a description.  
@@ -107,13 +111,14 @@ ConvertHelper for example have many static methods not shown here.
 * RegexHelper: Collection of typical validation Regexes.
 * [Request][]: Validate, filter and access request variables.
     - URLComparer: Compare URLs, including query parameters.
-    - RequestHelper: build raw requests from scratch with multipart support.
+    - RequestHelper: Build raw requests from scratch with multipart support.
     - AcceptHeaders: Allows parsing the `Accept:` header.
 * [StringBuilder][]: Easily concatenate strings, with formatting helpers, in a chainable interface.
 * SVNHelper: working with a local SVN repository. Update, commit, etc.
-* Traits: Plug-in traits for common tasks, with matching interfaces.
+* Traits and Interfaces: Plug-in traits for common tasks, with matching interfaces.
     - [Classable][]: For elements that can have classes, like HTML elements.
     - [Optionable][]: For elements which allow setting options, with strong typing.
+    - Stringable: For elements with the `__toString()` method.
 * Transliteration: Simple transliteration to ASCII for any names. 
 * [URLInfo][]: An object-oriented parse_url with fixes for a number of pitfalls.
     - Highlighter: Highlights URLs with integrated CSS.
@@ -165,3 +170,4 @@ and being modernized.
 [URLFinder]: https://github.com/Mistralys/application-utils/wiki/URLFinder
 [OutputBuffering]: https://github.com/Mistralys/application-utils/wiki/OutputBuffering
 [Microtime]: https://github.com/Mistralys/application-utils/wiki/Microtime
+[HTMLTag]: https://github.com/Mistralys/application-utils/wiki/HTMLTag
