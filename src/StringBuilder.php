@@ -346,49 +346,22 @@ class StringBuilder implements StringBuilder_Interface
 
         return $this->nl()->nl();
     }
-    
-   /**
-    * Adds an anchor HTML tag.
-    * 
-    * @param string $label
-    * @param string $url
-    * @param bool $newTab
-    * @return $this
-    */
-    public function link(string $label, string $url, bool $newTab=false) : StringBuilder
+
+    /**
+     * Adds an anchor HTML tag.
+     *
+     * @param string $label
+     * @param string $url
+     * @param bool $newTab
+     * @param AttributeCollection|null $attributes
+     * @return $this
+     */
+    public function link(string $label, string $url, bool $newTab=false, ?AttributeCollection $attributes=null) : StringBuilder
     {
-        $attributes = AttributeCollection::create()
-            ->href($url);
-
-        if($newTab)
-        {
-            $attributes->target();
-        }
-
-        return $this->html(
-            HTMLTag::create('a', $attributes)
-                ->addText($label)
-        );
+        return $this->add($this->createLink($label, $url, $newTab, $attributes));
     }
 
-    private function createLink(string $label, string $url, bool $newTab=false) : HTMLTag
-    {
-        $attributes = AttributeCollection::create()
-            ->href($url);
-
-        if($newTab)
-        {
-            $attributes->target();
-        }
-
-        $tag = HTMLTag::create('a', $attributes);
-        $tag->content->add($label);
-
-        return $tag;
-    }
-
-
-    public function linkOpen(string $url, bool $newTab=false, ?AttributeCollection $attributes=null) : StringBuilder
+    private function createLink(string $label, string $url, bool $newTab=false, ?AttributeCollection $attributes=null) : HTMLTag
     {
         if($attributes === null)
         {
@@ -402,7 +375,13 @@ class StringBuilder implements StringBuilder_Interface
             $attributes->target();
         }
 
-        return $this->html(HTMLTag::create('a', $attributes));
+        return HTMLTag::create('a', $attributes)
+            ->addText($label);
+    }
+
+    public function linkOpen(string $url, bool $newTab=false, ?AttributeCollection $attributes=null) : StringBuilder
+    {
+        return $this->html($this->createLink('', $url, $newTab, $attributes)->renderOpen());
     }
 
     public function linkClose() : StringBuilder
