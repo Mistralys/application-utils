@@ -30,9 +30,9 @@ namespace AppUtils;
  */
 class Request
 {
-    const ERROR_MISSING_OR_INVALID_PARAMETER = 97001;
+    public const ERROR_MISSING_OR_INVALID_PARAMETER = 97001;
     
-    const ERROR_PARAM_NOT_REGISTERED = 97002;
+    public const ERROR_PARAM_NOT_REGISTERED = 97002;
     
     /**
      * @var Request

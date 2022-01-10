@@ -24,17 +24,17 @@ use ArrayAccess;
  */
 class URLInfo implements ArrayAccess
 {
-    const ERROR_MISSING_SCHEME = 42101;
-    const ERROR_INVALID_SCHEME = 42102;
-    const ERROR_MISSING_HOST = 42103;
-    const ERROR_CANNOT_FIND_CSS_FOLDER = 42104;
-    const ERROR_UNKNOWN_TYPE_FOR_LABEL = 42105;
-    const ERROR_CURL_INIT_FAILED = 42106;
+    public const ERROR_MISSING_SCHEME = 42101;
+    public const ERROR_INVALID_SCHEME = 42102;
+    public const ERROR_MISSING_HOST = 42103;
+    public const ERROR_CANNOT_FIND_CSS_FOLDER = 42104;
+    public const ERROR_UNKNOWN_TYPE_FOR_LABEL = 42105;
+    public const ERROR_CURL_INIT_FAILED = 42106;
     
-    const TYPE_EMAIL = 'email';
-    const TYPE_FRAGMENT = 'fragment';
-    const TYPE_PHONE = 'phone';
-    const TYPE_URL = 'url';
+    public const TYPE_EMAIL = 'email';
+    public const TYPE_FRAGMENT = 'fragment';
+    public const TYPE_PHONE = 'phone';
+    public const TYPE_URL = 'url';
 
    /**
     * The original URL that was passed to the constructor.

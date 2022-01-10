@@ -21,9 +21,9 @@ namespace AppUtils;
  */
 class IniHelper
 {
-    const SECTION_DEFAULT = '__inihelper_section_default';
+    public const SECTION_DEFAULT = '__inihelper_section_default';
     
-    const ERROR_TARGET_FILE_NOT_READABLE = 41802;
+    public const ERROR_TARGET_FILE_NOT_READABLE = 41802;
     
     protected $sections = array();
     

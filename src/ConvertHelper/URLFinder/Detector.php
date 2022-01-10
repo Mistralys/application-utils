@@ -6,8 +6,8 @@ namespace AppUtils;
 
 abstract class ConvertHelper_URLFinder_Detector
 {
-    const RUN_BEFORE = 'before';
-    const RUN_AFTER = 'after';
+    public const RUN_BEFORE = 'before';
+    public const RUN_AFTER = 'after';
 
     /**
      * @var string[]

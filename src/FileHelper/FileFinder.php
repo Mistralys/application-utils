@@ -25,16 +25,16 @@ class FileHelper_FileFinder implements Interface_Optionable
 {
     use Traits_Optionable;
 
-    const ERROR_PATH_DOES_NOT_EXIST = 44101;
+    public const ERROR_PATH_DOES_NOT_EXIST = 44101;
     
-    const PATH_MODE_ABSOLUTE = 'absolute';
+    public const PATH_MODE_ABSOLUTE = 'absolute';
     
-    const PATH_MODE_RELATIVE = 'relative';
+    public const PATH_MODE_RELATIVE = 'relative';
     
-    const PATH_MODE_STRIP = 'strip';
-    const OPTION_INCLUDE_EXTENSIONS = 'include-extensions';
-    const OPTION_EXCLUDE_EXTENSIONS = 'exclude-extensions';
-    const OPTION_PATHMODE = 'pathmode';
+    public const PATH_MODE_STRIP = 'strip';
+    public const OPTION_INCLUDE_EXTENSIONS = 'include-extensions';
+    public const OPTION_EXCLUDE_EXTENSIONS = 'exclude-extensions';
+    public const OPTION_PATHMODE = 'pathmode';
 
     /**
     * @var string

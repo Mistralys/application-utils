@@ -25,14 +25,14 @@ use DateTime;
  */
 class ConvertHelper_DurationConverter
 {
-    const ERROR_NO_DATE_FROM_SET = 43401;
+    public const ERROR_NO_DATE_FROM_SET = 43401;
     
-    const SECONDS_PER_MINUTE = 60;
-    const SECONDS_PER_HOUR = 3600;
-    const SECONDS_PER_DAY = 86400;
-    const SECONDS_PER_WEEK = 604800;
-    const SECONDS_PER_MONTH_APPROX = 2505600; // imprecise - for 29 days, only for approximations. 
-    const SECONDS_PER_YEAR = 31536000;
+    public const SECONDS_PER_MINUTE = 60;
+    public const SECONDS_PER_HOUR = 3600;
+    public const SECONDS_PER_DAY = 86400;
+    public const SECONDS_PER_WEEK = 604800;
+    public const SECONDS_PER_MONTH_APPROX = 2505600; // imprecise - for 29 days, only for approximations. 
+    public const SECONDS_PER_YEAR = 31536000;
     
    /**
     * @var int|NULL

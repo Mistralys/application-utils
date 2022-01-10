@@ -4,7 +4,7 @@ namespace AppUtils;
 
 class SVNHelper_Command_Update extends SVNHelper_Command
 {
-    const ERROR_NO_UPDATE_REVISION_SPECIFIED = 23901;
+    public const ERROR_NO_UPDATE_REVISION_SPECIFIED = 23901;
 
     protected function _execute()
     {

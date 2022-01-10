@@ -21,7 +21,7 @@ namespace AppUtils;
  */
 class XMLHelper_SimpleXML
 {
-    const ERROR_NOT_LOADED_YET = 56501;
+    public const ERROR_NOT_LOADED_YET = 56501;
     
    /**
     * @var \SimpleXMLElement|NULL

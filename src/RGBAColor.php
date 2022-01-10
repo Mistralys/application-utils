@@ -32,19 +32,19 @@ use ArrayAccess;
  */
 class RGBAColor implements ArrayAccess, Interface_Stringable
 {
-    const ERROR_UNKNOWN_COLOR_SUBJECT = 93401;
-    const ERROR_INVALID_COLOR_COMPONENT = 93402;
-    const ERROR_INVALID_PERCENTAGE_VALUE = 93503;
-    const ERROR_INVALID_COLOR_VALUE = 93504;
-    const ERROR_INVALID_HEX_LENGTH = 93505;
-    const ERROR_INVALID_AMOUNT_COLOR_KEYS = 93506;
-    const ERROR_UNKNOWN_COLOR_PRESET = 93507;
-    const ERROR_INVALID_COLOR_ARRAY = 93508;
+    public const ERROR_UNKNOWN_COLOR_SUBJECT = 93401;
+    public const ERROR_INVALID_COLOR_COMPONENT = 93402;
+    public const ERROR_INVALID_PERCENTAGE_VALUE = 93503;
+    public const ERROR_INVALID_COLOR_VALUE = 93504;
+    public const ERROR_INVALID_HEX_LENGTH = 93505;
+    public const ERROR_INVALID_AMOUNT_COLOR_KEYS = 93506;
+    public const ERROR_UNKNOWN_COLOR_PRESET = 93507;
+    public const ERROR_INVALID_COLOR_ARRAY = 93508;
 
-    const COMPONENT_RED = 'red';
-    const COMPONENT_GREEN = 'green';
-    const COMPONENT_BLUE = 'blue';
-    const COMPONENT_ALPHA = 'alpha';
+    public const COMPONENT_RED = 'red';
+    public const COMPONENT_GREEN = 'green';
+    public const COMPONENT_BLUE = 'blue';
+    public const COMPONENT_ALPHA = 'alpha';
 
     /**
      * @var array<string,float>
@@ -54,7 +54,7 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     /**
      * @var string[]
      */
-    const COLOR_COMPONENTS = array(
+    public const COLOR_COMPONENTS = array(
         self::COMPONENT_RED,
         self::COMPONENT_GREEN,
         self::COMPONENT_BLUE,

@@ -34,7 +34,7 @@ namespace AppUtils;
  */
 class XMLHelper_HTMLLoader
 {
-    const ERROR_STRING_ALREADY_HAS_BODY_TAG = 57001;
+    public const ERROR_STRING_ALREADY_HAS_BODY_TAG = 57001;
     
    /**
     * @var \DOMElement

@@ -4,9 +4,9 @@ namespace AppUtils;
 
 class SVNHelper_Command_Add extends SVNHelper_Command
 {
-    const ERROR_CANNOT_ADD_TARGET_PATH = 23801;
+    public const ERROR_CANNOT_ADD_TARGET_PATH = 23801;
     
-    const ERROR_UNEXPECTED_RESULT = 23802;
+    public const ERROR_UNEXPECTED_RESULT = 23802;
     
     protected $added = false;
     

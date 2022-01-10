@@ -20,7 +20,7 @@ namespace AppUtils;
  */
 class Request_RefreshParams_Exclude_Callback extends Request_RefreshParams_Exclude
 {
-    const ERROR_INVALID_CALLBACK = 62101;
+    public const ERROR_INVALID_CALLBACK = 62101;
     
    /**
     * @var callable

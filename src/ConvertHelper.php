@@ -23,15 +23,15 @@ use DateTime;
  */
 class ConvertHelper
 {
-    const ERROR_MONTHTOSTRING_NOT_VALID_MONTH_NUMBER = 23303;
-    const ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE = 23304;
-    const ERROR_JSON_ENCODE_FAILED = 23305;
-    const ERROR_INVALID_BOOLEAN_STRING = 23306;
+    public const ERROR_MONTHTOSTRING_NOT_VALID_MONTH_NUMBER = 23303;
+    public const ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE = 23304;
+    public const ERROR_JSON_ENCODE_FAILED = 23305;
+    public const ERROR_INVALID_BOOLEAN_STRING = 23306;
 
-    const INTERVAL_DAYS = 'days';
-    const INTERVAL_HOURS = 'hours';
-    const INTERVAL_MINUTES = 'minutes';
-    const INTERVAL_SECONDS = 'seconds';
+    public const INTERVAL_DAYS = 'days';
+    public const INTERVAL_HOURS = 'hours';
+    public const INTERVAL_MINUTES = 'minutes';
+    public const INTERVAL_SECONDS = 'seconds';
 
     /**
      * Normalizes tabs in the specified string by indenting everything

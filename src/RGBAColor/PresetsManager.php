@@ -27,11 +27,11 @@ namespace AppUtils;
  */
 class RGBAColor_PresetsManager
 {
-    const ERROR_CANNOT_OVERWRITE_BUILT_IN_PRESET = 94001;
+    public const ERROR_CANNOT_OVERWRITE_BUILT_IN_PRESET = 94001;
 
-    const COLOR_WHITE = 'white';
-    const COLOR_BLACK = 'black';
-    const COLOR_TRANSPARENT = 'transparent';
+    public const COLOR_WHITE = 'white';
+    public const COLOR_BLACK = 'black';
+    public const COLOR_TRANSPARENT = 'transparent';
 
     /**
      * @var array<string,array<string,int>>

@@ -26,7 +26,7 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
     */
     private $subject;
     
-    const DEF_DEPTH = 512;
+    public const DEF_DEPTH = 512;
     
    /**
     * @var array

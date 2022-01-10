@@ -21,8 +21,8 @@ namespace AppUtils;
  */
 class XMLHelper_DOMErrors_Error
 {
-    const ERROR_CANNOT_UNSERIALIZE_ERROR_DATA = 57201;
-    const ERROR_ERROR_DATA_KEY_MISSING = 57202;
+    public const ERROR_CANNOT_UNSERIALIZE_ERROR_DATA = 57201;
+    public const ERROR_ERROR_DATA_KEY_MISSING = 57202;
     
    /**
     * @var \LibXMLError

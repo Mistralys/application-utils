@@ -22,7 +22,7 @@ namespace AppUtils;
  */
 class ConvertHelper_IntervalConverter
 {
-    const ERROR_MISSING_TRANSLATION = 43501;
+    public const ERROR_MISSING_TRANSLATION = 43501;
     
    /**
     * @var array<string,string>|NULL

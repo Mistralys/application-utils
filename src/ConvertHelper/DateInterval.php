@@ -32,14 +32,14 @@ use Exception;
  */
 class ConvertHelper_DateInterval
 {
-    const ERROR_CANNOT_GET_DATE_DIFF = 43601;
+    public const ERROR_CANNOT_GET_DATE_DIFF = 43601;
     
-    const TOKEN_SECONDS = 's';
-    const TOKEN_MINUTES = 'i';
-    const TOKEN_HOURS = 'h';
-    const TOKEN_DAYS = 'd';
-    const TOKEN_MONTHS = 'm';
-    const TOKEN_YEARS = 'y';
+    public const TOKEN_SECONDS = 's';
+    public const TOKEN_MINUTES = 'i';
+    public const TOKEN_HOURS = 'h';
+    public const TOKEN_DAYS = 'd';
+    public const TOKEN_MONTHS = 'm';
+    public const TOKEN_YEARS = 'y';
     
    /**
     * @var DateInterval

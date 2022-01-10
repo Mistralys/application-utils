@@ -25,10 +25,10 @@ namespace AppUtils;
  */
 class ConvertHelper_StorageSizeEnum
 {
-    const ERROR_UNKNOWN_UNIT_NAME = 43901;
+    public const ERROR_UNKNOWN_UNIT_NAME = 43901;
     
-    const BASE_10 = 1000;
-    const BASE_2 = 1024;
+    public const BASE_10 = 1000;
+    public const BASE_2 = 1024;
     
    /**
     * @var array<string,ConvertHelper_StorageSizeEnum_Size>

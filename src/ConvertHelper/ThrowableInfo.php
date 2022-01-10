@@ -11,13 +11,13 @@ class ConvertHelper_ThrowableInfo implements Interface_Optionable
 {
     use Traits_Optionable;
     
-    const ERROR_NO_PREVIOUS_EXCEPTION = 43301;
-    const ERROR_INVALID_SERIALIZED_DATA_TYPE = 43302;
+    public const ERROR_NO_PREVIOUS_EXCEPTION = 43301;
+    public const ERROR_INVALID_SERIALIZED_DATA_TYPE = 43302;
     
-    const FORMAT_HTML = 'html';
+    public const FORMAT_HTML = 'html';
 
-    const CONTEXT_COMMAND_LINE = 'cli';
-    const CONTEXT_WEB = 'web';
+    public const CONTEXT_COMMAND_LINE = 'cli';
+    public const CONTEXT_WEB = 'web';
 
     /**
     * @var Throwable

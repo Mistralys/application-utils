@@ -26,13 +26,13 @@ use ZipArchive;
  */
 class ZIPHelper
 {
-    const ERROR_SOURCE_FILE_DOES_NOT_EXIST = 338001;
+    public const ERROR_SOURCE_FILE_DOES_NOT_EXIST = 338001;
     
-    const ERROR_NO_FILES_IN_ARCHIVE = 338002;
+    public const ERROR_NO_FILES_IN_ARCHIVE = 338002;
     
-    const ERROR_OPENING_ZIP_FILE = 338003;
+    public const ERROR_OPENING_ZIP_FILE = 338003;
     
-    const ERROR_CANNOT_SAVE_FILE_TO_DISK =338004;
+    public const ERROR_CANNOT_SAVE_FILE_TO_DISK =338004;
     
     protected $options = array(
         'WriteThreshold' => 100

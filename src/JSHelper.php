@@ -30,13 +30,13 @@ class JSHelper
     * Quote style using single quotes.
     * @var integer
     */
-    const QUOTE_STYLE_SINGLE = 1;
+    public const QUOTE_STYLE_SINGLE = 1;
     
    /**
     * Quote style using double quotes.
     * @var integer
     */
-    const QUOTE_STYLE_DOUBLE = 2;
+    public const QUOTE_STYLE_DOUBLE = 2;
 
    /**
     * @var array
@@ -280,9 +280,9 @@ class JSHelper
         self::$idPrefix = $prefix;
     }
 
-    const JS_REGEX_OBJECT = 'object';
+    public const JS_REGEX_OBJECT = 'object';
     
-    const JS_REGEX_JSON = 'json';
+    public const JS_REGEX_JSON = 'json';
     
     /**
      * Takes a regular expression and attempts to convert it to

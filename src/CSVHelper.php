@@ -37,17 +37,17 @@ use ParseCsv\Csv;
  */
 class CSVHelper
 {
-    const ERROR_INVALID_HEADERS_POSITION = 561002;
-    const ERROR_INVALID_FILE_ENCODING = 561003;
-    const ERROR_FILE_PARSING_FAILED = 561004;
-    const ERROR_CSV_FILE_NOT_READABLE = 561005;
-    const ERROR_STRING_PARSING_FAILED = 561006;
+    public const ERROR_INVALID_HEADERS_POSITION = 561002;
+    public const ERROR_INVALID_FILE_ENCODING = 561003;
+    public const ERROR_FILE_PARSING_FAILED = 561004;
+    public const ERROR_CSV_FILE_NOT_READABLE = 561005;
+    public const ERROR_STRING_PARSING_FAILED = 561006;
 
-    const DELIMITER_AUTO = 'auto';
+    public const DELIMITER_AUTO = 'auto';
 
-    const HEADERS_LEFT = 'hleft';
-    const HEADERS_TOP = 'htop';
-    const HEADERS_NONE = 'hnone';
+    public const HEADERS_LEFT = 'hleft';
+    public const HEADERS_TOP = 'htop';
+    public const HEADERS_NONE = 'hnone';
     
     public function __construct()
     {

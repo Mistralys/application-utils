@@ -4,7 +4,7 @@ namespace AppUtils;
 
 abstract class SVNHelper_Target
 {
-    const ERROR_FILE_NOT_FOUND = 22501;
+    public const ERROR_FILE_NOT_FOUND = 22501;
     
     /**
      * @var SVNHelper

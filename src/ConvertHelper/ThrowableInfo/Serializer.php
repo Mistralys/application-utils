@@ -6,17 +6,17 @@ namespace AppUtils;
 
 class ConvertHelper_ThrowableInfo_Serializer
 {
-    const SERIALIZED_CODE = 'code';
-    const SERIALIZED_MESSAGE = 'message';
-    const SERIALIZED_REFERER = 'referer';
-    const SERIALIZED_CONTEXT = 'context';
-    const SERIALIZED_AMOUNT_CALLS = 'amountCalls';
-    const SERIALIZED_DATE = 'date';
-    const SERIALIZED_PREVIOUS = 'previous';
-    const SERIALIZED_CALLS = 'calls';
-    const SERIALIZED_OPTIONS = 'options';
-    const SERIALIZED_CLASS = 'class';
-    const SERIALIZED_DETAILS = 'details';
+    public const SERIALIZED_CODE = 'code';
+    public const SERIALIZED_MESSAGE = 'message';
+    public const SERIALIZED_REFERER = 'referer';
+    public const SERIALIZED_CONTEXT = 'context';
+    public const SERIALIZED_AMOUNT_CALLS = 'amountCalls';
+    public const SERIALIZED_DATE = 'date';
+    public const SERIALIZED_PREVIOUS = 'previous';
+    public const SERIALIZED_CALLS = 'calls';
+    public const SERIALIZED_OPTIONS = 'options';
+    public const SERIALIZED_CLASS = 'class';
+    public const SERIALIZED_DETAILS = 'details';
 
     /**
      * @param ConvertHelper_ThrowableInfo $info

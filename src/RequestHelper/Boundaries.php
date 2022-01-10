@@ -20,7 +20,7 @@ namespace AppUtils;
  */
 class RequestHelper_Boundaries
 {
-    const ERROR_NO_BOUNDARIES_SPECIFIED = 44401;
+    public const ERROR_NO_BOUNDARIES_SPECIFIED = 44401;
     
    /**
     * @var RequestHelper

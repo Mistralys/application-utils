@@ -27,11 +27,11 @@ namespace AppUtils;
  */
 class OutputBuffering
 {
-    const ERROR_CANNOT_START = 91501;
-    const ERROR_CANNOT_GET_BUFFER = 91502;
-    const ERROR_BUFFER_NOT_STARTED = 91503;
-    const ERROR_CANNOT_STOP_BUFFER = 91504;
-    const ERROR_CANNOT_FLUSH_BUFFER = 91505;
+    public const ERROR_CANNOT_START = 91501;
+    public const ERROR_CANNOT_GET_BUFFER = 91502;
+    public const ERROR_BUFFER_NOT_STARTED = 91503;
+    public const ERROR_CANNOT_STOP_BUFFER = 91504;
+    public const ERROR_CANNOT_FLUSH_BUFFER = 91505;
 
     /**
      * @var int[]

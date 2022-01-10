@@ -4,25 +4,25 @@ namespace AppUtils;
 
 class SVNHelper_Command_Status extends SVNHelper_Command
 {
-    const STATUS_NOT_MODIFIED = 'not-modified';
+    public const STATUS_NOT_MODIFIED = 'not-modified';
     
-    const STATUS_UNKNOWN = 'unknown';
+    public const STATUS_UNKNOWN = 'unknown';
     
-    const STATUS_MISSING = 'missing';
+    public const STATUS_MISSING = 'missing';
     
-    const STATUS_ADD = 'add';
+    public const STATUS_ADD = 'add';
     
-    const STATUS_DELETE = 'delete';
+    public const STATUS_DELETE = 'delete';
     
-    const STATUS_MODIFIED = 'modified';
+    public const STATUS_MODIFIED = 'modified';
     
-    const STATUS_CONFLICTED = 'conflicted';
+    public const STATUS_CONFLICTED = 'conflicted';
     
-    const STATUS_UNVERSIONED = 'unversioned';
+    public const STATUS_UNVERSIONED = 'unversioned';
     
-    const STATUS_IGNORED = 'ignored';
+    public const STATUS_IGNORED = 'ignored';
     
-    const STATUS_FILETYPE_CHANGE = 'filetype-change';
+    public const STATUS_FILETYPE_CHANGE = 'filetype-change';
     
    /**
     * @var array

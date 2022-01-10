@@ -26,74 +26,74 @@ use Exception;
  */
 class Microtime extends DateTime implements Interface_Stringable
 {
-    const ERROR_FAILED_CREATING_DATE_OBJECT = 88601;
-    const ERROR_FAILED_CONVERTING_STRING = 88602;
-    const ERROR_INVALID_DATE_VALUE = 88603;
+    public const ERROR_FAILED_CREATING_DATE_OBJECT = 88601;
+    public const ERROR_FAILED_CONVERTING_STRING = 88602;
+    public const ERROR_INVALID_DATE_VALUE = 88603;
 
-    const DATETIME_NOW = 'now';
-    const FORMAT_ISO = 'Y-m-d H:i:s.u';
+    public const DATETIME_NOW = 'now';
+    public const FORMAT_ISO = 'Y-m-d H:i:s.u';
 
     // region: Format character constants
 
     /**
      * Day of the month without leading zeros
      */
-    const CHAR_DAY_OF_MONTH = 'j';
+    public const CHAR_DAY_OF_MONTH = 'j';
 
     /**
      * Day of the month with leading zeros
      */
-    const CHAR_DAY_OF_MONTH_LZ = 'd';
+    public const CHAR_DAY_OF_MONTH_LZ = 'd';
 
     /**
      * Day of the month as name, `Mon` through `Sun`
      */
-    const CHAR_DAY_NAME_SHORT = 'D';
+    public const CHAR_DAY_NAME_SHORT = 'D';
 
     /**
      * `Monday` through `Saturday`
      */
-    const CHAR_DAY_NAME_LONG = 'l';
+    public const CHAR_DAY_NAME_LONG = 'l';
 
     /**
      * One-based day of the week (1=Monday, 7=Sunday)
      */
-    const CHAR_DAY_OF_WEEK = 'N';
+    public const CHAR_DAY_OF_WEEK = 'N';
 
     /**
      * Zero-Based day of the week (0=Sunday, 6=Saturday)
      */
-    const CHAR_DAY_OF_WEEK_ZB = 'w';
+    public const CHAR_DAY_OF_WEEK_ZB = 'w';
 
     /**
      * English ordinal suffix for the day of the month (th, nd...)
      */
-    const CHAR_DAY_ORDINAL_SUFFIX = 'S';
+    public const CHAR_DAY_ORDINAL_SUFFIX = 'S';
 
     /**
      * Month number with leading zeros
      */
-    const CHAR_MONTH_LZ = 'm';
+    public const CHAR_MONTH_LZ = 'm';
 
     /**
      * Month number without leading zeros
      */
-    const CHAR_MONTH = 'n';
+    public const CHAR_MONTH = 'n';
 
     /**
      * Month name, three-letter short variant.
      */
-    const CHAR_MONTH_NAME_SHORT = 'M';
+    public const CHAR_MONTH_NAME_SHORT = 'M';
 
     /**
      * Month name, full length.
      */
-    const CHAR_MONTH_NAME_LONG = 'F';
+    public const CHAR_MONTH_NAME_LONG = 'F';
 
     /**
      * 28 through 31
      */
-    const CHAR_AMOUNT_DAYS_IN_MONTH = 't';
+    public const CHAR_AMOUNT_DAYS_IN_MONTH = 't';
 
     // endregion
 

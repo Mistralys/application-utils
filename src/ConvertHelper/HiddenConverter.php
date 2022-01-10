@@ -21,8 +21,8 @@ namespace AppUtils;
  */
 class ConvertHelper_HiddenConverter
 {
-    const CHARS_WHITESPACE = 'whitespace';
-    const CHARS_CONTROL = 'control';
+    public const CHARS_WHITESPACE = 'whitespace';
+    public const CHARS_CONTROL = 'control';
 
     /**
      * @var array<string,array<string,string>>

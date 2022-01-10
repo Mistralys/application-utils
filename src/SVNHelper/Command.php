@@ -4,21 +4,21 @@ namespace AppUtils;
 
 abstract class SVNHelper_Command
 {
-    const ERROR_INVALID_COMMAND_RESULT = 22601;
+    public const ERROR_INVALID_COMMAND_RESULT = 22601;
     
-    const ERROR_UNEXPECTED_OUTPUT = 22602;
+    public const ERROR_UNEXPECTED_OUTPUT = 22602;
     
-    const ERROR_CONFLICTS_REPORTED = 22603;
+    public const ERROR_CONFLICTS_REPORTED = 22603;
     
-    const ERROR_REPOSITORY_LOCKED = 22604;
+    public const ERROR_REPOSITORY_LOCKED = 22604;
     
-    const ERROR_CONNECTION_FAILED = 22605;
+    public const ERROR_CONNECTION_FAILED = 22605;
     
-    const SVN_ERROR_IGNORED = 8000001;
+    public const SVN_ERROR_IGNORED = 8000001;
     
-    const SVN_ERROR_TYPE_ERROR = 'error';
+    public const SVN_ERROR_TYPE_ERROR = 'error';
     
-    const SVN_ERROR_TYPE_WARNING = 'warning';
+    public const SVN_ERROR_TYPE_WARNING = 'warning';
     
     /**
     * @var SVNHelper

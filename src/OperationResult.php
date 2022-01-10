@@ -29,10 +29,10 @@ use Throwable;
  */
 class OperationResult
 {
-    const TYPE_NOTICE = 'notice';
-    const TYPE_WARNING = 'warning';
-    const TYPE_ERROR = 'error';
-    const TYPE_SUCCESS = 'success';
+    public const TYPE_NOTICE = 'notice';
+    public const TYPE_WARNING = 'warning';
+    public const TYPE_ERROR = 'error';
+    public const TYPE_SUCCESS = 'success';
     
    /**
     * @var string

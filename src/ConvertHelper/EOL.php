@@ -24,10 +24,10 @@ namespace AppUtils;
  */
 class ConvertHelper_EOL
 {
-    const TYPE_CRLF = 'CR+LF';
-    const TYPE_LFCR = 'LF+CR';
-    const TYPE_LF = 'LF';
-    const TYPE_CR = 'CR';
+    public const TYPE_CRLF = 'CR+LF';
+    public const TYPE_LFCR = 'LF+CR';
+    public const TYPE_LF = 'LF';
+    public const TYPE_CR = 'CR';
     
    /**
     * @var string

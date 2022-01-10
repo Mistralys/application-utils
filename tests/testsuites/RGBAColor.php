@@ -10,14 +10,14 @@ use PHPUnit\Framework\TestCase;
 
 final class RGBAColorTests extends TestCase
 {
-    const RED_PERCENT = 10.45;
-    const GREEN_PERCENT = 45.78;
-    const BLUE_PERCENT = 99.10;
-    const RED_INTEGER = 27;
-    const GREEN_INTEGER = 117;
-    const BLUE_INTEGER = 253;
-    const ALPHA_INTEGER = 84;
-    const ALPHA_PERCENT = 33;
+    public const RED_PERCENT = 10.45;
+    public const GREEN_PERCENT = 45.78;
+    public const BLUE_PERCENT = 99.10;
+    public const RED_INTEGER = 27;
+    public const GREEN_INTEGER = 117;
+    public const BLUE_INTEGER = 253;
+    public const ALPHA_INTEGER = 84;
+    public const ALPHA_PERCENT = 33;
 
     public function test_percent2int() : void
     {

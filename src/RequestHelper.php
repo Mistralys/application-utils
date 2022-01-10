@@ -19,18 +19,18 @@ namespace AppUtils;
  */
 class RequestHelper
 {
-    const FILETYPE_TEXT = 'text/plain';
-    const FILETYPE_XML = 'text/xml';
-    const FILETYPE_HTML = 'text/html';
-    const ENCODING_UTF8 = 'UTF-8';
+    public const FILETYPE_TEXT = 'text/plain';
+    public const FILETYPE_XML = 'text/xml';
+    public const FILETYPE_HTML = 'text/html';
+    public const ENCODING_UTF8 = 'UTF-8';
 
-    const TRANSFER_ENCODING_BASE64 = 'BASE64';
-    const TRANSFER_ENCODING_8BIT = '8BIT';
-    const TRANSFER_ENCODING_BINARY = 'BINARY';
+    public const TRANSFER_ENCODING_BASE64 = 'BASE64';
+    public const TRANSFER_ENCODING_8BIT = '8BIT';
+    public const TRANSFER_ENCODING_BINARY = 'BINARY';
     
-    const ERROR_REQUEST_FAILED = 17902;
-    const ERROR_CURL_INIT_FAILED = 17903;
-    const ERROR_CANNOT_OPEN_LOGFILE = 17904;
+    public const ERROR_REQUEST_FAILED = 17902;
+    public const ERROR_CURL_INIT_FAILED = 17903;
+    public const ERROR_CANNOT_OPEN_LOGFILE = 17904;
 
    /**
     * @var string

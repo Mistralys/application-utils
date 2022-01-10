@@ -25,11 +25,11 @@ namespace AppUtils;
  */
 class Request_Param
 {
-    const ERROR_UNKNOWN_VALIDATION_TYPE = 16301;
+    public const ERROR_UNKNOWN_VALIDATION_TYPE = 16301;
     
-    const ERROR_NOT_A_VALID_CALLBACK = 16302;
+    public const ERROR_NOT_A_VALID_CALLBACK = 16302;
     
-    const ERROR_INVALID_FILTER_TYPE = 16303;
+    public const ERROR_INVALID_FILTER_TYPE = 16303;
     
     /**
      * @var Request
@@ -48,33 +48,33 @@ class Request_Param
 
     protected static $filterTypes;
 
-    const VALIDATION_TYPE_NONE = 'none';
+    public const VALIDATION_TYPE_NONE = 'none';
 
-    const VALIDATION_TYPE_NUMERIC = 'numeric';
+    public const VALIDATION_TYPE_NUMERIC = 'numeric';
 
-    const VALIDATION_TYPE_INTEGER = 'integer';
+    public const VALIDATION_TYPE_INTEGER = 'integer';
 
-    const VALIDATION_TYPE_REGEX = 'regex';
+    public const VALIDATION_TYPE_REGEX = 'regex';
 
-    const VALIDATION_TYPE_ALPHA = 'alpha';
+    public const VALIDATION_TYPE_ALPHA = 'alpha';
 
-    const VALIDATION_TYPE_ALNUM = 'alnum';
+    public const VALIDATION_TYPE_ALNUM = 'alnum';
     
-    const VALIDATION_TYPE_ENUM = 'enum';
+    public const VALIDATION_TYPE_ENUM = 'enum';
 
-    const VALIDATION_TYPE_ARRAY = 'array';
+    public const VALIDATION_TYPE_ARRAY = 'array';
     
-    const VALIDATION_TYPE_CALLBACK = 'callback';
+    public const VALIDATION_TYPE_CALLBACK = 'callback';
 
-    const VALIDATION_TYPE_URL = 'url';
+    public const VALIDATION_TYPE_URL = 'url';
     
-    const VALIDATION_TYPE_VALUESLIST = 'valueslist';
+    public const VALIDATION_TYPE_VALUESLIST = 'valueslist';
     
-    const VALIDATION_TYPE_JSON = 'json';
+    public const VALIDATION_TYPE_JSON = 'json';
     
-    const FILTER_TYPE_CALLBACK = 'callback';
+    public const FILTER_TYPE_CALLBACK = 'callback';
     
-    const FILTER_TYPE_CLASS = 'class';
+    public const FILTER_TYPE_CLASS = 'class';
     
     /**
      * Constructor for the specified parameter name. Note that this
@@ -280,9 +280,9 @@ class Request_Param
         return $this->setValidation(self::VALIDATION_TYPE_URL);
     }
     
-    const VALUE_TYPE_STRING = 'string';
+    public const VALUE_TYPE_STRING = 'string';
     
-    const VALUE_TYPE_LIST = 'ids_list';
+    public const VALUE_TYPE_LIST = 'ids_list';
     
     protected $valueType = self::VALUE_TYPE_STRING;
 

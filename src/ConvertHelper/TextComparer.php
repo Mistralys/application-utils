@@ -29,8 +29,8 @@ class ConvertHelper_TextComparer implements Interface_Optionable
 {
     use Traits_Optionable;
 
-    const OPTION_MAX_LEVENSHTEIN_DISTANCE = 'maxLevenshtein';
-    const OPTION_PRECISION = 'precision';
+    public const OPTION_MAX_LEVENSHTEIN_DISTANCE = 'maxLevenshtein';
+    public const OPTION_PRECISION = 'precision';
 
     public function getDefaultOptions() : array
     {

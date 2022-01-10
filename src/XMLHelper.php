@@ -26,7 +26,7 @@ use SimpleXMLElement;
  */
 class XMLHelper
 {
-    const ERROR_CANNOT_APPEND_FRAGMENT = 491001; 
+    public const ERROR_CANNOT_APPEND_FRAGMENT = 491001; 
 
    /**
     * @var boolean

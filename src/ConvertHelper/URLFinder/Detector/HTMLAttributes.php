@@ -19,7 +19,7 @@ namespace AppUtils;
  */
 class ConvertHelper_URLFinder_Detector_HTMLAttributes extends ConvertHelper_URLFinder_Detector
 {
-    const REGEX = '/(href|src)="(.*)"/siU';
+    public const REGEX = '/(href|src)="(.*)"/siU';
 
     public function getRunPosition() : string
     {

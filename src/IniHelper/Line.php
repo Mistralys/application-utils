@@ -19,19 +19,19 @@ namespace AppUtils;
  */
 class IniHelper_Line
 {
-    const TYPE_SECTION_DECLARATION = 'section';
+    public const TYPE_SECTION_DECLARATION = 'section';
     
-    const TYPE_COMMENT = 'comment';
+    public const TYPE_COMMENT = 'comment';
     
-    const TYPE_EMPTY = 'empty';
+    public const TYPE_EMPTY = 'empty';
     
-    const TYPE_INVALID = 'invalid';
+    public const TYPE_INVALID = 'invalid';
     
-    const TYPE_VALUE = 'value';
+    public const TYPE_VALUE = 'value';
     
-    const ERROR_UNHANDLED_LINE_TYPE = 41901;
+    public const ERROR_UNHANDLED_LINE_TYPE = 41901;
     
-    const ERROR_NON_SCALAR_VALUE = 41902;
+    public const ERROR_NON_SCALAR_VALUE = 41902;
     
     /**
      * @var string

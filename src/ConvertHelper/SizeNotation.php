@@ -25,11 +25,11 @@ namespace AppUtils;
  */
 class ConvertHelper_SizeNotation
 {
-    const VALIDATION_ERROR_MULTIPLE_UNITS = 43801;
+    public const VALIDATION_ERROR_MULTIPLE_UNITS = 43801;
     
-    const VALIDATION_ERROR_UNRECOGNIZED_STRING = 43802;
+    public const VALIDATION_ERROR_UNRECOGNIZED_STRING = 43802;
     
-    const VALIDATION_ERROR_NEGATIVE_VALUE = 43803;
+    public const VALIDATION_ERROR_NEGATIVE_VALUE = 43803;
     
    /**
     * @var string

@@ -22,7 +22,7 @@ namespace AppUtils;
  */
 class ConvertHelper_URLFinder implements Interface_Optionable
 {
-    const ERROR_INVALID_DETECTOR_CLASS = 87901;
+    public const ERROR_INVALID_DETECTOR_CLASS = 87901;
 
     use Traits_Optionable;
     

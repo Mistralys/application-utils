@@ -26,42 +26,42 @@ class SVNHelper
    /**
     * @var integer
     */
-    const ERROR_LOCAL_PATH_DOES_NOT_EXIST = 22401;
+    public const ERROR_LOCAL_PATH_DOES_NOT_EXIST = 22401;
     
    /**
     * @var integer
     */
-    const ERROR_INVALID_REP_URL = 22402;
+    public const ERROR_INVALID_REP_URL = 22402;
     
    /**
     * @var integer
     */
-    const ERROR_PATH_IS_OUTSIDE_REPOSITORY = 22403;
+    public const ERROR_PATH_IS_OUTSIDE_REPOSITORY = 22403;
     
    /**
     * @var integer
     */
-    const ERROR_TARGET_FOLDER_IS_A_FILE = 22404;
+    public const ERROR_TARGET_FOLDER_IS_A_FILE = 22404;
     
    /**
     * @var integer
     */
-    const ERROR_CANNOT_ADD_INEXISTENT_FILE = 22405;
+    public const ERROR_CANNOT_ADD_INEXISTENT_FILE = 22405;
     
    /**
     * @var integer
     */
-    const ERROR_TARGET_PATH_NOT_FOUND = 22406;
+    public const ERROR_TARGET_PATH_NOT_FOUND = 22406;
     
    /**
     * @var integer
     */
-    const ERROR_INVALID_TARGET_TYPE = 22407;
+    public const ERROR_INVALID_TARGET_TYPE = 22407;
     
    /**
     * @var integer
     */
-    const ERROR_INVALID_LOG_CALLBACK = 22408; 
+    public const ERROR_INVALID_LOG_CALLBACK = 22408; 
     
    /**
     * @var SVNHelper_Target_Folder

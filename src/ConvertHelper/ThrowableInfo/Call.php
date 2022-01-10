@@ -6,9 +6,9 @@ namespace AppUtils;
 
 class ConvertHelper_ThrowableInfo_Call
 {
-    const TYPE_FUNCTION_CALL = 'function';
-    const TYPE_METHOD_CALL = 'method';
-    const TYPE_SCRIPT_START = 'start';
+    public const TYPE_FUNCTION_CALL = 'function';
+    public const TYPE_METHOD_CALL = 'method';
+    public const TYPE_SCRIPT_START = 'start';
     
    /**
     * @var ConvertHelper_ThrowableInfo

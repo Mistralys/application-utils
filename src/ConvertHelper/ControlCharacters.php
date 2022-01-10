@@ -20,7 +20,7 @@ namespace AppUtils;
  */
 class ConvertHelper_ControlCharacters
 {
-    const ERROR_MALFORMATTED_STRING = 53801;
+    public const ERROR_MALFORMATTED_STRING = 53801;
     
    /**
     * @var string[]

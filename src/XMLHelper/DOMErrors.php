@@ -21,7 +21,7 @@ namespace AppUtils;
  */
 class XMLHelper_DOMErrors
 {
-    const SERIALIZE_SEPARATOR = '__SERSEP__';
+    public const SERIALIZE_SEPARATOR = '__SERSEP__';
     
    /**
     * @var XMLHelper_DOMErrors_Error[]
