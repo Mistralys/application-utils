@@ -1,9 +1,10 @@
 v1.9.0
-- HTMLTag: Added the utility class to render HTML tags.
-- AttributeCollection: Added the utility class to handle HTML tag attributes.
+- HTMLTag: Added the utility class `HTMLTag` to render HTML tags.
+- AttributeCollection: Added the utility class `AttributeCollection` to handle HTML tag attributes.
 - StringBuilder: Added support for using callables in the `ifXXX()` methods.
 - StringBuilder: Added `linkOpen()` and `linkClose()`.
 - Classable: Added the `hasClasses()` method to the interface and trait.
+- Code quality: PHPStand recommendations and improvements throughout.
 
 v1.8.2
 - PHPClassInfo: Fixed the class needlessly requiring the parsed files.
