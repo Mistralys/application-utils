@@ -5,8 +5,6 @@ v1.9.0
 - StringBuilder: Added `linkOpen()` and `linkClose()`.
 - Classable: Added the `hasClasses()` method to the interface and trait.
 - Code quality: PHPStand recommendations and improvements throughout.
-
-v1.8.2
 - PHPClassInfo: Fixed the class needlessly requiring the parsed files.
 - PHPClassInfo: Added support for traits.
 - PHPClassInfo: Fixed false positives found in comments.
