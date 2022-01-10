@@ -13,6 +13,7 @@ namespace AppUtils;
 
 use DateTime;
 use AppLocalize;
+use Exception;
 use Throwable;
 
 /**
@@ -64,7 +65,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Adds a subject as a string. Is ignored if empty.
     * 
-    * @param string|number|StringBuilder_Interface|NULL $string
+    * @param string|number|Interface_Stringable|NULL $string
     * @return $this
     */
     public function add($string) : StringBuilder
@@ -82,7 +83,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Adds a string without appending an automatic space.
     * 
-    * @param string|number|StringBuilder_Interface|NULL $string
+    * @param string|number|Interface_Stringable|NULL $string
     * @return $this
     */
     public function nospace($string) : StringBuilder
@@ -100,7 +101,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Adds raw HTML code. Does not add an automatic space.
     * 
-    * @param string|number|StringBuilder_Interface $html
+    * @param string|number|Interface_Stringable $html
     * @return $this
     */
     public function html($html) : StringBuilder
@@ -111,7 +112,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Adds an unordered list with the specified items.
     * 
-    * @param array<int,string|number|StringBuilder_Interface> $items
+    * @param array<int,string|number|Interface_Stringable> $items
     * @return $this
     */
     public function ul(array $items) : StringBuilder
@@ -122,7 +123,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Adds an ordered list with the specified items.
     * 
-    * @param array<int,string|number|StringBuilder_Interface> $items
+    * @param array<int,string|number|Interface_Stringable> $items
     * @return $this
     */
     public function ol(array $items) : StringBuilder
@@ -134,7 +135,7 @@ class StringBuilder implements StringBuilder_Interface
     * Creates a list tag with the items list.
     * 
     * @param string $type The list type, `ol` or `ul`.
-    * @param array<int,string|number|StringBuilder_Interface> $items
+    * @param array<int,string|number|Interface_Stringable> $items
     * @return $this
     */
     protected function list(string $type, array $items) : StringBuilder
@@ -208,7 +209,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Adds HTML double quotes around the string.
     * 
-    * @param string|number|StringBuilder_Interface $string
+    * @param string|number|Interface_Stringable $string
     * @return $this
     */
     public function quote($string) : StringBuilder
@@ -220,7 +221,7 @@ class StringBuilder implements StringBuilder_Interface
     * Adds a text that is meant as a reference to a UI element,
     * like a menu item, button, etc.
     * 
-    * @param string|number|StringBuilder_Interface $string 
+    * @param string|number|Interface_Stringable $string 
     * @return $this
     */
     public function reference($string) : StringBuilder
@@ -232,7 +233,7 @@ class StringBuilder implements StringBuilder_Interface
     * Add a string using the `sprintf` method.
     * 
     * @param string $format The format string
-    * @param string|number|StringBuilder_Interface ...$arguments The variables to inject
+    * @param string|number|Interface_Stringable ...$arguments The variables to inject
     * @return $this
     */
     public function sf(string $format, ...$arguments) : StringBuilder
@@ -245,7 +246,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Adds a bold string.
     * 
-    * @param string|number|StringBuilder_Interface $string
+    * @param string|number|Interface_Stringable $string
     * @return $this
     */
     public function bold($string) : StringBuilder
@@ -392,7 +393,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Wraps the string in a `code` tag.
     * 
-    * @param string|number|StringBuilder_Interface $string
+    * @param string|number|Interface_Stringable $string
     * @return $this
     */
     public function code($string) : StringBuilder
@@ -406,7 +407,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Wraps the string in a `pre` tag.
     * 
-    * @param string|number|StringBuilder_Interface $string
+    * @param string|number|Interface_Stringable $string
     * @return $this
     */
     public function pre($string) : StringBuilder
@@ -417,7 +418,7 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * Wraps the text in a `span` tag with the specified classes.
     * 
-    * @param string|number|StringBuilder_Interface $string
+    * @param string|number|Interface_Stringable $string
     * @param string|string[] $classes
     * @return $this
     */
@@ -441,8 +442,8 @@ class StringBuilder implements StringBuilder_Interface
      * even if the condition is false.
      *
      * @param bool $condition
-     * @param string|number|StringBuilder_Interface|NULL|callable $content
-     * @return StringBuilder
+     * @param string|number|Interface_Stringable|NULL|callable $content
+     * @return $this
      *
      * @throws StringBuilder_Exception
      * @see StringBuilder::ERROR_CALLABLE_THREW_ERROR
@@ -463,8 +464,8 @@ class StringBuilder implements StringBuilder_Interface
      * even if the condition is true.
      *
      * @param bool $condition
-     * @param string|number|StringBuilder_Interface|callable|NULL $string
-     * @return StringBuilder
+     * @param string|number|Interface_Stringable|callable|NULL $string
+     * @return $this
      *
      * @throws StringBuilder_Exception
      * @see StringBuilder::ERROR_CALLABLE_THREW_ERROR
@@ -483,8 +484,8 @@ class StringBuilder implements StringBuilder_Interface
      * Handles callbacks used to render content on demand when
      * it is needed. All other values are simply passed through.
      *
-     * @param string|number|StringBuilder_Interface|callable|NULL $content
-     * @return string|number|StringBuilder_Interface|NULL
+     * @param string|number|Interface_Stringable|callable|NULL $content
+     * @return string|number|Interface_Stringable|NULL
      *
      * @throws StringBuilder_Exception
      * @see StringBuilder::ERROR_CALLABLE_THREW_ERROR
@@ -500,7 +501,7 @@ class StringBuilder implements StringBuilder_Interface
         {
             return $content();
         }
-        catch (Throwable $e)
+        catch (Exception $e)
         {
             throw new StringBuilder_Exception(
                 'The callable has thrown an error.',
@@ -516,7 +517,7 @@ class StringBuilder implements StringBuilder_Interface
 
     /**
      * @param mixed $subject
-     * @param string|number|StringBuilder_Interface|callable|NULL $content
+     * @param string|number|Interface_Stringable|callable|NULL $content
      * @return $this
      *
      * @throws StringBuilder_Exception
@@ -529,7 +530,7 @@ class StringBuilder implements StringBuilder_Interface
 
     /**
      * @param mixed $subject
-     * @param string|number|StringBuilder_Interface|callable|NULL $content
+     * @param string|number|Interface_Stringable|callable|NULL $content
      * @return $this
      *
      * @throws StringBuilder_Exception
@@ -546,8 +547,8 @@ class StringBuilder implements StringBuilder_Interface
      * them even when they are not needed.
      *
      * @param bool $condition
-     * @param string|number|StringBuilder_Interface|callable|NULL $ifTrue
-     * @param string|number|StringBuilder_Interface|callable|NULL $ifFalse
+     * @param string|number|Interface_Stringable|callable|NULL $ifTrue
+     * @param string|number|Interface_Stringable|callable|NULL $ifFalse
      * @return $this
      *
      * @throws StringBuilder_Exception
