@@ -38,7 +38,10 @@
         "ext-mbstring": "*",
         "ext-curl": "*",
         "ext-json": "*",
-        "ext-gd": "*"
+        "ext-gd": "*",
+        "ext-simplexml": "*",
+        "ext-dom": "*",
+        "ext-zip": "*"
     },
     "require-dev" : 
     {
