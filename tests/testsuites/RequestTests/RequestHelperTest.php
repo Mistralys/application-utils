@@ -1,8 +1,10 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
+namespace RequestTests;
+
 use AppUtils\RequestHelper;
 use AppUtils\RequestHelper_Exception;
+use PHPUnit\Framework\TestCase;
 
 final class RequestHelperTest extends TestCase
 {
@@ -16,7 +18,7 @@ final class RequestHelperTest extends TestCase
         }
     }
     
-    public function test_sendEmpty()
+    public function test_sendEmpty() : void
     {
         $helper = new RequestHelper('http://www.foo.nowhere');
         
@@ -28,13 +30,9 @@ final class RequestHelperTest extends TestCase
    /**
     * Checks that sending a file works as intended.
     */
-    public function test_sendFile()
+    public function test_sendFile() : void
     {
-        if(!defined('TESTS_WEBSERVER_URL')) 
-        {
-            $this->markTestSkipped('The webserver URL has not been defined in the config file.');
-            return;
-        }
+        $this->skipWebserverURL();
         
         $helper = new RequestHelper(TESTS_WEBSERVER_URL.'/assets/RequestHelper/PostCatcher.php');
         
@@ -55,7 +53,7 @@ final class RequestHelperTest extends TestCase
         $this->assertNotEmpty($json);
         $this->assertEquals(200, $response->getCode());
         
-        $data = json_decode($json, true);
+        $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         
         $this->assertIsArray($data);
         $this->assertArrayHasKey('files', $data);
@@ -64,14 +62,10 @@ final class RequestHelperTest extends TestCase
         $this->assertEquals($originalContent, $data['files']['htmlfile']['content']);
     }
     
-    public function test_sendTextfile()
+    public function test_sendTextfile() : void
     {
-        if(!defined('TESTS_WEBSERVER_URL'))
-        {
-            $this->markTestSkipped('The webserver URL has not been defined in the config file.');
-            return;
-        }
-        
+        $this->skipWebserverURL();
+
         $helper = new RequestHelper(TESTS_WEBSERVER_URL.'/assets/RequestHelper/PostCatcher.php');
         
         $helper->enableLogging($this->assetsFolder.'/curl-log.txt');
@@ -91,7 +85,7 @@ final class RequestHelperTest extends TestCase
         $this->assertNotEmpty($json);
         $this->assertEquals(200, $response->getCode());
         
-        $data = json_decode($json, true);
+        $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         
         $this->assertIsArray($data);
         $this->assertArrayHasKey('files', $data);
@@ -104,13 +98,9 @@ final class RequestHelperTest extends TestCase
     * Checks that sending JSON keeps the JSON data intact, 
     * so that reading it back in it equals the source JSON.
     */
-    public function test_sendJSON()
+    public function test_sendJSON() : void
     {
-        if(!defined('TESTS_WEBSERVER_URL'))
-        {
-            $this->markTestSkipped('The webserver URL has not been defined in the config file.');
-            return;
-        }
+        $this->skipWebserverURL();
         
         $helper = new RequestHelper(TESTS_WEBSERVER_URL.'/assets/RequestHelper/PostCatcher.php');
         
@@ -121,7 +111,7 @@ final class RequestHelperTest extends TestCase
                 'number' => 0,
                 'bool' => false
             )
-        ));
+        ), JSON_THROW_ON_ERROR);
         
         $helper->addContent(
             'arbitrary', 
@@ -136,12 +126,23 @@ final class RequestHelperTest extends TestCase
         $this->assertEquals(200, $response->getCode());
         $this->assertNotEmpty($json);
         
-        $data = json_decode($json, true);
+        $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         
         $this->assertIsArray($data);
         $this->assertIsArray($data);
         $this->assertArrayHasKey('request', $data);
         $this->assertArrayHasKey('arbitrary', $data['request']);
         $this->assertEquals($originalJSON, $data['request']['arbitrary']);
+    }
+
+    /**
+     * @return void
+     */
+    private function skipWebserverURL() : void
+    {
+        if (!defined('TESTS_WEBSERVER_URL'))
+        {
+            $this->markTestSkipped('The webserver URL has not been defined in the config file.');
+        }
     }
 }

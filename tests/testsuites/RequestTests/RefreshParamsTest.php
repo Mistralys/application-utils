@@ -1,9 +1,11 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
-use AppUtils\Request;
+namespace RequestTests;
 
-final class Request_RefreshParamsTest extends TestCase
+use AppUtils\Request;
+use PHPUnit\Framework\TestCase;
+
+final class RefreshParamsTest extends TestCase
 {
     private $request;
     
@@ -87,17 +89,14 @@ final class Request_RefreshParamsTest extends TestCase
         );
     }
     
-    public function test_override_callback()
+    public function test_override_callback() : void
     {
         $_REQUEST['foobar'] = 'nope';
         
         $params = $this->request->createRefreshParams()
         ->excludeParamByCallback(function($paramName, $paramValue) 
         {
-            if($paramValue === 'nope')
-            {
-                return true;
-            }
+            return $paramValue === 'nope';
         });
         
         $this->assertEquals(
@@ -106,7 +105,7 @@ final class Request_RefreshParamsTest extends TestCase
         );
     }
     
-    public function test_override_callback_notBoolean()
+    public function test_override_callback_notBoolean() : void
     {
         $_REQUEST['foobar'] = 'nope';
         
@@ -118,6 +117,8 @@ final class Request_RefreshParamsTest extends TestCase
                 // not a boolean true, so should not work
                 return 1;
             }
+
+            return -1;
         });
             
         $this->assertEquals(
@@ -126,7 +127,7 @@ final class Request_RefreshParamsTest extends TestCase
         );
     }
     
-    public function test_exclude_severalByName()
+    public function test_exclude_severalByName() : void
     {
         $_REQUEST['foo'] = 'bar';
         $_REQUEST['bar'] = 'foo';
@@ -140,7 +141,7 @@ final class Request_RefreshParamsTest extends TestCase
         );
     }
     
-    public function test_override_multiple()
+    public function test_override_multiple() : void
     {
         $_REQUEST['foo'] = 'bar';
         $_REQUEST['bar'] = 'foo';
@@ -164,7 +165,7 @@ final class Request_RefreshParamsTest extends TestCase
     * Ensure that the internal conversion of 
     * key names to strings works as intended.
     */
-    public function test_override_multipleNonStringKeys()
+    public function test_override_multipleNonStringKeys() : void
     {
         $_REQUEST['1'] = 'one';
         $_REQUEST['478'] = 'two';
@@ -184,7 +185,7 @@ final class Request_RefreshParamsTest extends TestCase
         );
     }
     
-    public function test_apis_match()
+    public function test_apis_match() : void
     {
         $_REQUEST['foo'] = 'bar';
         $_REQUEST['bar'] = 'foo';

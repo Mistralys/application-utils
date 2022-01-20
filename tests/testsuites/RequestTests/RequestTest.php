@@ -1,6 +1,12 @@
 <?php
 
+namespace RequestTests;
+
+use AppUtils\Request;
+use AppUtils\Request_AcceptHeaders;
+use AppUtils\Request_Param;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 final class RequestTest extends TestCase
 {
@@ -14,7 +20,7 @@ final class RequestTest extends TestCase
         $_REQUEST = array();
     }
     
-    public function test_urlsMatch()
+    public function test_urlsMatch() : void
     {
         $tests = array(
             array(
@@ -136,15 +142,12 @@ final class RequestTest extends TestCase
             ),
         );
         
-        $request = new AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
-            $limitParams = array();
-            if(isset($def['limitParams'])) {
-                $limitParams = $def['limitParams'];
-            }
-            
+            $limitParams = $def['limitParams'] ?? array();
+
             $comparer = $request->createURLComparer(
                 $def['sourceUrl'], 
                 $def['targetUrl'],
@@ -164,11 +167,11 @@ final class RequestTest extends TestCase
    /**
     * Getting a parameter should return the expected value.
     * 
-    * @see \AppUtils\Request::getParam()
+    * @see Request::getParam()
     */
-    public function test_getParam()
+    public function test_getParam() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $_REQUEST['foo'] = 'bar';
         
@@ -179,11 +182,11 @@ final class RequestTest extends TestCase
     * Checking if a parameter exists depending on the
     * kind of value it is set to.
     * 
-    * @see \AppUtils\Request::getParam()
+    * @see Request::getParam()
     */
-    public function test_paramExists()
+    public function test_paramExists() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $tests = array(
             array(
@@ -224,11 +227,11 @@ final class RequestTest extends TestCase
    /**
     * Setting a parameter should have the expected value.
     * 
-    * @see \AppUtils\Request::getParam()
+    * @see Request::getParam()
     */
-    public function test_setParam()
+    public function test_setParam() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $request->setParam('foo', 'new');
         
@@ -239,11 +242,11 @@ final class RequestTest extends TestCase
    /**
     * Setting a parameter should overwrite any existing value.
     * 
-    * @see \AppUtils\Request::getParam()
+    * @see Request::getParam()
     */
-    public function test_setParam_overwrite()
+    public function test_setParam_overwrite() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         // set a value before we try to set it
         $_REQUEST['foo'] = 'bar';
@@ -257,11 +260,11 @@ final class RequestTest extends TestCase
    /**
     * Removing a parameter should remove it also from the request array.
     * 
-    * @see \AppUtils\Request::removeParam()
+    * @see Request::removeParam()
     */
-    public function test_removeParam()
+    public function test_removeParam() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $_REQUEST['foo'] = 'bar';
         
@@ -275,11 +278,11 @@ final class RequestTest extends TestCase
     * Removing a parameter should also remove its registration
     * if it had been previously registered.
     * 
-    * @see \AppUtils\Request::removeParam()
+    * @see Request::removeParam()
     */
-    public function test_removeParam_registered()
+    public function test_removeParam_registered() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $_REQUEST['foo'] = 'bar';
         
@@ -293,9 +296,9 @@ final class RequestTest extends TestCase
    /**
     * Fetching a JSON parameter as a decoded array.
     *
-    * @see \AppUtils\Request::getJSON()
+    * @see Request::getJSON()
     */
-    public function test_getJSON()
+    public function test_getJSON() : void
     {
         $tests = array(
             array(
@@ -364,14 +367,14 @@ final class RequestTest extends TestCase
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
        
         foreach($tests as $test) 
         {
             $name = $this->setUniqueParam($test['value']);
-            
-            $assoc = true; if(isset($test['assoc'])) { $assoc = $test['assoc']; }
-            
+
+            $assoc = $test['assoc'] ?? true;
+
             $value = $request->getJSON($name, $assoc);
             
             $this->assertEquals($test['expected'], $value, $test['label']);
@@ -381,26 +384,26 @@ final class RequestTest extends TestCase
    /**
     * Registrering a parameter must return a parameter instance.
     * 
-    * @see \AppUtils\Request::registerParam()
+    * @see Request::registerParam()
     */
-    public function test_registerParam()
+    public function test_registerParam() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $param = $request->registerParam('foo');
         
-        $this->assertInstanceOf(\AppUtils\Request_Param::class, $param, 'Register must return param instance.');
+        $this->assertInstanceOf(Request_Param::class, $param, 'Register must return param instance.');
     }
     
    /**
     * Registering a parameter without specifying a format
     * should act like getting it without registering it.
     * 
-    * @see \AppUtils\Request::registerParam()
+    * @see Request::registerParam()
     */
-    public function test_getRegisteredParam()
+    public function test_getRegisteredParam() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $tests = array(
             array(
@@ -442,7 +445,7 @@ final class RequestTest extends TestCase
     * Fetching a valid integer value should return the
     * expected integer string.
     */
-    public function test_getRegisteredParam_integer()
+    public function test_getRegisteredParam_integer() : void
     {
         $tests = array(
             array(
@@ -487,7 +490,7 @@ final class RequestTest extends TestCase
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $test)
         {
@@ -499,7 +502,7 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_getRegisteredParam_numeric()
+    public function test_getRegisteredParam_numeric() : void
     {
         $tests = array(
             array(
@@ -529,11 +532,11 @@ final class RequestTest extends TestCase
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $test)
         {
-            $name = $this->generateUniqueParamName($test['value']);
+            $name = $this->generateUniqueParamName();
             
             $value = $request->registerParam($name)->setInteger()->get();
             
@@ -544,7 +547,7 @@ final class RequestTest extends TestCase
    /**
     * Specifying possible values should return only those values.
     */
-    public function test_getRegisteredParam_enum()
+    public function test_getRegisteredParam_enum() : void
     {
         $tests = array(
             array(
@@ -605,17 +608,14 @@ final class RequestTest extends TestCase
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
             $name = $this->setUniqueParam($def['value']);
-            
-            $default = null;
-            if(isset($def['default'])) {
-                $default = $def['default'];
-            }
-            
+
+            $default = $def['default'] ?? null;
+
             $value = $request->registerParam($name)
             ->setEnum($def['accepted'])
             ->get($default);
@@ -624,7 +624,7 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_filter_stripWhitespace()
+    public function test_filter_stripWhitespace() : void
     {
         $tests = array(
             array(
@@ -669,7 +669,7 @@ final class RequestTest extends TestCase
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
@@ -683,7 +683,7 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_getRegisteredParam_idsList()
+    public function test_getRegisteredParam_idsList() : void
     {
         $tests = array(
             array(
@@ -733,7 +733,7 @@ final class RequestTest extends TestCase
             ),
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
@@ -747,9 +747,9 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_combination_idlist_enum()
+    public function test_combination_idlist_enum() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $name = $this->setUniqueParam('5,89,111');
         
@@ -761,9 +761,9 @@ final class RequestTest extends TestCase
         $this->assertEquals(array(5, 89), $value, 'Combination failed');
     }
     
-    public function test_combination_idlist_callback()
+    public function test_combination_idlist_callback() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $name = $this->setUniqueParam('5,89,111');
         
@@ -780,9 +780,9 @@ final class RequestTest extends TestCase
         $this->assertEquals(array(5), $value, 'Combination failed');
     }
     
-    public function test_combination_idlist_valuesList()
+    public function test_combination_idlist_valuesList() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $name = $this->setUniqueParam('5,89,111');
         
@@ -794,9 +794,9 @@ final class RequestTest extends TestCase
         $this->assertEquals(array(89), $value, 'Combination failed');
     }
     
-    public function test_combination_commaseparated_valuesList()
+    public function test_combination_commaseparated_valuesList() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $name = $this->setUniqueParam('bar,lopos,foo');
         
@@ -808,23 +808,23 @@ final class RequestTest extends TestCase
         $this->assertEquals(array('bar', 'foo'), $value, 'Combination failed');
     }
     
-    public function test_combination_commaseparated_callback()
+    public function test_combination_commaseparated_callback() : void
     {
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         $name = $this->setUniqueParam('bar,lopos,foo');
         
         $value = $request->registerParam($name)
         ->addCommaSeparatedFilter()
         ->setCallback(function($value) {
-            return in_array('lopos', $value);
+            return in_array('lopos', $value, true);
         })
         ->get();
         
         $this->assertEquals(array('bar', 'lopos', 'foo'), $value, 'Combination failed');
     }
     
-    public function test_filterTrim()
+    public function test_filterTrim() : void
     {
         $tests = array(
             array(
@@ -864,12 +864,12 @@ final class RequestTest extends TestCase
             ),
             array(
                 'label' => 'Object value',
-                'value' => new \AppUtils\Request(),
+                'value' => new Request(),
                 'expected' => ''
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
@@ -883,7 +883,7 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_filterString()
+    public function test_filterString() : void
     {
         $tests = array(
             array(
@@ -928,12 +928,12 @@ final class RequestTest extends TestCase
             ),
             array(
                 'label' => 'Object value',
-                'value' => new \AppUtils\Request(),
+                'value' => new Request(),
                 'expected' => ''
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
@@ -947,7 +947,7 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_filterStripTags()
+    public function test_filterStripTags() : void
     {
         $tests = array(
             array(
@@ -992,7 +992,7 @@ final class RequestTest extends TestCase
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
@@ -1006,7 +1006,7 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_getRegisteredParam_boolean()
+    public function test_getRegisteredParam_boolean() : void
     {
         $tests = array(
             array(
@@ -1046,7 +1046,7 @@ final class RequestTest extends TestCase
             ),
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
@@ -1060,7 +1060,7 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_getBool()
+    public function test_getBool() : void
     {
         $tests = array(
             array(
@@ -1120,7 +1120,7 @@ final class RequestTest extends TestCase
             ),
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
@@ -1132,7 +1132,7 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_filter_commaSeparated()
+    public function test_filter_commaSeparated() : void
     {
         $tests = array(
             array(
@@ -1202,15 +1202,15 @@ final class RequestTest extends TestCase
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
             $name = $this->setUniqueParam($def['value']);
-            
-            $trim = true; if(isset($def['trim'])) { $trim = $def['trim']; }
-            $strip = true; if(isset($def['strip'])) { $strip = $def['strip']; }
-            
+
+            $trim = $def['trim'] ?? true;
+            $strip = $def['strip'] ?? true;
+
             $value = $request->registerParam($name)
             ->addCommaSeparatedFilter($trim, $strip)
             ->get();
@@ -1219,7 +1219,7 @@ final class RequestTest extends TestCase
         }
     }
 
-    public function test_getRegisteredParam_commaSeparated()
+    public function test_getRegisteredParam_commaSeparated() : void
     {
         $tests = array(
             array(
@@ -1286,15 +1286,15 @@ final class RequestTest extends TestCase
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
             $name = $this->setUniqueParam($def['value']);
 
-            $trim = true; if(isset($def['trim'])) { $trim = $def['trim']; }
-            $strip = true; if(isset($def['strip'])) { $strip = $def['strip']; }
-            
+            $trim = $def['trim'] ?? true;
+            $strip = $def['strip'] ?? true;
+
             $value = $request->registerParam($name)
             ->addCommaSeparatedFilter($trim, $strip)
             ->setValuesList($def['allowed'])
@@ -1304,7 +1304,7 @@ final class RequestTest extends TestCase
         }
     }
 
-    public function test_getAcceptHeaders()
+    public function test_getAcceptHeaders() : void
     {
         $tests = array(
             array(
@@ -1334,14 +1334,14 @@ final class RequestTest extends TestCase
         {
             $_SERVER['HTTP_ACCEPT'] = $test['value'];
             
-            $accept = new \AppUtils\Request_AcceptHeaders();
+            $accept = new Request_AcceptHeaders();
             $mimes = $accept->getMimeStrings();
             
             $this->assertEquals($test['expected'], $mimes, $test['label']);
         }
     }
     
-    public function test_validateJSON()
+    public function test_validateJSON() : void
     {
         $tests = array(
             array(
@@ -1381,7 +1381,7 @@ final class RequestTest extends TestCase
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
@@ -1395,7 +1395,7 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_validateJSONObject()
+    public function test_validateJSONObject() : void
     {
         $tests = array(
             array(
@@ -1430,7 +1430,7 @@ final class RequestTest extends TestCase
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
@@ -1444,7 +1444,7 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_getRegisteredParam_regex()
+    public function test_getRegisteredParam_regex() : void
     {
         $tests = array(
             array(
@@ -1497,7 +1497,7 @@ final class RequestTest extends TestCase
             ),
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
         foreach($tests as $def)
         {
@@ -1511,7 +1511,7 @@ final class RequestTest extends TestCase
         }
     }
     
-    public function test_getRegisteredParam_url()
+    public function test_getRegisteredParam_url() : void
     {
         $tests = array(
             array(
@@ -1541,9 +1541,9 @@ final class RequestTest extends TestCase
             )
         );
         
-        $request = new \AppUtils\Request();
+        $request = new Request();
         
-        $value = $request->registerParam(uniqid())
+        $value = $request->registerParam(uniqid('', true))
         ->setURL()
         ->get();
         
