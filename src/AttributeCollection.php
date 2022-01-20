@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\AttributeCollection\AttributesRenderer;
 use AppUtils\AttributeCollection\Filtering;
-use Throwable;
 
 /**
  * Utility class used to hold HTML attributes, with
@@ -23,9 +23,14 @@ use Throwable;
  * @subpackage HTML
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class AttributeCollection implements Interface_Stringable, Interface_Classable
+class AttributeCollection
+    implements
+    Interface_Stringable,
+    Interface_Classable,
+    Interface_Stylable
 {
     use Traits_Classable;
+    use Traits_Stylable;
 
     /**
      * @var array<string,string|number>
@@ -33,11 +38,23 @@ class AttributeCollection implements Interface_Stringable, Interface_Classable
     private $attributes = array();
 
     /**
+     * @var StyleCollection
+     */
+    public $styles;
+
+    /**
      * @param array<string,string|number> $attributes
      */
     private function __construct(array $attributes)
     {
+        $this->styles = StyleCollection::create();
+
         $this->setAttributes($attributes);
+    }
+
+    public function getStyles() : StyleCollection
+    {
+        return $this->styles;
     }
 
     /**
@@ -46,13 +63,6 @@ class AttributeCollection implements Interface_Stringable, Interface_Classable
      */
     public function setAttributes(array $attributes) : AttributeCollection
     {
-        // import existing classes
-        if(isset($attributes['class']))
-        {
-            $this->addClasses(ConvertHelper::explodeTrim(' ', $attributes['class']));
-            unset($attributes['class']);
-        }
-
         foreach($attributes as $name => $value)
         {
             $this->attr($name, $value);
@@ -92,17 +102,17 @@ class AttributeCollection implements Interface_Stringable, Interface_Classable
      */
     public function attr(string $name, $value) : AttributeCollection
     {
-        if($value === true)
+        $string = Filtering::value2string($value);
+
+        if($name === 'class')
         {
-            $string = 'true';
+            return $this->addClasses(ConvertHelper::explodeTrim(' ', $string));
         }
-        else if($value === false)
+
+        if($name === 'style')
         {
-            $string = 'false';
-        }
-        else
-        {
-            $string = (string)$value;
+            $this->styles->parseStylesString($string);
+            return $this;
         }
 
         if($string !== '')
@@ -159,66 +169,53 @@ class AttributeCollection implements Interface_Stringable, Interface_Classable
         return !empty($attributes);
     }
 
-    public function getAttributes() : array
-    {
-        $attributes = $this->attributes;
+    /**
+     * @var AttributesRenderer|NULL
+     */
+    private $renderer;
 
-        if($this->hasClasses())
+    private function getRenderer() : AttributesRenderer
+    {
+        if(!isset($this->renderer))
         {
-            $attributes['class'] = $this->classesToString();
+            $this->renderer = new AttributesRenderer($this);
         }
 
-        return $attributes;
+        return $this->renderer;
+    }
+
+    /**
+     * Retrieves the attributes as an associative array
+     * with name => value pairs.
+     *
+     * @return array<string,string>
+     */
+    public function getAttributes() : array
+    {
+        return $this->getRenderer()->compileAttributes();
+    }
+
+    /**
+     * Like {@see AttributeCollection::getAttributes()}, but
+     * without the dynamically generated attributes (like
+     * `class` and `style`). These are just the attributes
+     * that have been set manually.
+     *
+     * @return array
+     */
+    public function getRawAttributes() : array
+    {
+        return $this->attributes;
     }
 
     public function render() : string
     {
-        $list = array();
-
-        $attributes = $this->getAttributes();
-
-        if(empty($attributes))
-        {
-            return '';
-        }
-
-        foreach($attributes as $name => $value)
-        {
-            if($value === '')
-            {
-                continue;
-            }
-
-            $list[] = $this->renderAttribute($name, $value);
-        }
-
-        return ' '.implode(' ', $list);
-    }
-
-    private function renderAttribute(string $name, string $value) : string
-    {
-        if($name === $value)
-        {
-            return $name;
-        }
-
-        return sprintf(
-            '%s="%s"',
-            $name,
-            $value
-        );
+        return $this->getRenderer()->render();
     }
 
     public function __toString()
     {
-        try
-        {
-            return $this->render();
-        }
-        catch (Throwable $e)
-        {
-            return '';
-        }
+        return $this->render();
     }
 
     // region: Flavors
