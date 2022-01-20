@@ -1,23 +1,25 @@
 <?php
 /**
- * File containing the class {@see RGBAColor_PresetsManager}.
+ * File containing the class {@see PresetsManager}.
  *
+ * @see PresetsManager
+ *@subpackage RGBAColor
  * @package AppUtils
- * @subpackage RGBAColor
- * @see RGBAColor_PresetsManager
  */
 
 declare(strict_types=1);
 
-namespace AppUtils;
+namespace AppUtils\RGBAColor;
+
+use AppUtils\RGBAColor;
 
 /**
  * The presets manager allows adding more presets that can
- * then be used with the {@see RGBAColor_Presets} class to
+ * then be used with the {@see ColorPresets} class to
  * create color instances.
  *
  * To get the manager instance, use the factory's method:
- * {@see RGBAColor_Factory::getPresetsManager()}.
+ * {@see ColorFactory::getPresetsManager()}.
  *
  * @package AppUtils
  * @subpackage RGBAColor
@@ -25,7 +27,7 @@ namespace AppUtils;
  *
  * @link https://en.wikipedia.org/wiki/List_of_colors_(compact)
  */
-class RGBAColor_PresetsManager
+class PresetsManager
 {
     public const ERROR_CANNOT_OVERWRITE_BUILT_IN_PRESET = 94001;
 
@@ -56,7 +58,7 @@ class RGBAColor_PresetsManager
     /**
      * Registers the global color presets.
      *
-     * @throws RGBAColor_Exception
+     * @throws ColorException
      */
     private function init() : void
     {
@@ -71,26 +73,43 @@ class RGBAColor_PresetsManager
             ->registerGlobalPreset(self::COLOR_TRANSPARENT, 0, 0, 0, 0);
     }
 
+    public function hasPreset(string $name) : bool
+    {
+        return isset($this->customPresets[$name]) || isset(self::$globalPresets[$name]);
+    }
+
     /**
      * @param string $name
-     * @return int[]
+     * @return RGBAColor
      *
-     * @throws RGBAColor_Exception
+     * @throws ColorException
      * @see RGBAColor::ERROR_UNKNOWN_COLOR_PRESET
      */
-    public function getPreset(string $name) : array
+    public function getPreset(string $name) : RGBAColor
     {
+        $preset = null;
+
         if(isset($this->customPresets[$name]))
         {
-            return $this->customPresets[$name];
+            $preset = $this->customPresets[$name];
         }
-
-        if(isset(self::$globalPresets[$name]))
+        else if(isset(self::$globalPresets[$name]))
         {
-            return self::$globalPresets[$name];
+            $preset = self::$globalPresets[$name];
         }
 
-        throw new RGBAColor_Exception(
+        if($preset !== null)
+        {
+            return ColorFactory::create(
+                ColorChannel::EightBit($preset[RGBAColor::CHANNEL_RED]),
+                ColorChannel::EightBit($preset[RGBAColor::CHANNEL_GREEN]),
+                ColorChannel::EightBit($preset[RGBAColor::CHANNEL_BLUE]),
+                ColorChannel::EightBit($preset[RGBAColor::CHANNEL_ALPHA]),
+                $name
+            );
+        }
+
+        throw new ColorException(
             'No such color preset.',
             sprintf(
                 'The color preset [%s] has not been registered, either as global or custom preset.',
@@ -107,25 +126,25 @@ class RGBAColor_PresetsManager
      * @param int $blue
      * @param int $alpha
      * @return $this
-     * @throws RGBAColor_Exception
+     * @throws ColorException
      */
-    private function registerGlobalPreset(string $name, int $red, int $green, int $blue, int $alpha) : RGBAColor_PresetsManager
+    private function registerGlobalPreset(string $name, int $red, int $green, int $blue, int $alpha) : PresetsManager
     {
         $this->requireNotGlobal($name);
 
         if(!isset(self::$globalPresets[$name]))
         {
             self::$globalPresets[$name] = array(
-                RGBAColor::COMPONENT_RED => $red,
-                RGBAColor::COMPONENT_GREEN => $green,
-                RGBAColor::COMPONENT_BLUE=> $blue,
-                RGBAColor::COMPONENT_ALPHA => $alpha
+                RGBAColor::CHANNEL_RED => $red,
+                RGBAColor::CHANNEL_GREEN => $green,
+                RGBAColor::CHANNEL_BLUE=> $blue,
+                RGBAColor::CHANNEL_ALPHA => $alpha
             );
 
             return $this;
         }
 
-        throw new RGBAColor_Exception(
+        throw new ColorException(
             'Cannot replace global color preset',
             sprintf(
             'The built-in global presets like [%s] may not be overwritten. Prefer adding a regular preset instead.',
@@ -135,15 +154,15 @@ class RGBAColor_PresetsManager
         );
     }
 
-    public function registerPreset(string $name, int $red, int $green, int $blue, int $alpha=255) : RGBAColor_PresetsManager
+    public function registerPreset(string $name, int $red, int $green, int $blue, int $alpha=255) : PresetsManager
     {
         $this->requireNotGlobal($name);
 
         $this->customPresets[$name] = array(
-            RGBAColor::COMPONENT_RED => $red,
-            RGBAColor::COMPONENT_GREEN => $green,
-            RGBAColor::COMPONENT_BLUE=> $blue,
-            RGBAColor::COMPONENT_ALPHA => $alpha
+            RGBAColor::CHANNEL_RED => $red,
+            RGBAColor::CHANNEL_GREEN => $green,
+            RGBAColor::CHANNEL_BLUE=> $blue,
+            RGBAColor::CHANNEL_ALPHA => $alpha
         );
 
         return $this;
@@ -156,7 +175,7 @@ class RGBAColor_PresetsManager
             return;
         }
 
-        throw new RGBAColor_Exception(
+        throw new ColorException(
             'Cannot replace global color preset',
             sprintf(
                 'The built-in global presets like [%s] may not be overwritten.',

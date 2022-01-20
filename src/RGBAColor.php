@@ -11,6 +11,12 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\RGBAColor\ArrayConverter;
+use AppUtils\RGBAColor\ColorChannel;
+use AppUtils\RGBAColor\ColorComparator;
+use AppUtils\RGBAColor\ColorException;
+use AppUtils\RGBAColor\ColorFactory;
+use AppUtils\RGBAColor\FormatsConverter;
 use ArrayAccess;
 
 /**
@@ -21,33 +27,31 @@ use ArrayAccess;
  * It can be cast to string, which returns the human-readable version
  * of the color as returned by {@see RGBAColor::getLabel()}.
  *
- * To create an instance, the easiest way is to use the {@see RGBAColor_Factory},
+ * To create an instance, the easiest way is to use the {@see ColorFactory},
  * which offers different data models to get the color information
  * from.
  *
  * @package Application Utils
  * @subpackage RGBAColor
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
- * @implements ArrayAccess<string,float>
+ * @implements ArrayAccess<string,ColorChannel>
  */
 class RGBAColor implements ArrayAccess, Interface_Stringable
 {
     public const ERROR_UNKNOWN_COLOR_SUBJECT = 93401;
     public const ERROR_INVALID_COLOR_COMPONENT = 93402;
     public const ERROR_INVALID_PERCENTAGE_VALUE = 93503;
-    public const ERROR_INVALID_COLOR_VALUE = 93504;
     public const ERROR_INVALID_HEX_LENGTH = 93505;
-    public const ERROR_INVALID_AMOUNT_COLOR_KEYS = 93506;
     public const ERROR_UNKNOWN_COLOR_PRESET = 93507;
     public const ERROR_INVALID_COLOR_ARRAY = 93508;
 
-    public const COMPONENT_RED = 'red';
-    public const COMPONENT_GREEN = 'green';
-    public const COMPONENT_BLUE = 'blue';
-    public const COMPONENT_ALPHA = 'alpha';
+    public const CHANNEL_RED = 'red';
+    public const CHANNEL_GREEN = 'green';
+    public const CHANNEL_BLUE = 'blue';
+    public const CHANNEL_ALPHA = 'alpha';
 
     /**
-     * @var array<string,float>
+     * @var array<string,ColorChannel>
      */
     private $color;
 
@@ -55,28 +59,42 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
      * @var string[]
      */
     public const COLOR_COMPONENTS = array(
-        self::COMPONENT_RED,
-        self::COMPONENT_GREEN,
-        self::COMPONENT_BLUE,
-        self::COMPONENT_ALPHA
+        self::CHANNEL_RED,
+        self::CHANNEL_GREEN,
+        self::CHANNEL_BLUE,
+        self::CHANNEL_ALPHA
     );
 
     /**
-     * @param float $red
-     * @param float $green
-     * @param float $blue
-     * @param float $alpha
-     *
-     * @throws RGBAColor_Exception
-     * @see RGBAColor::ERROR_INVALID_COLOR_COMPONENT
-     * @see RGBAColor::ERROR_INVALID_PERCENTAGE_VALUE
+     * @var string
      */
-    public function __construct(float $red, float $green, float $blue, float $alpha=100)
+    private $name;
+
+    /**
+     * @param ColorChannel $red
+     * @param ColorChannel $green
+     * @param ColorChannel $blue
+     * @param ColorChannel $opacity
+     * @param string $name
+     */
+    public function __construct(ColorChannel $red, ColorChannel $green, ColorChannel $blue, ColorChannel $opacity, string $name)
     {
-        $this->setColorPercentage(self::COMPONENT_RED, $red);
-        $this->setColorPercentage(self:: COMPONENT_GREEN, $green);
-        $this->setColorPercentage(self::COMPONENT_BLUE, $blue);
-        $this->setColorPercentage(self::COMPONENT_ALPHA, $alpha);
+        $this->color[self::CHANNEL_RED] = $red;
+        $this->color[self::CHANNEL_GREEN] = $green;
+        $this->color[self::CHANNEL_BLUE] = $blue;
+        $this->color[self::CHANNEL_ALPHA] = $opacity;
+        $this->name = $name;
+    }
+
+    /**
+     * Retrieves the color's name, if any. Colors created from
+     * presets for example, inherit the name from the preset.
+     *
+     * @return string
+     */
+    public function getName() : string
+    {
+        return $this->name;
     }
 
     /**
@@ -85,7 +103,7 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
      */
     public function hasTransparency() : bool
     {
-        return $this->getAlpha() < 255;
+        return $this->getOpacity()->get8Bit() < 255;
     }
 
     /**
@@ -97,141 +115,76 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
      */
     public function getLabel() : string
     {
-        return RGBAColor_Converter::color2readable($this);
+        return FormatsConverter::color2readable($this);
     }
 
     /**
-     * The amount of green in the color (0-255).
-     * @return int
-     * @throws RGBAColor_Exception
-     */
-    public function getRed() : int
-    {
-        return $this->getColorValue(self::COMPONENT_RED);
-    }
-
-    /**
-     * The amount of green in the color (0-255).
-     * @return int
-     * @throws RGBAColor_Exception
-     */
-    public function getGreen() : int
-    {
-        return $this->getColorValue(self::COMPONENT_GREEN);
-    }
-
-    /**
-     * The amount of blue in the color (0-255).
-     * @return int
-     * @throws RGBAColor_Exception
-     */
-    public function getBlue() : int
-    {
-        return $this->getColorValue(self::COMPONENT_BLUE);
-    }
-
-    /**
-     * The opacity of the color, from 0 (full transparency) to 255 (no transparency).
-     * @return int
-     * @throws RGBAColor_Exception
-     */
-    public function getAlpha() : int
-    {
-        return $this->getColorValue(self::COMPONENT_ALPHA);
-    }
-
-    /**
-     * Sets the alpha channel value.
+     * The amount of red in the color.
      *
-     * @param int $alpha 0-255
-     * @return $this
-     * @throws RGBAColor_Exception
+     * @return ColorChannel
      */
-    public function setAlpha(int $alpha) : RGBAColor
+    public function getRed() : ColorChannel
     {
-        return $this->setColorValue(self::COMPONENT_ALPHA, $alpha);
+        return $this->color[self::CHANNEL_RED];
     }
 
     /**
-     * Sets the alpha channel of the color using
-     * a percent-based transparency value.
+     * The amount of green in the color.
      *
-     * @param float $transparency The transparency as a percentage (0 = opaque, 100 = transparent)
-     * @return RGBAColor
-     * @throws RGBAColor_Exception
+     * @return ColorChannel
      */
-    public function setTransparency(float $transparency) : RGBAColor
+    public function getGreen() : ColorChannel
     {
-        return $this->setColorPercentage(self::COMPONENT_ALPHA, 100-$transparency);
+        return $this->color[self::CHANNEL_GREEN];
     }
 
     /**
-     * Sets the alpha channel of the color using
-     * a percent-based opacity value.
+     * The amount of blue in the color.
      *
-     * @param float $opacity 0 = transparent, 100 = opaque
-     * @return RGBAColor
-     * @throws RGBAColor_Exception
+     * @return ColorChannel
      */
-    public function setOpacity(float $opacity) : RGBAColor
+    public function getBlue() : ColorChannel
     {
-        return $this->setColorPercentage(self::COMPONENT_ALPHA, $opacity);
+        return $this->color[self::CHANNEL_BLUE];
+    }
+
+    /**
+     * The opacity of the color (smaller value = transparent, higher value = opaque).
+     *
+     * @return ColorChannel
+     */
+    public function getOpacity() : ColorChannel
+    {
+        return $this->color[self::CHANNEL_ALPHA];
     }
 
     /**
      * Retrieves the current transparency value as a percentage.
-     * 0 = opaque, 100 = fully transparent
+     * 100 = fully transparent, 0 = fully opaque
      *
-     * @return float
-     * @throws RGBAColor_Exception
+     * @return ColorChannel
+     * @throws ColorException
      */
-    public function getTransparency() : float
+    public function getTransparency() : ColorChannel
     {
-        return 100 - $this->getColorPercentage(self::COMPONENT_ALPHA);
+        return $this->color[self::CHANNEL_ALPHA]->invert();
     }
 
     /**
-     * Retrieves the current opacity value as a percentage.
-     * 0 = transparent, 100 = fully opaque
-     *
-     * @return float
-     * @throws RGBAColor_Exception
-     */
-    public function getOpacity() : float
-    {
-        return $this->getColorPercentage(self::COMPONENT_ALPHA);
-    }
-
-    /**
-     * Retrieves the color value as a percentage of the
-     * color value (ranged from 0 to 255).
-     *
      * @param string $name
-     * @return float 0-100
+     * @return ColorChannel
      *
-     * @throws RGBAColor_Exception
+     * @throws ColorException
      * @see RGBAColor::ERROR_INVALID_COLOR_COMPONENT
      */
-    public function getColorPercentage(string $name) : float
+    public function getColor(string $name) : ColorChannel
     {
         $this->requireValidComponent($name);
 
         return $this->color[$name];
     }
 
-    /**
-     * @param string $name
-     * @return int
-     *
-     * @throws RGBAColor_Exception
-     * @see RGBAColor::ERROR_INVALID_COLOR_COMPONENT
-     */
-    public function getColorValue(string $name) : int
-    {
-        $percent = $this->getColorPercentage($name);
-
-        return RGBAColor_Converter::percent2int($percent);
-    }
+    // region: Converting
 
     /**
      * Converts the color to a HEX color value. This is either
@@ -239,100 +192,149 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
      * is an alpha channel value.
      *
      * @return string
-     * @throws RGBAColor_Exception
      */
     public function toHEX() : string
     {
-        return RGBAColor_Converter::color2HEX($this);
+        return FormatsConverter::color2HEX($this);
+    }
+
+    public function toCSS() : string
+    {
+        return FormatsConverter::color2CSS($this);
     }
 
     /**
      * Converts the color to a color array.
      *
-     * @return array{red:int,green:int,blue:int,alpha:int}
-     * @throws RGBAColor_Exception
+     * @return ArrayConverter
      */
-    public function toArray() : array
+    public function toArray() : ArrayConverter
     {
-        return array(
-            self::COMPONENT_RED => $this->getRed(),
-            self::COMPONENT_GREEN => $this->getBlue(),
-            self::COMPONENT_BLUE => $this->getBlue(),
-            self::COMPONENT_ALPHA => $this->getAlpha()
+        return FormatsConverter::color2array($this);
+    }
+
+    // endregion
+
+    // region: Setting color values
+
+    /**
+     * Returns a new instance with the modified color channel,
+     * keeping all other color values.
+     *
+     * @param ColorChannel $red
+     * @return RGBAColor
+     */
+    public function setRed(ColorChannel $red) : RGBAColor
+    {
+        return ColorFactory::create(
+            $red,
+            $this->getGreen(),
+            $this->getBlue(),
+            $this->getOpacity()
         );
     }
 
     /**
-     * Sets a color value by a percentage.
+     * Returns a new instance with the modified color channel,
+     * keeping all other color values.
      *
-     * NOTE: Since the value needs to be converted to an
-     * integer, using `getColorPercentage()` does not
-     * necessarily return the same value as the one used with
-     * `setColorPercentage()`.
+     * @param ColorChannel $green
+     * @return RGBAColor
+     */
+    public function setGreen(ColorChannel $green) : RGBAColor
+    {
+        return ColorFactory::create(
+            $this->getRed(),
+            $green,
+            $this->getBlue(),
+            $this->getOpacity()
+        );
+    }
+
+    /**
+     * Returns a new instance with the modified color channel,
+     * keeping all other color values.
+     *
+     * @param ColorChannel $blue
+     * @return RGBAColor
+     */
+    public function setBlue(ColorChannel $blue) : RGBAColor
+    {
+        return ColorFactory::create(
+            $this->getRed(),
+            $this->getGreen(),
+            $blue,
+            $this->getOpacity()
+        );
+    }
+
+    /**
+     * Returns a new instance with the modified color channel,
+     * keeping all other color values.
+     *
+     * @param ColorChannel $opacity
+     * @return RGBAColor
+     */
+    public function setOpacity(ColorChannel $opacity) : RGBAColor
+    {
+        return ColorFactory::create(
+            $this->getRed(),
+            $this->getGreen(),
+            $this->getBlue(),
+            $opacity
+        );
+    }
+
+    /**
+     * Sets the transparency of the color, which is an alias
+     * for the opacity, but inverted. Returns a new color
+     * instance with the modified value.
+     *
+     * @param ColorChannel $transparency
+     * @return RGBAColor
+     */
+    public function setTransparency(ColorChannel $transparency) : RGBAColor
+    {
+        return $this->setOpacity($transparency->invert());
+    }
+
+    /**
+     * Sets the color, and returns a new RGBAColor instance
+     * with the target color modified.
      *
      * @param string $name
-     * @param float $percentage The color value as a percentage (0-100%)
-     * @return $this
+     * @param ColorChannel $value
+     * @return RGBAColor
      *
-     * @throws RGBAColor_Exception
+     * @throws ColorException
      * @see RGBAColor::ERROR_INVALID_COLOR_COMPONENT
-     * @see RGBAColor::ERROR_INVALID_PERCENTAGE_VALUE
      */
-    public function setColorPercentage(string $name, float $percentage) : RGBAColor
+    public function setColor(string $name, ColorChannel $value) : RGBAColor
     {
         $this->requireValidComponent($name);
 
-        if($percentage >= 0 && $percentage <= 100)
-        {
-            $this->color[$name] = $percentage;
-            return $this;
-        }
+        $channels = array(
+            self::CHANNEL_RED => $this->getRed(),
+            self::CHANNEL_GREEN => $this->getGreen(),
+            self::CHANNEL_BLUE => $this->getBlue(),
+            self::CHANNEL_ALPHA => $this->getOpacity()
+        );
 
-        throw new RGBAColor_Exception(
-            'Invalid percentage value.',
-            sprintf(
-                'The value [%s] is not a valid percentage number (0-100) for color [%s].',
-                $percentage,
-                $name
-            ),
-            self::ERROR_INVALID_PERCENTAGE_VALUE
+        $channels[$name] = $value;
+
+        return ColorFactory::create(
+            $channels[self::CHANNEL_RED],
+            $channels[self::CHANNEL_GREEN],
+            $channels[self::CHANNEL_BLUE],
+            $channels[self::CHANNEL_ALPHA]
         );
     }
 
-    /**
-     * @param string $name
-     * @param int $value Color value from 0-255
-     * @return $this
-     *
-     * @throws RGBAColor_Exception
-     * @see RGBAColor::ERROR_INVALID_COLOR_COMPONENT
-     * @see RGBAColor::ERROR_INVALID_COLOR_VALUE
-     */
-    public function setColorValue(string $name, int $value) : RGBAColor
-    {
-        $this->requireValidComponent($name);
-
-        if($value >= 0 && $value <= 255)
-        {
-            // Convert the value to a percentage for the internal storage.
-            $percentage = $value * 100 / 255;
-            return $this->setColorPercentage($name, $percentage);
-        }
-
-        throw new RGBAColor_Exception(
-            'Invalid color value.',
-            sprintf(
-                'The color value [%s] for [%s] is invalid. Valid range is 0-255.',
-                $value,
-                $name
-            ),
-            self::ERROR_INVALID_COLOR_VALUE
-        );
-    }
+    // endregion
 
     /**
      * @param string $name
-     * @throws RGBAColor_Exception
+     * @throws ColorException
      * @see RGBAColor::ERROR_INVALID_COLOR_COMPONENT
      */
     private function requireValidComponent(string $name) : void
@@ -342,7 +344,7 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
             return;
         }
 
-        throw new RGBAColor_Exception(
+        throw new ColorException(
             'Invalid color component.',
             sprintf(
                 'The color component [%s] is not a valid color component. Valid components are: [%s].',
@@ -361,11 +363,11 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
      *
      * @param RGBAColor $targetColor
      * @return bool
-     * @throws RGBAColor_Exception
+     * @throws ColorException
      */
     public function matches(RGBAColor $targetColor) : bool
     {
-        return RGBAColor_Comparator::colorsMatch($this, $targetColor);
+        return ColorComparator::colorsMatch($this, $targetColor);
     }
 
     /**
@@ -374,11 +376,11 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
      *
      * @param RGBAColor $targetColor
      * @return bool
-     * @throws RGBAColor_Exception
+     * @throws ColorException
      */
     public function matchesAlpha(RGBAColor $targetColor) : bool
     {
-        return RGBAColor_Comparator::colorsMatchAlpha($this, $targetColor);
+        return ColorComparator::colorsMatchAlpha($this, $targetColor);
     }
 
     public function __toString()
@@ -390,26 +392,21 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
 
     public function offsetExists($offset)
     {
-        $key = strval($offset);
+        $key = (string)$offset;
 
         return isset($this->color[$key]);
     }
 
     public function offsetGet($offset)
     {
-        $key = strval($offset);
+        $key = (string)$offset;
 
-        if(isset($this->color[$key]))
-        {
-            return $this->color[$key];
-        }
-
-        return 0;
+        return $this->color[$key] ?? 0;
     }
 
     public function offsetSet($offset, $value)
     {
-        $this->setColorValue(strval($offset), intval($value));
+        $this->setColor((string)$offset, $value);
     }
 
     public function offsetUnset($offset)

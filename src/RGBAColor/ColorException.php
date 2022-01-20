@@ -1,15 +1,17 @@
 <?php
 /**
- * File containing the exception class {@see RGBAColor_Exception}.
+ * File containing the exception class {@see ColorException}.
  *
+ * @see ColorException
+ *@subpackage RGBAColor
  * @package AppUtils
- * @subpackage RGBAColor
- * @see RGBAColor_Exception
  */
 
 declare(strict_types=1);
 
-namespace AppUtils;
+namespace AppUtils\RGBAColor;
+
+use AppUtils\BaseException;
 
 /**
  * RGBA color flavored exception.
@@ -18,7 +20,7 @@ namespace AppUtils;
  * @subpackage RGBAColor
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class RGBAColor_Exception extends BaseException
+class ColorException extends BaseException
 {
 
 }

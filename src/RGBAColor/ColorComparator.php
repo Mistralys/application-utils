@@ -1,15 +1,17 @@
 <?php
 /**
- * File containing the class {@see RGBAColor_Comparator}.
+ * File containing the class {@see ColorComparator}.
  *
+ * @see ColorComparator
+ *@subpackage RGBAColor
  * @package AppUtils
- * @subpackage RGBAColor
- * @see RGBAColor_Comparator
  */
 
 declare(strict_types=1);
 
-namespace AppUtils;
+namespace AppUtils\RGBAColor;
+
+use AppUtils\RGBAColor;
 
 /**
  * The comparator is used to compare color instances. It can be
@@ -20,7 +22,7 @@ namespace AppUtils;
  * @subpackage RGBAColor
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class RGBAColor_Comparator
+class ColorComparator
 {
     /**
      * Whether this color is the same as the specified color.
@@ -32,16 +34,16 @@ class RGBAColor_Comparator
      * @param RGBAColor $targetColor
      * @return bool
      *
-     * @throws RGBAColor_Exception
+     * @throws ColorException
      * @see RGBAColor::ERROR_INVALID_COLOR_COMPONENT
      */
     public static function colorsMatch(RGBAColor $sourceColor, RGBAColor $targetColor) : bool
     {
-        $parts = array(RGBAColor::COMPONENT_RED, RGBAColor::COMPONENT_GREEN, RGBAColor::COMPONENT_BLUE);
+        $parts = array(RGBAColor::CHANNEL_RED, RGBAColor::CHANNEL_GREEN, RGBAColor::CHANNEL_BLUE);
 
         foreach($parts as $part)
         {
-            if($sourceColor->getColorValue($part) !== $targetColor->getColorValue($part))
+            if($sourceColor->getColor($part)->get8Bit() !== $targetColor->getColor($part)->get8Bit())
             {
                 return false;
             }
@@ -58,7 +60,7 @@ class RGBAColor_Comparator
      * @param RGBAColor $targetColor
      * @return bool
      *
-     * @throws RGBAColor_Exception
+     * @throws ColorException
      * @see RGBAColor::ERROR_INVALID_COLOR_COMPONENT
      */
     public static function colorsMatchAlpha(RGBAColor $sourceColor, RGBAColor $targetColor) : bool
@@ -66,6 +68,6 @@ class RGBAColor_Comparator
         return
             self::colorsMatch($sourceColor, $targetColor)
             &&
-            $sourceColor->getAlpha() === $targetColor->getAlpha();
+            $sourceColor->getOpacity()->get8Bit() === $targetColor->getOpacity()->get8Bit();
     }
 }
