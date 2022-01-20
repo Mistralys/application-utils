@@ -35,6 +35,10 @@ trait Traits_Classable
         return !empty($this->classes);
     }
 
+    /**
+     * @param string $name
+     * @return $this
+     */
     public function addClass(string $name)
     {
         if(!in_array($name, $this->classes)) {
@@ -43,7 +47,11 @@ trait Traits_Classable
         
         return $this;
     }
-    
+
+    /**
+     * @param string[] $names
+     * @return $this
+     */
     public function addClasses(array $names)
     {
         foreach($names as $name) {
@@ -57,7 +65,11 @@ trait Traits_Classable
     {
         return in_array($name, $this->classes);
     }
-    
+
+    /**
+     * @param string $name
+     * @return $this
+     */
     public function removeClass(string $name)
     {
         $idx = array_search($name, $this->classes);
