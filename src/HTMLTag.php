@@ -23,10 +23,11 @@ use AppUtils\HTMLTag\GlobalOptions;
  *
  * @link https://github.com/Mistralys/application-utils/wiki/HTMLTag
  */
-class HTMLTag implements Interface_Stringable, Interface_Classable
+class HTMLTag implements Interface_Stringable, Interface_Stylable, Interface_Attributable, Interface_ClassableViaAttributes
 {
-    public const SELF_CLOSE_STYLE_SLASH = 'slash';
-    public const SELF_CLOSE_STYLE_NONE = 'none';
+    use Trait_ClassableViaAttributes;
+    use Traits_Stylable;
+    use Traits_Attributable;
 
     /**
      * @var AttributeCollection
@@ -42,16 +43,6 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
      * @var StringBuilder
      */
     public $content;
-
-    /**
-     * @var bool
-     */
-    private $selfClosing = false;
-
-    /**
-     * @var bool
-     */
-    private $allowEmpty = false;
 
     /**
      * @var GlobalOptions|NULL
@@ -110,11 +101,6 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
         return new HTMLTag($name, $attributes);
     }
 
-    public function hasAttributes() : bool
-    {
-        return $this->attributes->hasAttributes();
-    }
-
     /**
      * Returns true if the tag has no content, and no attributes.
      * By default, an empty tag is not rendered.
@@ -125,6 +111,21 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
     {
         return !$this->hasAttributes() && $this->renderContent() === '';
     }
+
+    // region: Rendering
+
+    public const SELF_CLOSE_STYLE_SLASH = 'slash';
+    public const SELF_CLOSE_STYLE_NONE = 'none';
+
+    /**
+     * @var bool
+     */
+    private $selfClosing = false;
+
+    /**
+     * @var bool
+     */
+    private $allowEmpty = false;
 
     public function render() : string
     {
@@ -139,14 +140,14 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
             $this->renderClose();
     }
 
-    public static function getGlobalOptions() : GlobalOptions
+    public function renderContent() : string
     {
-        if(!isset(self::$globalOptions))
+        if($this->selfClosing)
         {
-            self::$globalOptions = new GlobalOptions();
+            return '';
         }
 
-        return self::$globalOptions;
+        return (string)$this->content;
     }
 
     public function getSelfClosingChar() : string
@@ -179,6 +180,25 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
         return sprintf('</%s>', $this->name);
     }
 
+    // endregion
+
+    public static function getGlobalOptions() : GlobalOptions
+    {
+        if(!isset(self::$globalOptions))
+        {
+            self::$globalOptions = new GlobalOptions();
+        }
+
+        return self::$globalOptions;
+    }
+
+    public function __toString()
+    {
+        return $this->render();
+    }
+
+    // region: 2) Setting / adding content
+
     /**
      * Adds a bit of text to the content (with an automatic space at the end).
      *
@@ -209,34 +229,9 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
         return $this;
     }
 
-    public function renderContent() : string
-    {
-        if($this->selfClosing)
-        {
-            return '';
-        }
+    // endregion
 
-        return (string)$this->content;
-    }
-
-    public function __toString()
-    {
-        return $this->render();
-    }
-
-    public function attr(string $name, string $value) : HTMLTag
-    {
-        $this->attributes->attr($name, $value);
-        return $this;
-    }
-
-    public function prop(string $name, bool $enabled=true) : HTMLTag
-    {
-        $this->attributes->prop($name, $enabled);
-        return $this;
-    }
-
-    // region: Flavors
+    // region: 1) Setting attributes
 
     public function name(string $name) : HTMLTag
     {
@@ -264,50 +259,13 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
 
     // endregion
 
-    // region: Classable interface
-
-    public function addClass(string $name) : HTMLTag
+    public function getAttributes() : AttributeCollection
     {
-        $this->attributes->addClass($name);
-        return $this;
+        return $this->attributes;
     }
 
-    public function addClasses(array $names) : HTMLTag
+    public function getStyles() : StyleCollection
     {
-        $this->attributes->addClasses($names);
-        return $this;
+        return $this->attributes->getStyles();
     }
-
-    public function hasClass(string $name) : bool
-    {
-        return $this->attributes->hasClass($name);
-    }
-
-    public function removeClass(string $name) : HTMLTag
-    {
-        $this->attributes->removeClass($name);
-        return $this;
-    }
-
-    public function getClasses() : array
-    {
-        return $this->attributes->getClasses();
-    }
-
-    public function classesToString() : string
-    {
-        return $this->attributes->classesToString();
-    }
-
-    public function classesToAttribute() : string
-    {
-        return $this->attributes->classesToAttribute();
-    }
-
-    public function hasClasses() : bool
-    {
-        return $this->attributes->hasClasses();
-    }
-
-    // endregion
 }
