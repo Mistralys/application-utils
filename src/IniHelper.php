@@ -74,8 +74,8 @@ class IniHelper
     * ini content from the specified file.
     * 
     * @param string $iniPath
-    * @throws IniHelper_Exception
     * @return \AppUtils\IniHelper
+    * @throws IniHelper_Exception
     */
     public static function createFromFile(string $iniPath)
     {
