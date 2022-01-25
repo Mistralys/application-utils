@@ -15,8 +15,7 @@ class ColorStyleTest extends TestCase
         $this->assertEquals(
             'color:#FFFFFF',
             (string)StyleBuilder::create()
-                ->color()
-                ->hexString('fff')
+                ->color()->hexString('fff')
         );
     }
 
@@ -25,8 +24,7 @@ class ColorStyleTest extends TestCase
         $this->assertEquals(
             'color:#FFFFFF',
             (string)StyleBuilder::create()
-                ->color()
-                ->hexString('#fff')
+                ->color()->hexString('#fff')
         );
     }
 
@@ -35,8 +33,7 @@ class ColorStyleTest extends TestCase
         $this->assertEquals(
             'color:#CCCCCCAA',
             (string)StyleBuilder::create()
-                ->color()
-                ->hexString('#CCCCCCAA')
+                ->color()->hexString('#CCCCCCAA')
         );
     }
 
@@ -45,8 +42,7 @@ class ColorStyleTest extends TestCase
         $this->assertEquals(
             'color:#000000',
             (string)StyleBuilder::create()
-                ->color()
-                ->hexString('PPP')
+                ->color()->hexString('PPP')
         );
     }
 
@@ -55,8 +51,7 @@ class ColorStyleTest extends TestCase
         $this->assertEquals(
             'color:#FFFFFF',
             (string)StyleBuilder::create()
-                ->color()
-                ->hex(ColorFactory::preset()->white())
+                ->color()->hex(ColorFactory::preset()->white())
         );
     }
 
@@ -65,8 +60,7 @@ class ColorStyleTest extends TestCase
         $this->assertEquals(
             'color:rgba(255, 255, 255, 0.2)',
             (string)StyleBuilder::create()
-                ->color()
-                ->rgba(ColorFactory::createCSS(255, 255, 255, 0.2))
+                ->color()->rgba(ColorFactory::createCSS(255, 255, 255, 0.2))
         );
     }
 
@@ -75,8 +69,7 @@ class ColorStyleTest extends TestCase
         $this->assertEquals(
             'color:rgba(255, 255, 255, 0.4)',
             (string)StyleBuilder::create()
-                ->color()
-                ->rgbaValues(255, 255, 255, 0.4)
+                ->color()->rgbaValues(255, 255, 255, 0.4)
         );
     }
 
@@ -85,8 +78,7 @@ class ColorStyleTest extends TestCase
         $this->assertEquals(
             'color:rgb(255, 255, 255)',
             (string)StyleBuilder::create()
-                ->color()
-                ->rgba(ColorFactory::createCSS(255, 255, 255))
+                ->color()->rgba(ColorFactory::createCSS(255, 255, 255))
         );
     }
 
@@ -95,8 +87,26 @@ class ColorStyleTest extends TestCase
         $this->assertEquals(
             'color:rgb(255, 255, 255)',
             (string)StyleBuilder::create()
-                ->color()
-                ->rgbaValues(255, 255, 255)
+                ->color()->rgbaValues(255, 255, 255)
+        );
+    }
+
+    public function test_transparent() : void
+    {
+        $this->assertEquals(
+            'color:rgba(0, 0, 0, 0)',
+            (string)StyleBuilder::create()
+                ->color()->transparent()
+        );
+    }
+
+    public function test_combineColors() : void
+    {
+        $this->assertEquals(
+            'background-color:rgb(0, 0, 0);color:rgba(0, 0, 0, 0)',
+            (string)StyleBuilder::create()
+                ->color()->transparent()
+                ->backgroundColor()->black()
         );
     }
 }

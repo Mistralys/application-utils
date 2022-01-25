@@ -151,25 +151,4 @@ EOT;
                 ->display()->custom('flex')
         );
     }
-
-    public function test_width() : void
-    {
-        $this->assertEquals(
-            'width:auto',
-            (string)StyleBuilder::create()
-                ->width()->auto()
-        );
-
-        $this->assertEquals(
-            'width:42.6% !important',
-            (string)StyleBuilder::create()
-                ->width()->percent(42.6, true)
-        );
-
-        $this->assertEquals(
-            'width:1.1em',
-            (string)StyleBuilder::create()
-                ->width()->em(1.1)
-        );
-    }
 }
