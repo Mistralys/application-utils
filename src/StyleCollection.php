@@ -155,6 +155,11 @@ class StyleCollection implements Interface_Stringable
         return $this->style($name, $em.'em', $important);
     }
 
+    public function styleREM(string $name, float $em, bool $important) : StyleCollection
+    {
+        return $this->style($name, $em.'rem', $important);
+    }
+
     /**
      * Adds a number, using the {@see parseNumber()} function
      * to parse the value, and convert it to CSS.
