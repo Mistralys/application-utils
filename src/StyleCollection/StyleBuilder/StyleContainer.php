@@ -33,27 +33,33 @@ abstract class StyleContainer
 
     abstract protected function getName() : string;
 
-    final protected function style(string $value, bool $important) : StyleBuilder
+    final protected function setStyle(string $value, bool $important) : StyleBuilder
     {
         $this->collection->style($this->name, $value, $important);
         return $this->styles;
     }
 
-    final protected function stylePX(int $value, bool $important) : StyleBuilder
+    final protected function setStylePX(int $value, bool $important) : StyleBuilder
     {
         $this->collection->stylePX($this->name, $value, $important);
         return $this->styles;
     }
 
-    final protected function stylePercent(float $value, bool $important) : StyleBuilder
+    final protected function setStylePercent(float $value, bool $important) : StyleBuilder
     {
         $this->collection->stylePercent($this->name, $value, $important);
         return $this->styles;
     }
 
-    final protected function styleEM(float $value, bool $important) : StyleBuilder
+    final protected function setStyleEM(float $value, bool $important) : StyleBuilder
     {
         $this->collection->styleEM($this->name, $value, $important);
+        return $this->styles;
+    }
+
+    final protected function setStyleREM(float $value, bool $important) : StyleBuilder
+    {
+        $this->collection->styleREM($this->name, $value, $important);
         return $this->styles;
     }
 }
