@@ -6,6 +6,7 @@ namespace AppUtils\StyleCollection;
 
 use AppUtils\Interface_Stringable;
 use AppUtils\StyleCollection;
+use AppUtils\StyleCollection\StyleBuilder\Flavors\Color;
 use AppUtils\StyleCollection\StyleBuilder\Flavors\Display;
 
 class StyleBuilder implements Interface_Stringable
@@ -33,6 +34,11 @@ class StyleBuilder implements Interface_Stringable
     public function display() : Display
     {
         return new Display($this, $this->collection);
+    }
+
+    public function color() : Color
+    {
+        return new Color($this, $this->collection);
     }
 
     public function width() : StyleCollection\StyleBuilder\Flavors\Width
