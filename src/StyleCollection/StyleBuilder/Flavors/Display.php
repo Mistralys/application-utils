@@ -17,39 +17,31 @@ class Display extends StyleContainer
         return 'display';
     }
 
+    /**
+     * Sets a custom display value, e.g. "flex", "list-item"...
+     *
+     * @param string $value
+     * @param bool $important
+     * @return StyleBuilder
+     */
+    public function custom(string $value, bool $important=false) : StyleBuilder
+    {
+        return $this->style($value, $important);
+    }
+
     public function block(bool $important=false) : StyleBuilder
     {
         return $this->style('block', $important);
     }
 
-    public function contents(bool $important=false) : StyleBuilder
+    public function none(bool $important=false) : StyleBuilder
     {
-        return $this->style('contents', $important);
-    }
-
-    public function grid(bool $important=false) : StyleBuilder
-    {
-        return $this->style('grid', $important);
+        return $this->style('none', $important);
     }
 
     public function inline(bool $important=false) : StyleBuilder
     {
         return $this->style('inline', $important);
-    }
-
-    public function inlineFlex(bool $important=false) : StyleBuilder
-    {
-        return $this->style('inline-flex', $important);
-    }
-
-    public function inlineGrid(bool $important=false) : StyleBuilder
-    {
-        return $this->style('inline-grid', $important);
-    }
-
-    public function inlineTable(bool $important=false) : StyleBuilder
-    {
-        return $this->style('inline-table', $important);
     }
 
     public function inlineBlock(bool $important=false) : StyleBuilder
