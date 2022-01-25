@@ -6,8 +6,12 @@ namespace AppUtils\StyleCollection;
 
 use AppUtils\Interface_Stringable;
 use AppUtils\StyleCollection;
+use AppUtils\StyleCollection\StyleBuilder\Flavors\BackgroundColor;
 use AppUtils\StyleCollection\StyleBuilder\Flavors\Color;
 use AppUtils\StyleCollection\StyleBuilder\Flavors\Display;
+use AppUtils\StyleCollection\StyleBuilder\Flavors\Font;
+use AppUtils\StyleCollection\StyleBuilder\Flavors\Height;
+use AppUtils\StyleCollection\StyleBuilder\Flavors\Width;
 
 class StyleBuilder implements Interface_Stringable
 {
@@ -36,14 +40,29 @@ class StyleBuilder implements Interface_Stringable
         return new Display($this, $this->collection);
     }
 
+    public function font() : Font
+    {
+        return new Font($this, $this->collection);
+    }
+
     public function color() : Color
     {
         return new Color($this, $this->collection);
     }
 
-    public function width() : StyleCollection\StyleBuilder\Flavors\Width
+    public function backgroundColor() : BackgroundColor
     {
-        return new StyleCollection\StyleBuilder\Flavors\Width($this, $this->collection);
+        return new BackgroundColor($this, $this->collection);
+    }
+
+    public function width() : Width
+    {
+        return new Width($this, $this->collection);
+    }
+
+    public function height() : Height
+    {
+        return new Height($this, $this->collection);
     }
 
     public function __toString()
