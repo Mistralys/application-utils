@@ -106,7 +106,7 @@ class ColorStyleTest extends TestCase
             'background-color:rgb(0, 0, 0);color:rgba(0, 0, 0, 0)',
             (string)StyleBuilder::create()
                 ->color()->transparent()
-                ->backgroundColor()->black()
+                ->background()->color()->black()
         );
     }
 }
