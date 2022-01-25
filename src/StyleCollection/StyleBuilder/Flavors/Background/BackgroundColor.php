@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace AppUtils\StyleCollection\StyleBuilder\Flavors;
+namespace AppUtils\StyleCollection\StyleBuilder\Flavors\Background;
 
 use AppUtils\StyleCollection\StyleBuilder\ColorContainer;
 

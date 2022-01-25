@@ -6,7 +6,8 @@ namespace AppUtils\StyleCollection;
 
 use AppUtils\Interface_Stringable;
 use AppUtils\StyleCollection;
-use AppUtils\StyleCollection\StyleBuilder\Flavors\BackgroundColor;
+use AppUtils\StyleCollection\StyleBuilder\Flavors\Background;
+use AppUtils\StyleCollection\StyleBuilder\Flavors\Background\BackgroundColor;
 use AppUtils\StyleCollection\StyleBuilder\Flavors\Color;
 use AppUtils\StyleCollection\StyleBuilder\Flavors\Display;
 use AppUtils\StyleCollection\StyleBuilder\Flavors\Font;
@@ -50,9 +51,9 @@ class StyleBuilder implements Interface_Stringable
         return new Color($this, $this->collection);
     }
 
-    public function backgroundColor() : BackgroundColor
+    public function background() : Background
     {
-        return new BackgroundColor($this, $this->collection);
+        return new Background($this, $this->collection);
     }
 
     public function width() : Width
