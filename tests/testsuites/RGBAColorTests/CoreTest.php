@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace RGBAColorTests;
 
 use AppUtils\RGBAColor;
+use AppUtils\RGBAColor\ColorChannel;
+use AppUtils\RGBAColor\ColorFactory;
+use AppUtils\RGBAColor\ColorPresets;
+use AppUtils\RGBAColor\FormatsConverter;
 use AppUtils\RGBAColor\UnitsConverter;
 use PHPUnit\Framework\TestCase;
 
@@ -42,27 +46,27 @@ final class CoreTest extends TestCase
 
     public function test_createInstanceWithoutAlpha() : void
     {
-        $color = new RGBAColor(
+        $color = ColorFactory::createPercent(
             self::RED_PERCENT,
             self::GREEN_PERCENT,
             self::BLUE_PERCENT
         );
 
         // 10.45 -> 26.6475 -> 27 rounded up
-        $this->assertSame(self::RED_INTEGER, $color->getRed());
+        $this->assertSame(self::RED_INTEGER, $color->getRed()->get8Bit());
 
         // 45.78 -> 116.739 -> 117 rounded up
-        $this->assertSame(self::GREEN_INTEGER, $color->getGreenInt());
+        $this->assertSame(self::GREEN_INTEGER, $color->getGreen()->get8Bit());
 
         // 99.10 -> 252.705 -> 253 rounded up
-        $this->assertSame(self::BLUE_INTEGER, $color->getBlue());
+        $this->assertSame(self::BLUE_INTEGER, $color->getBlue()->get8Bit());
 
-        $this->assertSame(255, $color->getOpacity());
+        $this->assertSame(255, $color->getOpacity()->get8Bit());
     }
 
     public function test_createInstanceWithAlpha() : void
     {
-        $color = new RGBAColor(
+        $color = ColorFactory::createPercent(
             self::RED_PERCENT,
             self::GREEN_PERCENT,
             self::BLUE_PERCENT,
@@ -70,43 +74,52 @@ final class CoreTest extends TestCase
         );
 
         // 84.15 -> 84 rounded down
-        $this->assertSame(self::ALPHA_INTEGER, $color->getOpacity());
+        $this->assertSame(self::ALPHA_INTEGER, $color->getOpacity()->get8Bit());
     }
 
     public function test_createInstanceGetPercent() : void
     {
-        $color = new RGBAColor(self::RED_PERCENT, self::GREEN_PERCENT, self::BLUE_PERCENT, self::ALPHA_PERCENT);
+        $color = ColorFactory::createPercent(
+            self::RED_PERCENT,
+            self::GREEN_PERCENT,
+            self::BLUE_PERCENT,
+            self::ALPHA_PERCENT
+        );
 
-        $this->assertSame(self::RED_INTEGER, $color->getRed());
-        $this->assertSame(self::GREEN_INTEGER, $color->getGreenInt());
-        $this->assertSame(self::BLUE_INTEGER, $color->getBlue());
-        $this->assertSame(self::ALPHA_INTEGER, $color->getOpacity());
+        $this->assertSame(self::RED_INTEGER, $color->getRed()->get8Bit());
+        $this->assertSame(self::GREEN_INTEGER, $color->getGreen()->get8Bit());
+        $this->assertSame(self::BLUE_INTEGER, $color->getBlue()->get8Bit());
+        $this->assertSame(self::ALPHA_INTEGER, $color->getOpacity()->get8Bit());
     }
 
     public function test_transparency() : void
     {
-        $transparent = RGBAColor_Presets::white()->setTransparency(100);
+        $transparent = ColorPresets::white()
+            ->setTransparency(ColorChannel::Percent(100));
 
-        $this->assertEquals(100, $transparent->getTransparency());
-        $this->assertEquals(0, $transparent->getOpacityPercent());
+        $this->assertEquals(100, $transparent->getTransparency()->getPercent());
+        $this->assertEquals(0, $transparent->getOpacity()->getPercent());
 
-        $opaque = RGBAColor_Presets::white()->setTransparency(0);
+        $opaque = ColorPresets::white()
+            ->setTransparency(ColorChannel::Percent(0));
 
-        $this->assertEquals(0, $opaque->getTransparency());
-        $this->assertEquals(100, $opaque->getOpacityPercent());
+        $this->assertEquals(0, $opaque->getTransparency()->getPercent());
+        $this->assertEquals(100, $opaque->getOpacity()->getPercent());
     }
 
     public function test_opacity() : void
     {
-        $transparent = RGBAColor_Presets::white()->setOpacityPercent(0);
+        $transparent = ColorPresets::white()
+            ->setOpacity(ColorChannel::Percent(0));
 
-        $this->assertEquals(100, $transparent->getTransparencyPercent());
-        $this->assertEquals(0, $transparent->getOpacityPercent());
+        $this->assertEquals(100, $transparent->getTransparency()->getPercent());
+        $this->assertEquals(0, $transparent->getOpacity()->getPercent());
 
-        $opaque = RGBAColor_Presets::white()->setOpacityPercent(100);
+        $opaque = ColorPresets::white()
+            ->setOpacity(ColorChannel::Percent(100));
 
-        $this->assertEquals(0, $opaque->getTransparencyPercent());
-        $this->assertEquals(100, $opaque->getOpacityPercent());
+        $this->assertEquals(0, $opaque->getTransparency()->getPercent());
+        $this->assertEquals(100, $opaque->getOpacity()->getPercent());
     }
 
     public function test_isValidColorArray() : void

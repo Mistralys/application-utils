@@ -518,7 +518,7 @@ final class FileHelperTest extends TestCase
     /**
      * @see FileHelper::getMaxUploadFilesize()
      */
-    function test_getUploadMaxFilesize()
+    public function test_getUploadMaxFilesize() : void
     {
         // configured for the tests in the tests batch file, or
         // in the travis yaml setup.
@@ -528,7 +528,6 @@ final class FileHelperTest extends TestCase
         if (ini_get('upload_max_filesize') !== $string || ini_get('post_max_size') !== $string)
         {
             $this->markTestSkipped('The ini settings do not match the expected value.');
-            return;
         }
 
         $expected = $mb * 1048576; // binary notation (1KB = 1024B)

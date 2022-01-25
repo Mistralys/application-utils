@@ -51,7 +51,7 @@ class ColorConverterTest extends TestCase
     public function test_toCSS() : void
     {
         $this->assertSame(
-            'rgba(204, 204, 204)',
+            'rgb(204, 204, 204)',
             ColorFactory::createFromHEX('CCC')->toCSS()
         );
 
