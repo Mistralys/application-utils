@@ -18,12 +18,12 @@ abstract class ColorContainer extends StyleContainer
 
     public function rgba(RGBAColor $color, bool $important=false) : StyleBuilder
     {
-        return $this->style($color->toCSS(), $important);
+        return $this->setStyle($color->toCSS(), $important);
     }
 
     public function hex(RGBAColor $color, bool $important=false) : StyleBuilder
     {
-        return $this->style('#'.$color->toHEX(), $important);
+        return $this->setStyle('#'.$color->toHEX(), $important);
     }
 
     /**
@@ -37,5 +37,20 @@ abstract class ColorContainer extends StyleContainer
     public function hexString(string $hex, bool $important=false) : StyleBuilder
     {
         return $this->hex(ColorFactory::createFromHEX($hex), $important);
+    }
+
+    public function transparent() : StyleBuilder
+    {
+        return $this->rgba(ColorFactory::preset()->transparent());
+    }
+
+    public function white() : StyleBuilder
+    {
+        return $this->rgba(ColorFactory::preset()->white());
+    }
+
+    public function black() : StyleBuilder
+    {
+        return $this->rgba(ColorFactory::preset()->black());
     }
 }
