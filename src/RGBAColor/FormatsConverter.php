@@ -72,7 +72,7 @@ class FormatsConverter
         }
 
         return sprintf(
-            'rgba(%s, %s, %s)',
+            'rgb(%s, %s, %s)',
             $color->getRed()->get8Bit(),
             $color->getGreen()->get8Bit(),
             $color->getBlue()->get8Bit()
