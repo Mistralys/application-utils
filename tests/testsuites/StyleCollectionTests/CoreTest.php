@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
+namespace StyleCollectionTests;
+
 use AppUtils\StyleCollection;
 use AppUtils\StyleCollection\StyleBuilder;
 use PHPUnit\Framework\TestCase;
 use function AppUtils\parseNumber;
 
-class StyleCollectionTest extends TestCase
+class CoreTest extends TestCase
 {
     public function test_defaultSettings() : void
     {
@@ -116,10 +118,10 @@ EOT;
         $this->assertEquals(
             'a:a;b:b;c:c',
             StyleCollection::create()
-            ->style('c', 'c')
-            ->style('a', 'a')
-            ->style('b', 'b')
-            ->render()
+                ->style('c', 'c')
+                ->style('a', 'a')
+                ->style('b', 'b')
+                ->render()
         );
     }
 
@@ -130,6 +132,24 @@ EOT;
             (string)StyleBuilder::create()
                 ->display()->block()
         );
+
+        $this->assertEquals(
+            'display:inline-block',
+            (string)StyleBuilder::create()
+                ->display()->inlineBlock()
+        );
+
+        $this->assertEquals(
+            'display:none',
+            (string)StyleBuilder::create()
+                ->display()->none()
+        );
+
+        $this->assertEquals(
+            'display:flex',
+            (string)StyleBuilder::create()
+                ->display()->custom('flex')
+        );
     }
 
     public function test_width() : void
@@ -138,6 +158,18 @@ EOT;
             'width:auto',
             (string)StyleBuilder::create()
                 ->width()->auto()
+        );
+
+        $this->assertEquals(
+            'width:42.6% !important',
+            (string)StyleBuilder::create()
+                ->width()->percent(42.6, true)
+        );
+
+        $this->assertEquals(
+            'width:1.1em',
+            (string)StyleBuilder::create()
+                ->width()->em(1.1)
         );
     }
 }

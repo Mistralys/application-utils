@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+namespace RGBAColorTests;
+
 use AppUtils\RGBAColor\ColorChannel;
 use PHPUnit\Framework\TestCase;
 
