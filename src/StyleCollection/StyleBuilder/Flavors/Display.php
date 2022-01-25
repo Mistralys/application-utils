@@ -26,26 +26,26 @@ class Display extends StyleContainer
      */
     public function custom(string $value, bool $important=false) : StyleBuilder
     {
-        return $this->style($value, $important);
+        return $this->setStyle($value, $important);
     }
 
     public function block(bool $important=false) : StyleBuilder
     {
-        return $this->style('block', $important);
+        return $this->setStyle('block', $important);
     }
 
     public function none(bool $important=false) : StyleBuilder
     {
-        return $this->style('none', $important);
+        return $this->setStyle('none', $important);
     }
 
     public function inline(bool $important=false) : StyleBuilder
     {
-        return $this->style('inline', $important);
+        return $this->setStyle('inline', $important);
     }
 
     public function inlineBlock(bool $important=false) : StyleBuilder
     {
-        return $this->style('inline-block', $important);
+        return $this->setStyle('inline-block', $important);
     }
 }

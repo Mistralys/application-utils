@@ -16,6 +16,6 @@ class Width extends NumericContainer
 
     public function auto(bool $important=false) : StyleBuilder
     {
-        return $this->style('auto', $important);
+        return $this->setStyle('auto', $important);
     }
 }
