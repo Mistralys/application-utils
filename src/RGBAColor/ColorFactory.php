@@ -13,6 +13,7 @@ namespace AppUtils\RGBAColor;
 
 use AppUtils\RGBAColor;
 use AppUtils\RGBAColor\ColorChannel;
+use AppUtils\RGBAColor\ColorPresets\CannedColors;
 
 /**
  * The factory is a static class with methods to create color
@@ -188,6 +189,11 @@ class ColorFactory
     public static function createFromPreset(string $presetName) : RGBAColor
     {
         return self::getPresetsManager()->getPreset($presetName);
+    }
+
+    public static function preset() : CannedColors
+    {
+        return new CannedColors();
     }
 
     /**
