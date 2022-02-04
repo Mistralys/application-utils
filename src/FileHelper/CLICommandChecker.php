@@ -1,0 +1,119 @@
+<?php
+
+declare(strict_types=1);
+
+namespace AppUtils\FileHelper;
+
+use AppUtils\FileHelper;
+use AppUtils\FileHelper_Exception;
+
+class CLICommandChecker
+{
+    private static $checked = array();
+
+    // command to use to search for available commands
+    // on the target OS
+    private static $osCommands = array(
+        'windows' => 'where',
+        'linux' => 'which'
+    );
+
+    private function __construct()
+    {
+
+    }
+
+    public static function factory() : CLICommandChecker
+    {
+        return new CLICommandChecker();
+    }
+
+    public function getOS() : string
+    {
+        return strtolower(PHP_OS_FAMILY);
+    }
+
+    /**
+     * @return string
+     * @throws FileHelper_Exception
+     * @see FileHelper::ERROR_UNSUPPORTED_OS_CLI_COMMAND
+     */
+    public function getWhereCommand() : string
+    {
+        $os = $this->getOS();
+
+        if(isset(self::$osCommands[$os]))
+        {
+            return self::$osCommands[$os];
+        }
+
+        throw new FileHelper_Exception(
+            'Unsupported OS for CLI commands',
+            sprintf(
+                'The command to search for available CLI commands is not known for the OS [%s].',
+                $os
+            ),
+            FileHelper::ERROR_UNSUPPORTED_OS_CLI_COMMAND
+        );
+    }
+
+    /**
+     * @param string $command
+     * @return bool
+     *
+     * @throws FileHelper_Exception
+     * @see FileHelper::ERROR_UNSUPPORTED_OS_CLI_COMMAND
+     */
+    public function exists(string $command) : bool
+    {
+        if(isset(self::$checked[$command]))
+        {
+            return self::$checked[$command];
+        }
+
+        $result = $this->catchOutput($command) !== '';
+
+        self::$checked[$command] = $result;
+
+        return $result;
+    }
+
+    /**
+     * @param string $command
+     * @return string
+     * @throws FileHelper_Exception
+     */
+    private function catchOutput(string $command) : string
+    {
+        $pipes = array();
+
+        $process = proc_open(
+            $this->getWhereCommand().' '.$command,
+            array(
+                0 => array("pipe", "r"), //STDIN
+                1 => array("pipe", "w"), //STDOUT
+                2 => array("pipe", "w"), //STDERR
+            ),
+            $pipes
+        );
+
+        if($process === false)
+        {
+            return '';
+        }
+
+        $stdout = stream_get_contents($pipes[1]);
+
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+
+        proc_close($process);
+
+        if($stdout === false)
+        {
+            return '';
+        }
+
+        return $stdout;
+    }
+}

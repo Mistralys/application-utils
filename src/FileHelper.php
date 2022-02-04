@@ -9,6 +9,16 @@
 
 namespace AppUtils;
 
+use AppUtils\FileHelper\AbstractPathInfo;
+use AppUtils\FileHelper\CLICommandChecker;
+use AppUtils\FileHelper\FileDownloader;
+use AppUtils\FileHelper\FolderInfo;
+use AppUtils\FileHelper\FolderTree;
+use AppUtils\FileHelper\FileInfo;
+use AppUtils\FileHelper\JSONFile;
+use AppUtils\FileHelper\PathInfoInterface;
+use AppUtils\FileHelper\SerializedFile;
+use AppUtils\FileHelper\UnicodeHandling;
 use DateTime;
 use DirectoryIterator;
 use ParseCsv\Csv;
@@ -53,25 +63,10 @@ class FileHelper
     public const ERROR_FOLDER_DOES_NOT_EXIST = 340033;
     public const ERROR_PATH_IS_NOT_A_FOLDER = 340034;
     public const ERROR_CANNOT_WRITE_TO_FOLDER = 340035;
-
-    /**
-     * @var array<string,string>|NULL
-     */
-    protected static $utfBoms;
-
-    /**
-    * Opens a serialized file and returns the unserialized data.
-    * 
-    * @param string $file
-    * @throws FileHelper_Exception
-    * @return array<int|string,mixed>
-    * @deprecated Use parseSerializedFile() instead.
-    * @see FileHelper::parseSerializedFile()
-    */
-    public static function openUnserialized(string $file) : array
-    {
-        return self::parseSerializedFile($file);
-    }
+    public const ERROR_CANNOT_DELETE_FOLDER = 340036;
+    public const ERROR_REAL_PATH_NOT_FOUND = 340037;
+    public const ERROR_PATH_IS_NOT_A_FILE = 340038;
+    public const ERROR_PATH_NOT_WRITABLE = 340039;
 
    /**
     * Opens a serialized file and returns the unserialized data.
@@ -79,7 +74,7 @@ class FileHelper
     * @param string $file
     * @throws FileHelper_Exception
     * @return array<int|string,mixed>
-    * @see FileHelper::parseSerializedFile()
+    * @see SerializedFile::parse()
     * 
     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
     * @see FileHelper::ERROR_SERIALIZED_FILE_CANNOT_BE_READ
@@ -87,36 +82,8 @@ class FileHelper
     */
     public static function parseSerializedFile(string $file) : array
     {
-        self::requireFileExists($file);
-        
-        $contents = file_get_contents($file);
-        
-        if($contents === false) 
-        {
-            throw new FileHelper_Exception(
-                'Cannot load serialized content from file.',
-                sprintf(
-                    'Tried reading file contents at [%s].',
-                    $file
-                ),
-                self::ERROR_SERIALIZED_FILE_CANNOT_BE_READ
-            );
-        }
-        
-        $result = @unserialize($contents);
-        
-        if($result !== false) {
-            return $result;
-        }
-        
-        throw new FileHelper_Exception(
-            'Cannot unserialize the file contents.',
-            sprintf(
-                'Tried unserializing the data from file at [%s].',
-                $file
-            ),
-            self::ERROR_SERIALIZED_FILE_UNSERIALZE_FAILED
-        );
+        return SerializedFile::factory(self::getFileInfo($file))
+            ->parse();
     }
 
     /**
@@ -128,36 +95,7 @@ class FileHelper
      */
     public static function deleteTree(string $rootFolder) : bool
     {
-        if(!file_exists($rootFolder)) {
-            return true;
-        }
-        
-        $d = new DirectoryIterator($rootFolder);
-        foreach ($d as $item) {
-            if ($item->isDot()) {
-                continue;
-            }
-
-            $itemPath = $item->getRealPath();
-            if (!is_readable($itemPath)) {
-                return false;
-            }
-
-            if ($item->isDir()) {
-                if (!FileHelper::deleteTree($itemPath)) {
-                    return false;
-                }
-                continue;
-            }
-
-            if ($item->isFile()) {
-                if (!unlink($itemPath)) {
-                    return false;
-                }
-            }
-        }
-
-        return rmdir($rootFolder);
+        return FolderTree::delete($rootFolder);
     }
     
    /**
@@ -169,15 +107,12 @@ class FileHelper
     */
     public static function createFolder(string $path) : void
     {
-        if(is_dir($path) || mkdir($path, 0777, true)) {
-            return;
-        }
-        
-        throw new FileHelper_Exception(
-            sprintf('Could not create target folder [%s].', basename($path)),
-            sprintf('Tried to create the folder in path [%s].', $path),
-            self::ERROR_CANNOT_CREATE_FOLDER
-        );
+        self::getFolderInfo($path)->create();
+    }
+
+    public static function getFolderInfo(string $path) : FolderInfo
+    {
+        return FolderInfo::factory($path);
     }
 
     /**
@@ -189,28 +124,7 @@ class FileHelper
      */
     public static function copyTree(string $source, string $target) : void
     {
-        self::createFolder($target);
-
-        $d = new DirectoryIterator($source);
-        foreach ($d as $item) 
-        {
-            if ($item->isDot()) {
-                continue;
-            }
-
-            $itemPath = self::requireFileReadable($item->getPathname());
-            
-            $baseName = basename($itemPath);
-
-            if ($item->isDir()) 
-            {
-                FileHelper::copyTree($itemPath, $target . '/' . $baseName);
-            } 
-            else if($item->isFile()) 
-            {
-                self::copyFile($itemPath, $target . '/' . $baseName);
-            }
-        }
+        FolderTree::copy($source, $target);
     }
     
    /**
@@ -231,41 +145,7 @@ class FileHelper
     */
     public static function copyFile(string $sourcePath, string $targetPath) : void
     {
-        self::requireFileExists($sourcePath, self::ERROR_SOURCE_FILE_NOT_FOUND);
-        self::requireFileReadable($sourcePath, self::ERROR_SOURCE_FILE_NOT_READABLE);
-        
-        $targetFolder = dirname($targetPath);
-        
-        if(!file_exists($targetFolder))
-        {
-            self::createFolder($targetFolder);
-        }
-        else if(!is_writable($targetFolder)) 
-        {
-            throw new FileHelper_Exception(
-                sprintf('Target folder [%s] is not writable.', basename($targetFolder)),
-                sprintf(
-                    'Tried copying to target folder [%s].',
-                    $targetFolder
-                ),
-                self::ERROR_TARGET_COPY_FOLDER_NOT_WRITABLE
-            );
-        }
-        
-        if(copy($sourcePath, $targetPath)) {
-            return;
-        }
-        
-        throw new FileHelper_Exception(
-            sprintf('Cannot copy file [%s].', basename($sourcePath)),
-            sprintf(
-                'The file [%s] could not be copied from [%s] to [%s].',
-                basename($sourcePath),
-                $sourcePath,
-                $targetPath
-            ),
-            self::ERROR_CANNOT_COPY_FILE
-        );
+        self::getFileInfo($sourcePath)->copyTo($targetPath);
     }
     
    /**
@@ -279,22 +159,29 @@ class FileHelper
     */
     public static function deleteFile(string $filePath) : void
     {
-        if(!file_exists($filePath)) {
-            return;
-        }
-        
-        if(unlink($filePath)) {
-            return;
-        }
-        
-        throw new FileHelper_Exception(
-            sprintf('Cannot delete file [%s].', basename($filePath)),
-            sprintf(
-                'The file [%s] cannot be deleted.',
-                $filePath
-            ),
-            self::ERROR_CANNOT_DELETE_FILE
-        );
+        self::getFileInfo($filePath)->delete();
+    }
+
+    /**
+     * Retrieves an instance of the file info class, which
+     * allows file operations and accessing information on
+     * the file.
+     *
+     * @param string $path
+     * @return FileInfo
+     */
+    public static function getFileInfo(string $path) : FileInfo
+    {
+        return FileInfo::factory($path);
+    }
+
+    /**
+     * @param string|DirectoryIterator $path
+     * @return PathInfoInterface
+     */
+    public static function getPathInfo($path) : PathInfoInterface
+    {
+        return AbstractPathInfo::resolveType($path);
     }
 
     /**
@@ -368,9 +255,13 @@ class FileHelper
      */
     public static function parseCSVFile(string $filePath, string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $heading=false) : array
     {
-        $content = self::readContents($filePath);
-
-        return self::parseCSVString($content, $delimiter, $enclosure, $escape, $heading);
+        return self::parseCSVString(
+            self::readContents($filePath),
+            $delimiter,
+            $enclosure,
+            $escape,
+            $heading
+        );
     }
 
     /**
@@ -425,40 +316,7 @@ class FileHelper
      */
     public static function sendFile(string $filePath, ?string $fileName = null, bool $asAttachment=true) : void
     {
-        self::requireFileExists($filePath);
-        
-        if(empty($fileName)) {
-            $fileName = basename($filePath);
-        }
-
-        $mime = self::detectMimeType($filePath);
-        if (!$mime) {
-            throw new FileHelper_Exception(
-                'Unknown file mime type',
-                sprintf(
-                    'Could not determine mime type for file name [%s].',
-                    basename($filePath)
-                ),
-                self::ERROR_UNKNOWN_FILE_MIME_TYPE
-            );
-        }
-        
-        header("Cache-Control: public", true);
-        header("Content-Description: File Transfer", true);
-        header("Content-Type: " . $mime, true);
-
-        $disposition = 'inline';
-        if($asAttachment) {
-            $disposition = 'attachment';
-        }
-        
-        header(sprintf(
-            "Content-Disposition: %s; filename=%s",
-            $disposition,
-            '"'.$fileName.'"'
-        ), true);
-        
-        readfile($filePath);
+        self::getFileInfo($filePath)->getDownloader()->send($fileName, $asAttachment);
     }
 
     /**
@@ -466,59 +324,19 @@ class FileHelper
      * returns the content.
      *
      * @param string $url
-     * @throws FileHelper_Exception
+     * @param int $timeout In seconds. Set to 0 to use the default.
+     * @param bool $SSLEnabled Whether to enable HTTPs host verification.
      * @return string
-     * 
+     *
+     * @throws FileHelper_Exception
      * @see FileHelper::ERROR_CANNOT_OPEN_URL
      */
-    public static function downloadFile(string $url) : string
+    public static function downloadFile(string $url, int $timeout=0, bool $SSLEnabled=false) : string
     {
-        $ch = curl_init();
-        if(!is_resource($ch)) 
-        {
-            throw new FileHelper_Exception(
-                'Could not initialize a new cURL instance.',
-                'Calling curl_init returned false. Additional information is not available.',
-                self::ERROR_CURL_INIT_FAILED
-            );
-        }
-        
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_REFERER, $url);
-        curl_setopt($ch, CURLOPT_USERAGENT, "Google Chrome/1.0");
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 100000);
-        
-        $output = curl_exec($ch);
-
-        if($output === false) {
-            throw new FileHelper_Exception(
-                'Unable to open URL',
-                sprintf(
-                    'Tried accessing URL "%1$s" using cURL, but the request failed. cURL error: %2$s',
-                    $url,
-                    curl_error($ch)
-                ),
-                self::ERROR_CANNOT_OPEN_URL
-            );
-        }
-
-        curl_close($ch);
-
-        if(is_string($output)) 
-        {
-            return $output;
-        }
-        
-        throw new FileHelper_Exception(
-            'Unexpected cURL output.',
-            'The cURL output is not a string, although the CURLOPT_RETURNTRANSFER option is set.',
-            self::ERROR_CURL_OUTPUT_NOT_STRING
-        );
+        return FileDownloader::factory($url)
+            ->setTimeout($timeout)
+            ->setSSLEnabled($SSLEnabled)
+            ->download();
     }
     
    /**
@@ -544,18 +362,14 @@ class FileHelper
     */
     public static function getExtension($pathOrDirIterator, bool $lowercase = true) : string
     {
-        if($pathOrDirIterator instanceof DirectoryIterator) {
-            $filename = $pathOrDirIterator->getFilename();
-        } else {
-            $filename = basename(strval($pathOrDirIterator));
+        $info = self::getPathInfo($pathOrDirIterator);
+
+        if($info instanceof FileInfo)
+        {
+            return $info->getExtension($lowercase);
         }
-         
-        $ext = pathinfo($filename, PATHINFO_EXTENSION);
-        if($lowercase) {
-        	$ext = mb_strtolower($ext);
-        }
-        
-        return $ext;
+
+        return '';
     }
     
    /**
@@ -570,20 +384,16 @@ class FileHelper
     * @param bool $extension
     * @return string
     */
-    public static function getFilename($pathOrDirIterator, $extension = true) : string
+    public static function getFilename($pathOrDirIterator, bool $extension = true) : string
     {
-        $path = strval($pathOrDirIterator);
-    	if($pathOrDirIterator instanceof DirectoryIterator) {
-    		$path = $pathOrDirIterator->getFilename();
-    	}
-    	
-    	$path = self::normalizePath($path);
-    	
-    	if(!$extension) {
-    	    return pathinfo($path, PATHINFO_FILENAME);
-    	}
-    	
-    	return pathinfo($path, PATHINFO_BASENAME); 
+        $info = self::getPathInfo($pathOrDirIterator);
+
+        if($extension === true || $info instanceof FolderInfo)
+        {
+            return $info->getName();
+        }
+
+        return $info->removeExtension();
     }
 
     /**
@@ -601,27 +411,10 @@ class FileHelper
      */
     public static function parseJSONFile(string $file, string $targetEncoding='', $sourceEncoding=null) : array
     {
-        self::requireFileExists($file, self::ERROR_CANNOT_FIND_JSON_FILE);
-        
-        $content = self::readContents($file);
-
-        if(!empty($targetEncoding)) {
-            $content = mb_convert_encoding($content, $targetEncoding, $sourceEncoding);
-        }
-        
-        $json = json_decode($content, true);
-        if($json === false || $json === NULL) {
-            throw new FileHelper_Exception(
-                'Cannot decode json data',
-                sprintf(
-                    'Loaded the contents of file [%s] successfully, but decoding it as JSON failed.',
-                    $file    
-                ),
-                self::ERROR_CANNOT_DECODE_JSON_FILE
-            );
-        }
-        
-        return $json;
+        return JSONFile::factory(self::getFileInfo($file))
+            ->setTargetEncoding($targetEncoding)
+            ->setSourceEncodings($sourceEncoding)
+            ->parse();
     }
     
    /**
@@ -636,31 +429,7 @@ class FileHelper
     */
     public static function fixFileName(string $name) : string
     {
-        $name = trim($name);
-        $name = self::normalizePath($name);
-        $name = basename($name);
-        
-        $replaces = array(
-            "\t" => ' ',
-            "\r" => ' ',
-            "\n" => ' ',
-            ' .' => '.',
-            '. ' => '.',
-        );
-        
-        $name = str_replace(array_keys($replaces), array_values($replaces), $name);
-        
-        while(strstr($name, '  ')) {
-            $name = str_replace('  ', ' ', $name);
-        }
-
-        $name = str_replace(array_keys($replaces), array_values($replaces), $name);
-        
-        while(strstr($name, '..')) {
-            $name = str_replace('..', '.', $name);
-        }
-        
-        return $name;
+        return FileInfo\NameFixer::fixName($name);
     }
 
     /**
@@ -768,21 +537,7 @@ class FileHelper
     */
     public static function removeExtension(string $filename, bool $keepPath=false) : string
     {
-        // normalize paths to allow windows style slashes even on nix servers
-        $filename = self::normalizePath($filename);
-        
-        if(!$keepPath) 
-        {
-            return pathinfo($filename, PATHINFO_FILENAME);
-        }
-        
-        $parts = explode('/', $filename);
-        
-        $file = self::removeExtension(array_pop($parts));
-        
-        $parts[] = $file;
-        
-        return implode('/', $parts);
+        return self::getFileInfo($filename)->removeExtension($keepPath);
     }
 
     /**
@@ -806,31 +561,8 @@ class FileHelper
      */
     public static function detectUTFBom(string $filename) : ?string
     {
-        $fp = fopen($filename, 'r');
-        if($fp === false) 
-        {
-            throw new FileHelper_Exception(
-                'Cannot open file for reading',
-                sprintf('Tried opening file [%s] in read mode.', $filename),
-                self::ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM
-            );
-        }
-        
-        $text = fread($fp, 20);
-        
-        fclose($fp);
-
-        $boms = self::getUTFBOMs();
-        
-        foreach($boms as $bom => $value) 
-        {
-            $length = mb_strlen($value);
-            if(mb_substr($text, 0, $length) == $value) {
-                return $bom;
-            }
-        }
-        
-        return null;
+        return self::createUnicodeHandling()
+            ->detectUTFBom(self::getFileInfo($filename));
     }
 
    /**
@@ -839,20 +571,11 @@ class FileHelper
     * pairs.
     * 
     * @return array<string,string>
+    * @deprecated
     */
     public static function getUTFBOMs() : array
     {
-        if(!isset(self::$utfBoms)) {
-            self::$utfBoms = array(
-                'UTF32-BE' => chr(0x00) . chr(0x00) . chr(0xFE) . chr(0xFF),
-                'UTF32-LE' => chr(0xFF) . chr(0xFE) . chr(0x00) . chr(0x00),
-                'UTF16-BE' => chr(0xFE) . chr(0xFF),
-                'UTF16-LE' => chr(0xFF) . chr(0xFE),
-                'UTF8' => chr(0xEF) . chr(0xBB) . chr(0xBF)
-            );
-        }
-        
-        return self::$utfBoms;
+        return self::createUnicodeHandling()->getUTFBOMs();
     }
     
    /**
@@ -863,32 +586,36 @@ class FileHelper
     * 
     * @param string $encoding
     * @return boolean
+    * @deprecated
     */
     public static function isValidUnicodeEncoding(string $encoding) : bool
     {
-        $encodings = self::getKnownUnicodeEncodings();
-
-        $keep = array();
-        foreach($encodings as $string) 
-        {
-            $withHyphen = str_replace('UTF', 'UTF-', $string);
-            
-            $keep[] = $string;
-            $keep[] = $withHyphen; 
-            $keep[] = str_replace(array('-BE', '-LE'), '', $string);
-            $keep[] = str_replace(array('-BE', '-LE'), '', $withHyphen);
-        }
-        
-        return in_array($encoding, $keep);
+        return self::createUnicodeHandling()->isValidUnicodeEncoding($encoding);
     }
     
    /**
     * Retrieves a list of all known unicode file encodings.
     * @return string[]
+    * @deprecated Since v1.10.0. Use the unicode handling class instead.
     */
     public static function getKnownUnicodeEncodings() : array
     {
-        return array_keys(self::getUTFBOMs());
+        return self::createUnicodeHandling()->getKnownUnicodeEncodings();
+    }
+
+    /**
+     * @var UnicodeHandling|NULL
+     */
+    private static $unicodeHandling;
+
+    public static function createUnicodeHandling() : UnicodeHandling
+    {
+        if(!isset(self::$unicodeHandling))
+        {
+            self::$unicodeHandling = new UnicodeHandling();
+        }
+
+        return self::$unicodeHandling;
     }
     
    /**
@@ -918,25 +645,8 @@ class FileHelper
     */
     public static function saveAsJSON($data, string $file, bool $pretty=false) : void
     {
-        $options = null;
-        if($pretty) {
-            $options = JSON_PRETTY_PRINT;
-        }
-        
-        $json = json_encode($data, $options);
-        
-        if($json===false) 
-        {
-            $errorCode = json_last_error();
-            
-            throw new FileHelper_Exception(
-                'An error occurred while encdoding a data set to JSON. Native error message: ['.json_last_error_msg().'].', 
-                'JSON error code: '.$errorCode,
-                self::ERROR_JSON_ENCODE_ERROR
-            ); 
-        }
-        
-        self::saveFile($file, $json);
+        JSONFile::factory(self::getFileInfo($file))
+            ->putData($data, $pretty);
     }
    
    /**
@@ -953,68 +663,7 @@ class FileHelper
     */
     public static function saveFile(string $filePath, string $content='') : void
     {
-        $filePath = self::normalizePath($filePath);
-        
-        // target file already exists
-        if(file_exists($filePath))
-        {
-            if(!is_writable($filePath))
-            {
-                throw new FileHelper_Exception(
-                    sprintf('Cannot save file: target file [%s] exists, but is not writable.', basename($filePath)),
-                    sprintf(
-                        'Tried accessing the file in path [%s].',
-                        $filePath
-                    ),
-                    self::ERROR_SAVE_FILE_NOT_WRITABLE
-                );
-            }
-        }
-        // target file does not exist yet
-        else
-        {
-            $targetFolder = dirname($filePath);
-            
-            // create the folder as needed
-            self::createFolder($targetFolder);
-            
-            if(!is_writable($targetFolder)) 
-            {
-                throw new FileHelper_Exception(
-                    sprintf('Cannot save file: target folder [%s] is not writable.', basename($targetFolder)),
-                    sprintf(
-                        'Tried accessing the folder in path [%s].',
-                        $targetFolder
-                    ),
-                    self::ERROR_SAVE_FOLDER_NOT_WRITABLE
-                );
-            }
-        }
-        
-        if(is_dir($filePath))
-        {
-            throw new FileHelper_Exception(
-                sprintf('Cannot save file: the target [%s] is a directory.', basename($filePath)),
-                sprintf(
-                    'Tried saving content to path [%s].',
-                    $filePath
-                ),
-                self::ERROR_CANNOT_WRITE_TO_FOLDER
-            );
-        }
-        
-        if(file_put_contents($filePath, $content) !== false) {
-            return;
-        }
-        
-        throw new FileHelper_Exception(
-            sprintf('Cannot save file: writing content to the file [%s] failed.', basename($filePath)),
-            sprintf(
-                'Tried saving content to file in path [%s].',
-                $filePath
-            ),
-            self::ERROR_SAVE_FILE_WRITE_FAILED
-        );
+        self::getFileInfo($filePath)->putContents($content);
     }
 
     /**
@@ -1034,70 +683,12 @@ class FileHelper
      *
      * @param string $command The name of the command to check, e.g. "php"
      * @return bool True if the command has been found, false otherwise.
-     * @throws FileHelper_Exception 
-     * 
-     * @todo Move this to a separate class.
+     * @throws FileHelper_Exception
+     * @see FileHelper::ERROR_UNSUPPORTED_OS_CLI_COMMAND
      */
-    public static  function cliCommandExists(string $command) : bool
+    public static function cliCommandExists(string $command) : bool
     {
-        static $checked = array();
-        
-        if(isset($checked[$command])) {
-            return $checked[$command];
-        }
-        
-        // command to use to search for available commands
-        // on the target OS
-        $osCommands = array(
-            'windows' => 'where',
-            'linux' => 'which'
-        );
-        
-        $os = strtolower(PHP_OS_FAMILY);
-        
-        if(!isset($osCommands[$os])) 
-        {
-            throw new FileHelper_Exception(
-                'Unsupported OS for CLI commands',
-                sprintf(
-                    'The command to search for available CLI commands is not known for the OS [%s].',
-                    $os
-                ),
-                self::ERROR_UNSUPPORTED_OS_CLI_COMMAND
-            );
-        }
-        
-        $whereCommand = $osCommands[$os];
-        
-        $pipes = array();
-        
-        $process = proc_open(
-            $whereCommand.' '.$command,
-            array(
-                0 => array("pipe", "r"), //STDIN
-                1 => array("pipe", "w"), //STDOUT
-                2 => array("pipe", "w"), //STDERR
-            ),
-            $pipes
-        );
-        
-        if($process === false) {
-            $checked[$command] = false;
-            return false;
-        }
-        
-        $stdout = stream_get_contents($pipes[1]);
-        
-        fclose($pipes[1]);
-        fclose($pipes[2]);
-        
-        proc_close($process);
-        
-        $result = $stdout != '';
-        
-        $checked[$command] = $result;
-        
-        return $result;
+        return CLICommandChecker::factory()->exists($command);
     }
 
     /**
@@ -1171,70 +762,10 @@ class FileHelper
     * @return string[]
     *
     * @see FileHelper::ERROR_FIND_SUBFOLDERS_FOLDER_DOES_NOT_EXIST
-    * @todo Move this to a separate class.
     */
-    public static function getSubfolders($targetFolder, array $options = array())
+    public static function getSubfolders(string $targetFolder, array $options = array()) : array
     {
-        if($targetFolder instanceof DirectoryIterator) {
-            $targetFolder = $targetFolder->getPathname();
-        }
-
-        if(!is_dir($targetFolder)) 
-        {
-            throw new FileHelper_Exception(
-                'Target folder does not exist',
-                sprintf(
-                    'Cannot retrieve sub-folders from [%s], the folder does not exist.',
-                    $targetFolder
-                ),
-                self::ERROR_FIND_SUBFOLDERS_FOLDER_DOES_NOT_EXIST
-            );
-        }
-        
-        $options = array_merge(
-            array(
-                'recursive' => false,
-                'absolute-path' => false
-            ), 
-            $options
-        );
-        
-        $result = array();
-        
-        $d = new DirectoryIterator($targetFolder);
-        
-        foreach($d as $item) 
-        {
-            if($item->isDir() && !$item->isDot()) 
-            {
-                $name = $item->getFilename();
-                
-                if(!$options['absolute-path']) {
-                    $result[] = $name;
-                } else {
-                    $result[] = $targetFolder.'/'.$name;
-                }
-                
-                if(!$options['recursive']) 
-                {
-                    continue;
-                }
-                
-                $subs = self::getSubfolders($targetFolder.'/'.$name, $options);
-                foreach($subs as $sub) 
-                {
-                    $relative = $name.'/'.$sub;
-                    
-                    if(!$options['absolute-path']) {
-                        $result[] = $relative;
-                    } else {
-                        $result[] = $targetFolder.'/'.$relative;
-                    }
-                }
-            }
-        }
-        
-        return $result;
+        return FolderTree::getSubFolders($targetFolder, $options);
     }
 
    /**
@@ -1369,23 +900,13 @@ class FileHelper
     * @return string The real path to the file
     * 
     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
+    * @see FileHelper::ERROR_REAL_PATH_NOT_FOUND
     */
     public static function requireFileExists(string $path, ?int $errorCode=null) : string
     {
-        $result = realpath($path);
-        if($result !== false) {
-            return $result;
-        }
-        
-        if($errorCode === null) {
-            $errorCode = self::ERROR_FILE_DOES_NOT_EXIST;
-        }
-        
-        throw new FileHelper_Exception(
-            sprintf('File [%s] does not exist.', basename($path)),
-            sprintf('Tried finding the file in path [%s].', $path),
-            $errorCode
-        );
+        return self::getPathInfo($path)
+            ->requireExists($errorCode)
+            ->getRealPath();
     }
 
     /**
@@ -1396,21 +917,9 @@ class FileHelper
      */
     public static function requireFileReadable(string $path, ?int $errorCode=null) : string
     {
-        $path = self::requireFileExists($path, $errorCode);
-
-        if(is_readable($path)) {
-            return $path;
-        }
-
-        if($errorCode === null) {
-            $errorCode = self::ERROR_FILE_NOT_READABLE;
-        }
-
-        throw new FileHelper_Exception(
-            sprintf('File [%s] is not readable.', basename($path)),
-            sprintf('Tried accessing the file in path [%s].', $path),
-            $errorCode
-        );
+        return self::getPathInfo($path)
+            ->requireReadable($errorCode)
+            ->getPath();
     }
     
    /**
@@ -1427,23 +936,9 @@ class FileHelper
     */
     public static function getLineFromFile(string $path, int $lineNumber) : ?string
     {
-        self::requireFileExists($path);
-        
-        $file = new \SplFileObject($path);
-        
-        if($file->eof()) {
-            return '';
-        }
-        
-        $targetLine = $lineNumber-1;
-        
-        $file->seek($targetLine);
-        
-        if($file->key() !== $targetLine) {
-             return null;
-        }
-        
-        return $file->current(); 
+        return self::getFileInfo($path)
+            ->getLineReader()
+            ->getLine($lineNumber);
     }
     
    /**
@@ -1455,31 +950,9 @@ class FileHelper
     */
     public static function countFileLines(string $path) : int
     {
-        self::requireFileExists($path);
-        
-        $spl = new \SplFileObject($path);
-        
-        // tries seeking as far as possible
-        $spl->seek(PHP_INT_MAX);
-        
-        $number = $spl->key();
-        
-        // if seeking to the end the cursor is still at 0, there are no lines. 
-        if($number === 0) 
-        {
-            // since it's a very small file, to get reliable results,
-            // we read its contents and use that to determine what
-            // kind of contents we are dealing with. Tests have shown 
-            // that this is not pactical to solve with the SplFileObject.
-            $content = file_get_contents($path);
-            
-            if(empty($content)) {
-                return 0;
-            }
-        }
-        
-        // return the line number we were able to reach + 1 (key is zero-based)
-        return $number+1;
+        return self::getFileInfo($path)
+            ->getLineReader()
+            ->countLines();
     }
     
    /**
@@ -1529,54 +1002,9 @@ class FileHelper
      */
     public static function readLines(string $filePath, int $amount=0) : array
     {
-        self::requireFileExists($filePath);
-        
-        $fn = fopen($filePath, "r");
-        
-        if($fn === false) 
-        {
-            throw new FileHelper_Exception(
-                'Could not open file for reading.',
-                sprintf(
-                    'Tried accessing file at [%s].',
-                    $filePath
-                ),
-                self::ERROR_CANNOT_OPEN_FILE_TO_READ_LINES
-            );
-        }
-        
-        $result = array();
-        $counter = 0;
-        $first = true;
-        
-        while(!feof($fn)) 
-        {
-            $counter++;
-            
-            $line = fgets($fn);
-            
-            // can happen with zero length files
-            if($line === false) {
-                continue;
-            }
-            
-            // the first line may contain a unicode BOM marker.
-            if($first) 
-            {
-                $line = ConvertHelper::stripUTFBom($line);
-                $first = false;
-            }
-            
-            $result[] = $line;
-            
-            if($amount > 0 && $counter == $amount) {
-                break;
-            }
-        }
-        
-        fclose($fn);
-        
-        return $result;
+        return self::getFileInfo($filePath)
+            ->getLineReader()
+            ->getLines($amount);
     }
     
    /**
@@ -1591,22 +1019,7 @@ class FileHelper
     */
     public static function readContents(string $filePath) : string
     {
-        self::requireFileExists($filePath);
-        
-        $result = file_get_contents($filePath);
-        
-        if($result !== false) {
-            return $result;
-        }
-        
-        throw new FileHelper_Exception(
-            sprintf('Cannot read contents of file [%s].', basename($filePath)),
-            sprintf(
-                'Tried opening file for reading at: [%s].',
-                $filePath
-            ),
-            self::ERROR_CANNOT_READ_FILE_CONTENTS
-        );
+        return self::getFileInfo($filePath)->getContents();
     }
 
    /**
@@ -1623,33 +1036,9 @@ class FileHelper
     */
     public static function requireFolderExists(string $path) : string
     {
-        $actual = realpath($path);
-        
-        if($actual === false) 
-        {
-            throw new FileHelper_Exception(
-                'Folder does not exist',
-                sprintf(
-                    'The path [%s] does not exist on disk.',
-                    $path
-                ),
-                self::ERROR_FOLDER_DOES_NOT_EXIST
-            );
-        }
-        
-        if(is_dir($path)) 
-        {
-            return self::normalizePath($actual);
-        }
-        
-        throw new FileHelper_Exception(
-            'Target is not a folder',
-            sprintf(
-                'The path [%s] does not point to a folder.',
-                $path
-            ),
-            self::ERROR_PATH_IS_NOT_A_FOLDER
-        );
+        return self::getFolderInfo($path)
+            ->requireExists(self::ERROR_FOLDER_DOES_NOT_EXIST)
+            ->getRealPath();
     }
 
     /**
