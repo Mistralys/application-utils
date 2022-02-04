@@ -1,0 +1,4 @@
+Used in the download file test.
+Used when the webserver URL is present.
+The test will look for this bit of text:
+Download successful.
