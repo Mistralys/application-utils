@@ -14,6 +14,8 @@
      */
     define('TESTS_ROOT', __DIR__ );
 
+    define('APP_UTILS_TESTSUITE', 'true');
+
     $autoloader = realpath(TESTS_ROOT.'/../vendor/autoload.php');
     
     if($autoloader === false) 
@@ -32,18 +34,4 @@
     {
         require_once $configFile;
     }
-    
-    /**
-     * Dummy test interfaces for the PHPClassInfo tests.
-     */
-    require_once TESTS_ROOT.'/classes/FooInterface.php';
-    
-    /**
-     * Dummy test classes for the PHPClassInfo tests.
-     */
-    require_once TESTS_ROOT.'/classes/FooClass.php';
-    
-    /**
-     * Dummy test class for the classable trait.
-     */
-    require_once TESTS_ROOT.'/classes/TraitClassable.php';
+
