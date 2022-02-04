@@ -23,7 +23,8 @@
         ],
         "classmap" : 
         [
-            "src/"
+            "src/",
+            "tests/TestClasses"
         ]
     },
     "minimum-stability" : "dev",
