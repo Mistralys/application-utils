@@ -50,16 +50,17 @@ class StringBuilder implements StringBuilder_Interface
    /**
     * @var string
     */
-    protected $mode = 'html';
-
-   /**
-    * @var string
-    */
-    protected $noSpace = '§!§';
+    protected $noSeparator = '§!§';
     
     public function __construct()
     {
         
+    }
+
+    public function setSeparator(string $separator) : StringBuilder
+    {
+        $this->separator = $separator;
+        return $this;
     }
     
    /**
@@ -92,7 +93,7 @@ class StringBuilder implements StringBuilder_Interface
 
         if($flattened !== "")
         {
-            $this->add($this->noSpace.$flattened);
+            $this->add($this->noSeparator.$flattened);
         }
 
         return $this;
@@ -436,6 +437,11 @@ class StringBuilder implements StringBuilder_Interface
         );
     }
 
+    public function bool($value, bool $yesNo=false) : StringBuilder
+    {
+        return $this->add(ConvertHelper::bool2string($value, $yesNo));
+    }
+
     /**
      * Adds the specified content only if the condition is true.
      * Use a callback to render the content to avoid rendering it
@@ -568,7 +574,7 @@ class StringBuilder implements StringBuilder_Interface
     {
         $result = implode($this->separator, $this->strings);
         
-        return str_replace(array(' '.$this->noSpace, $this->noSpace), '', $result);
+        return str_replace(array($this->separator.$this->noSeparator, $this->noSeparator), '', $result);
     }
     
     public function __toString()
