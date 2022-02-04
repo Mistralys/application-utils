@@ -15,7 +15,7 @@ class ColorImmutableTest extends TestCase
     {
         $color = ColorFactory::create8Bit(200, 200, 200);
 
-        $modified = $color->setRed(ColorChannel::EightBit(100));
+        $modified = $color->setRed(ColorChannel::eightBit(100));
 
         $this->assertNotSame($color, $modified);
         $this->assertSame(200, $color->getRed()->get8Bit());
@@ -26,7 +26,7 @@ class ColorImmutableTest extends TestCase
     {
         $color = ColorFactory::create8Bit(200, 200, 200);
 
-        $modified = $color->setGreen(ColorChannel::EightBit(100));
+        $modified = $color->setGreen(ColorChannel::eightBit(100));
 
         $this->assertNotSame($color, $modified);
         $this->assertSame(200, $color->getGreen()->get8Bit());
@@ -37,7 +37,7 @@ class ColorImmutableTest extends TestCase
     {
         $color = ColorFactory::create8Bit(200, 200, 200);
 
-        $modified = $color->setBlue(ColorChannel::EightBit(100));
+        $modified = $color->setBlue(ColorChannel::eightBit(100));
 
         $this->assertNotSame($color, $modified);
         $this->assertSame(200, $color->getBlue()->get8Bit());
@@ -48,7 +48,7 @@ class ColorImmutableTest extends TestCase
     {
         $color = ColorFactory::create8Bit(200, 200, 200, 200);
 
-        $modified = $color->setOpacity(ColorChannel::EightBit(100));
+        $modified = $color->setOpacity(ColorChannel::eightBit(100));
 
         $this->assertNotSame($color, $modified);
         $this->assertSame(200, $color->getOpacity()->get8Bit());
@@ -59,7 +59,7 @@ class ColorImmutableTest extends TestCase
     {
         $color = ColorFactory::create8Bit(200, 200, 200, 200);
 
-        $modified = $color->setTransparency(ColorChannel::EightBit(100));
+        $modified = $color->setTransparency(ColorChannel::eightBit(100));
 
         $this->assertNotSame($color, $modified);
         $this->assertSame(55, $color->getTransparency()->get8Bit());
@@ -70,7 +70,7 @@ class ColorImmutableTest extends TestCase
     {
         $color = ColorFactory::create8Bit(200, 200, 200, 200);
 
-        $modified = $color->setColor(RGBAColor::CHANNEL_GREEN, ColorChannel::EightBit(100));
+        $modified = $color->setColor(RGBAColor::CHANNEL_GREEN, ColorChannel::eightBit(100));
 
         $this->assertNotSame($color, $modified);
         $this->assertSame(200, $color->getGreen()->get8Bit());

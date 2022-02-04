@@ -95,13 +95,13 @@ final class CoreTest extends TestCase
     public function test_transparency() : void
     {
         $transparent = ColorPresets::white()
-            ->setTransparency(ColorChannel::Percent(100));
+            ->setTransparency(ColorChannel::percent(100));
 
         $this->assertEquals(100, $transparent->getTransparency()->getPercent());
         $this->assertEquals(0, $transparent->getOpacity()->getPercent());
 
         $opaque = ColorPresets::white()
-            ->setTransparency(ColorChannel::Percent(0));
+            ->setTransparency(ColorChannel::percent(0));
 
         $this->assertEquals(0, $opaque->getTransparency()->getPercent());
         $this->assertEquals(100, $opaque->getOpacity()->getPercent());
@@ -110,13 +110,13 @@ final class CoreTest extends TestCase
     public function test_opacity() : void
     {
         $transparent = ColorPresets::white()
-            ->setOpacity(ColorChannel::Percent(0));
+            ->setOpacity(ColorChannel::percent(0));
 
         $this->assertEquals(100, $transparent->getTransparency()->getPercent());
         $this->assertEquals(0, $transparent->getOpacity()->getPercent());
 
         $opaque = ColorPresets::white()
-            ->setOpacity(ColorChannel::Percent(100));
+            ->setOpacity(ColorChannel::percent(100));
 
         $this->assertEquals(0, $opaque->getTransparency()->getPercent());
         $this->assertEquals(100, $opaque->getOpacity()->getPercent());
