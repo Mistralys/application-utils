@@ -1,3 +1,8 @@
+v1.10.0
+- FileHelper: Removed deprecated `openUnserialized()`.
+- StringBuilder: Added `bool()`.
+- StringBuilder: Added `setSeparator()` to customize the separator character.
+
 v1.9.0
 - HTMLTag: Added the utility class `HTMLTag` to render HTML tags.
 - AttributeCollection: Added the utility class `AttributeCollection` to handle HTML tag attributes.
