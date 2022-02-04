@@ -35,6 +35,11 @@ class BaseException extends \Exception
     */
     public function __construct(string $message, $details=null, $code=null, $previous=null)
     {
+        if(APP_UTILS_TESTSUITE)
+        {
+            $message .= PHP_EOL.$details;
+        }
+
         parent::__construct($message, $code, $previous);
         
         $this->details = $details;
