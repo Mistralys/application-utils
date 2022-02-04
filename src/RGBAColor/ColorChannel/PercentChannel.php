@@ -19,7 +19,7 @@ class PercentChannel extends ColorChannel
         $this->value = $value;
     }
 
-    public function getFloat() : float
+    public function getDecimal() : float
     {
         return UnitsConverter::percent2Float($this->value);
     }
@@ -41,6 +41,6 @@ class PercentChannel extends ColorChannel
 
     public function invert() : PercentChannel
     {
-        return ColorChannel::Percent(100-$this->value);
+        return ColorChannel::percent(100-$this->value);
     }
 }

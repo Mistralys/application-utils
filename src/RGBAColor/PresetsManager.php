@@ -101,10 +101,10 @@ class PresetsManager
         if($preset !== null)
         {
             return ColorFactory::create(
-                ColorChannel::EightBit($preset[RGBAColor::CHANNEL_RED]),
-                ColorChannel::EightBit($preset[RGBAColor::CHANNEL_GREEN]),
-                ColorChannel::EightBit($preset[RGBAColor::CHANNEL_BLUE]),
-                ColorChannel::EightBit($preset[RGBAColor::CHANNEL_ALPHA]),
+                ColorChannel::eightBit($preset[RGBAColor::CHANNEL_RED]),
+                ColorChannel::eightBit($preset[RGBAColor::CHANNEL_GREEN]),
+                ColorChannel::eightBit($preset[RGBAColor::CHANNEL_BLUE]),
+                ColorChannel::eightBit($preset[RGBAColor::CHANNEL_ALPHA]),
                 $name
             );
         }

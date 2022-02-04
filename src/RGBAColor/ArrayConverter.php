@@ -54,7 +54,7 @@ class ArrayConverter
             RGBAColor::CHANNEL_RED => $this->color->getRed()->get8Bit(),
             RGBAColor::CHANNEL_GREEN => $this->color->getGreen()->get8Bit(),
             RGBAColor::CHANNEL_BLUE => $this->color->getBlue()->get8Bit(),
-            RGBAColor::CHANNEL_ALPHA => $this->color->getOpacity()->getFloat()
+            RGBAColor::CHANNEL_ALPHA => $this->color->getOpacity()->getDecimal()
         );
     }
 }

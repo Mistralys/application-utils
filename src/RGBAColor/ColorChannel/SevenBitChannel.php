@@ -41,7 +41,7 @@ class SevenBitChannel extends ColorChannel
     /**
      * @return float 0-1
      */
-    public function getFloat() : float
+    public function getDecimal() : float
     {
         return UnitsConverter::intSevenBit2Float($this->value);
     }
@@ -56,6 +56,6 @@ class SevenBitChannel extends ColorChannel
 
     public function invert() : SevenBitChannel
     {
-        return ColorChannel::SevenBit(127-$this->value);
+        return ColorChannel::sevenBit(127-$this->value);
     }
 }

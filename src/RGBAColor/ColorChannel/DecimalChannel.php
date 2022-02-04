@@ -7,7 +7,7 @@ namespace AppUtils\RGBAColor\ColorChannel;
 use AppUtils\RGBAColor\ColorChannel;
 use AppUtils\RGBAColor\UnitsConverter;
 
-class CSSOpacityChannel extends ColorChannel
+class DecimalChannel extends ColorChannel
 {
     /**
      * @var float
@@ -19,7 +19,7 @@ class CSSOpacityChannel extends ColorChannel
         $this->value = $value;
     }
 
-    public function getFloat() : float
+    public function getDecimal() : float
     {
         return $this->value;
     }
@@ -39,8 +39,8 @@ class CSSOpacityChannel extends ColorChannel
         return UnitsConverter::float2percent($this->value);
     }
 
-    public function invert() : CSSOpacityChannel
+    public function invert() : DecimalChannel
     {
-        return ColorChannel::CSSOpacity(1-$this->value);
+        return ColorChannel::decimal(1-$this->value);
     }
 }

@@ -64,9 +64,9 @@ class HEXParser
     private function parseHEX3(string $hex, string $name) : RGBAColor
     {
         return ColorFactory::create(
-            ColorChannel::EightBit(hexdec(str_repeat($hex[0], 2))),
-            ColorChannel::EightBit(hexdec(str_repeat($hex[1], 2))),
-            ColorChannel::EightBit(hexdec(str_repeat($hex[2], 2))),
+            ColorChannel::eightBit(hexdec(str_repeat($hex[0], 2))),
+            ColorChannel::eightBit(hexdec(str_repeat($hex[1], 2))),
+            ColorChannel::eightBit(hexdec(str_repeat($hex[2], 2))),
             null,
             $name
         );
@@ -81,9 +81,9 @@ class HEXParser
     private function parseHEX6(string $hex, string $name) : RGBAColor
     {
         return ColorFactory::create(
-            ColorChannel::EightBit(hexdec(substr($hex, 0, 2))),
-            ColorChannel::EightBit(hexdec(substr($hex, 2, 2))),
-            ColorChannel::EightBit(hexdec(substr($hex, 4, 2))),
+            ColorChannel::eightBit(hexdec(substr($hex, 0, 2))),
+            ColorChannel::eightBit(hexdec(substr($hex, 2, 2))),
+            ColorChannel::eightBit(hexdec(substr($hex, 4, 2))),
             null,
             $name
         );
@@ -98,10 +98,10 @@ class HEXParser
     private function parseHEX8(string $hex, string $name) : RGBAColor
     {
         return ColorFactory::create(
-            ColorChannel::EightBit(hexdec(substr($hex, 0, 2))),
-            ColorChannel::EightBit(hexdec(substr($hex, 2, 2))),
-            ColorChannel::EightBit(hexdec(substr($hex, 4, 2))),
-            ColorChannel::EightBit(hexdec(substr($hex, 6, 2))),
+            ColorChannel::eightBit(hexdec(substr($hex, 0, 2))),
+            ColorChannel::eightBit(hexdec(substr($hex, 2, 2))),
+            ColorChannel::eightBit(hexdec(substr($hex, 4, 2))),
+            ColorChannel::eightBit(hexdec(substr($hex, 6, 2))),
             $name
         );
     }

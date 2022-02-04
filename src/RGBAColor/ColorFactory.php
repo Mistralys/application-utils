@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace AppUtils\RGBAColor;
 
 use AppUtils\RGBAColor;
-use AppUtils\RGBAColor\ColorChannel;
 use AppUtils\RGBAColor\ColorPresets\CannedColors;
 
 /**
@@ -59,7 +58,7 @@ class ColorFactory
     {
         if($opacity === null)
         {
-            $opacity = ColorChannel::EightBit(255);
+            $opacity = ColorChannel::eightBit(255);
         }
 
         return new RGBAColor($red, $green, $blue, $opacity, $name);
@@ -162,10 +161,10 @@ class ColorFactory
         }
 
         return self::create(
-            ColorChannel::EightBit((int)$color[RGBAColor::CHANNEL_RED]),
-            ColorChannel::EightBit((int)$color[RGBAColor::CHANNEL_GREEN]),
-            ColorChannel::EightBit((int)$color[RGBAColor::CHANNEL_BLUE]),
-            ColorChannel::EightBit((int)$color[RGBAColor::CHANNEL_ALPHA])
+            ColorChannel::eightBit((int)$color[RGBAColor::CHANNEL_RED]),
+            ColorChannel::eightBit((int)$color[RGBAColor::CHANNEL_GREEN]),
+            ColorChannel::eightBit((int)$color[RGBAColor::CHANNEL_BLUE]),
+            ColorChannel::eightBit((int)$color[RGBAColor::CHANNEL_ALPHA])
         );
     }
 
@@ -209,10 +208,10 @@ class ColorFactory
     public static function createPercent(float $red, float $green, float $blue, float $opacity=100, string $name='') : RGBAColor
     {
         return new RGBAColor(
-            ColorChannel::Percent($red),
-            ColorChannel::Percent($green),
-            ColorChannel::Percent($blue),
-            ColorChannel::Percent($opacity),
+            ColorChannel::percent($red),
+            ColorChannel::percent($green),
+            ColorChannel::percent($blue),
+            ColorChannel::percent($opacity),
             $name
         );
     }
@@ -231,10 +230,10 @@ class ColorFactory
     public static function createCSS(int $red, int $green, int $blue, float $opacity=1, string $name='') : RGBAColor
     {
         return self::create(
-            ColorChannel::EightBit($red),
-            ColorChannel::EightBit($green),
-            ColorChannel::EightBit($blue),
-            ColorChannel::CSSOpacity($opacity)
+            ColorChannel::eightBit($red),
+            ColorChannel::eightBit($green),
+            ColorChannel::eightBit($blue),
+            ColorChannel::decimal($opacity)
         );
     }
 
@@ -252,10 +251,10 @@ class ColorFactory
     public static function create8Bit(int $red, int $green, int $blue, int $opacity=255, string $name='') : RGBAColor
     {
         return self::create(
-            ColorChannel::EightBit($red),
-            ColorChannel::EightBit($green),
-            ColorChannel::EightBit($blue),
-            ColorChannel::EightBit($opacity),
+            ColorChannel::eightBit($red),
+            ColorChannel::eightBit($green),
+            ColorChannel::eightBit($blue),
+            ColorChannel::eightBit($opacity),
             $name
         );
     }
@@ -272,13 +271,13 @@ class ColorFactory
      * @param string $name
      * @return RGBAColor
      */
-    public static function create7Bit(int $red, int $green, int $blue, int $opacity=127, string $name='') : RGBAColor
+    public static function createGD(int $red, int $green, int $blue, int $opacity=127, string $name='') : RGBAColor
     {
         return self::create(
-            ColorChannel::EightBit($red),
-            ColorChannel::EightBit($green),
-            ColorChannel::EightBit($blue),
-            ColorChannel::SevenBit($opacity),
+            ColorChannel::eightBit($red),
+            ColorChannel::eightBit($green),
+            ColorChannel::eightBit($blue),
+            ColorChannel::sevenBit($opacity),
             $name
         );
     }

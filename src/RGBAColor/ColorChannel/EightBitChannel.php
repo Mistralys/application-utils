@@ -29,7 +29,7 @@ class EightBitChannel extends ColorChannel
         return UnitsConverter::intEightBit2IntSevenBit($this->value);
     }
 
-    public function getFloat() : float
+    public function getDecimal() : float
     {
         return UnitsConverter::intEightBit2Float($this->value);
     }
@@ -41,6 +41,6 @@ class EightBitChannel extends ColorChannel
 
     public function invert() : EightBitChannel
     {
-        return ColorChannel::EightBit(255-$this->value);
+        return ColorChannel::eightBit(255-$this->value);
     }
 }

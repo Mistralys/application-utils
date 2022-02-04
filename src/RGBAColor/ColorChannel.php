@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace AppUtils\RGBAColor;
 
-use AppUtils\RGBAColor\ColorChannel\CSSOpacityChannel;
+use AppUtils\RGBAColor\ColorChannel\DecimalChannel;
 use AppUtils\RGBAColor\ColorChannel\EightBitChannel;
 use AppUtils\RGBAColor\ColorChannel\PercentChannel;
 use AppUtils\RGBAColor\ColorChannel\SevenBitChannel;
@@ -15,7 +15,7 @@ abstract class ColorChannel
 
     abstract public function get7Bit() : int;
 
-    abstract public function getFloat() : float;
+    abstract public function getDecimal() : float;
 
     abstract public function getPercent() : float;
 
@@ -24,23 +24,23 @@ abstract class ColorChannel
      */
     abstract public function invert();
 
-    public static function EightBit(int $value) : EightBitChannel
+    public static function eightBit(int $value) : EightBitChannel
     {
         return new EightBitChannel($value);
     }
 
-    public static function SevenBit(int $value) : SevenBitChannel
+    public static function sevenBit(int $value) : SevenBitChannel
     {
         return new SevenBitChannel($value);
     }
 
-    public static function Percent(float $percent) : PercentChannel
+    public static function percent(float $percent) : PercentChannel
     {
         return new PercentChannel($percent);
     }
 
-    public static function CSSOpacity(float $opacity) : CSSOpacityChannel
+    public static function decimal(float $opacity) : DecimalChannel
     {
-        return new CSSOpacityChannel($opacity);
+        return new DecimalChannel($opacity);
     }
 }

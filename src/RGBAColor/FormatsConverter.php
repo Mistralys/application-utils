@@ -67,7 +67,7 @@ class FormatsConverter
                 $color->getRed()->get8Bit(),
                 $color->getGreen()->get8Bit(),
                 $color->getBlue()->get8Bit(),
-                $color->getOpacity()->getFloat()
+                $color->getOpacity()->getDecimal()
             );
         }
 
