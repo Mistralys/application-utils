@@ -48,23 +48,23 @@ class NumberInfo
    /**
     * @var array<string,mixed>
     */
-    protected $info;
+    protected array $info;
     
    /**
     * @var bool
     */
-    protected $empty = false;
+    protected bool $empty = false;
 
     /**
      * @var bool
      */
-    protected $postProcess = false;
+    protected bool $postProcess = false;
 
     /**
      * Units and whether they allow decimal values.
     * @var array<string,bool>
     */
-    protected $knownUnits = array(
+    protected array $knownUnits = array(
         '%' => true,
         'rem' => true,
         'px' => false,
@@ -82,12 +82,12 @@ class NumberInfo
     /**
      * @var int
      */
-    private static $instanceCounter = 0;
+    private static int $instanceCounter = 0;
 
     /**
      * @var int
      */
-    protected $instanceID;
+    protected int $instanceID;
 
     /**
      * @param string|int|float|NumberInfo|NULL $value
