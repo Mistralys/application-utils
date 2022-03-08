@@ -12,7 +12,7 @@ class SevenBitChannel extends ColorChannel
     /**
      * @var int
      */
-    private $value;
+    private int $value;
 
     /**
      * @param int $value 0-127

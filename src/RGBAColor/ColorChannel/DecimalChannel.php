@@ -12,7 +12,7 @@ class DecimalChannel extends ColorChannel
     /**
      * @var float
      */
-    private $value;
+    private float $value;
 
     public function __construct(float $value)
     {
