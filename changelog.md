@@ -1,5 +1,5 @@
 ### v2.0.0 - PHP7.4 and code quality update
-- FileHelper: Removed deprecated `openUnserialized()`.
+- FileHelper: Removed the deprecated `openUnserialized()` method.
 - StringBuilder: Added `bool()`.
 - StringBuilder: Added `setSeparator()` to customize the separator character.
 - FileFinder: Added the `$enabled` parameter to `makeRecursive()`.
@@ -12,6 +12,7 @@
 - Examples: Added a separate composer install for the examples UI.
 - RGBAColor: Added the hexadecimal color channel.
 - PHPStan: Analysis is now clean up to level 5.
+- StyleCollection: Added the utility class `StyleCollection` to handle CSS styles.
 
 **Breaking changes:**
 - Minimum PHP version requirement is now v7.4.
