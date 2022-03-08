@@ -28,7 +28,7 @@ trait Traits_Classable
    /**
     * @var string[]
     */
-    protected $classes = array();
+    protected array $classes = array();
 
     public function hasClasses() : bool
     {
@@ -39,9 +39,9 @@ trait Traits_Classable
      * @param string $name
      * @return $this
      */
-    public function addClass(string $name)
+    public function addClass(string $name) : self
     {
-        if(!in_array($name, $this->classes)) {
+        if(!in_array($name, $this->classes, true)) {
             $this->classes[] = $name;
         }
         
@@ -52,7 +52,7 @@ trait Traits_Classable
      * @param string[] $names
      * @return $this
      */
-    public function addClasses(array $names)
+    public function addClasses(array $names) : self
     {
         foreach($names as $name) {
             $this->addClass($name);
@@ -63,16 +63,16 @@ trait Traits_Classable
     
     public function hasClass(string $name) : bool
     {
-        return in_array($name, $this->classes);
+        return in_array($name, $this->classes, true);
     }
 
     /**
      * @param string $name
      * @return $this
      */
-    public function removeClass(string $name)
+    public function removeClass(string $name) : self
     {
-        $idx = array_search($name, $this->classes);
+        $idx = array_search($name, $this->classes, true);
         
         if($idx !== false) {
             unset($this->classes[$idx]);

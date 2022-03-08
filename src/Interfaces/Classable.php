@@ -34,13 +34,13 @@ interface Interface_Classable
      * @param string $name
      * @return $this
      */
-    public function addClass(string $name);
+    public function addClass(string $name) : self;
 
     /**
      * @param string[] $names
      * @return $this
      */
-    public function addClasses(array $names);
+    public function addClasses(array $names) : self;
 
     /**
      * @param string $name
@@ -52,7 +52,7 @@ interface Interface_Classable
      * @param string $name
      * @return $this
      */
-    public function removeClass(string $name);
+    public function removeClass(string $name) : self;
 
     /**
      * @return string[]

@@ -1,10 +1,32 @@
 <?php
+/**
+ * File containing the trait {@see \AppUtils\Traits\AttributableTrait}.
+ *
+ * @package Application Utils
+ * @subpackage Traits
+ * @see \AppUtils\Traits\AttributableTrait
+ */
 
 declare(strict_types=1);
 
-namespace AppUtils;
+namespace AppUtils\Traits;
 
-trait Traits_Attributable
+use AppUtils\AttributeCollection;
+use AppUtils\Interface_Stringable;
+use AppUtils\Interfaces\AttributableInterface;
+use AppUtils\StringBuilder_Interface;
+
+/**
+ * Trait for objects that allow setting attributes,
+ * using an internal {@see AttributeCollection}.
+ *
+ * @package Application Utils
+ * @subpackage Traits
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ *
+ * @see AttributableInterface
+ */
+trait AttributableTrait
 {
     abstract public function getAttributes() : AttributeCollection;
 
@@ -18,7 +40,7 @@ trait Traits_Attributable
      * @param string|number|bool|Interface_Stringable|StringBuilder_Interface|NULL $value
      * @return $this
      */
-    public function attr(string $name, $value)
+    public function attr(string $name, $value) : self
     {
         $this->getAttributes()->attr($name, $value);
         return $this;
@@ -29,7 +51,7 @@ trait Traits_Attributable
      * @param string $value
      * @return $this
      */
-    public function attrURL(string $name, string $value)
+    public function attrURL(string $name, string $value) : self
     {
         $this->getAttributes()->attrURL($name, $value);
         return $this;
@@ -40,7 +62,7 @@ trait Traits_Attributable
      * @param string|number|bool|Interface_Stringable|StringBuilder_Interface|NULL $value
      * @return $this
      */
-    public function attrQuotes(string $name, $value)
+    public function attrQuotes(string $name, $value) : self
     {
         $this->getAttributes()->attrQuotes($name, $value);
         return $this;
@@ -52,7 +74,7 @@ trait Traits_Attributable
      * @param bool $enabled
      * @return $this
      */
-    public function prop(string $name, bool $enabled=true)
+    public function prop(string $name, bool $enabled=true) : self
     {
         $this->getAttributes()->prop($name, $enabled);
         return $this;
@@ -62,7 +84,7 @@ trait Traits_Attributable
      * @param string $name
      * @return $this
      */
-    public function removeAttribute(string $name)
+    public function removeAttribute(string $name) : self
     {
         $this->getAttributes()->remove($name);
         return $this;
