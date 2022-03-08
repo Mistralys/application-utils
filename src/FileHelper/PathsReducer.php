@@ -1,15 +1,19 @@
 <?php
 /**
- * File containing the {@see FileHelper_PathsReducer} class.
+ * File containing the {@see \AppUtils\FileHelper\PathsReducer} class.
  *
  * @package AppUtils
  * @subpackage FileHelper
- * @see FileHelper_PathsReducer
+ * @see \AppUtils\FileHelper\PathsReducer
  */
 
 declare(strict_types=1);
 
-namespace AppUtils;
+namespace AppUtils\FileHelper;
+
+use AppUtils\ConvertHelper;
+use AppUtils\FileHelper;
+use AppUtils\FileHelper_Exception;
 
 /**
  * Takes a list of file or folder paths, and attempts to reduce
@@ -21,12 +25,12 @@ namespace AppUtils;
  *
  * @see FileHelper::createPathsReducer()
  */
-class FileHelper_PathsReducer
+class PathsReducer
 {
     /**
      * @var string[]
      */
-    private $paths = array();
+    private array $paths = array();
 
     /**
      * @param string[] $paths
@@ -42,9 +46,8 @@ class FileHelper_PathsReducer
      *
      * @param string[] $paths
      * @return $this
-     * @throws FileHelper_Exception
      */
-    public function addPaths(array $paths) : FileHelper_PathsReducer
+    public function addPaths(array $paths) : PathsReducer
     {
         foreach($paths as $path) {
             $this->addPath($path);
@@ -58,13 +61,12 @@ class FileHelper_PathsReducer
      *
      * @param string $path
      * @return $this
-     * @throws FileHelper_Exception
      */
-    public function addPath(string $path) : FileHelper_PathsReducer
+    public function addPath(string $path) : PathsReducer
     {
-        $path = FileHelper::normalizePath(FileHelper::requireFileExists($path));
+        $path = FileHelper::normalizePath($path);
 
-        if(!in_array($path, $this->paths)) {
+        if(!in_array($path, $this->paths, true)) {
             $this->paths[] = $path;
         }
 
@@ -91,7 +93,7 @@ class FileHelper_PathsReducer
     }
 
     /**
-     * @param array<int,string[]> $split
+     * @param array<int,array<int,string>> $split
      * @return string[]
      */
     private function joinPaths(array $split) : array
@@ -108,7 +110,7 @@ class FileHelper_PathsReducer
     }
 
     /**
-     * @param array<int,string[]> $split
+     * @param array<int,array<int,string>> $split
      * @return bool
      */
     private function shiftPart(array &$split) : bool
@@ -144,7 +146,7 @@ class FileHelper_PathsReducer
     }
 
     /**
-     * @return array<int,string[]>
+     * @return array<int,array<int,string>>
      */
     private function splitPaths() : array
     {

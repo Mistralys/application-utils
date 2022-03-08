@@ -147,4 +147,14 @@ class FolderInfo extends AbstractPathInfo
             FileHelper::ERROR_CANNOT_CREATE_FOLDER
         );
     }
+
+    public function getRelativeTo(FolderInfo $folder) : string
+    {
+        return FileHelper::relativizePath($this->getPath(), $folder->getPath());
+    }
+
+    public function createFolderFinder() : FolderFinder
+    {
+        return new FolderFinder($this);
+    }
 }

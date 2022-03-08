@@ -1,4 +1,11 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\FileHelper\JSONFile}.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @see \AppUtils\FileHelper\JSONFile
+ */
 
 declare(strict_types=1);
 
@@ -9,17 +16,24 @@ use AppUtils\FileHelper_Exception;
 use JsonException;
 use function AppUtils\sb;
 
+/**
+ * Specialized file handler for JSON encoded files.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class JSONFile
 {
     /**
      * @var FileInfo
      */
-    private $file;
+    private FileInfo $file;
 
     /**
      * @var string
      */
-    private $targetEncoding = '';
+    private string $targetEncoding = '';
 
     /**
      * @var string|string[]|NULL

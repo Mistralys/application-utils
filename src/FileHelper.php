@@ -12,6 +12,9 @@ namespace AppUtils;
 use AppUtils\FileHelper\AbstractPathInfo;
 use AppUtils\FileHelper\CLICommandChecker;
 use AppUtils\FileHelper\FileDownloader;
+use AppUtils\FileHelper\FileFinder;
+use AppUtils\FileHelper\FileInfo\NameFixer;
+use AppUtils\FileHelper\PathsReducer;
 use AppUtils\FileHelper\FolderInfo;
 use AppUtils\FileHelper\FolderTree;
 use AppUtils\FileHelper\FileInfo;
@@ -35,7 +38,6 @@ class FileHelper
     public const ERROR_CANNOT_FIND_JSON_FILE = 340001;
     public const ERROR_JSON_FILE_CANNOT_BE_READ = 340002;
     public const ERROR_CANNOT_DECODE_JSON_FILE = 340003;
-    public const ERROR_CANNOT_SEND_MISSING_FILE = 340004;
     public const ERROR_JSON_ENCODE_ERROR = 340005;
     public const ERROR_CANNOT_OPEN_URL = 340008;
     public const ERROR_CANNOT_CREATE_FOLDER = 340009;
@@ -67,6 +69,7 @@ class FileHelper
     public const ERROR_REAL_PATH_NOT_FOUND = 340037;
     public const ERROR_PATH_IS_NOT_A_FILE = 340038;
     public const ERROR_PATH_NOT_WRITABLE = 340039;
+    public const ERROR_PATH_INVALID = 340040;
 
    /**
     * Opens a serialized file and returns the unserialized data.
@@ -246,7 +249,7 @@ class FileHelper
      * @param string $enclosure The character to use to quote literal strings
      * @param string $escape The character to use to escape special characters.
      * @param bool $heading Whether to include headings.
-     * @return array<int,array<string,string>>
+     * @return array<int,array<string|int,string>>
      * @throws FileHelper_Exception
      * 
      * @see parseCSVString()
@@ -355,6 +358,8 @@ class FileHelper
    /**
     * Retrieves the extension of the specified file. Can be a path
     * to a file as a string, or a DirectoryIterator object instance.
+    *
+    * NOTE: A folder will return an empty string.
     * 
     * @param string|DirectoryIterator $pathOrDirIterator
     * @param bool $lowercase
@@ -377,7 +382,7 @@ class FileHelper
     * The path to the file can be a string, or a DirectoryIterator object
     * instance.
     * 
-    * In case of folders, behaves like the pathinfo function: returns
+    * In case of folders, behaves like the "pathinfo" function: returns
     * the name of the folder.
     * 
     * @param string|DirectoryIterator $pathOrDirIterator
@@ -393,7 +398,7 @@ class FileHelper
             return $info->getName();
         }
 
-        return $info->removeExtension();
+        return $info->requireIsFile()->removeExtension();
     }
 
     /**
@@ -429,7 +434,7 @@ class FileHelper
     */
     public static function fixFileName(string $name) : string
     {
-        return FileInfo\NameFixer::fixName($name);
+        return NameFixer::fixName($name);
     }
 
     /**
@@ -438,14 +443,14 @@ class FileHelper
      * options can be set by chaining.
      *
      * @param string $path
-     * @return FileHelper_FileFinder
+     * @return FileFinder
      * @throws FileHelper_Exception
      *
-     * @see FileHelper_FileFinder::ERROR_PATH_DOES_NOT_EXIST
+     * @see FileFinder::ERROR_PATH_DOES_NOT_EXIST
      */
-    public static function createFileFinder(string $path) : FileHelper_FileFinder
+    public static function createFileFinder(string $path) : FileFinder
     {
-        return new FileHelper_FileFinder($path);
+        return new FileFinder($path);
     }
 
     /**
@@ -586,11 +591,11 @@ class FileHelper
     * 
     * @param string $encoding
     * @return boolean
-    * @deprecated
+    * @deprecated Use {@see FileHelper::createUnicodeHandling()} instead.
     */
     public static function isValidUnicodeEncoding(string $encoding) : bool
     {
-        return self::createUnicodeHandling()->isValidUnicodeEncoding($encoding);
+        return self::createUnicodeHandling()->isValidEncoding($encoding);
     }
     
    /**
@@ -600,13 +605,13 @@ class FileHelper
     */
     public static function getKnownUnicodeEncodings() : array
     {
-        return self::createUnicodeHandling()->getKnownUnicodeEncodings();
+        return self::createUnicodeHandling()->getKnownEncodings();
     }
 
     /**
      * @var UnicodeHandling|NULL
      */
-    private static $unicodeHandling;
+    private static ?UnicodeHandling $unicodeHandling = null;
 
     public static function createUnicodeHandling() : UnicodeHandling
     {
@@ -620,7 +625,7 @@ class FileHelper
     
    /**
     * Normalizes the slash style in a file or folder path,
-    * by replacing any antislashes with forward slashes.
+    * by replacing any anti-slashes with forward slashes.
     * 
     * @param string $path
     * @return string
@@ -744,28 +749,32 @@ class FileHelper
         $date->setTimestamp($time);
         return $date;
     }
-    
-   /**
-    * Retrieves the names of all sub-folders in the specified path.
-    * 
-    * Available options:
-    * 
-    * - recursive: true/false
-    *   Whether to search for sub-folders recursively.
-    *   
-    * - absolute-paths: true/false
-    *   Whether to return a list of absolute paths.
-    * 
-    * @param string|DirectoryIterator $targetFolder
-    * @param array<string,mixed> $options
-    * @throws FileHelper_Exception
-    * @return string[]
-    *
-    * @see FileHelper::ERROR_FIND_SUBFOLDERS_FOLDER_DOES_NOT_EXIST
-    */
-    public static function getSubfolders(string $targetFolder, array $options = array()) : array
+
+    /**
+     * Retrieves the names of all sub-folders in the specified path.
+     *
+     * Available options:
+     *
+     * - recursive: true/false
+     *   Whether to search for sub-folders recursively.
+     *
+     * - absolute-paths: true/false
+     *   Whether to return a list of absolute paths.
+     *
+     * @param string|DirectoryIterator $targetFolder
+     * @param array<string,mixed> $options
+     * @return string[]
+     *
+     * @throws FileHelper_Exception
+     * @see FileHelper::ERROR_FIND_SUBFOLDERS_FOLDER_DOES_NOT_EXIST
+     */
+    public static function getSubfolders($targetFolder, array $options = array()) : array
     {
-        return FolderTree::getSubFolders($targetFolder, $options);
+        return self::getPathInfo($targetFolder)
+            ->requireIsFolder()
+            ->createFolderFinder()
+            ->setOptions($options)
+            ->getPaths();
     }
 
    /**
@@ -838,12 +847,12 @@ class FileHelper
         }
         
         // remove the drive if present
-        if(strstr($tokens[0], ':')) {
+        if(strpos($tokens[0], ':') !== false) {
             array_shift($tokens);
         }
         
         // path was only the drive
-        if(count($tokens) == 0) {
+        if(count($tokens) === 0) {
             return '';
         }
 
@@ -885,16 +894,15 @@ class FileHelper
         $relativeTo = self::normalizePath($relativeTo);
         
         $relative = str_replace($relativeTo, '', $path);
-        $relative = trim($relative, '/');
-        
-        return $relative;
+
+        return trim($relative, '/');
     }
     
    /**
     * Checks that the target file exists, and throws an exception
     * if it does not. 
     * 
-    * @param string $path
+    * @param string|DirectoryIterator $path
     * @param int|NULL $errorCode Optional custom error code
     * @throws FileHelper_Exception
     * @return string The real path to the file
@@ -902,9 +910,10 @@ class FileHelper
     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
     * @see FileHelper::ERROR_REAL_PATH_NOT_FOUND
     */
-    public static function requireFileExists(string $path, ?int $errorCode=null) : string
+    public static function requireFileExists($path, ?int $errorCode=null) : string
     {
         return self::getPathInfo($path)
+            ->requireIsFile()
             ->requireExists($errorCode)
             ->getRealPath();
     }
@@ -918,6 +927,7 @@ class FileHelper
     public static function requireFileReadable(string $path, ?int $errorCode=null) : string
     {
         return self::getPathInfo($path)
+            ->requireIsFile()
             ->requireReadable($errorCode)
             ->getPath();
     }
@@ -1042,14 +1052,16 @@ class FileHelper
     }
 
     /**
-     * Creates an instance of the paths reducer tool, which can reduce
+     * Creates an instance of the path reducer tool, which can reduce
      * a list of paths to the closest common root folder.
      *
      * @param string[] $paths
-     * @return FileHelper_PathsReducer
+     * @return PathsReducer
+     *
+     * @throws FileHelper_Exception
      */
-    public static function createPathsReducer(array $paths=array()) : FileHelper_PathsReducer
+    public static function createPathsReducer(array $paths=array()) : PathsReducer
     {
-        return new FileHelper_PathsReducer();
+        return new PathsReducer($paths);
     }
 }

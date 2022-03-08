@@ -5,76 +5,144 @@ declare(strict_types=1);
 namespace AppUtils\FileHelper;
 
 use AppUtils\FileHelper;
-use AppUtils\FileHelper_Exception;
+use AppUtils\Interface_Optionable;
+use AppUtils\Traits_Optionable;
 use DirectoryIterator;
 
-class FolderFinder
+class FolderFinder implements Interface_Optionable
 {
-    /**
-     * @var string
-     */
-    private $path;
+    use Traits_Optionable;
 
-    public function __construct(string $path)
+    public const OPTION_RECURSIVE = 'recursive';
+    public const OPTION_ABSOLUTE_PATH = 'absolute-path';
+
+    private FolderInfo $folder;
+
+    /**
+     * @var FolderInfo[]
+     */
+    private array $folders;
+
+    /**
+     * @param string|DirectoryIterator|FolderInfo $path
+     */
+    public function __construct($path)
     {
-        $this->path = $path;
+        if($path instanceof FolderInfo)
+        {
+            $this->folder = $path;
+        }
+        else
+        {
+            $this->folder = FileHelper::getFolderInfo(FileHelper::getPathInfo($path)->getPath());
+        }
+    }
+
+    public function getDefaultOptions() : array
+    {
+        return array(
+            self::OPTION_RECURSIVE => false,
+            self::OPTION_ABSOLUTE_PATH => false,
+        );
+    }
+
+    public function makeRecursive(bool $recursive=true) : self
+    {
+        return $this->setOption(self::OPTION_RECURSIVE, $recursive);
+    }
+
+    public function setPathModeAbsolute() : self
+    {
+        return $this->setOption(self::OPTION_ABSOLUTE_PATH, true);
+    }
+
+    public function setPathModeRelative(): self
+    {
+        return $this->setOption(self::OPTION_ABSOLUTE_PATH, false);
+    }
+
+    private function requireValid() : void
+    {
+        $this->folder
+            ->requireExists(FileHelper::ERROR_FIND_SUBFOLDERS_FOLDER_DOES_NOT_EXIST);
     }
 
     /**
-     * @param string|DirectoryIterator $targetFolder
-     * @param array<string,bool|string> $options
      * @return string[]
-     * @throws FileHelper_Exception
      */
-    public static function getSubFolders($targetFolder, array $options = array()) : array
+    public function getPaths() : array
     {
-        $folder = FileHelper::getPathInfo($targetFolder)
-            ->requireExists(FileHelper::ERROR_FIND_SUBFOLDERS_FOLDER_DOES_NOT_EXIST)
-            ->requireIsFolder();
-
-        $options = array_merge(
-            array(
-                'recursive' => false,
-                'absolute-path' => false
-            ),
-            $options
-        );
+        $this->findFolders();
 
         $result = array();
 
+        foreach($this->folders as $folder)
+        {
+            $result[] = $this->resolvePath($folder);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return FolderInfo[]
+     */
+    public function getFolderInfos() : array
+    {
+        $this->findFolders();
+
+        return $this->folders;
+    }
+
+    private function resolvePath(FolderInfo $folder) : string
+    {
+        if(!$this->isPathModeAbsolute())
+        {
+            return $folder->getRelativeTo($this->folder);
+        }
+
+        return $folder->getPath();
+    }
+
+    private function findFolders() : void
+    {
+        $this->requireValid();
+
+        $this->folders = array();
+
+        $this->scanFolder($this->folder);
+    }
+
+    private function scanFolder(FolderInfo $folder) : void
+    {
         $d = new DirectoryIterator($folder->getPath());
 
         foreach($d as $item)
         {
             if($item->isDir() && !$item->isDot())
             {
-                $name = $item->getFilename();
-
-                if(!$options['absolute-path']) {
-                    $result[] = $name;
-                } else {
-                    $result[] = $targetFolder.'/'.$name;
-                }
-
-                if(!$options['recursive'])
-                {
-                    continue;
-                }
-
-                $subs = self::getSubFolders($targetFolder.'/'.$name, $options);
-                foreach($subs as $sub)
-                {
-                    $relative = $name.'/'.$sub;
-
-                    if(!$options['absolute-path']) {
-                        $result[] = $relative;
-                    } else {
-                        $result[] = $targetFolder.'/'.$relative;
-                    }
-                }
+                $this->processFolder(FileHelper::getFolderInfo($item->getPathname()));
             }
         }
+    }
 
-        return $result;
+    public function isPathModeAbsolute() : bool
+    {
+        return $this->getBoolOption(self::OPTION_ABSOLUTE_PATH);
+    }
+
+    public function isRecursive() : bool
+    {
+        return $this->getBoolOption(self::OPTION_RECURSIVE);
+    }
+
+    private function processFolder(FolderInfo $folder) : void
+    {
+        $this->folders[] = $folder;
+
+        if($this->isRecursive())
+        {
+            $this->scanFolder($folder);
+        }
     }
 }

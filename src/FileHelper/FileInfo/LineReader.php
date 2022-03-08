@@ -1,4 +1,11 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\FileHelper\FileInfo\LineReader}.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @see \AppUtils\FileHelper\FileInfo\LineReader
+ */
 
 declare(strict_types=1);
 
@@ -10,18 +17,30 @@ use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper_Exception;
 use SplFileObject;
 
+/**
+ * Utility used to read contents from a file, line by line.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class LineReader
 {
     /**
      * @var FileInfo
      */
-    private $file;
+    private FileInfo $file;
 
     public function __construct(FileInfo $file)
     {
         $this->file = $file;
     }
 
+    /**
+     * @param int $lineNumber
+     * @return string|null
+     * @throws FileHelper_Exception
+     */
     public function getLine(int $lineNumber) : ?string
     {
         $this->file->requireExists();
@@ -86,7 +105,7 @@ class LineReader
                 'Could not open file for reading.',
                 sprintf(
                     'Tried accessing file at [%s].',
-                    $filePath
+                    $this->file->getPath()
                 ),
                 FileHelper::ERROR_CANNOT_OPEN_FILE_TO_READ_LINES
             );
@@ -116,7 +135,7 @@ class LineReader
 
             $result[] = $line;
 
-            if($amount > 0 && $counter == $amount) {
+            if($amount > 0 && $counter === $amount) {
                 break;
             }
         }

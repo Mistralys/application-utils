@@ -1,15 +1,21 @@
 <?php
 /**
- * File containing the {@see FileHelper_FileFinder} class.
+ * File containing the {@see \AppUtils\FileHelper\FileFinder} class.
  * 
  * @package Application Utils
  * @subpackage FileHelper
- * @see FileHelper_FileFinder
+ * @see \AppUtils\FileHelper\FileFinder
  */
 
 declare(strict_types = 1);
 
-namespace AppUtils;
+namespace AppUtils\FileHelper;
+
+use AppUtils\FileHelper;
+use AppUtils\FileHelper_Exception;
+use AppUtils\Interface_Optionable;
+use AppUtils\Traits_Optionable;
+use DirectoryIterator;
 
 /**
  * File finder class used to fetch file lists from folders,
@@ -21,17 +27,16 @@ namespace AppUtils;
  * @subpackage FileHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class FileHelper_FileFinder implements Interface_Optionable
+class FileFinder implements Interface_Optionable
 {
     use Traits_Optionable;
 
     public const ERROR_PATH_DOES_NOT_EXIST = 44101;
     
     public const PATH_MODE_ABSOLUTE = 'absolute';
-    
     public const PATH_MODE_RELATIVE = 'relative';
-    
     public const PATH_MODE_STRIP = 'strip';
+
     public const OPTION_INCLUDE_EXTENSIONS = 'include-extensions';
     public const OPTION_EXCLUDE_EXTENSIONS = 'exclude-extensions';
     public const OPTION_PATHMODE = 'pathmode';
@@ -39,12 +44,12 @@ class FileHelper_FileFinder implements Interface_Optionable
     /**
     * @var string
     */
-    protected $path;
+    protected string $path;
     
    /**
     * @var string[]
     */
-    protected $found;
+    protected array $found = array();
     
    /**
     * The path must exist when the class is instantiated: its
@@ -52,7 +57,7 @@ class FileHelper_FileFinder implements Interface_Optionable
     * 
     * @param string $path The absolute path to the target folder.
     * @throws FileHelper_Exception
-    * @see FileHelper_FileFinder::ERROR_PATH_DOES_NOT_EXIST
+    * @see FileFinder::ERROR_PATH_DOES_NOT_EXIST
     */
     public function __construct(string $path)
     {
@@ -88,26 +93,27 @@ class FileHelper_FileFinder implements Interface_Optionable
    /**
     * Enables extension stripping, to return file names without extension.
     * 
-    * @return FileHelper_FileFinder
+    * @return FileFinder
     */
-    public function stripExtensions() : FileHelper_FileFinder
+    public function stripExtensions() : FileFinder
     {
         return $this->setOption('strip-extensions', true);
     }
-    
-   /**
-    * Enables recursing into subfolders.
-    * 
-    * @return FileHelper_FileFinder
-    */
-    public function makeRecursive() : FileHelper_FileFinder
+
+    /**
+     * Enables recursion into sub-folders.
+     *
+     * @param bool $enabled
+     * @return FileFinder
+     */
+    public function makeRecursive(bool $enabled=true) : FileFinder
     {
-        return $this->setOption('recursive', true);
+        return $this->setOption('recursive', $enabled);
     }
     
    /**
     * Retrieves all extensions that were added to
-    * the include list.
+    * the list of included extensions.
     * 
     * @return string[]
     */
@@ -125,10 +131,10 @@ class FileHelper_FileFinder implements Interface_Optionable
     * will be ignored.
     * 
     * @param string $extension Extension name, without dot (`php` for example).
-    * @return FileHelper_FileFinder
-    * @see FileHelper_FileFinder::includeExtensions()
+    * @return FileFinder
+    * @see FileFinder::includeExtensions()
     */
-    public function includeExtension(string $extension) : FileHelper_FileFinder
+    public function includeExtension(string $extension) : FileFinder
     {
         return $this->includeExtensions(array($extension));
     }
@@ -142,10 +148,10 @@ class FileHelper_FileFinder implements Interface_Optionable
     * will be ignored.
     * 
     * @param string[] $extensions Extension names, without dot (`php` for example).
-    * @return FileHelper_FileFinder
-    * @see FileHelper_FileFinder::includeExtension()
+    * @return FileFinder
+    * @see FileFinder::includeExtension()
     */
-    public function includeExtensions(array $extensions) : FileHelper_FileFinder
+    public function includeExtensions(array $extensions) : FileFinder
     {
         $items = $this->getIncludeExtensions();
         $items = array_merge($items, $extensions);
@@ -170,10 +176,10 @@ class FileHelper_FileFinder implements Interface_Optionable
     * Excludes a single extension from the search.
     * 
     * @param string $extension Extension name, without dot (`php` for example).
-    * @return FileHelper_FileFinder
-    * @see FileHelper_FileFinder::excludeExtensions()
+    * @return FileFinder
+    * @see FileFinder::excludeExtensions()
     */
-    public function excludeExtension(string $extension) : FileHelper_FileFinder
+    public function excludeExtension(string $extension) : FileFinder
     {
         return $this->excludeExtensions(array($extension));
     }
@@ -183,10 +189,10 @@ class FileHelper_FileFinder implements Interface_Optionable
     * exclude from the file search.
     *  
     * @param string[] $extensions Extension names, without dot (`php` for example).
-    * @return FileHelper_FileFinder
-    * @see FileHelper_FileFinder::excludeExtension()
+    * @return FileFinder
+    * @see FileFinder::excludeExtension()
     */
-    public function excludeExtensions(array $extensions) : FileHelper_FileFinder
+    public function excludeExtensions(array $extensions) : FileFinder
     {
         $items = $this->getExcludeExtensions();
         $items = array_merge($items, $extensions);
@@ -200,9 +206,9 @@ class FileHelper_FileFinder implements Interface_Optionable
     * In this mode, the entire path to the file will be stripped,
     * leaving only the file name in the files list.
     * 
-    * @return FileHelper_FileFinder
+    * @return FileFinder
     */
-    public function setPathmodeStrip() : FileHelper_FileFinder
+    public function setPathmodeStrip() : FileFinder
     {
         return $this->setPathmode(self::PATH_MODE_STRIP);
     }
@@ -211,9 +217,9 @@ class FileHelper_FileFinder implements Interface_Optionable
     * In this mode, only the path relative to the source folder
     * will be included in the files list.
     * 
-    * @return FileHelper_FileFinder
+    * @return FileFinder
     */
-    public function setPathmodeRelative() : FileHelper_FileFinder
+    public function setPathmodeRelative() : FileFinder
     {
         return $this->setPathmode(self::PATH_MODE_RELATIVE);
     }
@@ -222,9 +228,9 @@ class FileHelper_FileFinder implements Interface_Optionable
     * In this mode, the full, absolute paths to the files will
     * be included in the files list.
     * 
-    * @return FileHelper_FileFinder
+    * @return FileFinder
     */
-    public function setPathmodeAbsolute() : FileHelper_FileFinder
+    public function setPathmodeAbsolute() : FileFinder
     {
         return $this->setPathmode(self::PATH_MODE_ABSOLUTE);
     }
@@ -240,9 +246,9 @@ class FileHelper_FileFinder implements Interface_Optionable
     * Subfolder/To/File.php => Subfolder_To_File.php
     * 
     * @param string $character
-    * @return FileHelper_FileFinder
+    * @return FileFinder
     */
-    public function setSlashReplacement(string $character) : FileHelper_FileFinder
+    public function setSlashReplacement(string $character) : FileFinder
     {
         return $this->setOption('slash-replacement', $character);
     }
@@ -253,13 +259,13 @@ class FileHelper_FileFinder implements Interface_Optionable
      * that are returned.
      *
      * @param string $mode
-     * @return FileHelper_FileFinder
+     * @return FileFinder
      *
-     * @see FileHelper_FileFinder::PATH_MODE_ABSOLUTE
-     * @see FileHelper_FileFinder::PATH_MODE_RELATIVE
-     * @see FileHelper_FileFinder::PATH_MODE_STRIP
+     * @see FileFinder::PATH_MODE_ABSOLUTE
+     * @see FileFinder::PATH_MODE_RELATIVE
+     * @see FileFinder::PATH_MODE_STRIP
      */
-    protected function setPathmode(string $mode) : FileHelper_FileFinder
+    protected function setPathmode(string $mode) : FileFinder
     {
         return $this->setOption(self::OPTION_PATHMODE, $mode);
     }
@@ -313,7 +319,7 @@ class FileHelper_FileFinder implements Interface_Optionable
         
         $recursive = $this->getBoolOption('recursive');
         
-        $d = new \DirectoryIterator($path);
+        $d = new DirectoryIterator($path);
         foreach($d as $item)
         {
             $pathname = $item->getPathname();
@@ -379,13 +385,13 @@ class FileHelper_FileFinder implements Interface_Optionable
         
         if(!empty($include))
         {
-            if(!in_array($extension, $include)) {
+            if(!in_array($extension, $include, true)) {
                 return false;
             }
         }
         else if(!empty($exclude))
         {
-            if(in_array($extension, $exclude)) {
+            if(in_array($extension, $exclude, true)) {
                 return false;
             }
         }

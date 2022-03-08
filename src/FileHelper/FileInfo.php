@@ -1,4 +1,11 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\FileHelper\FileInfo}.
+ *
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @see \AppUtils\FileHelper\FileInfo
+ */
 
 declare(strict_types=1);
 
@@ -10,9 +17,13 @@ use AppUtils\FileHelper\FileInfo\LineReader;
 use AppUtils\FileHelper_Exception;
 
 /**
- * @method FileInfo requireReadable(?int $errorCode = null)
- * @method FileInfo requireExists(?int $errorCode = null)
- * @method FileInfo requireWritable(?int $errorCode = null)
+ * Specialized class used to access information on a file path,
+ * and do file-related operations: reading contents, deleting
+ * or copying and the like.
+ *
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
 class FileInfo extends AbstractPathInfo
 {
@@ -168,6 +179,15 @@ class FileInfo extends AbstractPathInfo
         );
     }
 
+    /**
+     * @param string $targetPath
+     * @return void
+     *
+     * @throws FileHelper_Exception
+     * @see FileHelper::ERROR_SOURCE_FILE_NOT_FOUND
+     * @see FileHelper::ERROR_SOURCE_FILE_NOT_READABLE
+     * @see FileHelper::ERROR_TARGET_COPY_FOLDER_NOT_WRITABLE
+     */
     private function checkCopyPrerequisites(string $targetPath) : void
     {
         $this->requireExists(FileHelper::ERROR_SOURCE_FILE_NOT_FOUND);
@@ -181,8 +201,14 @@ class FileInfo extends AbstractPathInfo
     /**
      * @var LineReader|NULL
      */
-    private $lineReader;
+    private ?LineReader $lineReader = null;
 
+    /**
+     * Gets an instance of the line reader, which can
+     * read contents of the file, line by line.
+     *
+     * @return LineReader
+     */
     public function getLineReader() : LineReader
     {
         if(!isset($this->lineReader))

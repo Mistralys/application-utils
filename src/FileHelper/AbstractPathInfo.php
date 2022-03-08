@@ -1,4 +1,11 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\FileHelper\AbstractPathInfo}.
+ *
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @see \AppUtils\FileHelper\AbstractPathInfo
+ */
 
 declare(strict_types=1);
 
@@ -8,12 +15,21 @@ use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 use DirectoryIterator;
 
+/**
+ * Abstract implementation of the path info interface.
+ *
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 abstract class AbstractPathInfo implements PathInfoInterface
 {
+    protected string $path;
+
     /**
-     * @var string
+     * @var array<string,mixed>
      */
-    protected $path;
+    private array $runtimeProperties = array();
 
     public function __construct(string $path)
     {
@@ -41,22 +57,12 @@ abstract class AbstractPathInfo implements PathInfoInterface
 
     public function isFolder() : bool
     {
-        if($this->exists())
-        {
-            return is_dir($this->path);
-        }
-
-        return true;
+        return FolderInfo::is_dir($this->path);
     }
 
     public function isFile() : bool
     {
-        if($this->exists())
-        {
-            return is_file($this->getPath());
-        }
-
-        return pathinfo($this->getPath(), PATHINFO_EXTENSION) !== '';
+        return FileInfo::is_file($this->path);
     }
 
     public function exists() : bool
@@ -82,6 +88,8 @@ abstract class AbstractPathInfo implements PathInfoInterface
      */
     public function getRealPath() : string
     {
+        $this->requireExists();
+
         $path = realpath($this->path);
 
         if($path !== false)
@@ -96,7 +104,14 @@ abstract class AbstractPathInfo implements PathInfoInterface
         );
     }
 
-    private function requireTrue(bool $condition, string $conditionLabel, ?int $errorCode=null) : PathInfoInterface
+    /**
+     * @param bool $condition
+     * @param string $conditionLabel
+     * @param int|null $errorCode
+     * @return $this
+     * @throws FileHelper_Exception
+     */
+    private function requireTrue(bool $condition, string $conditionLabel, ?int $errorCode=null) : self
     {
         if($condition === true)
         {
@@ -120,7 +135,7 @@ abstract class AbstractPathInfo implements PathInfoInterface
      * @return $this
      * @throws FileHelper_Exception
      */
-    public function requireExists(?int $errorCode=null) : PathInfoInterface
+    public function requireExists(?int $errorCode=null) : self
     {
         return $this->requireTrue(
             !empty($this->path) && realpath($this->path) !== false,
@@ -134,7 +149,7 @@ abstract class AbstractPathInfo implements PathInfoInterface
      * @return $this
      * @throws FileHelper_Exception
      */
-    public function requireReadable(?int $errorCode=null) : PathInfoInterface
+    public function requireReadable(?int $errorCode=null) : self
     {
         $this->requireExists($errorCode);
 
@@ -145,7 +160,12 @@ abstract class AbstractPathInfo implements PathInfoInterface
         );
     }
 
-    public function requireWritable(?int $errorCode=null) : PathInfoInterface
+    /**
+     * @param int|null $errorCode
+     * @return $this
+     * @throws FileHelper_Exception
+     */
+    public function requireWritable(?int $errorCode=null) : self
     {
         return $this->requireTrue(
             $this->isWritable(),
@@ -154,27 +174,58 @@ abstract class AbstractPathInfo implements PathInfoInterface
         );
     }
 
-    public function requireIsFile() : PathInfoInterface
+    /**
+     * @return FileInfo
+     *
+     * @throws FileHelper_Exception
+     * @see FileHelper::ERROR_PATH_IS_NOT_A_FILE
+     */
+    public function requireIsFile() : FileInfo
     {
-        return $this->requireTrue(
-            $this->isFile(),
-            'is not a file',
+        if($this instanceof FileInfo)
+        {
+            return $this;
+        }
+
+        throw new FileHelper_Exception(
+            'Target path is not a file',
+            sprintf(
+                'Path: [%s].',
+                $this->path
+            ),
             FileHelper::ERROR_PATH_IS_NOT_A_FILE
         );
     }
 
-    public function requireIsFolder() : PathInfoInterface
+    /**
+     * @return FolderInfo
+     *
+     * @throws FileHelper_Exception
+     * @see FileHelper::ERROR_PATH_IS_NOT_A_FOLDER
+     */
+    public function requireIsFolder() : FolderInfo
     {
-        return $this->requireTrue(
-            $this->isFile(),
-            'is not a file',
-            FileHelper::ERROR_PATH_IS_NOT_A_FILE
+        if($this instanceof FolderInfo)
+        {
+            return $this;
+        }
+
+        throw new FileHelper_Exception(
+            'Target path is not a folder',
+            sprintf(
+                'Path: [%s].',
+                $this->path
+            ),
+            FileHelper::ERROR_PATH_IS_NOT_A_FOLDER
         );
     }
 
     /**
      * @param string|DirectoryIterator $path
      * @return PathInfoInterface
+     *
+     * @throws FileHelper_Exception
+     * @see FileHelper::ERROR_PATH_INVALID
      */
     public static function resolveType($path) : PathInfoInterface
     {
@@ -188,6 +239,46 @@ abstract class AbstractPathInfo implements PathInfoInterface
             return FolderInfo::factory($path);
         }
 
-        return FileInfo::factory($path);
+        if(FileInfo::is_file($path))
+        {
+            return FileInfo::factory($path);
+        }
+
+        throw new FileHelper_Exception(
+            'Invalid file or folder path.',
+            sprintf(
+                'Target path: [%s].',
+                $path
+            ),
+            FileHelper::ERROR_PATH_INVALID
+        );
+    }
+
+    /**
+     * Stores an arbitrary value in this object, which can
+     * be retrieved again with {@see AbstractPathInfo::getRuntimeProperty()}.
+     *
+     * These properties have no functionality beyond offering
+     * a way to store custom data.
+     *
+     * @param string $name
+     * @param mixed $value
+     * @return $this
+     */
+    public function setRuntimeProperty(string $name, $value) : self
+    {
+        $this->runtimeProperties[$name] = $value;
+        return $this;
+    }
+
+    /**
+     * Retrieves a previously set property, if any.
+     *
+     * @param string $name
+     * @return mixed|null The stored value, or null if it does not exist (or has a null value).
+     */
+    public function getRuntimeProperty(string $name)
+    {
+        return $this->runtimeProperties[$name] ?? null;
     }
 }

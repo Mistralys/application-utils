@@ -1,4 +1,11 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\FileHelper\FileInfo\FileSender}.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @see \AppUtils\FileHelper\FileInfo\FileSender
+ */
 
 declare(strict_types=1);
 
@@ -8,12 +15,20 @@ use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper_Exception;
 
+/**
+ * Class that can be used to send a file to the browser,
+ * to trigger the download dialog.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class FileSender
 {
     /**
      * @var FileInfo
      */
-    private $file;
+    private FileInfo $file;
 
     public function __construct(FileInfo $info)
     {

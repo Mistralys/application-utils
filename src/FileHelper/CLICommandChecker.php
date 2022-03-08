@@ -1,4 +1,11 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\FileHelper\CLICommandChecker}.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @see \AppUtils\FileHelper\CLICommandChecker
+ */
 
 declare(strict_types=1);
 
@@ -7,25 +14,35 @@ namespace AppUtils\FileHelper;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 
+/**
+ * Tool that can be used to check if a specific command can
+ * be executed on the command line.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class CLICommandChecker
 {
-    private static $checked = array();
+    /**
+     * @var array<string,bool>
+     */
+    private static array $checked = array();
 
-    // command to use to search for available commands
-    // on the target OS
-    private static $osCommands = array(
+    /**
+     * Commands to use to search for available commands
+     * on the target OS.
+     *
+     * @var array<string,string>
+     */
+    private static array $osCommands = array(
         'windows' => 'where',
         'linux' => 'which'
     );
 
-    private function __construct()
-    {
-
-    }
-
     public static function factory() : CLICommandChecker
     {
-        return new CLICommandChecker();
+        return new self();
     }
 
     public function getOS() : string

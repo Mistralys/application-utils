@@ -1,4 +1,11 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\FileHelper\FileInfo\NameFixer}.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @see \AppUtils\FileHelper\FileInfo\NameFixer
+ */
 
 declare(strict_types=1);
 
@@ -6,6 +13,14 @@ namespace AppUtils\FileHelper\FileInfo;
 
 use AppUtils\FileHelper;
 
+/**
+ * Fixes common mistakes in file names entered by users,
+ * mainly by removing unsupported whitespace and the like.
+ *
+ * @package AppUtils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class NameFixer
 {
     /**
