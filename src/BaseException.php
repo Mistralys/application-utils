@@ -9,6 +9,7 @@
 
 namespace AppUtils;
 
+use Exception;
 use Throwable;
 
 /**
@@ -20,22 +21,19 @@ use Throwable;
  * @subpackage BaseException
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class BaseException extends \Exception
+class BaseException extends Exception
 {
-   /**
-    * @var string
-    */
-    protected $details;
+    protected ?string $details = null;
     
    /**
     * @param string $message
-    * @param string $details
+    * @param string|NULL $details
     * @param int $code
-    * @param \Exception $previous
+    * @param Exception $previous
     */
-    public function __construct(string $message, $details=null, $code=null, $previous=null)
+    public function __construct(string $message, ?string $details=null, $code=null, $previous=null)
     {
-        if(APP_UTILS_TESTSUITE)
+        if(defined('APP_UTILS_TESTSUITE') && APP_UTILS_TESTSUITE === 'true')
         {
             $message .= PHP_EOL.$details;
         }
@@ -51,11 +49,7 @@ class BaseException extends \Exception
     */
     public function getDetails() : string
     {
-        if($this->details !== null) {
-            return $this->details;
-        }
-        
-        return '';
+        return $this->details ?? '';
     }
     
    /**
