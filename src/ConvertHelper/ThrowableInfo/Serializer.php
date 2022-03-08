@@ -118,6 +118,11 @@ class ConvertHelper_ThrowableInfo_Serializer
         );
     }
 
+    /**
+     * @param array<string,mixed>|null $previous
+     * @return ConvertHelper_ThrowableInfo|null
+     * @throws ConvertHelper_Exception
+     */
     private static function unserializePrevious(?array $previous) : ?ConvertHelper_ThrowableInfo
     {
         if(!empty($previous))

@@ -26,32 +26,15 @@ namespace AppUtils;
  */
 class JSHelper
 {
-   /**
-    * Quote style using single quotes.
-    * @var integer
-    */
     public const QUOTE_STYLE_SINGLE = 1;
-    
-   /**
-    * Quote style using double quotes.
-    * @var integer
-    */
     public const QUOTE_STYLE_DOUBLE = 2;
 
    /**
-    * @var array
+    * @var array<string,string>
     */
-    protected static $variableCache = array();
-    
-   /**
-    * @var integer
-    */
-    protected static $elementCounter = 0;
-
-   /**
-    * @var string
-    */    
-    protected static $idPrefix = 'E';
+    protected static array $variableCache = array();
+    protected static int $elementCounter = 0;
+    protected static string $idPrefix = 'E';
     
    /**
     * Builds a javascript statement. The first parameter is the
@@ -89,7 +72,7 @@ class JSHelper
         return call_user_func_array(array(self::class, 'buildStatementQuoteStyle'), $args);
     }
     
-    protected static function buildStatementQuoteStyle()
+    protected static function buildStatementQuoteStyle() : string
     {
         $params = func_get_args();
         $quoteStyle = array_shift($params);
@@ -275,13 +258,12 @@ class JSHelper
     * @param string $prefix
     * @see JSHelper::nextElementID()
     */
-    public static function setIDPrefix(string $prefix)
+    public static function setIDPrefix(string $prefix) : void
     {
         self::$idPrefix = $prefix;
     }
 
     public const JS_REGEX_OBJECT = 'object';
-    
     public const JS_REGEX_JSON = 'json';
     
     /**

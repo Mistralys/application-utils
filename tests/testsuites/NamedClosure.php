@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use AppUtils\ConvertHelper;
 use AppUtils\NamedClosure;
 use PHPUnit\Framework\TestCase;
@@ -9,7 +11,7 @@ final class NamedClosureTest extends TestCase
     /**
      * @var bool
      */
-    private $callbackDone = false;
+    private bool $callbackDone = false;
 
     public function test_autoOrigin() : void
     {

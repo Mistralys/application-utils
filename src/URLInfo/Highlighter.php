@@ -163,7 +163,7 @@ class URLInfo_Highlighter
     * whether parameter exclusion is enabled, so they
     * can be highlighted is need be.
     * 
-    * @return array
+    * @return array<string,string>
     */
     protected function resolveParams() : array
     {
@@ -228,7 +228,12 @@ class URLInfo_Highlighter
         '<span class="link-component query-sign">?</span>'.
         implode('<span class="link-component param-separator">&amp;</span>', $tokens);
     }
-    
+
+    /**
+     * @param array<string,string> $excluded
+     * @param string $paramName
+     * @return string
+     */
     protected function resolveTag(array $excluded, string $paramName) : string
     {
         // regular, non-excluded parameter

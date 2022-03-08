@@ -27,9 +27,9 @@ namespace AppUtils;
 trait Traits_Optionable
 {
    /**
-    * @var array|NULL
+    * @var array<string,mixed>|NULL
     */
-    protected $options = null;
+    protected ?array $options = null;
 
     /**
      * Sets an option to the specified value. This can be any
@@ -39,7 +39,7 @@ trait Traits_Optionable
      * @param mixed $value
      * @return $this
      */
-    public function setOption(string $name, $value)
+    public function setOption(string $name, $value) : self
     {
         if(!isset($this->options)) {
             $this->options = $this->getDefaultOptions();
@@ -56,7 +56,7 @@ trait Traits_Optionable
     * @param array<string,mixed> $options
     * @return $this
     */
-    public function setOptions(array $options)
+    public function setOptions(array $options) : self
     {
         foreach($options as $name => $value) {
             $this->setOption($name, $value);
@@ -77,15 +77,12 @@ trait Traits_Optionable
     */
     public function getOption(string $name, $default=null)
     {
-        if(!isset($this->options)) {
+        if(!isset($this->options))
+        {
             $this->options = $this->getDefaultOptions();
         }
-        
-        if(isset($this->options[$name])) {
-            return $this->options[$name];
-        }
-        
-        return $default;
+
+        return $this->options[$name] ?? $default;
     }
     
    /**
@@ -121,7 +118,8 @@ trait Traits_Optionable
      */
     public function getBoolOption(string $name, bool $default=false) : bool
     {
-        if($this->getOption($name) === true) {
+        if($this->getOption($name) === true)
+        {
             return true;
         }
         
@@ -153,7 +151,7 @@ trait Traits_Optionable
     * array is returned.
     * 
     * @param string $name
-    * @return array
+    * @return array<int|string,mixed>
     */
     public function getArrayOption(string $name) : array
     {
@@ -206,12 +204,4 @@ trait Traits_Optionable
     {
         return $this->getOption($name) === $value;
     }
-    
-   /**
-    * Retrieves the default available options as an
-    * associative array with option name => value pairs.
-    *
-    * @return array<string,mixed>
-    */
-    abstract public function getDefaultOptions() : array;
 }

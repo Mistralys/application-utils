@@ -89,7 +89,7 @@ class FormatsConverter
      * all expected color keys present. The `alpha` key
      * is optional. If it's not valid, throws an exception.
      *
-     * @param array $color
+     * @param array<string|int,int|float> $color
      * @throws ColorException
      * @see RGBAColor::ERROR_INVALID_COLOR_ARRAY
      */
@@ -116,7 +116,7 @@ class FormatsConverter
      * Checks whether the specified array contains all required
      * color keys.
      *
-     * @param array $color
+     * @param array<string|int,int|float> $color
      * @return bool
      */
     public static function isColorArray(array $color) : bool

@@ -33,7 +33,7 @@ interface Interface_Optionable
      * @param mixed $value
      * @return $this
      */
-    function setOption(string $name, $value);
+    public function setOption(string $name, $value) : self;
 
     /**
      * Retrieves an option's value.
@@ -45,7 +45,19 @@ interface Interface_Optionable
      * @param mixed $default The default value to return if the option does not exist.
      * @return mixed
      */
-    function getOption(string $name, $default=null);
+    public function getOption(string $name, $default=null);
+
+    /**
+     * @param string $name
+     * @return array<int|string,mixed>
+     */
+    public function getArrayOption(string $name) : array;
+
+    public function getIntOption(string $name, int $default=0) : int;
+
+    public function getBoolOption(string $name, bool $default=false) : bool;
+
+    public function getStringOption(string $name, string $default='') : string;
 
     /**
      * Sets a collection of options at once, from an
@@ -54,14 +66,14 @@ interface Interface_Optionable
      * @param array<string,mixed> $options
      * @return $this
      */
-    function setOptions(array $options);
+    public function setOptions(array $options) : self;
 
     /**
      * Returns all options in one associative array.
      *
      * @return array<string,mixed>
      */
-    function getOptions() : array;
+    public function getOptions() : array;
 
     /**
      * Checks whether the option's value is the one specified.
@@ -70,7 +82,7 @@ interface Interface_Optionable
      * @param mixed $value
      * @return bool
      */
-    function isOption(string $name, $value) : bool;
+    public function isOption(string $name, $value) : bool;
 
     /**
      * Checks whether the specified option exists - even
@@ -79,7 +91,7 @@ interface Interface_Optionable
      * @param string $name
      * @return bool
      */
-    function hasOption(string $name) : bool;
+    public function hasOption(string $name) : bool;
 
     /**
      * Retrieves the default available options as an
@@ -87,5 +99,5 @@ interface Interface_Optionable
      *
      * @return array<string,mixed>
      */
-    function getDefaultOptions() : array;
+    public function getDefaultOptions() : array;
 }

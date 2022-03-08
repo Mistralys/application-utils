@@ -203,7 +203,7 @@ class AttributeCollection
      * `class` and `style`). These are just the attributes
      * that have been set manually.
      *
-     * @return array
+     * @return array<string,string>
      */
     public function getRawAttributes() : array
     {

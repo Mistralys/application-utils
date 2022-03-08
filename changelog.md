@@ -11,6 +11,7 @@
 - UnitTests: Tests are now included in the PHPStan analysis.
 - Examples: Added a separate composer install for the examples UI.
 - RGBAColor: Added the hexadecimal color channel.
+- PHPStan: Analysis is now clean up to level 5.
 
 **Breaking changes:**
 - Minimum PHP version requirement is now v7.4.

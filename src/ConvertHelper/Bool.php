@@ -29,7 +29,7 @@ class ConvertHelper_Bool
      */
     public static function fromString($string) : bool
     {
-        if($string === '' || $string === null || !is_scalar($string))
+        if($string === '' || !is_scalar($string))
         {
             return false;
         }
@@ -59,7 +59,7 @@ class ConvertHelper_Bool
      * 'true' or 'false', with the additional parameter it can also
      * return the 'yes' and 'no' variants.
      *
-     * @param boolean|string $boolean
+     * @param boolean|string|int $boolean
      * @param boolean $yesno
      * @return string
      *

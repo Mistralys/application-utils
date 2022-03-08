@@ -26,48 +26,50 @@ class Request_URLComparer
    /**
     * @var Request
     */
-    protected $request;
+    protected Request $request;
     
    /**
     * @var string
     */
-    protected $sourceURL;
+    protected string $sourceURL;
     
    /**
     * @var string
     */
-    protected $targetURL;
+    protected string $targetURL;
     
    /**
-    * @var array
+    * @var string[]
     */
-    protected $limitParams = array();
-    
-   /**
-    * @var bool
-    */
-    protected $isMatch = false;
+    protected array $limitParams = array();
     
    /**
     * @var bool
     */
-    protected $ignoreFragment = true;
+    protected bool $isMatch = false;
+    
+   /**
+    * @var bool
+    */
+    protected bool $ignoreFragment = true;
 
    /**
     * @var URLInfo
     */
-    protected $sourceInfo;
+    protected URLInfo $sourceInfo;
     
    /**
     * @var URLInfo
     */
-    protected $targetInfo;
+    protected URLInfo $targetInfo;
     
     public function __construct(Request $request, string $sourceURL, string $targetURL)
     {
         $this->request = $request;
         $this->sourceURL = $sourceURL;
         $this->targetURL = $targetURL;
+        $this->sourceInfo = parseURL($this->sourceURL);
+        $this->targetInfo = parseURL($this->targetURL);
     }
     
     public function isMatch() : bool
@@ -79,16 +81,22 @@ class Request_URLComparer
     
     public function addLimitParam(string $name) : Request_URLComparer
     {
-        if(!in_array($name, $this->limitParams)) {
+        if(!in_array($name, $this->limitParams, true))
+        {
             $this->limitParams[] = $name;
         }
         
         return $this;
     }
-    
+
+    /**
+     * @param string[] $names
+     * @return $this
+     */
     public function addLimitParams(array $names) : Request_URLComparer
     {
-        foreach($names as $name) {
+        foreach($names as $name)
+        {
             $this->addLimitParam($name);
         }
         
@@ -101,7 +109,7 @@ class Request_URLComparer
         return $this;
     }
     
-    protected function init()
+    protected function init() : void
     {
         // so they are always in the same order. 
         sort($this->limitParams);
@@ -109,11 +117,8 @@ class Request_URLComparer
         $this->isMatch = $this->compare();
     }
     
-    protected function compare()
+    protected function compare() : bool
     {
-        $this->sourceInfo = parseURL($this->sourceURL);
-        $this->targetInfo = parseURL($this->targetURL);
-        
         $keys = array(
             'scheme',
             'host',
@@ -154,7 +159,8 @@ class Request_URLComparer
     protected function filter_path(string $path) : string
     {
         // fix double slashes in URLs
-        while(stristr($path, '//')) {
+        while(strpos($path, '//') !== false)
+        {
             $path = str_replace('//', '/', $path);
         }
         
@@ -175,7 +181,11 @@ class Request_URLComparer
         
         return serialize($params);
     }
-    
+
+    /**
+     * @param string[] $params
+     * @return array<string,string>
+     */
     protected function limitParams(array $params) : array
     {
         if(empty($this->limitParams)) {

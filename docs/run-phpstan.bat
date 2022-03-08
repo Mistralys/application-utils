@@ -2,7 +2,7 @@
 
 cls 
 
-set AnalysisLevel=5
+set AnalysisLevel=6
 set OutputFile=phpstan/output.txt
 set ConfigFile=./config/phpstan.neon
 

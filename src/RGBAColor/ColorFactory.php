@@ -28,7 +28,7 @@ class ColorFactory
     /**
      * @var PresetsManager|null
      */
-    private static $presets;
+    private static ?PresetsManager $presets = null;
 
     /**
      * Retrieves the presets manager, which can be used to
@@ -77,7 +77,7 @@ class ColorFactory
      * - A preset name
      * - An empty or NULL value
      *
-     * @param string|array|RGBAColor|NULL $subject
+     * @param string|array<int|string,int|float>|RGBAColor|NULL $subject
      * @return RGBAColor|NULL
      * @throws ColorException
      */

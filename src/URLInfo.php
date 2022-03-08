@@ -21,6 +21,7 @@ use ArrayAccess;
  * @package Application Utils
  * @subpackage URLInfo
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ * @implements ArrayAccess<string,mixed>
  */
 class URLInfo implements ArrayAccess
 {
@@ -40,39 +41,39 @@ class URLInfo implements ArrayAccess
     * The original URL that was passed to the constructor.
     * @var string
     */
-    protected $rawURL;
+    protected string $rawURL;
 
    /**
-    * @var array
+    * @var array<string,mixed>
     */
-    protected $info;
+    protected array $info;
     
    /**
     * @var string[]
     */
-    protected $excludedParams = array();
+    protected array $excludedParams = array();
     
    /**
     * @var bool
     * @see URLInfo::setParamExclusion()
     */
-    protected $paramExclusion = false;
+    protected bool $paramExclusion = false;
     
    /**
     * @var array<string,string>|NULL
     * @see URLInfo::getTypeLabel()
     */
-    protected static $typeLabels = null;
+    protected static ?array $typeLabels = null;
     
    /**
     * @var bool
     */
-    protected $highlightExcluded = false;
+    protected bool $highlightExcluded = false;
     
    /**
-    * @var array
+    * @var string[]
     */
-    protected $infoKeys = array(
+    protected array $infoKeys = array(
         'scheme',
         'host',
         'port',
@@ -86,22 +87,22 @@ class URLInfo implements ArrayAccess
    /**
     * @var string
     */
-    protected $url;
+    protected string $url;
     
    /**
     * @var URLInfo_Parser
     */
-    protected $parser;
+    protected URLInfo_Parser $parser;
     
    /**
     * @var URLInfo_Normalizer|NULL
     */
-    protected $normalizer;
+    protected ?URLInfo_Normalizer $normalizer = null;
     
    /**
     * @var bool
     */
-    protected $encodeUTFChars = false;
+    protected bool $encodeUTFChars = false;
     
     public function __construct(string $url)
     {
@@ -414,7 +415,7 @@ class URLInfo implements ArrayAccess
     * NOTE: Ignores parameters that have been added
     * to the excluded parameters list.
     *
-    * @return array
+    * @return array<string,string>
     */
     public function getParams() : array
     {
@@ -533,12 +534,13 @@ class URLInfo implements ArrayAccess
         $this->highlightExcluded = $highlight;
         return $this;
     }
-    
-   /**
-    * Returns an array with all relevant URL information.
-    * 
-    * @return array
-    */
+
+    /**
+     * Returns an array with all relevant URL information.
+     *
+     * @return array<string,mixed>
+     * @throws BaseException
+     */
     public function toArray() : array
     {
         return array(
@@ -639,7 +641,7 @@ class URLInfo implements ArrayAccess
         unset($this->info[$offset]);
     }
     
-    public function offsetGet($offset) 
+    public function offsetGet($offset)
     {
         if($offset === 'port') {
             return $this->getPort();
@@ -656,7 +658,10 @@ class URLInfo implements ArrayAccess
     {
         return URLInfo_Highlighter::getHighlightCSS();
     }
-    
+
+    /**
+     * @return string[]
+     */
     public function getExcludedParams() : array
     {
         return $this->excludedParams;

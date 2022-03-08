@@ -292,7 +292,7 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
     }
 
     /**
-     * @param array $names
+     * @param string[] $names
      * @return $this
      */
     public function addClasses(array $names) : self

@@ -237,27 +237,43 @@ class OperationResult_Collection extends OperationResult
     {
         return count($this->results);
     }
-    
+
+    /**
+     * @return OperationResult[]
+     */
     public function getErrors() : array
     {
         return $this->getByType(self::TYPE_ERROR);
     }
-    
+
+    /**
+     * @return OperationResult[]
+     */
     public function getSuccesses() : array
     {
         return $this->getByType(self::TYPE_SUCCESS);
     }
-    
+
+    /**
+     * @return OperationResult[]
+     */
     public function getWarnings() : array
     {
         return $this->getByType(self::TYPE_WARNING);
     }
-    
+
+    /**
+     * @return OperationResult[]
+     */
     public function getNotices() : array
     {
         return $this->getByType(self::TYPE_NOTICE);
     }
-    
+
+    /**
+     * @param string $type
+     * @return OperationResult[]
+     */
     public function getByType(string $type) : array
     {
         $results = array();

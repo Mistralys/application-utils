@@ -500,7 +500,7 @@ class ConvertHelper
      * 'true' or 'false', with the additional parameter it can also
      * return the 'yes' and 'no' variants.
      *
-     * @param boolean|string $boolean
+     * @param boolean|string|int $boolean
      * @param boolean $yesNo
      * @return string
      * @throws ConvertHelper_Exception

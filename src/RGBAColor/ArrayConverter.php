@@ -11,13 +11,16 @@ class ArrayConverter
     /**
      * @var RGBAColor
      */
-    private $color;
+    private RGBAColor $color;
 
     public function __construct(RGBAColor $color)
     {
         $this->color = $color;
     }
 
+    /**
+     * @return array<string,int>
+     */
     public function eightBit() : array
     {
         return array(
@@ -28,6 +31,9 @@ class ArrayConverter
         );
     }
 
+    /**
+     * @return array<string,float>
+     */
     public function percent() : array
     {
         return array(
@@ -38,6 +44,9 @@ class ArrayConverter
         );
     }
 
+    /**
+     * @return array<string,int>
+     */
     public function GD() : array
     {
         return array(
@@ -48,6 +57,9 @@ class ArrayConverter
         );
     }
 
+    /**
+     * @return array<string,int|float>
+     */
     public function CSS() : array
     {
         return array(

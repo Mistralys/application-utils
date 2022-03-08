@@ -437,6 +437,12 @@ class StringBuilder implements StringBuilder_Interface
         );
     }
 
+    /**
+     * @param string|bool|int $value
+     * @param bool $yesNo
+     * @return $this
+     * @throws ConvertHelper_Exception
+     */
     public function bool($value, bool $yesNo=false) : StringBuilder
     {
         return $this->add(ConvertHelper::bool2string($value, $yesNo));

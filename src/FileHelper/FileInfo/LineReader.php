@@ -93,6 +93,11 @@ class LineReader
         return $number+1;
     }
 
+    /**
+     * @param int $amount
+     * @return string[]
+     * @throws FileHelper_Exception
+     */
     public function getLines(int $amount=0) : array
     {
         $this->file->requireExists();

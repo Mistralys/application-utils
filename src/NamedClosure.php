@@ -41,12 +41,12 @@ class NamedClosure
     /**
      * @var Closure
      */
-    private $closure;
+    private Closure $closure;
 
     /**
      * @var string
      */
-    private $origin;
+    private string $origin;
 
     /**
      * NamedClosure constructor.
@@ -94,7 +94,7 @@ class NamedClosure
      * </pre>
      *
      * @param Closure $closure
-     * @param object|string|array $origin Describes the origin of the closure, i.e.
+     * @param object|string|array<int,string|object> $origin Describes the origin of the closure, i.e.
      *          the owner who created the closure, to easily identify it in
      *          the logs. Accepts the following types:
      *          - An object instance will use the class name as description
@@ -132,7 +132,7 @@ class NamedClosure
     }
 
     /**
-     * @param array $callback
+     * @param array<int,string|object> $callback
      * @param string|object $origin
      * @return NamedClosure
      */
@@ -147,6 +147,9 @@ class NamedClosure
         return new NamedClosure(Closure::fromCallable($callback), $origin);
     }
 
+    /**
+     * @return false|mixed
+     */
     public function __invoke()
     {
         $args = func_get_args();
