@@ -5,21 +5,13 @@ namespace AppUtils;
 abstract class SVNHelper_Target
 {
     public const ERROR_FILE_NOT_FOUND = 22501;
-    
-    /**
-     * @var SVNHelper
-     */
-    protected $helper;
-    
-    /**
-     * The relative path to the file.
-     * @var string
-     */
-    protected $relativePath;
-    
-    protected $path;
-    
-    protected $url;
+    public const ERROR_NOT_A_FILE = 22502;
+    public const ERROR_NOT_A_FOLDER = 22503;
+
+    protected SVNHelper $helper;
+    protected string $relativePath;
+    protected string $path;
+    protected string $url;
     
     public function __construct(SVNHelper $helper, $relativePath)
     {
@@ -33,7 +25,7 @@ abstract class SVNHelper_Target
         }
         
         // ensure that the path is correct, even if the case is not quite
-        // correct: realpath checks the path in a case insensitive way and
+        // correct: realpath checks the path in a case-insensitive way and
         // returns it in the actual case (at least on NIX-systems, where
         // this is relevant).
         $this->path = realpath($path);
@@ -228,5 +220,33 @@ abstract class SVNHelper_Target
             $this->getRelativePath(),
             $message
         ));
+    }
+
+    public function requireIsFile() : SVNHelper_Target_File
+    {
+        if($this instanceof SVNHelper_Target_File)
+        {
+            return $this;
+        }
+
+        throw new SVNHelper_Exception(
+            'Target is not a file.',
+            sprintf('Path: [%s].', $this->getPath()),
+            self::ERROR_NOT_A_FILE
+        );
+    }
+
+    public function requireIsFolder() : SVNHelper_Target_Folder
+    {
+        if($this instanceof SVNHelper_Target_Folder)
+        {
+            return $this;
+        }
+
+        throw new SVNHelper_Exception(
+            'Target is not a folder.',
+            sprintf('Path: [%s].', $this->getPath()),
+            self::ERROR_NOT_A_FOLDER
+        );
     }
 }

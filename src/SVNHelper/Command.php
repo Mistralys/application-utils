@@ -31,9 +31,9 @@ abstract class SVNHelper_Command
     protected $target;
     
    /**
-    * @var SVNHelper_CommandResult
+    * @var SVNHelper_CommandResult|NULL
     */
-    protected $result;
+    protected ?SVNHelper_CommandResult $result;
     
     public function __construct(SVNHelper $helper, SVNHelper_Target $target)
     {
@@ -56,7 +56,8 @@ abstract class SVNHelper_Command
     
     public function execute()
     {
-        if(isset($this->result)) {
+        if(isset($this->result))
+        {
             return $this->result;
         }
         

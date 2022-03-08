@@ -248,11 +248,12 @@ class SVNHelper
     * @return SVNHelper_Target_File
     * @throws SVNHelper_Exception
     */
-    public function getFile($path)
+    public function getFile(string $path) : SVNHelper_Target_File
     {
         $path = $this->filterPath($path);
         
-        return $this->getTarget('File', $this->relativizePath($path));
+        return $this->getTarget('File', $this->relativizePath($path))
+            ->requireIsFile();
     }
 
    /**
@@ -264,11 +265,12 @@ class SVNHelper
     * @return SVNHelper_Target_Folder
     * @throws SVNHelper_Exception
     */
-    public function getFolder($path)
+    public function getFolder(string $path) : SVNHelper_Target_Folder
     {
         $path = $this->filterPath($path);
         
-        return $this->getTarget('Folder', $this->relativizePath($path));
+        return $this->getTarget('Folder', $this->relativizePath($path))
+            ->requireIsFolder();
     }
     
    /**
@@ -309,7 +311,7 @@ class SVNHelper
     * @param string $relativePath A path relative to the root folder.
     * @return SVNHelper_Target
     */
-    protected function getTarget($type, $relativePath)
+    protected function getTarget(string $type, string $relativePath) : SVNHelper_Target
     {
         $key = $type.':'.$relativePath;
         
