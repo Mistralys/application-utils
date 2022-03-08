@@ -60,7 +60,8 @@ class Filtering
         {
             return 'true';
         }
-        else if($value === false)
+
+        if($value === false)
         {
             return 'false';
         }
