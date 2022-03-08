@@ -1472,8 +1472,8 @@ class ImageHelper
             );
 	    }
 	    
-	    $boxWidth = $size[2];
-	    $boxHeight = $size[3];
+	    $boxWidth = (float)$size[2];
+	    $boxHeight = (float)$size[3];
 	    
 	    // calculate the x and y units of the document: 
 	    // @see http://tutorials.jenkov.com/svg/svg-viewport-view-box.html#viewbox
