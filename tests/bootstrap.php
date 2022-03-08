@@ -1,37 +1,30 @@
 <?php
-
 /**
- * Main bootstrapper used to set up the testsuites environment.
- * 
- * @package Application Utils
- * @subpackage Tests
- * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
- */
+* Main bootstrapper used to set up the testsuites environment.
+*
+* @package Application Utils
+* @subpackage Tests
+* @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+*/
 
-    /**
-     * The tests root folder (this file's location)
-     * @var string
-     */
-    define('TESTS_ROOT', __DIR__ );
+declare(strict_types=1);
 
-    define('APP_UTILS_TESTSUITE', 'true');
+const TESTS_ROOT = __DIR__;
+const APP_UTILS_TESTSUITE = 'true';
 
-    $autoloader = realpath(TESTS_ROOT.'/../vendor/autoload.php');
-    
-    if($autoloader === false) 
-    {
-        die('ERROR: The autoloader is not present. Run composer install first.');
-    }
+$autoloader = __DIR__ . '/../vendor/autoload.php';
 
-   /**
-    * The composer autoloader
-    */
-    require_once $autoloader;
-    
-    $configFile = TESTS_ROOT.'/config.php';
-    
-    if(file_exists($configFile))
-    {
-        require_once $configFile;
-    }
+if(!file_exists($autoloader))
+{
+    die('ERROR: The autoloader is not present. Please run composer install first.');
+}
+
+require_once $autoloader;
+
+$configFile = __DIR__ . '/config.php';
+
+if(file_exists($configFile))
+{
+    require_once $configFile;
+}
 
