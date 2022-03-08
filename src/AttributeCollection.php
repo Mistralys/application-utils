@@ -13,6 +13,8 @@ namespace AppUtils;
 
 use AppUtils\AttributeCollection\AttributesRenderer;
 use AppUtils\AttributeCollection\Filtering;
+use AppUtils\Interfaces\StylableInterface;
+use AppUtils\Traits\StylableTrait;
 
 /**
  * Utility class used to hold HTML attributes, with
@@ -27,23 +29,23 @@ class AttributeCollection
     implements
     Interface_Stringable,
     Interface_Classable,
-    Interface_Stylable
+    StylableInterface
 {
     use Traits_Classable;
-    use Traits_Stylable;
+    use StylableTrait;
 
     /**
-     * @var array<string,string|number>
+     * @var array<string,string>
      */
-    private $attributes = array();
+    private array $attributes = array();
 
     /**
      * @var StyleCollection
      */
-    public $styles;
+    public StyleCollection $styles;
 
     /**
-     * @param array<string,string|number> $attributes
+     * @param array<string,string|number|bool|NULL|Interface_Stringable|StringBuilder_Interface> $attributes
      */
     private function __construct(array $attributes)
     {
@@ -58,7 +60,7 @@ class AttributeCollection
     }
 
     /**
-     * @param array<string,string|number|Interface_Stringable|StringBuilder_Interface|NULL> $attributes
+     * @param array<string,string|number|bool|NULL|Interface_Stringable|StringBuilder_Interface|NULL> $attributes
      * @return $this
      */
     public function setAttributes(array $attributes) : AttributeCollection
@@ -77,7 +79,7 @@ class AttributeCollection
     }
 
     /**
-     * @param array<string,string|number> $attributes
+     * @param array<string,string|number|bool|NULL|Interface_Stringable|StringBuilder_Interface> $attributes
      * @return AttributeCollection
      */
     public static function create(array $attributes=array()) : AttributeCollection
