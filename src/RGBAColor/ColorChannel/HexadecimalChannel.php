@@ -51,7 +51,9 @@ class HexadecimalChannel extends EightBitChannel
      */
     private function validateValue(string $hex) : void
     {
-        if(preg_match('/[0-9A-F]{1,2}/i', $hex) !== false)
+        $match = preg_match('/\A[0-9A-F]{1,2}\z/iU', $hex);
+
+        if($match !== false && $match > 0)
         {
             return;
         }
