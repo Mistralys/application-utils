@@ -154,8 +154,9 @@ final class RequestTest extends TestCase
                 $limitParams
             );
             
-            if(isset($def['ignoreFragments']) && !$def['ignoreFragments']) {
-                $comparer->setIgnoreFragment(false);
+            if(isset($def['ignoreFragments']))
+            {
+                $comparer->setIgnoreFragment($def['ignoreFragments']);
             }
             
             $result = $comparer->isMatch();

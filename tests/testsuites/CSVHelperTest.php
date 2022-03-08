@@ -1,26 +1,33 @@
 <?php
 
+declare(strict_types=1);
+
+namespace testsuites;
+
 use AppUtils\FileHelper;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 final class CSVHelperTest extends TestCase
 {
     /**
-     * @var string
+     * @var string|NULL
      */
-    protected $assetsFolder;
+    protected ?string $assetsFolder = null;
 
     protected function setUp(): void
     {
-        if (isset($this->assetsFolder)) {
+        if (isset($this->assetsFolder))
+        {
             return;
         }
 
         $path = TESTS_ROOT . '/assets/CSVHelper';
         $this->assetsFolder = realpath($path);
 
-        if ($this->assetsFolder === false) {
-            throw new Exception(
+        if ($this->assetsFolder === false)
+        {
+            throw new InvalidArgumentException(
                 sprintf('The convert helper assets folder could not be found at [%s].', $path)
             );
         }

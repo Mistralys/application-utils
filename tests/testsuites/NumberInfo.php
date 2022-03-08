@@ -80,7 +80,6 @@ final class NumberInfoTest extends TestCase
         $this->assertFalse(parseNumber(0)->hasDecimals(), 'Int 0');
         $this->assertFalse(parseNumber(0.0)->hasDecimals(), 'Numeric 0.0');
         $this->assertFalse(parseNumber('15,00em')->hasDecimals(), 'String 15,00em');
-        $this->assertFalse(parseNumber(array())->hasDecimals(), 'Empty array');
         $this->assertFalse(parseNumber(0.1)->hasDecimals(), 'Numeric 0.1 (unitless=pixels, cannot have decimals)');
 
         $this->assertTrue(parseNumber('55.20%')->hasDecimals(), 'String percentage');

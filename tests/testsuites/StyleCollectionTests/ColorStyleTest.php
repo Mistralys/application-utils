@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace StyleCollectionTests;
 
+use AppUtils\RGBAColor\ColorChannel\HexadecimalChannel;
 use AppUtils\RGBAColor\ColorFactory;
 use AppUtils\StyleCollection\StyleBuilder;
 use PHPUnit\Framework\TestCase;
@@ -37,13 +38,11 @@ class ColorStyleTest extends TestCase
         );
     }
 
-    public function test_hexStringInvalid() : void
+    public function test_hexStringInvalidException() : void
     {
-        $this->assertEquals(
-            'color:#000000',
-            (string)StyleBuilder::create()
-                ->color()->hexString('PPP')
-        );
+        $this->expectExceptionCode(HexadecimalChannel::ERROR_INVALID_HEX_VALUE);
+
+        StyleBuilder::create()->color()->hexString('PPP');
     }
 
     public function test_hex() : void

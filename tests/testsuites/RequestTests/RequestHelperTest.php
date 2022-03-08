@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace RequestTests;
 
 use AppUtils\RequestHelper;
 use AppUtils\RequestHelper_Exception;
-use PHPUnit\Framework\TestCase;
+use TestClasses\BaseTestCase;
 
-final class RequestHelperTest extends TestCase
+final class RequestHelperTest extends BaseTestCase
 {
-    protected $assetsFolder = '';
+    protected string $assetsFolder = '';
     
     protected function setUp() : void
     {
@@ -133,16 +135,5 @@ final class RequestHelperTest extends TestCase
         $this->assertArrayHasKey('request', $data);
         $this->assertArrayHasKey('arbitrary', $data['request']);
         $this->assertEquals($originalJSON, $data['request']['arbitrary']);
-    }
-
-    /**
-     * @return void
-     */
-    private function skipWebserverURL() : void
-    {
-        if (!defined('TESTS_WEBSERVER_URL'))
-        {
-            $this->markTestSkipped('The webserver URL has not been defined in the config file.');
-        }
     }
 }

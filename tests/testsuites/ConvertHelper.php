@@ -70,8 +70,6 @@ final class ConvertHelperTest extends TestCase
             '/path/to/file.txt' => 'file',
             'F:\\path\name.extension' => 'name',
             'With.Several.Dots.file' => 'With.Several.Dots',
-            'noextension' => 'noextension',
-            'file ending in dot.' => 'file ending in dot',
             '.ext' => ''
         );
         
@@ -220,25 +218,58 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_isBooleanString()
+    public function test_isBooleanString() : void
     {
         $tests = array(
-            1 => true,
-            0 => true,
-            '1' => true,
-            '0' => true,
-            'true' => true,
-            'false' => true,
-            'yes' => true,
-            'no' => true,
-            '' => false,
-            null => false,
-            'bla' => false
+            array(
+                'value' => 1,
+                'expected' => true
+            ),
+            array(
+                'value' => 0,
+                'expected' => true
+            ),
+            array(
+                'value' => '1',
+                'expected' => true
+            ),
+            array(
+                'value' => '0',
+                'expected' => true
+            ),
+            array(
+                'value' => 'true',
+                'expected' => true
+            ),
+            array(
+                'value' => 'false',
+                'expected' => true
+            ),
+            array(
+                'value' => 'yes',
+                'expected' => true
+            ),
+            array(
+                'value' => 'no',
+                'expected' => true
+            ),
+            array(
+                'value' => '',
+                'expected' => false
+            ),
+            array(
+                'value' => null,
+                'expected' => false
+            ),
+            array(
+                'value' => 'bla',
+                'expected' => false
+            )
         );
         
-        foreach($tests as $value => $isBool)
+        foreach($tests as $def)
         {
-            $this->assertEquals(ConvertHelper::isBoolean($value), $isBool);
+            $this->assertEquals(ConvertHelper::isBoolean($def['value']), $def['expected']);
         }
     }
     
@@ -523,25 +554,28 @@ final class ConvertHelperTest extends TestCase
         }
     }
 
-    public function test_findString()
+    public function test_findString() : void
     {
         $tests = array(
             array(
                 'label' => 'Empty needle',
                 'haystack' => 'We were walking, and a foo appeared just like that.',
                 'needle' => '',
+                'caseInsensitive' => false,
                 'expected' => array()
             ),
             array(
                 'label' => 'No matches present',
                 'haystack' => '',
                 'needle' => 'foo',
+                'caseInsensitive' => false,
                 'expected' => array()
             ),
             array(
                 'label' => 'One match present',
                 'haystack' => 'We were walking, and a foo appeared just like that.',
                 'needle' => 'foo',
+                'caseInsensitive' => false,
                 'expected' => array(
                     array(
                         'pos' => 23,
@@ -553,6 +587,7 @@ final class ConvertHelperTest extends TestCase
                 'label' => 'One match present, different case',
                 'haystack' => 'We were walking, and a Foo appeared just like that.',
                 'needle' => 'foo',
+                'caseInsensitive' => false,
                 'expected' => array()
             ),
             array(
@@ -571,6 +606,7 @@ final class ConvertHelperTest extends TestCase
                 'label' => 'Several matches',
                 'haystack' => 'We were walking, and a foo with another foo ran by, whith a foo trailing behind.',
                 'needle' => 'foo',
+                'caseInsensitive' => false,
                 'expected' => array(
                     array(
                         'pos' => 23,
@@ -590,6 +626,7 @@ final class ConvertHelperTest extends TestCase
                 'label' => 'Several matches, different cases',
                 'haystack' => 'We were walking, and a foo with another Foo ran by, whith a fOo trailing behind.',
                 'needle' => 'foo',
+                'caseInsensitive' => false,
                 'expected' => array(
                     array(
                         'pos' => 23,
@@ -621,6 +658,7 @@ final class ConvertHelperTest extends TestCase
                 'label' => 'One match using unicode characters',
                 'haystack' => 'And a föö.',
                 'needle' => 'föö',
+                'caseInsensitive' => false,
                 'expected' => array(
                     array(
                         'pos' => 6,
@@ -632,6 +670,7 @@ final class ConvertHelperTest extends TestCase
                 'label' => 'One match with a newline',
                 'haystack' => 'And a\n foo.',
                 'needle' => 'foo',
+                'caseInsensitive' => false,
                 'expected' => array(
                     array(
                         'pos' => 8,
@@ -643,22 +682,26 @@ final class ConvertHelperTest extends TestCase
         
         foreach($tests as $test)
         {
-            $caseInsensitive = false;
-            if(isset($test['caseInsensitive'])) {
-                $caseInsensitive = $test['caseInsensitive'];
-            }
-            
-            $matches = ConvertHelper::findString($test['needle'], $test['haystack'], $caseInsensitive);
-            
-            $this->assertEquals(count($test['expected']), count($matches), 'Amount of matches should match.');
-            
-            foreach($matches as $idx => $match)
-            {
-                $testMatch = $test['expected'][$idx];
-                
-                $this->assertEquals($testMatch['pos'], $match->getPosition(), 'The position of needle should match.');
-                $this->assertEquals($testMatch['match'], $match->getMatchedString(), 'The matched string should match.');
-            }
+            $this->findString_checkTest($test);
+        }
+    }
+
+    /**
+     * @param array{label:string,haystack:string,needle:string,caseInsensitive:bool,expected:array<int,array{pos:int,match:string}>} $test
+     * @return void
+     */
+    public function findString_checkTest(array $test) : void
+    {
+        $matches = ConvertHelper::findString($test['needle'], $test['haystack'], $test['caseInsensitive']);
+
+        $this->assertCount(count($test['expected']), $matches, 'Amount of matches should match.');
+
+        foreach($matches as $idx => $match)
+        {
+            $testMatch = $test['expected'][$idx];
+
+            $this->assertEquals($testMatch['pos'], $match->getPosition(), 'The position of needle should match.');
+            $this->assertEquals($testMatch['match'], $match->getMatchedString(), 'The matched string should match.');
         }
     }
     

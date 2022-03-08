@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
+namespace testsuites\FileHelperTests;
 
+use InvalidArgumentException;
+use PHPUnit\Framework\TestCase;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 
-final class FileHelper_PHPClassInfoTest extends TestCase
+final class PHPClassInfoTest extends TestCase
 {
     protected $assetsFolder;
     
@@ -20,7 +22,7 @@ final class FileHelper_PHPClassInfoTest extends TestCase
         $this->assetsFolder = realpath(TESTS_ROOT.'/assets/FileHelper/PHPClassInfo');
         
         if($this->assetsFolder === false) {
-            throw new Exception(
+            throw new InvalidArgumentException(
                 'The file helper assets folder could not be found.'
             );
         }
@@ -158,40 +160,49 @@ final class FileHelper_PHPClassInfoTest extends TestCase
         
         foreach($tests as $test)
         {
-            $info = FileHelper::findPHPClasses($this->assetsFolder.'/'.$test['file'].'.php');
+            $this->getInfo_checkTest($test);
+        }
+    }
 
-            $names = $info->getClassNames();
-            $testNames = array_keys($test['classes']);
-            
-            sort($names); sort($testNames);
-            
-            $this->assertEquals(
-                $testNames, 
-                $names, 
-                $test['label'].': The class names should match.'
-            );
-            
-            $classes = $info->getClasses();
-            
-            $this->assertSame(
-                count($test['classes']), 
-                count($classes), 
-                $test['label'].': The amount of classes should match.'
-            );
+    /**
+     * @param array{label:string,file:string,classes:array<string,array{name:string,extends:string,implements:array<int,string>,declaration:string}>} $test
+     * @return void
+     */
+    private function getInfo_checkTest(array $test) : void
+    {
+        $info = FileHelper::findPHPClasses($this->assetsFolder.'/'.$test['file'].'.php');
 
-            foreach($classes as $class) 
-            {
-                $name = $class->getNameNS();
-                
-                $this->assertTrue(isset($test['classes'][$name]), 'The class name ['.$name.'] should exist in the array.');
-                
-                $def = $test['classes'][$name];
-                
-                $this->assertEquals($def['name'], $class->getName(), $test['label']);
-                $this->assertEquals($def['extends'], $class->getExtends(), $test['label']);
-                $this->assertEquals($def['implements'], $class->getImplements(), $test['label']);
-                $this->assertEquals($def['declaration'], $class->getDeclaration(), $test['label']);
-            }
+        $names = $info->getClassNames();
+        $testNames = array_keys($test['classes']);
+
+        sort($names); sort($testNames);
+
+        $this->assertEquals(
+            $testNames,
+            $names,
+            $test['label'].': The class names should match.'
+        );
+
+        $classes = $info->getClasses();
+
+        $this->assertCount(
+            count($test['classes']),
+            $classes,
+            $test['label'] . ': The amount of classes should match.'
+        );
+
+        foreach($classes as $class)
+        {
+            $name = $class->getNameNS();
+
+            $this->assertTrue(isset($test['classes'][$name]), 'The class name ['.$name.'] should exist in the array.');
+
+            $def = $test['classes'][$name];
+
+            $this->assertEquals($def['name'], $class->getName(), $test['label']);
+            $this->assertEquals($def['extends'], $class->getExtends(), $test['label']);
+            $this->assertEquals($def['implements'], $class->getImplements(), $test['label']);
+            $this->assertEquals($def['declaration'], $class->getDeclaration(), $test['label']);
         }
     }
 }

@@ -429,7 +429,7 @@ final class URLInfoTest extends TestCase
     {
         $this->assertTrue(parseURL('https://google.com')->tryConnect(), 'Could not connect to google.com.');
         
-        $this->assertFalse(parseURL('https://'.md5(microtime(true)).'.org')->tryConnect(), 'Could connect to an unknown website.');
+        $this->assertFalse(parseURL('https://'.md5((string)microtime(true)).'.org')->tryConnect(), 'Could connect to an unknown website.');
     }
     
     public function test_normalize()

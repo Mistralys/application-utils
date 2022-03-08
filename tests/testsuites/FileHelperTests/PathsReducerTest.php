@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
+namespace testsuites\FileHelperTests;
+
 use AppUtils\FileHelper;
 use PHPUnit\Framework\TestCase;
 
-final class FileHelper_PathsReducerTest extends TestCase
+final class PathsReducerTest extends TestCase
 {
     public function test_reduce(): void
     {
@@ -24,6 +28,26 @@ final class FileHelper_PathsReducerTest extends TestCase
                 'OperationResult'
             ),
             $result
+        );
+    }
+
+    /**
+     * Paths passed in the constructor must be used as well
+     * as those added via methods.
+     */
+    public function test_constructor() : void
+    {
+        $reducer = FileHelper::createPathsReducer(array(
+            'foo/bar',
+            'foo/bar/test.html'
+        ));
+
+        $this->assertEquals(
+            array(
+                'bar',
+                'bar/test.html'
+            ),
+            $reducer->reduce()
         );
     }
 

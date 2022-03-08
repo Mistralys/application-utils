@@ -16,6 +16,31 @@ class FileHelperTestCase extends BaseTestCase
     protected const CASE_BASE_UPPER = 'uppercase-extension';
 
     /**
+     * @var string[]
+     */
+    protected array $testFolderNames = array(
+        'path',
+        'path-ending-in-dot.',
+        'path/to/folder',
+        '/',
+        '/user',
+        '\unix\path'
+    );
+
+    /**
+     * @var string[]
+     */
+    protected array $testFileNames = array(
+        'file.ext',
+        '/path/to/file.ext',
+        'path/to/file.ext',
+        '.htaccess',
+        'A...........ext',
+        'B    -.-   .ext',
+        '.gitignore'
+    );
+
+    /**
      * @var string|NULL
      */
     protected $assetsFolder;

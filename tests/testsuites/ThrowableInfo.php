@@ -83,18 +83,4 @@ final class ThrowableInfoTest extends TestCase
             restoreThrowable($serialized);
         }
     }
-
-    public function test_renderErrorMessage() : void
-    {
-        $info = parseThrowable(new BaseException(
-            'Test message',
-            'Details',
-            12345
-        ));
-
-        $this->assertTrue($info->hasDetails());
-
-        $this->assertStringNotContainsString('Details', $info->renderErrorMessage());
-        $this->assertStringContainsString('Details', $info->renderErrorMessage(true));
-    }
 }
