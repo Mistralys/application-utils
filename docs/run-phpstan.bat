@@ -2,12 +2,16 @@
 
 cls 
 
+set AnalysisLevel=5
+set OutputFile=phpstan/output.txt
+set ConfigFile=./config/phpstan.neon
+
 echo -------------------------------------------------------
-echo RUNNING PHPSTAN ANALYSIS
+echo RUNNING PHPSTAN @ LEVEL %AnalysisLevel%
 echo -------------------------------------------------------
 
 echo.
 
-call ../vendor/bin/phpstan analyse -c ./config/phpstan.neon -l 5 > phpstan/output.txt
+call ../vendor/bin/phpstan analyse -c %ConfigFile% -l %AnalysisLevel% > %OutputFile%
 
-start "" "phpstan/output.txt" 
+start "" "%OutputFile%"

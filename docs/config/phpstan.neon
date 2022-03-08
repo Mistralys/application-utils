@@ -1,7 +1,10 @@
 parameters:
-    excludes_analyse:
+    bootstrapFiles:
+        - ../phpstan/constants.php
+    excludePaths:
         - tests/*
         - vendor/*
         - css/*
     paths:
         - ../../src
+        - ../../tests
