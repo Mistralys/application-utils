@@ -235,7 +235,7 @@ class FormatsConverter
      * - blue
      * - alpha (optional)
      *
-     * @param array<int,int|float> $color
+     * @param array<int|string,int|float> $color
      * @return array<string,int|float>
      *
      * @throws ColorException

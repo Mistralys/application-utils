@@ -21,7 +21,12 @@ namespace AppUtils\RGBAColor;
  */
 class UnitsConverter
 {
-    private static $floatPrecision = 2;
+    private static int $floatPrecision = 2;
+
+    public static function hex2int(string $hex) : int
+    {
+        return (int)hexdec($hex);
+    }
 
     /**
      * Converts a color value to a percentage.

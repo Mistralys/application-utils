@@ -1,4 +1,11 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\RGBAColor\FormatsConverter\HEXParser}.
+ *
+ * @package Application Utils
+ * @subpackage RGBAColor
+ * @see \AppUtils\RGBAColor\FormatsConverter\HEXParser
+ */
 
 declare(strict_types=1);
 
@@ -9,6 +16,13 @@ use AppUtils\RGBAColor\ColorException;
 use AppUtils\RGBAColor\ColorFactory;
 use AppUtils\RGBAColor\ColorChannel;
 
+/**
+ * Specialized hexadecimal color string parser.
+ *
+ * @package Application Utils
+ * @subpackage RGBAColor
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class HEXParser
 {
     /**
@@ -64,9 +78,9 @@ class HEXParser
     private function parseHEX3(string $hex, string $name) : RGBAColor
     {
         return ColorFactory::create(
-            ColorChannel::eightBit(hexdec(str_repeat($hex[0], 2))),
-            ColorChannel::eightBit(hexdec(str_repeat($hex[1], 2))),
-            ColorChannel::eightBit(hexdec(str_repeat($hex[2], 2))),
+            ColorChannel::hexadecimal($hex[0]),
+            ColorChannel::hexadecimal($hex[1]),
+            ColorChannel::hexadecimal($hex[2]),
             null,
             $name
         );
@@ -77,13 +91,14 @@ class HEXParser
      * @param string $hex
      * @param string $name
      * @return RGBAColor
+     * @throws ColorException
      */
     private function parseHEX6(string $hex, string $name) : RGBAColor
     {
         return ColorFactory::create(
-            ColorChannel::eightBit(hexdec(substr($hex, 0, 2))),
-            ColorChannel::eightBit(hexdec(substr($hex, 2, 2))),
-            ColorChannel::eightBit(hexdec(substr($hex, 4, 2))),
+            ColorChannel::hexadecimal(substr($hex, 0, 2)),
+            ColorChannel::hexadecimal(substr($hex, 2, 2)),
+            ColorChannel::hexadecimal(substr($hex, 4, 2)),
             null,
             $name
         );
@@ -94,14 +109,15 @@ class HEXParser
      * @param string $hex
      * @param string $name
      * @return RGBAColor
+     * @throws ColorException
      */
     private function parseHEX8(string $hex, string $name) : RGBAColor
     {
         return ColorFactory::create(
-            ColorChannel::eightBit(hexdec(substr($hex, 0, 2))),
-            ColorChannel::eightBit(hexdec(substr($hex, 2, 2))),
-            ColorChannel::eightBit(hexdec(substr($hex, 4, 2))),
-            ColorChannel::eightBit(hexdec(substr($hex, 6, 2))),
+            ColorChannel::hexadecimal(substr($hex, 0, 2)),
+            ColorChannel::hexadecimal(substr($hex, 2, 2)),
+            ColorChannel::hexadecimal(substr($hex, 4, 2)),
+            ColorChannel::hexadecimal(substr($hex, 6, 2)),
             $name
         );
     }
