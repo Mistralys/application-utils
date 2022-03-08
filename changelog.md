@@ -4,10 +4,13 @@
 - StringBuilder: Added `setSeparator()` to customize the separator character.
 - FileFinder: Added the `$enabled` parameter to `makeRecursive()`.
 - FileHelper: Added the `FileInfo` and `FolderInfo` classes.
+- FileHelper: Modernized the code, and split into subclasses.
 - Traits: Added the `StylableTrait` trait and matching interface.
 - Traits: Added the `AttributableTrait` trait and matching interface.
+- Traits: Added the `ClassableAttribute` trait and matching interface.
 - UnitTests: Tests are now included in the PHPStan analysis.
 - Examples: Added a separate composer install for the examples UI.
+- RGBAColor: Added the hexadecimal color channel.
 
 **Breaking changes:**
 - Minimum PHP version requirement is now v7.4.
