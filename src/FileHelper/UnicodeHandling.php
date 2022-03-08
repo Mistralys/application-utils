@@ -1,4 +1,11 @@
 <?php
+/**
+ * File containing the class {@see \AppUtils\FileHelper\UnicodeHandling}.
+ *
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @see \AppUtils\FileHelper\UnicodeHandling
+ */
 
 declare(strict_types=1);
 
@@ -7,17 +14,25 @@ namespace AppUtils\FileHelper;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 
+/**
+ * Collection of methods related to unicode-safe file
+ * operations and information access.
+ *
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class UnicodeHandling
 {
     /**
      * @var array<string,string>|NULL
      */
-    protected static $utfBoms;
+    protected static ?array $utfBoms = null;
 
     /**
      * @var string[]|NULL
      */
-    protected static $encodings;
+    protected static ?array $encodings = null;
 
     public function __construct()
     {
@@ -89,7 +104,7 @@ class UnicodeHandling
             return;
         }
 
-        $encodings = $this->getKnownUnicodeEncodings();
+        $encodings = $this->getKnownEncodings();
 
         self::$encodings = array();
 
@@ -125,7 +140,7 @@ class UnicodeHandling
      * @param string $encoding
      * @return boolean
      */
-    public function isValidUnicodeEncoding(string $encoding) : bool
+    public function isValidEncoding(string $encoding) : bool
     {
         return in_array($encoding, self::$encodings, true);
     }
@@ -134,7 +149,7 @@ class UnicodeHandling
      * Retrieves a list of all known unicode file encodings.
      * @return string[]
      */
-    public function getKnownUnicodeEncodings() : array
+    public function getKnownEncodings() : array
     {
         return array_keys(self::$utfBoms);
     }
