@@ -26,7 +26,7 @@ class FontStyle extends StyleContainer
     /**
      * font-style:oblique
      *
-     * @param int|NULL $degrees -90 to 90, default 14
+     * @param int $degrees -90 to 90, default 14
      * @param bool $important
      * @return StyleBuilder
      * @link https://developer.mozilla.org/fr/docs/Web/CSS/font-style
