@@ -1,0 +1,526 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "a64df96ac7deb274b3ecf0c9ec6ad00f",
+    "packages": [
+        {
+            "name": "geshi/geshi",
+            "version": "v1.0.9.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/GeSHi/geshi-1.0.git",
+                "reference": "fd22ab78481bf90337862b590e6f7517863926b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/GeSHi/geshi-1.0/zipball/fd22ab78481bf90337862b590e6f7517863926b8",
+                "reference": "fd22ab78481bf90337862b590e6f7517863926b8",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/geshi/",
+                    "src/geshi.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0+"
+            ],
+            "authors": [
+                {
+                    "name": "Benny Baumann",
+                    "email": "BenBE@geshi.org",
+                    "homepage": "http://blog.benny-baumann.de/",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Generic Syntax Highlighter",
+            "homepage": "http://qbnz.com/highlighter/",
+            "support": {
+                "forum": "https://lists.sourceforge.net/lists/listinfo/geshi-users",
+                "irc": "irc://irc.freenode.org/geshi",
+                "issues": "https://sourceforge.net/p/geshi/feature-requests/",
+                "source": "https://github.com/GeSHi/geshi-1.0/tree/v1.0.9.1"
+            },
+            "time": "2019-10-20T20:54:46+00:00"
+        },
+        {
+            "name": "mistralys/application-localization",
+            "version": "1.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Mistralys/application-localization.git",
+                "reference": "ff0cce325c07a1999b1ddde567f4d133fc82ee82"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Mistralys/application-localization/zipball/ff0cce325c07a1999b1ddde567f4d133fc82ee82",
+                "reference": "ff0cce325c07a1999b1ddde567f4d133fc82ee82",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "mistralys/application-utils": ">=1.2.0",
+                "mistralys/jtokenizer": ">=1.0.1",
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^0.12",
+                "phpunit/phpunit": "8.2.5"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "AppLocalize\\": "src/"
+                },
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastian Mordziol",
+                    "email": "s.mordziol@mistralys.eu",
+                    "role": "Lead"
+                }
+            ],
+            "description": "PHP and Javascript localization library.",
+            "support": {
+                "issues": "https://github.com/Mistralys/application-localization/issues",
+                "source": "https://github.com/Mistralys/application-localization/tree/1.4.1"
+            },
+            "time": "2021-08-10T11:40:20+00:00"
+        },
+        {
+            "name": "mistralys/application-utils",
+            "version": "1.9.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Mistralys/application-utils.git",
+                "reference": "689ec58cd25286ff85f3f6be0831aee9d5f1cb48"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Mistralys/application-utils/zipball/689ec58cd25286ff85f3f6be0831aee9d5f1cb48",
+                "reference": "689ec58cd25286ff85f3f6be0831aee9d5f1cb48",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-dom": "*",
+                "ext-gd": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "ext-simplexml": "*",
+                "ext-zip": "*",
+                "geshi/geshi": ">=1.0.9.1",
+                "mistralys/html_quickform2": ">=2.1.2",
+                "neitanod/forceutf8": ">=2.0.4",
+                "parsecsv/php-parsecsv": "1.2.*",
+                "php": ">=7.3"
+            },
+            "require-dev": {
+                "phpstan/phpstan": ">=0.12.74",
+                "phpunit/phpunit": ">=8.5"
+            },
+            "suggest": {
+                "mistralys/application-localization": "Required to translate available texts, from date related methods or file size labels for example."
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "AppUtils\\": "src/"
+                },
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-3.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastian Mordziol",
+                    "email": "s.mordziol@mistralys.eu",
+                    "role": "Lead"
+                }
+            ],
+            "description": "Drop-in utilities for PHP applications.",
+            "support": {
+                "issues": "https://github.com/Mistralys/application-utils/issues",
+                "source": "https://github.com/Mistralys/application-utils/tree/1.9.1"
+            },
+            "time": "2022-01-10T21:02:52+00:00"
+        },
+        {
+            "name": "mistralys/html_quickform2",
+            "version": "2.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Mistralys/HTML_QuickForm2.git",
+                "reference": "ccafac485aa663f5f826b334882d8c9553346122"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Mistralys/HTML_QuickForm2/zipball/ccafac485aa663f5f826b334882d8c9553346122",
+                "reference": "ccafac485aa663f5f826b334882d8c9553346122",
+                "shasum": ""
+            },
+            "require": {
+                "pear/html_common2": "^2.1",
+                "pear/pear_exception": "^1.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": ">=0.12.70",
+                "phpunit/phpunit": "8.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "HTML_QuickForm2": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Alexey Borzov",
+                    "email": "avb@php.net",
+                    "role": "Lead"
+                },
+                {
+                    "name": "Bertrand Mansion",
+                    "email": "golgote@mamasam.com",
+                    "role": "Lead"
+                },
+                {
+                    "name": "Sebastian Mordziol",
+                    "email": "s.mordziol@mistralys.eu",
+                    "role": "Contributor"
+                }
+            ],
+            "description": "Provides methods to create, validate and render HTML forms in PHP.",
+            "homepage": "https://pear.php.net/package/HTML_QuickForm2/",
+            "keywords": [
+                "Forms",
+                "PEAR",
+                "javascript",
+                "quickform",
+                "validation",
+                "wizard"
+            ],
+            "support": {
+                "docs": "https://pear.php.net/manual/en/package.html.html-quickform2.php",
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=HTML_QuickForm2",
+                "source": "https://github.com/pear/HTML_QuickForm2"
+            },
+            "time": "2021-01-28T08:54:13+00:00"
+        },
+        {
+            "name": "mistralys/jtokenizer",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Mistralys/jtokenizer.git",
+                "reference": "e1cda4df1f56df5693290e9d71237c0d08e96f40"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Mistralys/jtokenizer/zipball/e1cda4df1f56df5693290e9d71237c0d08e96f40",
+                "reference": "e1cda4df1f56df5693290e9d71237c0d08e96f40",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "phpstan/phpstan": ">=0.12",
+                "phpunit/phpunit": ">=8.2.5"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/Constants.php"
+                ],
+                "classmap": [
+                    "src"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Tim Whitlock",
+                    "homepage": "https://timwhitlock.info",
+                    "role": "Lead developer"
+                },
+                {
+                    "name": "Sebastian Mordziol",
+                    "email": "s.mordziol@mistralys.eu",
+                    "homepage": "https://mistralys.eu",
+                    "role": "Contributor"
+                }
+            ],
+            "description": "Modernized, composer compatible version of Tim Whitlock's JTokenizer PHP Javascript parser and tokenizer library.",
+            "homepage": "https://github.com/Mistralys/jtokenizer",
+            "support": {
+                "issues": "https://github.com/Mistralys/jtokenizer/issues",
+                "source": "https://github.com/Mistralys/jtokenizer/tree/1.0.1"
+            },
+            "time": "2021-03-12T08:55:11+00:00"
+        },
+        {
+            "name": "neitanod/forceutf8",
+            "version": "v2.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/neitanod/forceutf8.git",
+                "reference": "c1fbe70bfb5ad41b8ec5785056b0e308b40d4831"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/neitanod/forceutf8/zipball/c1fbe70bfb5ad41b8ec5785056b0e308b40d4831",
+                "reference": "c1fbe70bfb5ad41b8ec5785056b0e308b40d4831",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "ForceUTF8\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastián Grignoli",
+                    "email": "grignoli@gmail.com"
+                }
+            ],
+            "description": "PHP Class Encoding featuring popular Encoding::toUTF8() function --formerly known as forceUTF8()-- that fixes mixed encoded strings.",
+            "homepage": "https://github.com/neitanod/forceutf8",
+            "support": {
+                "issues": "https://github.com/neitanod/forceutf8/issues",
+                "source": "https://github.com/neitanod/forceutf8/tree/master"
+            },
+            "time": "2019-12-10T14:09:14+00:00"
+        },
+        {
+            "name": "parsecsv/php-parsecsv",
+            "version": "1.2.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/parsecsv/parsecsv-for-php.git",
+                "reference": "947b1c0866cc0a8162692d42c814a6ce07caf319"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/parsecsv/parsecsv-for-php/zipball/947b1c0866cc0a8162692d42c814a6ce07caf319",
+                "reference": "947b1c0866cc0a8162692d42c814a6ce07caf319",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6",
+                "squizlabs/php_codesniffer": "^3.5"
+            },
+            "suggest": {
+                "illuminate/support": "Fluent array interface for map functions"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ParseCsv\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jim Myhrberg",
+                    "email": "contact@jimeh.me"
+                },
+                {
+                    "name": "William Knauss",
+                    "email": "will.knauss@gmail.com"
+                },
+                {
+                    "name": "Susann Sgorzaly",
+                    "homepage": "https://github.com/susgo"
+                },
+                {
+                    "name": "Christian Bläul",
+                    "homepage": "https://github.com/Fonata"
+                }
+            ],
+            "description": "CSV data parser for PHP",
+            "support": {
+                "issues": "https://github.com/parsecsv/parsecsv-for-php/issues",
+                "source": "https://github.com/parsecsv/parsecsv-for-php"
+            },
+            "time": "2020-04-25T17:17:04+00:00"
+        },
+        {
+            "name": "pear/html_common2",
+            "version": "v2.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/HTML_Common2.git",
+                "reference": "b945e83eb1dc615d092a348e00623133856d8074"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/HTML_Common2/zipball/b945e83eb1dc615d092a348e00623133856d8074",
+                "reference": "b945e83eb1dc615d092a348e00623133856d8074",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8|^5.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "HTML_Common2": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Alexey Borzov",
+                    "email": "avb@php.net",
+                    "role": "Lead"
+                },
+                {
+                    "name": "Klaus Guenther",
+                    "email": "thesaur@php.net",
+                    "role": "Lead"
+                }
+            ],
+            "description": "Abstract base class for HTML classes (PHP5 port of HTML_Common package).",
+            "homepage": "https://pear.php.net/package/HTML_Common2",
+            "keywords": [
+                "PEAR",
+                "attribute",
+                "element",
+                "html"
+            ],
+            "support": {
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=HTML_Common2",
+                "source": "https://github.com/pear/HTML_Common2"
+            },
+            "time": "2021-04-25T13:27:00+00:00"
+        },
+        {
+            "name": "pear/pear_exception",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pear/PEAR_Exception.git",
+                "reference": "b14fbe2ddb0b9f94f5b24cf08783d599f776fff0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pear/PEAR_Exception/zipball/b14fbe2ddb0b9f94f5b24cf08783d599f776fff0",
+                "reference": "b14fbe2ddb0b9f94f5b24cf08783d599f776fff0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "<9"
+            },
+            "type": "class",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "PEAR/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "include-path": [
+                "."
+            ],
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Helgi Thormar",
+                    "email": "dufuz@php.net"
+                },
+                {
+                    "name": "Greg Beaver",
+                    "email": "cellog@php.net"
+                }
+            ],
+            "description": "The PEAR Exception base class.",
+            "homepage": "https://github.com/pear/PEAR_Exception",
+            "keywords": [
+                "exception"
+            ],
+            "support": {
+                "issues": "http://pear.php.net/bugs/search.php?cmd=display&package_name[]=PEAR_Exception",
+                "source": "https://github.com/pear/PEAR_Exception"
+            },
+            "time": "2021-03-21T15:43:46+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": [],
+    "prefer-stable": true,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
+}

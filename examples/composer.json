@@ -1,0 +1,20 @@
+{
+    "name" : "mistralys/application-utils-examples",
+    "description" : "Examples collection.",
+    "type" : "library",
+    "license" : "GPL-3.0-or-later",
+    "authors" : 
+    [
+        {
+            "email" : "s.mordziol@mistralys.eu",
+            "name" : "Sebastian Mordziol",
+            "role" : "Lead"
+        }
+    ],
+    "minimum-stability" : "dev",
+    "prefer-stable" : true,
+    "require" : 
+    {
+        "mistralys/application-localization" : ">=1.4.1"
+    }
+}

@@ -7,20 +7,23 @@
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
 
-   /**
-    * Examples environment config
-    */
-    require_once '../prepend.php';
+declare(strict_types=1);
 
-    use function AppUtils\parseURL;
-    use AppUtils\URLInfo;
-    
-    $urls = array(
-        'http://www.foo.com',
-        'https://www.foo.com:3618/path/to/page',
-        'https://username:password@www.foo.com/path/to/page?foo=bar&bar=foo',
-        'https://www.foo.com/path/to/page#fragment',
-    );
+/**
+* Examples environment config
+*/
+require_once '../prepend.php';
+
+use function AppUtils\parseURL;
+use AppUtils\URLInfo;
+use function AppLocalize\pt;
+
+$urls = array(
+    'http://www.foo.com',
+    'https://www.foo.com:3618/path/to/page',
+    'https://username:password@www.foo.com/path/to/page?foo=bar&bar=foo',
+    'https://www.foo.com/path/to/page#fragment',
+);
 
 ?><!DOCTYPE html>
 <html lang="en">

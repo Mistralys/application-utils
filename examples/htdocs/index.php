@@ -1,6 +1,10 @@
 <?php 
 
-    require_once 'prepend.php';
+declare(strict_types=1);
+
+use function AppLocalize\pt;
+
+require_once 'prepend.php';
 
 ?>
 <!DOCTYPE html>
