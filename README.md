@@ -7,8 +7,15 @@ operations and variable conversions to image manipulation.
 
 ## Requirements
 
-- PHP v7.3+
-- Extensions: MBString, CURL, Json
+- PHP v7.4+
+- Extensions: 
+  - MBString
+  - CURL
+  - Json
+  - GD
+  - Zip
+  - Dom
+  - SimpleXML
 
 ## Installation
 
