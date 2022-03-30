@@ -9,15 +9,32 @@
 - Traits: Added the `AttributableTrait` trait and matching interface.
 - Traits: Added the `ClassableAttribute` trait and matching interface.
 - Classable: Removed type hints on `addClass()` for HTML_QuickForm compatibility.
-- UnitTests: Tests are now included in the PHPStan analysis.
 - Examples: Added a separate composer install for the examples UI.
-- RGBAColor: Added the hexadecimal color channel.
-- PHPStan: Analysis is now clean up to level 5.
+- RGBAColor: Refactored entirely with color channels.
 - StyleCollection: Added the utility class `StyleCollection` to handle CSS styles.
+- HTMLTag: Added the new tag builder utility class.
+- Examples: Added a separate `composer.json` to solve composer dependency issues.
+- UnitTests: Tests are now included in the PHPStan analysis.
+- UnitTests: Started modernizing tests with namespaces and type hinting.
+- Code: PHPStan Analysis is now clean up to level 5.
+- Code: Generalized type hinting update for PHP 7.4 (ongoing).
 
 #### Breaking changes
-- 
+ 
 - Minimum PHP version requirement is now v7.4.
+
+#### Scrutinizer changes
+
+Removed the `application-localization` installation from the configuration,
+as there currently seems to be no easy fix to make it possible.
+
+Removed this part:
+
+```
+    dependencies:
+        override:
+            - COMPOSER_ROOT_VERSION=dev-master composer require mistralys/application-localization:1.4.1
+```
 
 ### v1.9.0 - Feature release
 - HTMLTag: Added the utility class `HTMLTag` to render HTML tags.
