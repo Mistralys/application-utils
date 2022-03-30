@@ -285,7 +285,7 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
      * @param string $name
      * @return $this
      */
-    public function addClass(string $name) : self
+    public function addClass($name) : self
     {
         $this->attributes->addClass($name);
         return $this;

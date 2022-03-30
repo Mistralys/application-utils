@@ -39,7 +39,7 @@ trait Traits_Classable
      * @param string $name
      * @return $this
      */
-    public function addClass(string $name) : self
+    public function addClass($name)
     {
         if(!in_array($name, $this->classes, true)) {
             $this->classes[] = $name;

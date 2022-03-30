@@ -34,7 +34,7 @@ interface Interface_Classable
      * @param string $name
      * @return $this
      */
-    public function addClass(string $name) : self;
+    public function addClass($name); // no type hints on purpose for HTML_QuickForm compatibility
 
     /**
      * @param string[] $names
