@@ -96,6 +96,12 @@ final class URLInfoTest extends TestCase
                 'normalized' => 'http://www.spaceparams.com?%20%20foo%20%20=bar'
             ),
             array(
+                'label' => 'With double question marks',
+                'url' => "https://params.com/special-offers?campaign=spring?utm_campaign=newsletter_march",
+                'valid' => true,
+                'normalized' => 'https://params.com/special-offers?campaign=spring%3Futm_campaign%3Dnewsletter_march'
+            ),
+            array(
                 'label' => 'With previously encoded spaces in param names',
                 'url' => "http://www.spaceparams.com?%20%20foo%20%20=bar",
                 'valid' => true,
