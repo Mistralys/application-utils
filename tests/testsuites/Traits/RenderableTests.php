@@ -10,6 +10,7 @@ namespace testsuites\Traits;
 
 use AppUtils\OutputBuffering;
 use TestClasses\BaseTestCase;
+use TestClasses\RenderableBufferedTest;
 use TestClasses\RenderableExceptionTest;
 use TestClasses\RenderableTest;
 
@@ -46,5 +47,12 @@ final class RenderableTests extends BaseTestCase
         $result = (string)(new RenderableExceptionTest());
 
         $this->assertStringContainsString(RenderableExceptionTest::EXCEPTION_MESSAGE, $result);
+    }
+
+    public function test_buffered() : void
+    {
+        $result = (string)(new RenderableBufferedTest());
+
+        $this->assertSame(RenderableBufferedTest::RENDERED_TEXT, $result);
     }
 }
