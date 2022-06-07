@@ -1,12 +1,20 @@
 <?php
 /**
- * File containing the {@link Request_Param} class.
+ * File containing the {@link \AppUtils\Request\RequestParam} class.
  * @package Application Utils
  * @subpackage Request
- * @see Request_Param
+ * @see \AppUtils\Request\RequestParam
  */
 
-namespace AppUtils;
+declare(strict_types=1);
+
+namespace AppUtils\Request;
+
+use AppUtils\RegexHelper;
+use AppUtils\Request;
+use AppUtils\Request_Exception;
+use AppUtils\Request_Param_Filter;
+use AppUtils\Request_Param_Validator;
 
 /**
  * Class used for handling a single request parameter - implements
@@ -23,59 +31,72 @@ namespace AppUtils;
  * @subpackage Request
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class Request_Param
+class RequestParam
 {
     public const ERROR_UNKNOWN_VALIDATION_TYPE = 16301;
-    
-    public const ERROR_NOT_A_VALID_CALLBACK = 16302;
-    
     public const ERROR_INVALID_FILTER_TYPE = 16303;
-    
-    /**
-     * @var Request
-     */
-    protected $request;
-
-    protected $validationType = 'none';
-
-    protected $paramName;
-
-    protected $validationParams;
-
-    protected $filters = array();
-
-    protected static $validationTypes;
-
-    protected static $filterTypes;
+    public const ERROR_INVALID_FILTER_CLASS = 16304;
 
     public const VALIDATION_TYPE_NONE = 'none';
-
     public const VALIDATION_TYPE_NUMERIC = 'numeric';
-
     public const VALIDATION_TYPE_INTEGER = 'integer';
-
     public const VALIDATION_TYPE_REGEX = 'regex';
-
     public const VALIDATION_TYPE_ALPHA = 'alpha';
-
     public const VALIDATION_TYPE_ALNUM = 'alnum';
-    
     public const VALIDATION_TYPE_ENUM = 'enum';
-
     public const VALIDATION_TYPE_ARRAY = 'array';
-    
     public const VALIDATION_TYPE_CALLBACK = 'callback';
-
     public const VALIDATION_TYPE_URL = 'url';
-    
     public const VALIDATION_TYPE_VALUESLIST = 'valueslist';
-    
     public const VALIDATION_TYPE_JSON = 'json';
-    
+
     public const FILTER_TYPE_CALLBACK = 'callback';
-    
     public const FILTER_TYPE_CLASS = 'class';
-    
+
+    public const VALUE_TYPE_STRING = 'string';
+    public const VALUE_TYPE_LIST = 'ids_list';
+
+    protected Request $request;
+    protected string $paramName;
+    protected bool $required = false;
+    protected string $valueType = self::VALUE_TYPE_STRING;
+
+    /**
+     * @var array<int,array{type:string,params:mixed}>
+     */
+    protected array $filters = array();
+
+    /**
+     * @var string[]
+     */
+    protected static array $validationTypes = array(
+        self::VALIDATION_TYPE_NONE,
+        self::VALIDATION_TYPE_ALPHA,
+        self::VALIDATION_TYPE_ALNUM,
+        self::VALIDATION_TYPE_ENUM,
+        self::VALIDATION_TYPE_INTEGER,
+        self::VALIDATION_TYPE_NUMERIC,
+        self::VALIDATION_TYPE_REGEX,
+        self::VALIDATION_TYPE_ARRAY,
+        self::VALIDATION_TYPE_CALLBACK,
+        self::VALIDATION_TYPE_URL,
+        self::VALIDATION_TYPE_VALUESLIST,
+        self::VALIDATION_TYPE_JSON
+    );
+
+    /**
+     * @var string[]
+     */
+    protected static array $filterTypes = array(
+        self::FILTER_TYPE_CALLBACK,
+        self::FILTER_TYPE_CLASS
+    );
+
+    /**
+     * @var array<int,array{type:string,params:array<string,mixed>}>
+     */
+    protected array $validations = array();
+
     /**
      * Constructor for the specified parameter name. Note that this
      * is instantiated automatically by the request class itself. You
@@ -84,58 +105,27 @@ class Request_Param
      * @param Request $request
      * @param string $paramName
      */
-    public function __construct(Request $request, $paramName)
+    public function __construct(Request $request, string $paramName)
     {
         $this->request = $request;
         $this->paramName = $paramName;
-
-        // initialize the validation types list that is used to
-        // make sure that the specified validation types are valid
-        // at runtime in case a developer used the wrong one.
-        if (!isset(self::$validationTypes)) {
-            self::$validationTypes = array(
-                self::VALIDATION_TYPE_NONE,
-                self::VALIDATION_TYPE_ALPHA,
-                self::VALIDATION_TYPE_ALNUM,
-                self::VALIDATION_TYPE_ENUM,
-                self::VALIDATION_TYPE_INTEGER,
-                self::VALIDATION_TYPE_NUMERIC,
-                self::VALIDATION_TYPE_REGEX,
-                self::VALIDATION_TYPE_ARRAY,
-                self::VALIDATION_TYPE_CALLBACK,
-                self::VALIDATION_TYPE_URL,
-                self::VALIDATION_TYPE_VALUESLIST,
-                self::VALIDATION_TYPE_JSON
-            );
-            self::$filterTypes = array(
-                self::FILTER_TYPE_CALLBACK,
-                self::FILTER_TYPE_CLASS
-            );
-        }
     }
-    
-   /**
-    * Adds a callback as a validation method. The callback gets the
-    * value to validate as first parameter, and any additional 
-    * parameters passed here get appended to that.
-    * 
-    * The callback must return boolean true or false depending on
-    * whether the value is valid.
-    * 
-    * @param callable $callback
-    * @param array $args
-    * @return Request_Param
-    */
-    public function setCallback($callback, array $args=array()) : Request_Param
+
+    /**
+     * Adds a callback as a validation method. The callback gets the
+     * value to validate as first parameter, and any additional
+     * parameters passed here get appended to that.
+     *
+     * The callback must return boolean true or false depending on
+     * whether the value is valid.
+     *
+     * @param callable $callback
+     * @param array<mixed> $args
+     * @return $this
+     * @throws Request_Exception
+     */
+    public function setCallback(callable $callback, array $args=array()) : self
     {
-        if(!is_callable($callback)) {
-            throw new Request_Exception(
-                'Not a valid callback',
-                'The specified callback is not a valid callable entity.',
-                self::ERROR_NOT_A_VALID_CALLBACK
-            );
-        }
-        
         return $this->setValidation(
             self::VALIDATION_TYPE_CALLBACK, 
             array(
@@ -184,9 +174,7 @@ class Request_Param
         
         $value = $this->filter($value);
         
-        $value = $this->applyValidations($value);
-        
-        return $value;
+        return $this->applyValidations($value);
     }
     
    /**
@@ -213,14 +201,14 @@ class Request_Param
     * 
     * @param mixed $value
     * @param string $type
-    * @param array $params
+    * @param array<string,mixed> $params
     * @param bool $subval Whether this is a subvalue in a list
     * @throws Request_Exception
     * @return mixed
     */
     protected function validateType($value, string $type, array $params, bool $subval)
     {
-        $class = '\AppUtils\Request_Param_Validator_'.ucfirst($type);
+        $class = Request_Param_Validator::class.'_'.ucfirst($type);
         
         if(!class_exists($class))
         {
@@ -238,18 +226,16 @@ class Request_Param
         $validator = new $class($this, $subval);
         $validator->setOptions($params);
         
-        $value = $validator->validate($value);
-        
-        return $value;
+        return $validator->validate($value);
     }
     
     /**
      * Sets the parameter value as numeric, meaning it will be validated
      * using PHP's is_numeric method.
      *
-     * @return Request_Param
+     * @return $this
      */
-    public function setNumeric()
+    public function setNumeric() : self
     {
         return $this->setValidation(self::VALIDATION_TYPE_NUMERIC);
     }
@@ -258,9 +244,9 @@ class Request_Param
      * Sets the parameter value as integer, it will be validated using a
      * regex to match only integer values.
      *
-     * @return Request_Param
+     * @return $this
      */
-    public function setInteger()
+    public function setInteger() : self
     {
         return $this->setValidation(self::VALIDATION_TYPE_INTEGER);
     }
@@ -268,32 +254,30 @@ class Request_Param
     /**
      * Sets a regex to bu used for validation parameter values.
      * @param string $regex
-     * @return Request_Param
+     * @return $this
      */
-    public function setRegex($regex)
+    public function setRegex(string $regex) : self
     {
         return $this->setValidation(self::VALIDATION_TYPE_REGEX, array('regex' => $regex));
     }
-    
-    public function setURL()
+
+    /**
+     * @return $this
+     * @throws Request_Exception
+     */
+    public function setURL() : self
     {
         return $this->setValidation(self::VALIDATION_TYPE_URL);
     }
     
-    public const VALUE_TYPE_STRING = 'string';
-    
-    public const VALUE_TYPE_LIST = 'ids_list';
-    
-    protected $valueType = self::VALUE_TYPE_STRING;
-
    /**
     * Sets the variable to contain a comma-separated list of integer IDs.
     * Example: <code>145,248,4556</code>. A single ID is also allowed, e.g.
     * <code>145</code>.
     * 
-    * @return Request_Param
+    * @return $this
     */
-    public function setIDList()
+    public function setIDList() : self
     {
         $this->valueType = self::VALUE_TYPE_LIST;
         $this->addFilterTrim();
@@ -306,10 +290,10 @@ class Request_Param
     * Sets the variable to be an alias, as defined by the
     * {@link RegexHelper::REGEX_ALIAS} regular expression.
     * 
-    * @return Request_Param
+    * @return $this
     * @see RegexHelper::REGEX_ALIAS
     */
-    public function setAlias()
+    public function setAlias() : self
     {
         return $this->setRegex(RegexHelper::REGEX_ALIAS);
     }
@@ -318,10 +302,10 @@ class Request_Param
      * Sets the variable to be a name or title, as defined by the
      * {@link RegexHelper::REGEX_NAME_OR_TITLE} regular expression.
      *
-     * @return Request_Param
+     * @return $this
      * @see RegexHelper::REGEX_NAME_OR_TITLE
      */
-    public function setNameOrTitle()
+    public function setNameOrTitle() : self
     {
         return $this->setRegex(RegexHelper::REGEX_NAME_OR_TITLE);
     }
@@ -330,10 +314,10 @@ class Request_Param
      * Sets the variable to be a name or title, as defined by the
      * {@link RegexHelper::REGEX_LABEL} regular expression.
      *
-     * @return Request_Param
+     * @return $this
      * @see RegexHelper::REGEX_LABEL
      */
-    public function setLabel()
+    public function setLabel() : self
     {
         return $this->setRegex(RegexHelper::REGEX_LABEL);
     }
@@ -342,9 +326,9 @@ class Request_Param
      * Sets the parameter value as a string containing only lowercase
      * and/or uppercase letters.
      *
-     * @return Request_Param
+     * @return $this
      */
-    public function setAlpha()
+    public function setAlpha() : self
     {
         return $this->setValidation(self::VALIDATION_TYPE_ALPHA);
     }
@@ -353,26 +337,27 @@ class Request_Param
     * Sets the parameter value as a string containing lowercase
     * and/or uppercase letters, as well as numbers.
     * 
-    * @return Request_Param
+    * @return $this
     */
-    public function setAlnum()
+    public function setAlnum() : self
     {
         return $this->setValidation(self::VALIDATION_TYPE_ALNUM);   
     }
 
     /**
      * Validates that the parameter value is one of the specified values.
-     * 
+     *
      * Note: specify possible values as parameters to this function.
      * If you do not specify any values, the validation will always
      * fail.
      *
-     * It is also possible to specifiy an array of possible values
+     * It is also possible to specify an array of possible values
      * as the first parameter.
      *
-     * @return Request_Param
+     * @return $this
+     * @throws Request_Exception
      */
-    public function setEnum()
+    public function setEnum() : self
     {
         $args = func_get_args(); // cannot be used as function parameter in some PHP versions
         
@@ -386,19 +371,20 @@ class Request_Param
             array('values' => $args)
         );
     }
-    
-   /**
-    * Only available for array values: the parameter must be
-    * an array value, and the array may only contain values 
-    * specified in the values array.
-    * 
-    * Submitted values that are not in the allowed list of
-    * values are stripped from the value.
-    *  
-    * @param array $values List of allowed values
-    * @return \AppUtils\Request_Param
-    */
-    public function setValuesList(array $values)
+
+    /**
+     * Only available for array values: the parameter must be
+     * an array value, and the array may only contain values
+     * specified in the values array.
+     *
+     * Submitted values that are not in the allowed list of
+     * values are stripped from the value.
+     *
+     * @param array<int,string|number> $values List of allowed values
+     * @return $this
+     * @throws Request_Exception
+     */
+    public function setValuesList(array $values) : self
     {
         $this->setArray();
         
@@ -419,33 +405,39 @@ class Request_Param
     {
         return $this->valueType === self::VALUE_TYPE_LIST;
     }
-    
-    public function setArray()
+
+    /**
+     * @return $this
+     * @throws Request_Exception
+     */
+    public function setArray() : self
     {
         return $this->setValidation(self::VALIDATION_TYPE_ARRAY);
     }
-    
-   /**
-    * Specifies that a JSON-encoded string is expected.
-    * 
-    * NOTE: Numbers or quoted strings are technically valid
-    * JSON, but are not accepted, because it is assumed
-    * at least an array or object are expected.
-    * 
-    * @return \AppUtils\Request_Param
-    */
-    public function setJSON() : Request_Param
+
+    /**
+     * Specifies that a JSON-encoded string is expected.
+     *
+     * NOTE: Numbers or quoted strings are technically valid
+     * JSON, but are not accepted, because it is assumed
+     * at least an array or object are expected.
+     *
+     * @return $this
+     * @throws Request_Exception
+     */
+    public function setJSON() : self
     {
         return $this->setValidation(self::VALIDATION_TYPE_JSON, array('arrays' => true));
     }
-    
-   /**
-    * Like {@link Request_Param::setJSON()}, but accepts
-    * only JSON objects. Arrays will not be accepted.
-    * 
-    * @return \AppUtils\Request_Param
-    */
-    public function setJSONObject() : Request_Param
+
+    /**
+     * Like {@link RequestParam::setJSON()}, but accepts
+     * only JSON objects. Arrays will not be accepted.
+     *
+     * @return $this
+     * @throws Request_Exception
+     */
+    public function setJSONObject() : self
     {
         return $this->setValidation(self::VALIDATION_TYPE_JSON, array('arrays' => false));
     }
@@ -456,9 +448,9 @@ class Request_Param
     * The value is automatically converted to a boolean when retrieving
     * the parameter.
     * 
-    * @return Request_Param
+    * @return $this
     */
-    public function setBoolean() : Request_Param
+    public function setBoolean() : self
     {
         return $this->addClassFilter('Boolean');
     }
@@ -470,28 +462,26 @@ class Request_Param
     * NOTE: This can only guarantee the format, not whether
     * it is an actual valid hash of something.
     * 
-    * @return \AppUtils\Request_Param
+    * @return $this
     */
-    public function setMD5() : Request_Param
+    public function setMD5() : self
     {
         return $this->setRegex(RegexHelper::REGEX_MD5);
     }
 
-    protected $validations = array();
-    
     /**
      * Sets the validation type to use. See the VALIDATION_TYPE_XX class
      * constants for a list of types to use, or use any of the setXX methods
      * directly as shorthand.
      *
      * @param string $type
-     * @param array $params
-     * @return Request_Param
+     * @param array<string,mixed> $params
+     * @return $this
      * @throws Request_Exception
      * 
-     * @see Request_Param::ERROR_UNKNOWN_VALIDATION_TYPE
+     * @see RequestParam::ERROR_UNKNOWN_VALIDATION_TYPE
      */
-    public function setValidation(string $type, array $params = array()) : Request_Param
+    public function setValidation(string $type, array $params = array()) : self
     {
         if (!in_array($type, self::$validationTypes)) {
             throw new Request_Exception(
@@ -531,6 +521,8 @@ class Request_Param
         return $this->validate($default);
     }
 
+    // region: Filtering
+
    /**
     * Filters the specified value by going through all available
     * filters, if any. If none have been set, the value is simply
@@ -538,35 +530,57 @@ class Request_Param
     *
     * @param mixed $value
     * @return mixed
+    *
+    * @see RequestParam::applyFilter_callback()
+    * @see RequestParam::applyFilter_class()
     */
     protected function filter($value)
     {
-        $total = count($this->filters);
-        for ($i = 0; $i < $total; $i++) {
-            $method = 'applyFilter_' . $this->filters[$i]['type'];
-            $value = $this->$method($value, $this->filters[$i]['params']);
+        foreach ($this->filters as $filter)
+        {
+            $method = 'applyFilter_' . $filter['type'];
+            $value = $this->$method($value, $filter['params']);
         }
 
         return $value;
     }
-    
+
+    /**
+     * @param mixed $value
+     * @param array<string,mixed> $config
+     * @return mixed
+     * @throws Request_Exception
+     */
     protected function applyFilter_class($value, array $config)
     {
-        $class = '\AppUtils\Request_Param_Filter_'.$config['name'];
+        $class = Request_Param_Filter::class.'_'.$config['name'];
         
         $filter = new $class($this);
-        $filter->setOptions($config['params']);
+
+        if($filter instanceof Request_Param_Filter)
+        {
+            $filter->setOptions($config['params']);
+            return $filter->filter($value);
+        }
         
-        return $filter->filter($value);
+        throw new Request_Exception(
+            'Not a valid filter class',
+            sprintf(
+                'The class [%s] does not extend [%s].',
+                $class,
+                Request_Param_Filter::class
+            ),
+            self::ERROR_INVALID_FILTER_CLASS
+        );
     }
 
     /**
      * Applies the callback filter.
      * @param mixed $value
-     * @param array $callbackDef
+     * @param array<mixed> $callbackDef
      * @return mixed
      */
-    protected function applyFilter_callback($value, $callbackDef)
+    protected function applyFilter_callback($value, array $callbackDef)
     {
         $params = $callbackDef['params'];
         array_unshift($params, $value);
@@ -581,12 +595,12 @@ class Request_Param
      *
      * @param string $type
      * @param mixed $params
-     * @return Request_Param
+     * @return $this
      * @throws Request_Exception
      * 
-     * @see Request_Param::ERROR_INVALID_FILTER_TYPE
+     * @see RequestParam::ERROR_INVALID_FILTER_TYPE
      */
-    public function addFilter($type, $params = null) : Request_Param
+    public function addFilter(string $type, $params = null) : self
     {
         if (!in_array($type, self::$filterTypes)) {
             throw new Request_Exception(
@@ -612,9 +626,9 @@ class Request_Param
     * Adds a filter that trims whitespace from the request
     * parameter using the PHP <code>trim</code> function.
     * 
-    * @return \AppUtils\Request_Param
+    * @return $this
     */
-    public function addFilterTrim() : Request_Param
+    public function addFilterTrim() : self
     {
         // to guarantee we only work with strings
         $this->addStringFilter();
@@ -627,9 +641,9 @@ class Request_Param
     * a string value. Complex types like arrays and objects
     * are converted to an empty string.
     * 
-    * @return \AppUtils\Request_Param
+    * @return $this
     */
-    public function addStringFilter() : Request_Param
+    public function addStringFilter() : self
     {
         return $this->addClassFilter('String');
     }
@@ -648,10 +662,12 @@ class Request_Param
      * addCallbackFilter('strip_tags', array('<b><a><ul>'));
      *
      * @param mixed $callback
-     * @param array $params
-     * @return Request_Param
+     * @param array<mixed> $params
+     * @return $this
+     *
+     * @throws Request_Exception
      */
-    public function addCallbackFilter($callback, $params = array()) : Request_Param
+    public function addCallbackFilter($callback, array $params = array()) : self
     {
         return $this->addFilter(
             self::FILTER_TYPE_CALLBACK,
@@ -668,9 +684,9 @@ class Request_Param
      * like this: "<b><a><ul>", or leave it empty for none.
      *
      * @param string $allowedTags
-     * @return \AppUtils\Request_Param
+     * @return $this
      */
-    public function addStripTagsFilter($allowedTags = '') : Request_Param
+    public function addStripTagsFilter(string $allowedTags = '') : self
     {
         // to ensure we work only with string values.
         $this->addStringFilter();
@@ -682,9 +698,9 @@ class Request_Param
     * Adds a filter that strips all whitespace from the
     * request parameter, from spaces to tabs and newlines.
     * 
-    * @return \AppUtils\Request_Param
+    * @return $this
     */
-    public function addStripWhitespaceFilter() : Request_Param
+    public function addStripWhitespaceFilter() : self
     {
         // to ensure we only work with strings.
         $this->addStringFilter();
@@ -698,9 +714,9 @@ class Request_Param
     * 
     * @param bool $trimEntries Trim whitespace from each entry?
     * @param bool $stripEmptyEntries Remove empty entries from the array?
-    * @return \AppUtils\Request_Param
+    * @return $this
     */
-    public function addCommaSeparatedFilter(bool $trimEntries=true, bool $stripEmptyEntries=true) : Request_Param
+    public function addCommaSeparatedFilter(bool $trimEntries=true, bool $stripEmptyEntries=true) : self
     {
         $this->setArray();
         
@@ -712,8 +728,14 @@ class Request_Param
             )
         );
     }
-    
-    protected function addClassFilter(string $name, array $params=array()) : Request_Param
+
+    /**
+     * @param string $name
+     * @param array<string,mixed> $params
+     * @return $this
+     * @throws Request_Exception
+     */
+    protected function addClassFilter(string $name, array $params=array()) : self
     {
         return $this->addFilter(
             self::FILTER_TYPE_CLASS,
@@ -728,29 +750,29 @@ class Request_Param
     * Adds a filter that encodes all HTML special characters
     * using the PHP <code>htmlspecialchars</code> function.
     * 
-    * @return \AppUtils\Request_Param
+    * @return $this
     */
-    public function addHTMLSpecialcharsFilter() : Request_Param
+    public function addHTMLSpecialcharsFilter() : self
     {
         return $this->addCallbackFilter('htmlspecialchars', array(ENT_QUOTES, 'UTF-8'));
     }
+
+    // endregion
 
     public function getName() : string
     {
         return $this->paramName;
     }
     
-    protected $required = false;
-    
    /**
     * Marks this request parameter as required. To use this feature,
     * you have to call the request's {@link Request::validate()}
     * method.
     * 
-    * @return Request_Param
+    * @return RequestParam
     * @see Request::validate()
     */
-    public function makeRequired() : Request_Param
+    public function makeRequired() : RequestParam
     {
         $this->required = true;
         return $this;
