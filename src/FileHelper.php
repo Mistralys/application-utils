@@ -95,10 +95,11 @@ class FileHelper
      * Deletes a folder tree with all files therein, including
      * the specified folder itself.
      *
-     * @param string $rootFolder
+     * @param string|PathInfoInterface|DirectoryIterator $rootFolder
      * @return bool
+     * @throws FileHelper_Exception
      */
-    public static function deleteTree(string $rootFolder) : bool
+    public static function deleteTree($rootFolder) : bool
     {
         return FolderTree::delete($rootFolder);
     }
@@ -106,15 +107,20 @@ class FileHelper
    /**
     * Create a folder, if it does not exist yet.
     *  
-    * @param string $path
+    * @param string|PathInfoInterface $path
     * @throws FileHelper_Exception
     * @see FileHelper::ERROR_CANNOT_CREATE_FOLDER
     */
-    public static function createFolder(string $path) : void
+    public static function createFolder($path) : FolderInfo
     {
-        self::getFolderInfo($path)->create();
+        return self::getFolderInfo($path)->create();
     }
 
+    /**
+     * @param string|PathInfoInterface|DirectoryIterator $path
+     * @return FolderInfo
+     * @throws FileHelper_Exception
+     */
     public static function getFolderInfo($path) : FolderInfo
     {
         return FolderInfo::factory($path);
@@ -123,11 +129,11 @@ class FileHelper
     /**
      * Copies a folder tree to the target folder.
      *
-     * @param string $source
-     * @param string $target
+     * @param string|PathInfoInterface|DirectoryIterator $source
+     * @param string|PathInfoInterface|DirectoryIterator $target
      * @throws FileHelper_Exception
      */
-    public static function copyTree(string $source, string $target) : void
+    public static function copyTree($source, $target) : void
     {
         FolderTree::copy($source, $target);
     }
@@ -182,7 +188,7 @@ class FileHelper
     }
 
     /**
-     * @param string|DirectoryIterator $path
+     * @param string|PathInfoInterface|DirectoryIterator $path
      * @return PathInfoInterface
      * @throws FileHelper_Exception
      */
