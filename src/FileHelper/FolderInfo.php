@@ -161,4 +161,11 @@ class FolderInfo extends AbstractPathInfo
     {
         return new FolderFinder($this);
     }
+
+    public function getIterator() : DirectoryIterator
+    {
+        $this->requireExists()->requireIsFolder();
+
+        return new DirectoryIterator($this->getPath());
+    }
 }
