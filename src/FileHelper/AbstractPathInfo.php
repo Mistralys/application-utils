@@ -13,6 +13,8 @@ namespace AppUtils\FileHelper;
 
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
+use AppUtils\Interface_Stringable;
+use AppUtils\Interfaces\RenderableInterface;
 use DirectoryIterator;
 
 /**
@@ -22,7 +24,7 @@ use DirectoryIterator;
  * @subpackage FileHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-abstract class AbstractPathInfo implements PathInfoInterface
+abstract class AbstractPathInfo implements PathInfoInterface, Interface_Stringable
 {
     protected string $path;
 
@@ -221,7 +223,31 @@ abstract class AbstractPathInfo implements PathInfoInterface
     }
 
     /**
-     * @param string|DirectoryIterator $path
+     * @param string|PathInfoInterface|DirectoryIterator $path
+     * @return string
+     */
+    public static function type2string($path) : string
+    {
+        if($path instanceof PathInfoInterface)
+        {
+            return $path->getPath();
+        }
+
+        if($path instanceof DirectoryIterator)
+        {
+            return $path->getPathname();
+        }
+
+        return $path;
+    }
+
+    /**
+     * Resolves the type of the target path: file or folder.
+     *
+     * NOTE: Requires the file or folder to exist in the
+     * file system, and will throw an exception otherwise.
+     *
+     * @param string|PathInfoInterface|DirectoryIterator $path
      * @return PathInfoInterface
      *
      * @throws FileHelper_Exception
@@ -229,10 +255,7 @@ abstract class AbstractPathInfo implements PathInfoInterface
      */
     public static function resolveType($path) : PathInfoInterface
     {
-        if($path instanceof DirectoryIterator)
-        {
-            $path = $path->getPathname();
-        }
+        $path = self::type2string($path);
 
         if(FolderInfo::is_dir($path))
         {
@@ -280,5 +303,10 @@ abstract class AbstractPathInfo implements PathInfoInterface
     public function getRuntimeProperty(string $name)
     {
         return $this->runtimeProperties[$name] ?? null;
+    }
+
+    public function __toString() : string
+    {
+        return $this->getRealPath();
     }
 }
