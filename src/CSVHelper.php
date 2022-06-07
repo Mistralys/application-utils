@@ -480,17 +480,22 @@ class CSVHelper
         $path = FileHelper::requireFileReadable($path, self::ERROR_CSV_FILE_NOT_READABLE);
 
         $parser = self::createParser();
-        $result = $parser->parse($path);
+        $parser->heading = false;
 
-        if($result === true) {
+        $result = $parser->auto($path);
+
+        if(is_string($result)) {
             return $parser->data;
         }
 
         throw new CSVHelper_Exception(
             'Cannot parse CSV file',
             sprintf(
-                'The file [%s] could not be parsed. No additional information is available.',
-                $path
+                'The file [%s] could not be parsed.'.PHP_EOL.
+                'Additional information: '.PHP_EOL.
+                '%s',
+                $path,
+                json_encode($parser->error_info, JSON_THROW_ON_ERROR)
             ),
             self::ERROR_FILE_PARSING_FAILED
         );
