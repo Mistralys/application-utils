@@ -59,7 +59,7 @@ class FileFinder implements Interface_Optionable
     */
     public function __construct($path)
     {
-        $this->path = AbstractPathInfo::resolveType($path)->requireIsFolder();
+        $this->path = AbstractPathInfo::resolveType($path)->requireExists()->requireIsFolder();
     }
     
     public function getDefaultOptions() : array
@@ -395,7 +395,7 @@ class FileFinder implements Interface_Optionable
                 return basename($path);
                 
             case self::PATH_MODE_RELATIVE:
-                $path = str_replace($this->path, '', $path);
+                $path = str_replace((string)$this->path, '', $path);
                 return ltrim($path, '/');
         }
         
