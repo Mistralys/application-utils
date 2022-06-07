@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace AppUtils\FileHelper;
 
+use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 
 /**
@@ -50,7 +51,9 @@ interface PathInfoInterface
 
     /**
      * @return FolderInfo
+     *
      * @throws FileHelper_Exception
+     * @see FileHelper::ERROR_PATH_IS_NOT_A_FOLDER
      */
     public function requireIsFolder() : FolderInfo;
 
