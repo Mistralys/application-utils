@@ -13,6 +13,7 @@ namespace AppUtils\FileHelper;
 
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
+use DirectoryIterator;
 
 /**
  * Collection of methods related to unicode-safe file
@@ -53,14 +54,14 @@ class UnicodeHandling
      * <li>UTF8</li>
      * </ul>
      *
-     * @param FileInfo $file
+     * @param string|PathInfoInterface|DirectoryIterator $file
      * @return string|NULL
      * @throws FileHelper_Exception
      * @see FileHelper::ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM
      */
-    public function detectUTFBom(FileInfo $file) : ?string
+    public function detectUTFBom($file) : ?string
     {
-        $file
+        FileHelper::getFileInfo($file)
             ->requireExists(FileHelper::ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM)
             ->requireReadable(FileHelper::ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM);
 
