@@ -14,6 +14,7 @@ use AppUtils\FileHelper\CLICommandChecker;
 use AppUtils\FileHelper\FileDownloader;
 use AppUtils\FileHelper\FileFinder;
 use AppUtils\FileHelper\FileInfo\NameFixer;
+use AppUtils\FileHelper\PathRelativizer;
 use AppUtils\FileHelper\PathsReducer;
 use AppUtils\FileHelper\FolderInfo;
 use AppUtils\FileHelper\FolderTree;
@@ -22,6 +23,7 @@ use AppUtils\FileHelper\JSONFile;
 use AppUtils\FileHelper\PathInfoInterface;
 use AppUtils\FileHelper\SerializedFile;
 use AppUtils\FileHelper\UnicodeHandling;
+use AppUtils\FileHelper\UploadFileSizeInfo;
 use DateTime;
 use DirectoryIterator;
 use ParseCsv\Csv;
@@ -113,7 +115,7 @@ class FileHelper
         self::getFolderInfo($path)->create();
     }
 
-    public static function getFolderInfo(string $path) : FolderInfo
+    public static function getFolderInfo($path) : FolderInfo
     {
         return FolderInfo::factory($path);
     }
@@ -170,10 +172,11 @@ class FileHelper
      * allows file operations and accessing information on
      * the file.
      *
-     * @param string $path
+     * @param string|PathInfoInterface|DirectoryIterator $path
      * @return FileInfo
+     * @throws FileHelper_Exception
      */
-    public static function getFileInfo(string $path) : FileInfo
+    public static function getFileInfo($path) : FileInfo
     {
         return FileInfo::factory($path);
     }
@@ -181,90 +184,11 @@ class FileHelper
     /**
      * @param string|DirectoryIterator $path
      * @return PathInfoInterface
+     * @throws FileHelper_Exception
      */
     public static function getPathInfo($path) : PathInfoInterface
     {
         return AbstractPathInfo::resolveType($path);
-    }
-
-    /**
-    * Creates a new CSV parser instance and returns it.
-    * 
-    * @param string $delimiter
-    * @param string $enclosure
-    * @param string $escape
-    * @param bool $heading
-    * @return Csv
-     * @see CSVHelper::createParser()
-    */
-    public static function createCSVParser(string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $heading=false) : Csv
-    {
-        if($delimiter==='') { $delimiter = ';'; }
-        if($enclosure==='') { $enclosure = '"'; }
-
-        $parser = CSVHelper::createParser($delimiter);
-        $parser->enclosure = $enclosure;
-        $parser->heading = $heading;
-
-        return $parser;
-    }
-
-   /**
-    * Parses all lines in the specified string and returns an
-    * indexed array with all csv values in each line.
-    *
-    * @param string $csv
-    * @param string $delimiter
-    * @param string $enclosure
-    * @param string $escape
-    * @param bool $heading
-    * @return array<int,array<string,string>>
-    * @throws FileHelper_Exception
-    * 
-    * @see parseCSVFile()
-    * @see FileHelper::ERROR_PARSING_CSV
-    */
-    public static function parseCSVString(string $csv, string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $heading=false) : array
-    {
-        $parser = self::createCSVParser($delimiter, $enclosure, '\\', $heading);
-
-        if($parser->parse($csv))
-        {
-            return $parser->data;
-        }
-
-        throw new FileHelper_Exception(
-            'Could not parse CSV string, possible formatting error.',
-            'The parseCSV library returned an error, but exact details are not available.',
-            self::ERROR_PARSING_CSV
-        );
-    }
-
-    /**
-     * Parses all lines in the specified file and returns an
-     * indexed array with all csv values in each line.
-     *
-     * @param string $filePath
-     * @param string $delimiter 
-     * @param string $enclosure The character to use to quote literal strings
-     * @param string $escape The character to use to escape special characters.
-     * @param bool $heading Whether to include headings.
-     * @return array<int,array<string|int,string>>
-     * @throws FileHelper_Exception
-     * 
-     * @see parseCSVString()
-     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
-     * @see FileHelper::ERROR_CANNOT_READ_FILE_CONTENTS
-     */
-    public static function parseCSVFile(string $filePath, string $delimiter = ';', string $enclosure = '"', string $escape = '\\', bool $heading=false) : array
-    {
-        return self::parseCSVString(
-            self::readContents($filePath),
-            $delimiter,
-            $enclosure,
-            $escape,
-            $heading
-        );
     }
 
     /**
@@ -442,13 +366,13 @@ class FileHelper
      * alternative to the other manual findFile methods, since all
      * options can be set by chaining.
      *
-     * @param string $path
+     * @param string|AbstractPathInfo|DirectoryIterator $path
      * @return FileFinder
      * @throws FileHelper_Exception
      *
      * @see FileFinder::ERROR_PATH_DOES_NOT_EXIST
      */
-    public static function createFileFinder(string $path) : FileFinder
+    public static function createFileFinder($path) : FileFinder
     {
         return new FileFinder($path);
     }
@@ -457,8 +381,9 @@ class FileHelper
      * Searches for all HTML files in the target folder.
      *
      * NOTE: This method only exists for backwards compatibility.
-     * Use the `createFileFinder()` method instead, which offers
-     * an object-oriented interface that is much easier to use.
+     * Use the {@see FileHelper::createFileFinder()} method instead,
+     * which offers an object-oriented interface that is much easier
+     * to use.
      *
      * @param string $targetFolder
      * @param array<string,mixed> $options
@@ -475,8 +400,9 @@ class FileHelper
      * Searches for all PHP files in the target folder.
      *
      * NOTE: This method only exists for backwards compatibility.
-     * Use the `createFileFinder()` method instead, which offers
-     * an object-oriented interface that is much easier to use.
+     * Use the {@see FileHelper::createFileFinder()} method instead,
+     * which offers an object-oriented interface that is much easier
+     * to use.
      *
      * @param string $targetFolder
      * @param array<string,mixed> $options
@@ -493,17 +419,20 @@ class FileHelper
     * Finds files according to the specified options.
     * 
     * NOTE: This method only exists for backwards compatibility.
-    * Use the `createFileFinder()` method instead, which offers
-    * an object oriented interface that is much easier to use.
+    * Use the {@see FileHelper::createFileFinder()} method instead,
+    * which offers an object-oriented interface that is much easier
+    * to use.
     *  
-    * @param string $targetFolder
+    * @param string|PathInfoInterface|DirectoryIterator $targetFolder
     * @param string[] $extensions
     * @param array<string,mixed> $options
     * @throws FileHelper_Exception
     * @return string[]
+    *
     * @see FileHelper::createFileFinder()
+    * @deprecated Use the file finder instead.
     */
-    public static function findFiles(string $targetFolder, array $extensions=array(), array $options=array()) : array
+    public static function findFiles($targetFolder, array $extensions=array(), array $options=array()) : array
     {
         $finder = self::createFileFinder($targetFolder);
 
@@ -543,69 +472,6 @@ class FileHelper
     public static function removeExtension(string $filename, bool $keepPath=false) : string
     {
         return self::getFileInfo($filename)->removeExtension($keepPath);
-    }
-
-    /**
-     * Detects the UTF BOM in the target file, if any. Returns
-     * the encoding matching the BOM, which can be any of the
-     * following:
-     *
-     * <ul>
-     * <li>UTF32-BE</li>
-     * <li>UTF32-LE</li>
-     * <li>UTF16-BE</li>
-     * <li>UTF16-LE</li>
-     * <li>UTF8</li>
-     * </ul>
-     *
-     * @param string $filename
-     * @return string|NULL
-     * @throws FileHelper_Exception
-     *
-     * @see FileHelper::ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM
-     */
-    public static function detectUTFBom(string $filename) : ?string
-    {
-        return self::createUnicodeHandling()
-            ->detectUTFBom(self::getFileInfo($filename));
-    }
-
-   /**
-    * Retrieves a list of all UTF byte order mark character
-    * sequences, as an associative array with UTF encoding => bom sequence
-    * pairs.
-    * 
-    * @return array<string,string>
-    * @deprecated
-    */
-    public static function getUTFBOMs() : array
-    {
-        return self::createUnicodeHandling()->getUTFBOMs();
-    }
-    
-   /**
-    * Checks whether the specified encoding is a valid
-    * unicode encoding, for example "UTF16-LE" or "UTF8".
-    * Also accounts for alternate way to write the, like
-    * "UTF-8", and omitting little/big endian suffixes.
-    * 
-    * @param string $encoding
-    * @return boolean
-    * @deprecated Use {@see FileHelper::createUnicodeHandling()} instead.
-    */
-    public static function isValidUnicodeEncoding(string $encoding) : bool
-    {
-        return self::createUnicodeHandling()->isValidEncoding($encoding);
-    }
-    
-   /**
-    * Retrieves a list of all known unicode file encodings.
-    * @return string[]
-    * @deprecated Since v1.10.0. Use the unicode handling class instead.
-    */
-    public static function getKnownUnicodeEncodings() : array
-    {
-        return self::createUnicodeHandling()->getKnownEncodings();
     }
 
     /**
@@ -761,7 +627,7 @@ class FileHelper
      * - absolute-paths: true/false
      *   Whether to return a list of absolute paths.
      *
-     * @param string|DirectoryIterator $targetFolder
+     * @param string|PathInfoInterface|DirectoryIterator $targetFolder
      * @param array<string,mixed> $options
      * @return string[]
      *
@@ -789,39 +655,7 @@ class FileHelper
     */
     public static function getMaxUploadFilesize() : int
     {
-        static $max_size = -1;
-        
-        if ($max_size < 0)
-        {
-            // Start with post_max_size.
-            $post_max_size = self::parse_size(ini_get('post_max_size'));
-            if ($post_max_size > 0) {
-                $max_size = $post_max_size;
-            }
-            
-            // If upload_max_size is less, then reduce. Except if upload_max_size is
-            // zero, which indicates no limit.
-            $upload_max = self::parse_size(ini_get('upload_max_filesize'));
-            if ($upload_max > 0 && $upload_max < $max_size) {
-                $max_size = $upload_max;
-            }
-        }
-        
-        return $max_size;
-    }
-    
-    protected static function parse_size(string $size) : float
-    {
-        $unit = preg_replace('/[^bkmgtpezy]/i', '', $size); // Remove the non-unit characters from the size.
-        $size = floatval(preg_replace('/[^0-9\.]/', '', $size)); // Remove the non-numeric characters from the size.
-        
-        if($unit) 
-        {
-            // Find the position of the unit in the ordered string which is the power of magnitude to multiply a kilobyte by.
-            return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
-        }
-        
-        return round($size);
+        return UploadFileSizeInfo::getFileSize();
     }
    
    /**
@@ -836,39 +670,7 @@ class FileHelper
     */
     public static function relativizePathByDepth(string $path, int $depth=2) : string
     {
-        $path = self::normalizePath($path);
-        
-        $tokens = explode('/', $path);
-        $tokens = array_filter($tokens); // remove empty entries (trailing slash for example)
-        $tokens = array_values($tokens); // re-index keys
-        
-        if(empty($tokens)) {
-            return '';
-        }
-        
-        // remove the drive if present
-        if(strpos($tokens[0], ':') !== false) {
-            array_shift($tokens);
-        }
-        
-        // path was only the drive
-        if(count($tokens) === 0) {
-            return '';
-        }
-
-        // the last element (file or folder)
-        $target = array_pop($tokens);
-        
-        // reduce the path to the specified depth
-        $length = count($tokens);
-        if($length > $depth) {
-            $tokens = array_slice($tokens, $length-$depth);
-        }
-
-        // append the last element again
-        $tokens[] = $target;
-        
-        return trim(implode('/', $tokens), '/');
+        return PathRelativizer::relativizeByDepth($path, $depth);
     }
     
    /**
@@ -890,12 +692,7 @@ class FileHelper
     */
     public static function relativizePath(string $path, string $relativeTo) : string
     {
-        $path = self::normalizePath($path);
-        $relativeTo = self::normalizePath($relativeTo);
-        
-        $relative = str_replace($relativeTo, '', $path);
-
-        return trim($relative, '/');
+        return PathRelativizer::relativize($path, $relativeTo);
     }
     
    /**
@@ -950,41 +747,44 @@ class FileHelper
             ->getLineReader()
             ->getLine($lineNumber);
     }
-    
-   /**
-    * Retrieves the total amount of lines in the file, without 
-    * reading the whole file into memory.
-    * 
-    * @param string $path
-    * @return int
-    */
+
+    /**
+     * Retrieves the total amount of lines in the file, without
+     * reading the whole file into memory.
+     *
+     * @param string $path
+     * @return int
+     * @throws FileHelper_Exception
+     */
     public static function countFileLines(string $path) : int
     {
         return self::getFileInfo($path)
             ->getLineReader()
             ->countLines();
     }
-    
-   /**
-    * Parses the target file to detect any PHP classes contained
-    * within, and retrieve information on them. Does not use the 
-    * PHP reflection API.
-    * 
-    * @param string $filePath
-    * @return FileHelper_PHPClassInfo
-    */
+
+    /**
+     * Parses the target file to detect any PHP classes contained
+     * within, and retrieve information on them. Does not use the
+     * PHP reflection API.
+     *
+     * @param string $filePath
+     * @return FileHelper_PHPClassInfo
+     * @throws FileHelper_Exception
+     */
     public static function findPHPClasses(string $filePath) : FileHelper_PHPClassInfo
     {
         return new FileHelper_PHPClassInfo($filePath);
     }
-    
-   /**
-    * Detects the end of line style used in the target file, if any.
-    * Can be used with large files, because it only reads part of it.
-    * 
-    * @param string $filePath The path to the file.
-    * @return NULL|ConvertHelper_EOL The end of line character information, or NULL if none is found.
-    */
+
+    /**
+     * Detects the end of line style used in the target file, if any.
+     * Can be used with large files, because it only reads part of it.
+     *
+     * @param string $filePath The path to the file.
+     * @return NULL|ConvertHelper_EOL The end of line character information, or NULL if none is found.
+     * @throws FileHelper_Exception
+     */
     public static function detectEOLCharacter(string $filePath) : ?ConvertHelper_EOL
     {
         // 20 lines is enough to get a good picture of the newline style in the file.
