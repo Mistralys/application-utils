@@ -5,6 +5,7 @@
 - FileFinder: Added the `$enabled` parameter to `makeRecursive()`.
 - FileHelper: Added the `FileInfo` and `FolderInfo` classes.
 - FileHelper: Modernized the code, and split into subclasses.
+- FileHelper: 
 - Traits: Added the `StylableTrait` trait and matching interface.
 - Traits: Added the `AttributableTrait` trait and matching interface.
 - Traits: Added the `ClassableAttribute` trait and matching interface.
@@ -22,6 +23,14 @@
 #### Breaking changes
  
 - Minimum PHP version requirement is now v7.4.
+- Deprecated `FileHelper::findFiles()`.
+- Removed deprecated methods:
+  - `FileHelper::createCSVParser()`.
+  - `FileHelper::parseCSVString()`.
+  - `FileHelper::parseCSVFile()`.
+  - `FileHelper::getUTFBOMs()`.
+  - `FileHelper::detectUTFBom()`.
+  - `FileHelper::isValidUnicodeEncoding()`.
 
 #### Scrutinizer changes
 
