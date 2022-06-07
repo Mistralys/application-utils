@@ -8,3 +8,7 @@ parameters:
     paths:
         - ../../src
         - ../../tests
+    ignoreErrors:
+        -
+            message: '#of function call_user_func_array expects callable\(\)#'
+            path: ../../src/functions.php
