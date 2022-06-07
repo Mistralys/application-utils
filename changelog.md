@@ -5,7 +5,7 @@
 - FileFinder: Added the `$enabled` parameter to `makeRecursive()`.
 - FileHelper: Added the `FileInfo` and `FolderInfo` classes.
 - FileHelper: Modernized the code, and split into subclasses.
-- FileHelper: 
+- FileHelper: Added `FolderInfo::getIterator()`.
 - Traits: Added the `StylableTrait` trait and matching interface.
 - Traits: Added the `AttributableTrait` trait and matching interface.
 - Traits: Added the `ClassableAttribute` trait and matching interface.
@@ -19,11 +19,15 @@
 - UnitTests: Started modernizing tests with namespaces and type hinting.
 - Code: PHPStan Analysis is now clean up to level 5.
 - Code: Generalized type hinting update for PHP 7.4 (ongoing).
+- BaseException: The previous parameter is now documented as accepting `Throwable`.
+- CSVHelper: Upgraded library to v1.3.
 
 #### Breaking changes
  
 - Minimum PHP version requirement is now v7.4.
 - Deprecated `FileHelper::findFiles()`.
+- Removed `$exit` parameter of `Request::sendJSON()`. Use `sendJSONAndExit()` instead.
+- Removed `$exit` parameter of `Request::sendHTML()`. Use `sendHTMLAndExit()` instead.
 - Removed deprecated methods:
   - `FileHelper::createCSVParser()`.
   - `FileHelper::parseCSVString()`.
