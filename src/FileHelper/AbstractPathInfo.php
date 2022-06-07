@@ -255,6 +255,11 @@ abstract class AbstractPathInfo implements PathInfoInterface, Interface_Stringab
      */
     public static function resolveType($path) : PathInfoInterface
     {
+        if($path instanceof PathInfoInterface)
+        {
+            return $path;
+        }
+
         $path = self::type2string($path);
 
         if(FolderInfo::is_dir($path))
