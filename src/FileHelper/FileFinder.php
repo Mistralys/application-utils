@@ -41,10 +41,7 @@ class FileFinder implements Interface_Optionable
     public const OPTION_EXCLUDE_EXTENSIONS = 'exclude-extensions';
     public const OPTION_PATHMODE = 'pathmode';
 
-    /**
-    * @var string
-    */
-    protected string $path;
+    protected FolderInfo $path;
     
    /**
     * @var string[]
@@ -55,27 +52,14 @@ class FileFinder implements Interface_Optionable
     * The path must exist when the class is instantiated: its
     * real path will be determined to work with.
     * 
-    * @param string $path The absolute path to the target folder.
+    * @param string|PathInfoInterface|DirectoryIterator $path The absolute path to the target folder.
+    *
     * @throws FileHelper_Exception
-    * @see FileFinder::ERROR_PATH_DOES_NOT_EXIST
+    * @see FileHelper::ERROR_PATH_IS_NOT_A_FOLDER
     */
-    public function __construct(string $path)
+    public function __construct($path)
     {
-        $real = realpath($path);
-        
-        if($real === false) 
-        {
-            throw new FileHelper_Exception(
-                'Target path does not exist',
-                sprintf(
-                    'Tried accessing path [%s], but its real path could not be determined.',
-                    $path
-                ),
-                self::ERROR_PATH_DOES_NOT_EXIST
-            );
-        }
-        
-        $this->path = FileHelper::normalizePath($real);
+        $this->path = AbstractPathInfo::resolveType($path)->requireIsFolder();
     }
     
     public function getDefaultOptions() : array
@@ -278,14 +262,14 @@ class FileFinder implements Interface_Optionable
     */
     public function getAll() : array
     {
-        $this->find($this->path, true);
+        $this->find((string)$this->path, true);
         
         return $this->found;
     }
     
    /**
     * Retrieves only PHP files. Can be combined with other
-    * options like enabling recursion into subfolders.
+    * options like enabling recursion into sub-folders.
     * 
     * @return string[]
     */
@@ -389,11 +373,9 @@ class FileFinder implements Interface_Optionable
                 return false;
             }
         }
-        else if(!empty($exclude))
+        else if(!empty($exclude) && in_array($extension, $exclude, true))
         {
-            if(in_array($extension, $exclude, true)) {
-                return false;
-            }
+            return false;
         }
         
         return true;

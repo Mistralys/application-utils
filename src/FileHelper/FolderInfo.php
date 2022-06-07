@@ -6,6 +6,7 @@ namespace AppUtils\FileHelper;
 
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
+use DirectoryIterator;
 
 /**
  * @method FolderInfo requireReadable(?int $errorCode = null)
@@ -20,17 +21,20 @@ class FolderInfo extends AbstractPathInfo
     private static $infoCache = array();
 
     /**
-     * @param string$path
+     * @param string|PathInfoInterface|DirectoryIterator $path
      * @return FolderInfo
+     * @throws FileHelper_Exception
      */
-    public static function factory(string $path) : FolderInfo
+    public static function factory($path) : FolderInfo
     {
-        if(!isset(self::$infoCache[$path]))
+        $pathString = AbstractPathInfo::type2string($path);
+
+        if(!isset(self::$infoCache[$pathString]))
         {
-            self::$infoCache[$path] = new FolderInfo($path);
+            self::$infoCache[$pathString] = new FolderInfo($pathString);
         }
 
-        return self::$infoCache[$path];
+        return self::$infoCache[$pathString];
     }
 
     /**

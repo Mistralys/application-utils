@@ -15,6 +15,7 @@ use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo\FileSender;
 use AppUtils\FileHelper\FileInfo\LineReader;
 use AppUtils\FileHelper_Exception;
+use DirectoryIterator;
 
 /**
  * Specialized class used to access information on a file path,
@@ -33,18 +34,20 @@ class FileInfo extends AbstractPathInfo
     private static $infoCache = array();
 
     /**
-     * @param string $path
+     * @param string|PathInfoInterface|DirectoryIterator $path
      * @return FileInfo
      * @throws FileHelper_Exception
      */
-    public static function factory(string $path) : FileInfo
+    public static function factory($path) : FileInfo
     {
-        if(!isset(self::$infoCache[$path]))
+        $pathString = AbstractPathInfo::type2string($path);
+
+        if(!isset(self::$infoCache[$pathString]))
         {
-            self::$infoCache[$path] = new FileInfo($path);
+            self::$infoCache[$pathString] = new FileInfo($pathString);
         }
 
-        return self::$infoCache[$path];
+        return self::$infoCache[$pathString];
     }
 
     /**
