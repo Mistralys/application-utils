@@ -14,17 +14,20 @@ class FolderTree
      * Deletes a folder tree with all files therein, including
      * the specified folder itself.
      *
-     * @param string $rootFolder
+     * @param string|PathInfoInterface|DirectoryIterator $rootFolder
      * @return bool
+     * @throws FileHelper_Exception
      */
-    public static function delete(string $rootFolder) : bool
+    public static function delete($rootFolder) : bool
     {
-        if(!file_exists($rootFolder))
+        $info = FileHelper::getFolderInfo($rootFolder);
+
+        if(!$info->exists())
         {
             return true;
         }
 
-        $d = new DirectoryIterator($rootFolder);
+        $d = $info->getIterator();
 
         foreach ($d as $item)
         {
@@ -40,6 +43,7 @@ class FolderTree
     /**
      * @param DirectoryIterator $item
      * @return bool
+     * @throws FileHelper_Exception
      */
     private static function processDeleteItem(DirectoryIterator $item) : bool
     {
@@ -78,44 +82,46 @@ class FolderTree
     /**
      * Copies a folder tree to the target folder.
      *
-     * @param string $source
-     * @param string $target
+     * @param string|PathInfoInterface|DirectoryIterator $source
+     * @param string|PathInfoInterface|DirectoryIterator $target
      * @throws FileHelper_Exception
      */
-    public static function copy(string $source, string $target) : void
+    public static function copy($source, $target) : void
     {
-        FileHelper::createFolder($target);
+        $target = FileHelper::createFolder($target);
 
-        $d = new DirectoryIterator($source);
+        $d =  $source->requireIsFolder()->getIterator();
+
         foreach ($d as $item)
         {
-            self::processCopyItem($item, $target);
+            if($item->isDot())
+            {
+                continue;
+            }
+
+            self::processCopyItem(FileHelper::getPathInfo($item), $target);
         }
     }
 
     /**
-     * @param DirectoryIterator $item
-     * @param string $target
+     * @param PathInfoInterface $item
+     * @param FolderInfo $target
      * @return void
      * @throws FileHelper_Exception
      */
-    private static function processCopyItem(DirectoryIterator $item, string $target) : void
+    private static function processCopyItem(PathInfoInterface $item, FolderInfo $target) : void
     {
-        if ($item->isDot())
-        {
-            return;
-        }
+        $item->requireReadable();
 
-        $itemPath = FileHelper::requireFileReadable($item->getPathname());
-        $baseName = basename($itemPath);
-
-        if ($item->isDir())
+        if ($item->isFolder())
         {
-            self::copy($itemPath, $target . '/' . $baseName);
+            self::copy($item, $target . '/' . $item->getName());
         }
         else if($item->isFile())
         {
-            FileHelper::copyFile($itemPath, $target . '/' . $baseName);
+            $item
+                ->requireIsFile()
+                ->copyTo($target.'/'.$item->getName());
         }
     }
 }
