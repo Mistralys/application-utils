@@ -699,7 +699,7 @@ class ConvertHelper
     */
     public static function stripUTFBom(string $string) : string
     {
-        $boms = FileHelper::getUTFBOMs();
+        $boms = FileHelper::createUnicodeHandling()->getUTFBOMs();
 
         foreach($boms as $bomChars)
         {
