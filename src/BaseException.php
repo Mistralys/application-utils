@@ -28,14 +28,19 @@ class BaseException extends Exception
    /**
     * @param string $message
     * @param string|NULL $details
-    * @param int $code
-    * @param Exception $previous
+    * @param int|NULL $code
+    * @param Throwable|NULL $previous
     */
     public function __construct(string $message, ?string $details=null, $code=null, $previous=null)
     {
         if(defined('APP_UTILS_TESTSUITE') && APP_UTILS_TESTSUITE === 'true')
         {
             $message .= PHP_EOL.$details;
+        }
+
+        if($code === null)
+        {
+             $code = 0;
         }
 
         parent::__construct($message, $code, $previous);
