@@ -77,7 +77,7 @@ function parseThrowable(Throwable $e) : ConvertHelper_ThrowableInfo
  * Restores a throwable info instance from a previously 
  * serialized array.
  * 
- * @param array $serialized
+ * @param array<string,mixed> $serialized
  * @return ConvertHelper_ThrowableInfo
  */
 function restoreThrowable(array $serialized) : ConvertHelper_ThrowableInfo
@@ -179,7 +179,7 @@ function isCLI() : bool
  * because this file is included in the files list in the
  * composer.json, guaranteeing it is always loaded.
  */
-function init()
+function init() : void
 {
     if(!class_exists('\AppLocalize\Localization')) {
         return;
