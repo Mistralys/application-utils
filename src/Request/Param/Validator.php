@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\Request\RequestParam;
+
 /**
  * Base class skeleton for request parameter validation types.
  * 
@@ -23,7 +25,7 @@ abstract class Request_Param_Validator implements Interface_Optionable
     use Traits_Optionable;
     
     /**
-     * @var Request_Param
+     * @var RequestParam
      */
     protected $param;
     
@@ -37,7 +39,7 @@ abstract class Request_Param_Validator implements Interface_Optionable
     */
     protected $isSubvalue = false;
     
-    public function __construct(Request_Param $param, bool $subval)
+    public function __construct(RequestParam $param, bool $subval)
     {
         $this->param = $param;
         $this->isSubvalue = $subval;
