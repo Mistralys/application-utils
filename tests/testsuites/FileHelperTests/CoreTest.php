@@ -160,7 +160,8 @@ final class CoreTest extends FileHelperTestCase
 
         foreach ($files as $name => $expected)
         {
-            $result = FileHelper::detectUTFBom($this->assetsFolder . '/bom-utf' . $name . '.txt');
+            $result = FileHelper::createUnicodeHandling()
+                ->detectUTFBom($this->assetsFolder . '/bom-utf' . $name . '.txt');
 
             $this->assertEquals($expected, $result, 'Did not detect the correct unicode file encoding.');
         }

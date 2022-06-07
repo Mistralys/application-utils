@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace testsuites;
 
+use AppUtils\CSVHelper;
 use AppUtils\FileHelper;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +36,7 @@ final class CSVHelperTest extends TestCase
 
     public function test_commaUnquoted() : void
     {
-        $data = FileHelper::parseCSVFile($this->assetsFolder.'/comma-unquoted.csv', ',');
+        $data = CSVHelper::parseFile($this->assetsFolder.'/comma-unquoted.csv', ',');
 
         $this->assertNotEmpty($data);
         $this->assertCount(3, $data[0]);
@@ -45,7 +46,7 @@ final class CSVHelperTest extends TestCase
 
     public function test_semicolonQuoted() : void
     {
-        $data = FileHelper::parseCSVFile($this->assetsFolder.'/semicolon-quoted.csv');
+        $data = CSVHelper::parseFile($this->assetsFolder.'/semicolon-quoted.csv');
 
         $this->assertNotEmpty($data);
         $this->assertCount(3, $data[0]);
