@@ -61,7 +61,7 @@ class UnicodeHandling
      */
     public function detectUTFBom($file) : ?string
     {
-        FileHelper::getFileInfo($file)
+        $file = FileHelper::getFileInfo($file)
             ->requireExists(FileHelper::ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM)
             ->requireReadable(FileHelper::ERROR_CANNOT_OPEN_FILE_TO_DETECT_BOM);
 
