@@ -13,7 +13,7 @@ final class FileFinderTest extends TestCase
 {
     // region: _Tests
 
-    public function test_findFiles_default()
+    public function test_findFiles_default() : void
     {
         $finder = FileHelper::createFileFinder($this->assetsFolder);
 
@@ -32,7 +32,7 @@ final class FileFinderTest extends TestCase
         $this->assertEquals($expected, $files);
     }
 
-    public function test_findFiles_recursive()
+    public function test_findFiles_recursive() : void
     {
         $finder = FileHelper::createFileFinder($this->assetsFolder);
 
@@ -57,7 +57,7 @@ final class FileFinderTest extends TestCase
         $this->assertEquals($expected, $files);
     }
 
-    public function test_findFiles_relative()
+    public function test_findFiles_relative() : void
     {
         $finder = FileHelper::createFileFinder($this->assetsFolder);
 
@@ -83,7 +83,7 @@ final class FileFinderTest extends TestCase
         $this->assertEquals($expected, $files);
     }
 
-    public function test_findFiles_stripExtensions()
+    public function test_findFiles_stripExtensions() : void
     {
         $finder = FileHelper::createFileFinder($this->assetsFolder);
 
@@ -109,7 +109,7 @@ final class FileFinderTest extends TestCase
         $this->assertEquals($expected, $files);
     }
 
-    public function test_findFiles_excludeExtensions()
+    public function test_findFiles_excludeExtensions() : void
     {
         $finder = FileHelper::createFileFinder($this->assetsFolder);
 
@@ -130,7 +130,7 @@ final class FileFinderTest extends TestCase
         $this->assertEquals($expected, $files);
     }
 
-    public function test_findFiles_includeExtensions()
+    public function test_findFiles_includeExtensions() : void
     {
         $finder = FileHelper::createFileFinder($this->assetsFolder);
 
@@ -146,7 +146,7 @@ final class FileFinderTest extends TestCase
         $this->assertEquals($expected, $files);
     }
 
-    public function test_findFiles_pathSeparator()
+    public function test_findFiles_pathSeparator() : void
     {
         $finder = FileHelper::createFileFinder($this->assetsFolder);
 
@@ -172,7 +172,7 @@ final class FileFinderTest extends TestCase
         $this->assertEquals($expected, $files);
     }
 
-    public function test_findFiles_getPHPClassNames()
+    public function test_findFiles_getPHPClassNames() : void
     {
         $finder = FileHelper::createFileFinder($this->assetsFolder);
 
@@ -194,7 +194,7 @@ final class FileFinderTest extends TestCase
         $this->assertEquals($expected, $files);
     }
 
-    public function test_pathNotExists()
+    public function test_pathNotExists() : void
     {
         $this->expectException(FileHelper_Exception::class);
 
@@ -209,7 +209,7 @@ final class FileFinderTest extends TestCase
 
     protected function setUp() : void
     {
-        $folder = FileHelper::getFolderInfo(TESTS_ROOT . '/assets/FileHelper/FileFinder');
+        $folder = FileHelper::getFolderInfo(__DIR__ . '/../../assets/FileHelper/FileFinder');
 
         $folder->requireExists()->requireIsFolder();
 

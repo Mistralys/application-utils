@@ -4,22 +4,14 @@ namespace RequestTests;
 
 use AppUtils\Request;
 use AppUtils\Request_AcceptHeaders;
-use AppUtils\Request_Param;
+use AppUtils\Request\RequestParam;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
 final class RequestTest extends TestCase
 {
-    protected function setUp() : void
-    {
-        $_REQUEST = array();
-    }
+    // region: _Tests
 
-    protected function tearDown() : void
-    {
-        $_REQUEST = array();
-    }
-    
     public function test_urlsMatch() : void
     {
         $tests = array(
@@ -393,7 +385,7 @@ final class RequestTest extends TestCase
         
         $param = $request->registerParam('foo');
         
-        $this->assertInstanceOf(Request_Param::class, $param, 'Register must return param instance.');
+        $this->assertInstanceOf(RequestParam::class, $param, 'Register must return param instance.');
     }
     
    /**
@@ -1561,7 +1553,42 @@ final class RequestTest extends TestCase
             $this->assertEquals($def['expected'], $value, $def['label']);
         }
     }
-    
+
+    public function test_buildRefreshURL() : void
+    {
+        $_REQUEST = array(
+            'foo' => 'bar',
+            'exclude' => 'me',
+            'option' => 'here',
+            'other' => 'value'
+        );
+
+        $result = Request::getInstance()
+            ->buildRefreshURL(
+                array('foo' => 'no-bar'),
+                array('exclude')
+            );
+
+        $this->assertSame(
+            '/?foo=no-bar&amp;option=here&amp;other=value',
+            $result
+        );
+    }
+
+    // endregion
+
+    // region: Support methods
+
+    protected function setUp() : void
+    {
+        $_REQUEST = array();
+    }
+
+    protected function tearDown() : void
+    {
+        $_REQUEST = array();
+    }
+
     protected function setUniqueParam($value) : string
     {
         $name = $this->generateUniqueParamName();
@@ -1578,4 +1605,6 @@ final class RequestTest extends TestCase
         
         return 'foo'.$this->paramCounter;
     }
+
+    // endregion
 }
