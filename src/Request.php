@@ -6,7 +6,13 @@
  * @see Request
  */
 
+declare(strict_types=1);
+
 namespace AppUtils;
+
+use AppUtils\Request\RequestParam;
+use JsonException;
+use stdClass;
 
 /**
  * Request management: wrapper around request variables with validation
@@ -17,7 +23,7 @@ namespace AppUtils;
  * // get a parameter. If it does not exist, returns null.
  * $request->getParam('name');
  *
- * // get a parameter and specifiy the default value to return if it does not exist.
+ * // get a parameter and specify the default value to return if it does not exist.
  * $request->getParam('name', 'Default value');
  *
  * // register a parameter to specify its validation: if the existing
@@ -31,19 +37,18 @@ namespace AppUtils;
 class Request
 {
     public const ERROR_MISSING_OR_INVALID_PARAMETER = 97001;
-    
     public const ERROR_PARAM_NOT_REGISTERED = 97002;
     
+    protected static ?Request $instance = null;
+    protected string $baseURL = '';
+
     /**
-     * @var Request
+     * Stores registered parameter objects.
+     * @see registerParam()
+     *@var RequestParam[]
      */
-    protected static $instance;
-    
-   /**
-    * @var string
-    */
-    protected $baseURL = '';
-    
+    protected array $knownParams = array();
+
     public function __construct()
     {
         self::$instance = $this;
@@ -54,8 +59,10 @@ class Request
    /**
     * Can be extended in a subclass, to avoid
     * redefining the constructor.
+    *
+    * @return void
     */
-    protected function init()
+    protected function init() : void
     {
         
     }
@@ -63,17 +70,10 @@ class Request
     /**
      * @return Request
      */
-    public static function getInstance()
+    public static function getInstance() : self
     {
-        return self::$instance;
+        return self::$instance ?? new Request();
     }
-    
-    /**
-     * Stores registered parameter objects.
-     * @var Request_Param[]
-     * @see registerParam()
-     */
-    protected $knownParams = array();
     
     /**
      * Retrieves the value of a request parameter. Note that these values
@@ -84,40 +84,40 @@ class Request
      * the specified default value is returned.
      *
      * @param string $name
-     * @param mixed $default
-     * @return mixed
+     * @param mixed|NULL $default
+     * @return mixed|NULL
      */
-    public function getParam($name, $default = null)
+    public function getParam(string $name, $default = null)
     {
-        $value = $default;
-        if(isset($_REQUEST[$name])) {
-            $value = $_REQUEST[$name];
-        }
-        
+        $value = $_REQUEST[$name] ?? $default;
+
         if(isset($this->knownParams[$name])) {
             $value = $this->knownParams[$name]->validate($value);
         }
         
         return $value;
     }
-    
-    public function getParams()
+
+    /**
+     * @return array<mixed>
+     */
+    public function getParams() : array
     {
         return $_REQUEST;
     }
     
     /**
-     * Builds an URL to refresh the current page: includes all currently
+     * Builds a URL to refresh the current page: includes all currently
      * specified request variables, with the option to overwrite/specify
      * new ones via the params parameter.
      *
-     * @param array $params
+     * @param array<string,string|number> $params
      * @param string[] $exclude Names of parameters to exclude from the refresh URL.
      * @return string
      * 
      * @see Request::getRefreshParams()
      */
-    public function buildRefreshURL($params = array(), $exclude = array())
+    public function buildRefreshURL(array $params = array(), array $exclude = array()) : string
     {
         $params = $this->getRefreshParams($params, $exclude);
         
@@ -139,7 +139,7 @@ class Request
     
    /**
     * Filters and retrieves the current request variables 
-    * to be used to build an URL to refresh the current page.
+    * to be used to build a URL to refresh the current page.
     * 
     * For further customization options, use the 
     * {@see Request::createRefreshParams()} method.
@@ -150,18 +150,18 @@ class Request
     * 
     * @see Request::createRefreshParams()
     */
-    public function getRefreshParams(array $params = array(), array $exclude = array())
+    public function getRefreshParams(array $params = array(), array $exclude = array()) : array
     {
         return $this->createRefreshParams()
-        ->overrideParams($params)
-        ->excludeParamsByName($exclude)
-        ->getParams();
+            ->overrideParams($params)
+            ->excludeParamsByName($exclude)
+            ->getParams();
     }
     
    /**
     * Creates an instance of the helper that can be used to
     * retrieve the request's parameters collection, with the
-    * possiblity to exlude and override some by rules.
+    * possibility to exclude and override some by rules.
     * 
     * @return Request_RefreshParams
     */
@@ -169,8 +169,11 @@ class Request
     {
         return new Request_RefreshParams();
     }
-    
-    public function getExcludeParams()
+
+    /**
+     * @return string[]
+     */
+    public function getExcludeParams() : array
     {
         return array();
     }
@@ -178,14 +181,14 @@ class Request
     /**
      * Builds an application URL using the specified parameters: returns
      * an absolute URL to the main dispatcher with the specified parameters.
-     * Not specifiying any parameters returns the absolute URL to the
+     * Not specifying any parameters returns the absolute URL to the
      * application, without ending slash.
      *
-     * @param array $params
+     * @param array<string,mixed> $params
      * @param string $dispatcher Relative path to script to use for the URL. Append trailing slash if needed.
      * @return string
      */
-    public function buildURL($params = array(), string $dispatcher='')
+    public function buildURL(array $params = array(), string $dispatcher='') : string
     {
         $url = rtrim($this->getBaseURL(), '/') . '/' . $dispatcher;
         
@@ -218,12 +221,12 @@ class Request
      * configure it directly by chaining.
      *
      * @param string $name
-     * @return Request_Param
+     * @return RequestParam
      */
-    public function registerParam($name)
+    public function registerParam(string $name) : RequestParam
     {
         if(!isset($this->knownParams[$name])) {
-            $param = new Request_Param($this, $name);
+            $param = new RequestParam($this, $name);
             $this->knownParams[$name] = $param;
         }
         
@@ -234,10 +237,10 @@ class Request
     * Retrieves a previously registered parameter instance.
     * 
     * @param string $name
-    * @throws Request_Exception
-    * @return Request_Param
+    * @return RequestParam
+    *@throws Request_Exception
     */
-    public function getRegisteredParam(string $name) : Request_Param
+    public function getRegisteredParam(string $name) : RequestParam
     {
         if(isset($this->knownParams[$name])) {
             return $this->knownParams[$name];
@@ -279,7 +282,7 @@ class Request
     *     ...
     * )
     * 
-    * @return array
+    * @return string[]
     * @see Request::parseAcceptHeaders()
     */
     public static function getAcceptHeaders() : array
@@ -288,7 +291,7 @@ class Request
     }
     
    /**
-    * Returns an instance of the accept headers parser,
+    * Returns an instance of the "accept" headers parser,
     * to access information on the browser's accepted
     * mime types.
     *  
@@ -311,7 +314,7 @@ class Request
      * a parameter value within the same request.
      *
      * @param string $name
-     * @param string $value
+     * @param mixed $value
      * @return Request
      */
     public function setParam(string $name, $value) : Request
@@ -324,22 +327,18 @@ class Request
         
         return $this;
     }
-    
+
     /**
      * Checks whether the specified param exists in the current request.
      * Note: if the parameter exists, but is not valid according to the
      * parameter definition, it is assumed it does not exist.
      *
+     * @param string $name
      * @return boolean
      */
     public function hasParam(string $name) : bool
     {
-        $value = $this->getParam($name);
-        if ($value !== null) {
-            return true;
-        }
-        
-        return false;
+        return $this->getParam($name) !== null;
     }
     
    /**
@@ -377,7 +376,7 @@ class Request
         
         return $this;
     }
-    
+
     /**
      * Treats the request parameter as a boolean parameter
      * and returns its value as a boolean. If it does not exist
@@ -385,11 +384,14 @@ class Request
      * returns false.
      *
      * @param string $name
+     * @param bool $default
      * @return bool
+     * @throws ConvertHelper_Exception
      */
-    public function getBool($name, $default=false)
+    public function getBool(string $name, bool $default=false) : bool
     {
         $value = $this->getParam($name, $default);
+
         if(ConvertHelper::isBoolean($value)) {
             return ConvertHelper::string2bool($value);
         }
@@ -397,7 +399,7 @@ class Request
         return false;
     }
     
-    public function validate()
+    public function validate() : void
     {
         foreach($this->knownParams as $param) 
         {
@@ -423,37 +425,61 @@ class Request
      *
      * @param string $name
      * @param mixed $default
-     * @return string
+     * @return mixed
      */
-    public function getFilteredParam($name, $default=null)
+    public function getFilteredParam(string $name, $default=null)
     {
         $val = $this->getParam($name, $default);
-        if(is_string($val)) {
-            $val = htmlspecialchars(trim(strip_tags($val)), ENT_QUOTES, 'UTF-8');
+
+        if(is_string($val))
+        {
+            return htmlspecialchars(trim(strip_tags($val)), ENT_QUOTES, 'UTF-8');
         }
-        
+
+        if(is_bool($val))
+        {
+            return ConvertHelper::boolStrict2string($val);
+        }
+
+        if(is_numeric($val))
+        {
+            return (string)$val;
+        }
+
+        if(is_null($val))
+        {
+            return '';
+        }
+
         return $val;
     }
-    
-   /**
-    * Treats the request parameter as a JSON string, and
-    * if it exists and contains valid JSON, returns the
-    * decoded JSON value as an array (default).
-    *
-    * @param string $name
-    * @param bool $assoc
-    * @return array|object
-    * 
-    * @see Request::getJSONAssoc()
-    * @see Request::getJSONObject()
-    */
+
+    /**
+     * Treats the request parameter as a JSON string, and
+     * if it exists and contains valid JSON, returns the
+     * decoded JSON value as an array (default).
+     *
+     * @param string $name
+     * @param bool $assoc
+     * @return array<mixed>|object
+     *
+     * @see Request::getJSONObject()
+     * @see Request::getJSONAssoc()
+     */
     public function getJSON(string $name, bool $assoc=true)
     {
         $value = $this->getParam($name);
         
         if(!empty($value) && is_string($value)) 
         {
-            $data = json_decode($value, $assoc);
+            try
+            {
+                $data = json_decode($value, $assoc, 512, JSON_THROW_ON_ERROR);
+            }
+            catch (JsonException $e)
+            {
+                return array();
+            }
             
             if($assoc && is_array($data)) {
                 return $data;
@@ -468,16 +494,16 @@ class Request
             return array();
         }
         
-        return new \stdClass();
+        return new stdClass();
     }
-    
-   /**
-    * Like {@link Request::getJSON()}, but omitting the second
-    * parameter. Use this for more readable code.
-    * 
-    * @param string $name
-    * @return array
-    */
+
+    /**
+     * Like {@link Request::getJSON()}, but omitting the second
+     * parameter. Use this for more readable code.
+     *
+     * @param string $name
+     * @return array<mixed>
+     */
     public function getJSONAssoc(string $name) : array
     {
         $result = $this->getJSON($name);
@@ -487,14 +513,14 @@ class Request
         
         return array();
     }
-    
-   /**
-    * Like {@link Request::getJSON()}, but omitting the second
-    * parameter. Use this for more readable code.
-    *
-    * @param string $name
-    * @return object
-    */
+
+    /**
+     * Like {@link Request::getJSON()}, but omitting the second
+     * parameter. Use this for more readable code.
+     *
+     * @param string $name
+     * @return object
+     */
     public function getJSONObject(string $name) : object
     {
         $result = $this->getJSON($name, false);
@@ -502,20 +528,21 @@ class Request
             return $result;
         }
         
-        return new \stdClass();
+        return new stdClass();
     }
-    
-   /**
-    * Sends a JSON response with the correct headers.
-    *
-    * @param array|string $data
-    * @param bool $exit Whether to exit the script afterwards.
-    */
-    public static function sendJSON($data, bool $exit=true)
+
+    /**
+     * Sends a JSON response with the correct headers.
+     *
+     * @param array<mixed>|string $data
+     * @throws JsonException
+     */
+    public static function sendJSON($data) : void
     {
         $payload = $data;
+
         if(!is_string($payload)) {
-            $payload = json_encode($payload);
+            $payload = json_encode($payload, JSON_THROW_ON_ERROR);
         }
         
         header('Cache-Control: no-cache, must-revalidate');
@@ -523,31 +550,42 @@ class Request
         header('Content-type: application/json');
         
         echo $payload;
-        
-        if($exit) 
-        {
-            exit;
-        }
+    }
+
+    /**
+     * @param array<mixed>|string $data
+     * @return never
+     * @throws JsonException
+     */
+    public static function sendJSONAndExit($data) : void
+    {
+        self::sendJSON($data);
+        exit;
     }
     
    /**
     * Sends HTML to the browser with the correct headers.
     * 
     * @param string $html
-    * @param bool $exit Whether to exit the script afterwards.
     */
-    public static function sendHTML(string $html, bool $exit=true)
+    public static function sendHTML(string $html) : void
     {
         header('Cache-Control: no-cache, must-revalidate');
         header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
         header('Content-type: text/html; charset=utf-8');
         
         echo $html;
-        
-        if($exit)
-        {
-            exit;
-        }
+    }
+
+    /**
+     * @param string $html
+     * @return never
+     */
+    public static function sendHTMLAndExit(string $html) : void
+    {
+        self::sendHTML($html);
+
+        exit;
     }
     
    /**
@@ -557,7 +595,7 @@ class Request
     * 
     * @param string $sourceURL
     * @param string $targetURL
-    * @param array $limitParams Whether to limit the comparison to these specific parameter names (if present)
+    * @param string[] $limitParams Whether to limit the comparison to these specific parameter names (if present)
     * @return Request_URLComparer
     */
     public function createURLComparer(string $sourceURL, string $targetURL, array $limitParams=array()) : Request_URLComparer
