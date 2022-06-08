@@ -122,7 +122,8 @@ final class ResolvePathTypeTest extends FileHelperTestCase
                         'isFile' => ConvertHelper::boolStrict2string($iterator->isFile()),
                         'isReadable' => ConvertHelper::boolStrict2string($iterator->isReadable()),
                         'path' => $iterator->getPathname(),
-                        'realpath' => $iterator->getRealPath()
+                        'realpath' => $iterator->getRealPath(),
+                        'files' => $this->getFiles($iterator)
                     )
                 ), true)
             )
@@ -144,5 +145,21 @@ final class ResolvePathTypeTest extends FileHelperTestCase
         $this->assertTrue(is_dir($this->folder));
         $this->assertTrue(is_readable($this->file));
         $this->assertTrue(is_file($this->file));
+    }
+
+    /**
+     * @param DirectoryIterator $iterator
+     * @return string[]
+     */
+    private function getFiles(DirectoryIterator $iterator) : array
+    {
+        $result = array();
+
+        foreach($iterator as $entry)
+        {
+            $result[] = $entry->getPathname();
+        }
+
+        return $result;
     }
 }
