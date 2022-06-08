@@ -17,9 +17,28 @@ final class ResolvePathTypeTest extends FileHelperTestCase
      * during the Travis tests, some folders were
      * detected as files.
      */
-    public function test_controlIteratorBehavior() : void
+    public function test_controlIteratorBehavior_AssetPath() : void
     {
         $folderPath = __DIR__.'/../../assets/FileHelper/FolderTree';
+
+        $iterator = new DirectoryIterator($folderPath);
+
+        $this->assertTrue(
+            $iterator->isDir(),
+            sprintf(
+                'Iterator is not a folder: '.PHP_EOL.
+                '[%s]'.PHP_EOL.
+                'Folder is readable: '.PHP_EOL.
+                '[%s]',
+                $iterator->getPath(),
+                ConvertHelper::boolStrict2string(is_readable($folderPath))
+            )
+        );
+    }
+
+    public function test_controlIteratorBehavior_Constant() : void
+    {
+        $folderPath = __DIR__;
 
         $iterator = new DirectoryIterator($folderPath);
 
@@ -58,8 +77,9 @@ final class ResolvePathTypeTest extends FileHelperTestCase
 
         $iterator = new DirectoryIterator($path);
         $this->assertSame($path, $iterator->getPath());
+        $this->assertSame('dir', $iterator->getType());
         $this->assertTrue($iterator->isDir());
-        
+
         $iteratorFolder = AbstractPathInfo::resolveType($iterator);
 
         $this->assertTrue(
