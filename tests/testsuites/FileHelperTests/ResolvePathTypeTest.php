@@ -13,8 +13,18 @@ final class ResolvePathTypeTest extends FileHelperTestCase
     public function test_resolveTypes() : void
     {
         $iterator = new DirectoryIterator(__DIR__);
-        $this->assertTrue($iterator->isDir());
-        
+        $this->assertTrue(
+            $iterator->isDir(),
+            sprintf(
+                'Iterator is not a folder: '.PHP_EOL.
+                '[%s]'.PHP_EOL.
+                'Created from __DIR__ variable: '.PHP_EOL.
+                '[%s]',
+                $iterator->getPath(),
+                __DIR__
+            )
+        );
+
         $stringFolder = AbstractPathInfo::resolveType(__DIR__);
         $stringFile = AbstractPathInfo::resolveType(__FILE__);
         $iteratorFolder = AbstractPathInfo::resolveType($iterator);
