@@ -24,6 +24,25 @@ final class ResolvePathTypeTest extends FileHelperTestCase
         $this->debugIterator($folderPath);
     }
 
+    /**
+     * Strange behavior: using the __DIR__ constant yields
+     * a regular path, but using this in a directory iterator
+     * causes the path to show up as one of the test PHP files
+     * instead (FolderInfoTest.php) when running in Travis or
+     * Scrutinizer on GitHub.
+     *
+     * Doubly strange, because only the DirectoryIterator was
+     * affected. The regular PHP methods like is_dir returned
+     * the correct results.
+     *
+     * There was no point in doing any more research, so the
+     * tests now use paths to files and folders from the test
+     * assets, which works as expected.
+     *
+     * One can only assume that this is a specificity of the
+     * file system in Travis and Scrutinizer, as tests on both
+     * Windows and MacOS went through without any issues.
+     */
     public function test_controlIteratorBehavior_Constant() : void
     {
         $folderPath = __DIR__;
@@ -33,11 +52,7 @@ final class ResolvePathTypeTest extends FileHelperTestCase
 
     public function test_resolveType_FolderString() : void
     {
-        $path = __DIR__;
-        $this->assertTrue(is_readable($path));
-        $this->assertTrue(is_dir($path));
-
-        $stringFolder = AbstractPathInfo::resolveType($path);
+        $stringFolder = AbstractPathInfo::resolveType($this->folder);
 
         $this->assertTrue(
             $stringFolder->isFolder(),
@@ -47,12 +62,8 @@ final class ResolvePathTypeTest extends FileHelperTestCase
 
     public function test_resolveType_FolderIterator() : void
     {
-        $path = __DIR__;
-        $this->assertTrue(is_readable($path));
-        $this->assertTrue(is_dir($path));
-
-        $iterator = new DirectoryIterator($path);
-        $this->assertSame($path, $iterator->getPath());
+        $iterator = new DirectoryIterator($this->folder);
+        $this->assertSame($this->folder, $iterator->getPath());
         $this->assertSame('dir', $iterator->getType());
         $this->assertTrue($iterator->isDir());
 
@@ -71,18 +82,14 @@ final class ResolvePathTypeTest extends FileHelperTestCase
      */
     public function test_instancePassThrough() : void
     {
-        $stringFolder = AbstractPathInfo::resolveType('/path/to/folder');
+        $stringFolder = AbstractPathInfo::resolveType($this->folder);
 
         $this->assertSame($stringFolder, AbstractPathInfo::resolveType($stringFolder));
     }
 
     public function test_resolveType_File() : void
     {
-        $path = __FILE__;
-        $this->assertTrue(is_readable($path));
-        $this->assertTrue(is_file($path));
-
-        $stringFile = AbstractPathInfo::resolveType($path);
+        $stringFile = AbstractPathInfo::resolveType($this->file);
 
         $this->assertTrue(
             $stringFile->isFile(),
@@ -120,5 +127,22 @@ final class ResolvePathTypeTest extends FileHelperTestCase
                 ), true)
             )
         );
+    }
+
+    private string $folder;
+    private string $file;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->folder = __DIR__.'/../../assets/FileHelper/FolderTree';
+        $this->file = __DIR__.'/../../assets/FileHelper/single-line.txt';
+
+        // Check prerequisites
+        $this->assertTrue(is_readable($this->folder));
+        $this->assertTrue(is_dir($this->folder));
+        $this->assertTrue(is_readable($this->file));
+        $this->assertTrue(is_file($this->file));
     }
 }
