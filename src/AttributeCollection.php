@@ -44,6 +44,8 @@ class AttributeCollection
      */
     public StyleCollection $styles;
 
+    private ?AttributesRenderer $renderer = null;
+
     /**
      * @param array<string,string|number|bool|NULL|Interface_Stringable|StringBuilder_Interface> $attributes
      */
@@ -171,19 +173,16 @@ class AttributeCollection
         return !empty($attributes);
     }
 
-    /**
-     * @var AttributesRenderer|NULL
-     */
-    private $renderer;
-
     private function getRenderer() : AttributesRenderer
     {
-        if(!isset($this->renderer))
+        if(isset($this->renderer))
         {
-            $this->renderer = new AttributesRenderer($this);
+            return $this->renderer;
         }
 
-        return $this->renderer;
+        $renderer = new AttributesRenderer($this);
+        $this->renderer = $renderer;
+        return $renderer;
     }
 
     /**
