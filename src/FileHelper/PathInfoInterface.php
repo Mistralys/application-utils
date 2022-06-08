@@ -24,6 +24,7 @@ use AppUtils\FileHelper_Exception;
 interface PathInfoInterface
 {
     public function getName() : string;
+    public function getExtension(bool $lowercase=true) : string;
     public function getPath() : string;
     public function exists() : bool;
     public function isFolder() : bool;

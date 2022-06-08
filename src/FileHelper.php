@@ -297,14 +297,7 @@ class FileHelper
     */
     public static function getExtension($pathOrDirIterator, bool $lowercase = true) : string
     {
-        $info = self::getPathInfo($pathOrDirIterator);
-
-        if($info instanceof FileInfo)
-        {
-            return $info->getExtension($lowercase);
-        }
-
-        return '';
+        return self::getPathInfo($pathOrDirIterator)->getExtension();
     }
     
    /**

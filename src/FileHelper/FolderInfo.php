@@ -168,4 +168,9 @@ class FolderInfo extends AbstractPathInfo
 
         return new DirectoryIterator($this->getPath());
     }
+
+    public function getExtension(bool $lowercase = true) : string
+    {
+        return '';
+    }
 }
