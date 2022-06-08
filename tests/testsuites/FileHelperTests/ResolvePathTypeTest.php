@@ -56,7 +56,11 @@ final class ResolvePathTypeTest extends FileHelperTestCase
         $this->assertTrue(is_readable($path));
         $this->assertTrue(is_dir($path));
 
-        $iteratorFolder = AbstractPathInfo::resolveType(new DirectoryIterator($path));
+        $iterator = new DirectoryIterator($path);
+        $this->assertSame($path, $iterator->getPath());
+        $this->assertTrue($iterator->isDir());
+        
+        $iteratorFolder = AbstractPathInfo::resolveType($iterator);
 
         $this->assertTrue(
             $iteratorFolder->isFolder(),
