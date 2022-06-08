@@ -112,7 +112,9 @@ final class ResolvePathTypeTest extends FileHelperTestCase
                         'getType' => $iterator->getType(),
                         'isLink' => ConvertHelper::boolStrict2string($iterator->isLink()),
                         'isFile' => ConvertHelper::boolStrict2string($iterator->isFile()),
-                        'isReadable' => ConvertHelper::boolStrict2string($iterator->isReadable())
+                        'isReadable' => ConvertHelper::boolStrict2string($iterator->isReadable()),
+                        'path' => $iterator->getPathname(),
+                        'realpath' => $iterator->getRealPath()
                     )
                 ), true)
             )
