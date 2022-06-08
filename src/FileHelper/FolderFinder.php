@@ -81,6 +81,8 @@ class FolderFinder implements Interface_Optionable
             $result[] = $this->resolvePath($folder);
         }
 
+        sort($result);
+
         return $result;
     }
 
