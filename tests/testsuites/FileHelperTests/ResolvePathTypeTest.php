@@ -12,52 +12,45 @@ use TestClasses\FileHelperTestCase;
 
 final class ResolvePathTypeTest extends FileHelperTestCase
 {
-    /**
-     * Sanity check to ensure the prerequisites are
-     * everything as expected. This was added because
-     * during the Travis tests, some folders were
-     * detected as files.
-     */
-    public function test_controlIteratorBehavior_AssetPath() : void
-    {
-        $folderPath = __DIR__.'/../../assets/FileHelper/FolderTree';
-
-        $this->debugIterator($folderPath);
-    }
-
-    public function test_controlIteratorBehavior_AssetPathWithFile() : void
-    {
-        $folderPath = __DIR__.'/../../assets/FileHelper/FolderTree/SubFolderA';
-
-        $this->debugIterator($folderPath);
-    }
+    // region: _Tests
 
     /**
-     * Strange behavior: using the __DIR__ constant yields
-     * a regular path, but using this in a directory iterator
-     * causes the path to show up as one of the test PHP files
-     * instead (FolderInfoTest.php) when running in Travis or
-     * Scrutinizer on GitHub.
+     * Strange behavior: When trying to get the path from a
+     * DirectoryIterator instance, it will not return the
+     * expected path, under these conditions:
      *
-     * Doubly strange, because only the DirectoryIterator was
-     * affected. The regular PHP methods like is_dir returned
-     * the correct results.
+     * - The iterator has not been iterated over
+     * - The target folder contains files
      *
-     * There was no point in doing any more research, so the
-     * tests now use paths to files and folders from the test
-     * assets, which works as expected.
+     * In this case, and only on some systems (it happened
+     * in Travis and Scrutinizer), the iterator's isDir()
+     * method will not return true, but false. Accessing the
+     * path returns the first file in the target folder.
      *
-     * One can only assume that this is a specificity of the
-     * file system in Travis and Scrutinizer, as tests on
-     * Windows, Linux and MacOS went through without any issues.
+     * It only works as expected if the iterator is used in
+     * the way it is typically used, to iterate over entries
+     * in the target folder - not accessing the folder's
+     * current path.
+     *
+     * This is why the iterator tests here use the items
+     * being iterated over, not the original iterator instance.
      */
-    public function test_controlIteratorBehavior_Constant() : void
+    public function test_verifyIteratorBehavior_PathWithFiles() : void
     {
-        $this->markTestSkipped('Turned it off for tests to pass until further investigation.');
+        $this->markTestSkipped('Turned it off for tests to pass.');
 
-        $folderPath = __DIR__;
+        $this->debugIterator($this->iterateFiles);
+    }
 
-        $this->debugIterator($folderPath);
+    /**
+     * This works even in Travis and Scrutinizer, because the
+     * target folder does not contain any files.
+     *
+     * @see ResolvePathTypeTest::test_verifyIteratorBehavior_PathWithFiles()
+     */
+    public function test_verifyIteratorBehavior_PathWithSubfolders() : void
+    {
+        $this->debugIterator($this->iterateFolders);
     }
 
     public function test_resolveType_FolderString() : void
@@ -70,19 +63,58 @@ final class ResolvePathTypeTest extends FileHelperTestCase
         );
     }
 
+    /**
+     * NOTE: Using folders being iterated over, not the
+     * initial iterator instance. See {@see ResolvePathTypeTest::test_verifyIteratorBehavior_PathWithFiles()}
+     * for details.
+     */
     public function test_resolveType_FolderIterator() : void
     {
-        $iterator = new DirectoryIterator($this->folder);
-        $this->assertSame($this->folder, $iterator->getPath());
-        $this->assertSame('dir', $iterator->getType());
-        $this->assertTrue($iterator->isDir());
+        $iterator = new DirectoryIterator($this->iterateFolders);
 
-        $iteratorFolder = AbstractPathInfo::resolveType($iterator);
+        foreach($iterator as $item)
+        {
+            if($item->isDot()) {
+                continue;
+            }
 
-        $this->assertTrue(
-            $iteratorFolder->isFolder(),
-            'Must be detected as a folder: ['.$iteratorFolder.']'
-        );
+            $this->assertTrue($item->isDir());
+            $this->assertTrue(is_dir($item->getPathname()));
+
+            $pathInfo = AbstractPathInfo::resolveType($iterator);
+
+            $this->assertTrue(
+                $pathInfo->isFolder(),
+                'Must be detected as a folder: ['.$pathInfo.']'
+            );
+        }
+    }
+
+    /**
+     * NOTE: Using files being iterated over, not the
+     * initial iterator instance. See {@see ResolvePathTypeTest::test_travisAndScrutinizerBug()}
+     * for details.
+     */
+    public function test_resolveType_FileIterator() : void
+    {
+        $iterator = new DirectoryIterator($this->iterateFiles);
+
+        foreach($iterator as $item)
+        {
+            if($item->isDot()) {
+                continue;
+            }
+
+            $this->assertTrue($item->isFile());
+            $this->assertTrue(is_file($item->getPathname()));
+
+            $pathInfo = AbstractPathInfo::resolveType($iterator);
+
+            $this->assertTrue(
+                $pathInfo->isFile(),
+                'Must be detected as a file: ['.$pathInfo.']'
+            );
+        }
     }
 
     /**
@@ -107,7 +139,11 @@ final class ResolvePathTypeTest extends FileHelperTestCase
         );
     }
 
-    public function debugIterator(string $folderPath) : void
+    // endregion
+
+    // region: Support methods
+
+    private function debugIterator(string $folderPath) : void
     {
         $iterator = new DirectoryIterator($folderPath);
         $iterator->rewind();
@@ -153,13 +189,17 @@ final class ResolvePathTypeTest extends FileHelperTestCase
 
     private string $folder;
     private string $file;
+    private string $iterateFolders;
+    private string $iterateFiles;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->folder = __DIR__.'/../../assets/FileHelper/FolderTree';
-        $this->file = __DIR__.'/../../assets/FileHelper/single-line.txt';
+        $this->folder = __DIR__.'/../../assets/FileHelper/PathInfo';
+        $this->file = __DIR__.'/../../assets/FileHelper/PathInfo/FolderWithFiles/fileA.txt';
+        $this->iterateFolders = __DIR__.'/../../assets/FileHelper/PathInfo/FolderWithSubfolders';
+        $this->iterateFiles = __DIR__.'/../../assets/FileHelper/PathInfo/FolderWithFiles';
 
         // Check prerequisites
         $this->assertTrue(is_readable($this->folder));
@@ -183,4 +223,6 @@ final class ResolvePathTypeTest extends FileHelperTestCase
 
         return $result;
     }
+
+    // endregion
 }
