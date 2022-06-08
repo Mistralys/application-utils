@@ -12,9 +12,12 @@ final class ResolvePathTypeTest extends FileHelperTestCase
 {
     public function test_resolveTypes() : void
     {
+        $iterator = new DirectoryIterator(__DIR__);
+        $this->assertTrue($iterator->isDir());
+        
         $stringFolder = AbstractPathInfo::resolveType(__DIR__);
         $stringFile = AbstractPathInfo::resolveType(__FILE__);
-        $iteratorFolder = AbstractPathInfo::resolveType(new DirectoryIterator(__DIR__));
+        $iteratorFolder = AbstractPathInfo::resolveType($iterator);
 
         $this->assertTrue($stringFolder->isFolder(), 'Should be a folder: ['.$stringFolder.']');
         $this->assertTrue($iteratorFolder->isFolder(), 'Should be a folder: ['.$iteratorFolder.']');
