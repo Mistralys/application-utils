@@ -93,6 +93,7 @@ final class ResolvePathTypeTest extends FileHelperTestCase
     public function debugIterator(string $folderPath) : void
     {
         $iterator = new DirectoryIterator($folderPath);
+        $iterator->rewind();
 
         $this->assertTrue(
             $iterator->isDir(),
