@@ -21,38 +21,14 @@ final class ResolvePathTypeTest extends FileHelperTestCase
     {
         $folderPath = __DIR__.'/../../assets/FileHelper/FolderTree';
 
-        $iterator = new DirectoryIterator($folderPath);
-
-        $this->assertTrue(
-            $iterator->isDir(),
-            sprintf(
-                'Iterator is not a folder: '.PHP_EOL.
-                '[%s]'.PHP_EOL.
-                'Folder is readable: '.PHP_EOL.
-                '[%s]',
-                $iterator->getPath(),
-                ConvertHelper::boolStrict2string(is_readable($folderPath))
-            )
-        );
+        $this->debugIterator($folderPath);
     }
 
     public function test_controlIteratorBehavior_Constant() : void
     {
         $folderPath = __DIR__;
 
-        $iterator = new DirectoryIterator($folderPath);
-
-        $this->assertTrue(
-            $iterator->isDir(),
-            sprintf(
-                'Iterator is not a folder: '.PHP_EOL.
-                '[%s]'.PHP_EOL.
-                'Folder is readable: '.PHP_EOL.
-                '[%s]',
-                $iterator->getPath(),
-                ConvertHelper::boolStrict2string(is_readable($folderPath))
-            )
-        );
+        $this->debugIterator($folderPath);
     }
 
     public function test_resolveType_FolderString() : void
@@ -111,6 +87,35 @@ final class ResolvePathTypeTest extends FileHelperTestCase
         $this->assertTrue(
             $stringFile->isFile(),
             'Should be a file: ['.$stringFile.']'
+        );
+    }
+
+    public function debugIterator(string $folderPath) : void
+    {
+        $iterator = new DirectoryIterator($folderPath);
+
+        $this->assertTrue(
+            $iterator->isDir(),
+            sprintf(
+                'Iterator not detected as a folder. '.PHP_EOL.
+                '%s',
+                print_r(array(
+                    'target path' => $folderPath,
+                    'functions' => array(
+                        'is_dir' => ConvertHelper::boolStrict2string(is_dir($folderPath)),
+                        'is_readable' => ConvertHelper::boolStrict2string(is_readable($folderPath)),
+                        'file_exists' => ConvertHelper::boolStrict2string(file_exists($folderPath)),
+                        'realpath' => realpath($folderPath)
+                    ),
+                    'iterator' => array(
+                        'isDir' => ConvertHelper::boolStrict2string($iterator->isDir()),
+                        'getType' => $iterator->getType(),
+                        'isLink' => ConvertHelper::boolStrict2string($iterator->isLink()),
+                        'isFile' => ConvertHelper::boolStrict2string($iterator->isFile()),
+                        'isReadable' => ConvertHelper::boolStrict2string($iterator->isReadable())
+                    )
+                ), true)
+            )
         );
     }
 }
