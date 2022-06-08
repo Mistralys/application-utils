@@ -7,6 +7,7 @@ namespace testsuites\FileHelperTests;
 use AppUtils\ConvertHelper;
 use AppUtils\FileHelper\AbstractPathInfo;
 use DirectoryIterator;
+use SplFileInfo;
 use TestClasses\FileHelperTestCase;
 
 final class ResolvePathTypeTest extends FileHelperTestCase
@@ -111,6 +112,8 @@ final class ResolvePathTypeTest extends FileHelperTestCase
         $iterator = new DirectoryIterator($folderPath);
         $iterator->rewind();
 
+        $spl = new SplFileInfo($folderPath);
+
         $this->assertTrue(
             $iterator->isDir(),
             sprintf(
@@ -133,6 +136,15 @@ final class ResolvePathTypeTest extends FileHelperTestCase
                         'path' => $iterator->getPathname(),
                         'realpath' => $iterator->getRealPath(),
                         'files' => $this->getFiles($iterator)
+                    ),
+                    'spl' => array(
+                        'isDir' => ConvertHelper::boolStrict2string($spl->isDir()),
+                        'getType' => $spl->getType(),
+                        'isLink' => ConvertHelper::boolStrict2string($spl->isLink()),
+                        'isFile' => ConvertHelper::boolStrict2string($spl->isFile()),
+                        'isReadable' => ConvertHelper::boolStrict2string($spl->isReadable()),
+                        'path' => $spl->getPathname(),
+                        'realpath' => $spl->getRealPath(),
                     )
                 ), true)
             )
