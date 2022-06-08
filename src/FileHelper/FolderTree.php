@@ -37,7 +37,17 @@ class FolderTree
             }
         }
 
-        return rmdir($rootFolder);
+        try
+        {
+            $info->delete();
+            return true;
+        }
+        catch (FileHelper_Exception $e)
+        {
+
+        }
+
+        return false;
     }
 
     /**
@@ -90,7 +100,7 @@ class FolderTree
     {
         $target = FileHelper::createFolder($target);
 
-        $d =  $source->requireIsFolder()->getIterator();
+        $d =  FileHelper::getPathInfo($source)->requireIsFolder()->getIterator();
 
         foreach ($d as $item)
         {
