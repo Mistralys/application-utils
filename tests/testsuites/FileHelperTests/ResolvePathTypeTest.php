@@ -24,6 +24,13 @@ final class ResolvePathTypeTest extends FileHelperTestCase
         $this->debugIterator($folderPath);
     }
 
+    public function test_controlIteratorBehavior_AssetPathWithFile() : void
+    {
+        $folderPath = __DIR__.'/../../assets/FileHelper/FolderTree/SubFolderA';
+
+        $this->debugIterator($folderPath);
+    }
+
     /**
      * Strange behavior: using the __DIR__ constant yields
      * a regular path, but using this in a directory iterator
