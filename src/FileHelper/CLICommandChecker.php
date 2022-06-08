@@ -37,7 +37,8 @@ class CLICommandChecker
      */
     private static array $osCommands = array(
         'windows' => 'where',
-        'linux' => 'which'
+        'linux' => 'which',
+        'darwin' => 'which'
     );
 
     public static function factory() : CLICommandChecker
