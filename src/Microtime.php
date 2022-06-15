@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\Microtime\DateFormatChars;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -32,70 +33,6 @@ class Microtime extends DateTime implements Interface_Stringable
 
     public const DATETIME_NOW = 'now';
     public const FORMAT_ISO = 'Y-m-d H:i:s.u';
-
-    // region: Format character constants
-
-    /**
-     * Day of the month without leading zeros
-     */
-    public const CHAR_DAY_OF_MONTH = 'j';
-
-    /**
-     * Day of the month with leading zeros
-     */
-    public const CHAR_DAY_OF_MONTH_LZ = 'd';
-
-    /**
-     * Day of the month as name, `Mon` through `Sun`
-     */
-    public const CHAR_DAY_NAME_SHORT = 'D';
-
-    /**
-     * `Monday` through `Saturday`
-     */
-    public const CHAR_DAY_NAME_LONG = 'l';
-
-    /**
-     * One-based day of the week (1=Monday, 7=Sunday)
-     */
-    public const CHAR_DAY_OF_WEEK = 'N';
-
-    /**
-     * Zero-Based day of the week (0=Sunday, 6=Saturday)
-     */
-    public const CHAR_DAY_OF_WEEK_ZB = 'w';
-
-    /**
-     * English ordinal suffix for the day of the month (th, nd...)
-     */
-    public const CHAR_DAY_ORDINAL_SUFFIX = 'S';
-
-    /**
-     * Month number with leading zeros
-     */
-    public const CHAR_MONTH_LZ = 'm';
-
-    /**
-     * Month number without leading zeros
-     */
-    public const CHAR_MONTH = 'n';
-
-    /**
-     * Month name, three-letter short variant.
-     */
-    public const CHAR_MONTH_NAME_SHORT = 'M';
-
-    /**
-     * Month name, full length.
-     */
-    public const CHAR_MONTH_NAME_LONG = 'F';
-
-    /**
-     * 28 through 31
-     */
-    public const CHAR_AMOUNT_DAYS_IN_MONTH = 't';
-
-    // endregion
 
     /**
      * Attempts to determine the kind of date to create dynamically.
@@ -135,7 +72,7 @@ class Microtime extends DateTime implements Interface_Stringable
                 'Failed to create date from string.',
                 sprintf(
                     'Source date string: [%s].',
-                    strval($datetime)
+                    $datetime
                 ),
                 self::ERROR_FAILED_CONVERTING_STRING
             );
@@ -288,7 +225,7 @@ class Microtime extends DateTime implements Interface_Stringable
      */
     public function getMicroseconds() : int
     {
-        return intval($this->format('u'));
+        return (int)$this->format(DateFormatChars::TIME_MICROSECONDS);
     }
 
     /**
@@ -324,27 +261,27 @@ class Microtime extends DateTime implements Interface_Stringable
 
     public function getYear() : int
     {
-        return intval($this->format('Y'));
+        return (int)$this->format(DateFormatChars::YEAR);
     }
 
     public function getMonth() : int
     {
-        return intval($this->format('m'));
+        return (int)$this->format(DateFormatChars::MONTH);
     }
 
     public function getDay() : int
     {
-        return intval($this->format('d'));
+        return (int)$this->format(DateFormatChars::DAY_OF_MONTH);
     }
 
     public function getHour24() : int
     {
-        return intval($this->format('H'));
+        return (int)$this->format(DateFormatChars::TIME_24_ZB);
     }
 
     public function getHour12() : int
     {
-        return intval($this->format('h'));
+        return (int)$this->format(DateFormatChars::TIME_12);
     }
 
     public function isAM() : bool
@@ -363,16 +300,16 @@ class Microtime extends DateTime implements Interface_Stringable
      */
     public function getMeridiem() : string
     {
-        return $this->format('a');
+        return $this->format(DateFormatChars::TIME_MERIDIEM_LOWER);
     }
 
     public function getMinutes() : int
     {
-        return intval($this->format('i'));
+        return (int)$this->format(DateFormatChars::TIME_MINUTES_LZ);
     }
 
     public function getSeconds() : int
     {
-        return intval($this->format('s'));
+        return (int)$this->format(DateFormatChars::TIME_SECONDS_LZ);
     }
 }
