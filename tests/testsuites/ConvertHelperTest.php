@@ -189,6 +189,22 @@ final class ConvertHelperTest extends TestCase
             array(
                 'value' => new stdClass(),
                 'expected' => false
+            ),
+            array(
+                'value' => 'TRUE',
+                'expected' => true
+            ),
+            array(
+                'value' => 'FALSE',
+                'expected' => false
+            ),
+            array(
+                'value' => 'TruE',
+                'expected' => true
+            ),
+            array(
+                'value' => 'FalSe',
+                'expected' => false
             )
         );
         
