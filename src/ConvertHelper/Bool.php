@@ -39,6 +39,11 @@ class ConvertHelper_Bool
             return $string;
         }
 
+        if(is_string($string))
+        {
+            $string = strtolower($string);
+        }
+
         if(array_key_exists($string, self::$booleanStrings))
         {
             return self::$booleanStrings[$string];
