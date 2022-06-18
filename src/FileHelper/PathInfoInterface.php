@@ -26,6 +26,7 @@ interface PathInfoInterface
     public function getName() : string;
     public function getExtension(bool $lowercase=true) : string;
     public function getPath() : string;
+    public function getFolderPath() : string;
     public function exists() : bool;
     public function isFolder() : bool;
     public function isFile() : bool;

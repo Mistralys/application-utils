@@ -15,7 +15,9 @@ use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 use AppUtils\Interface_Stringable;
 use AppUtils\Interfaces\RenderableInterface;
+use DateTime;
 use DirectoryIterator;
+use SplFileInfo;
 
 /**
  * Abstract implementation of the path info interface.
@@ -223,7 +225,7 @@ abstract class AbstractPathInfo implements PathInfoInterface, Interface_Stringab
     }
 
     /**
-     * @param string|PathInfoInterface|DirectoryIterator $path
+     * @param string|PathInfoInterface|SplFileInfo $path
      * @return string
      */
     public static function type2string($path) : string
@@ -233,7 +235,7 @@ abstract class AbstractPathInfo implements PathInfoInterface, Interface_Stringab
             return $path->getPath();
         }
 
-        if($path instanceof DirectoryIterator)
+        if($path instanceof SplFileInfo)
         {
             return $path->getPathname();
         }
@@ -247,7 +249,7 @@ abstract class AbstractPathInfo implements PathInfoInterface, Interface_Stringab
      * NOTE: Requires the file or folder to exist in the
      * file system, and will throw an exception otherwise.
      *
-     * @param string|PathInfoInterface|DirectoryIterator $path
+     * @param string|PathInfoInterface|SplFileInfo $path
      * @return PathInfoInterface
      *
      * @throws FileHelper_Exception
@@ -312,6 +314,25 @@ abstract class AbstractPathInfo implements PathInfoInterface, Interface_Stringab
 
     public function __toString() : string
     {
-        return $this->getRealPath();
+        return $this->getPath();
+    }
+
+    /**
+     * Retrieves the last modified date for the specified file or folder.
+     *
+     * Note: If the target does not exist, returns null.
+     *
+     * @return DateTime|NULL
+     */
+    public function getModifiedDate() : ?DateTime
+    {
+        $time = filemtime($this->getPath());
+        if($time === false) {
+            return null;
+        }
+
+        $date = new DateTime();
+        $date->setTimestamp($time);
+        return $date;
     }
 }

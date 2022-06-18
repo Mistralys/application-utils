@@ -14,6 +14,7 @@ namespace AppUtils\FileHelper;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 use JsonException;
+use SplFileInfo;
 use function AppUtils\sb;
 
 /**
@@ -23,13 +24,8 @@ use function AppUtils\sb;
  * @subpackage FileHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class JSONFile
+class JSONFile extends FileInfo
 {
-    /**
-     * @var FileInfo
-     */
-    private FileInfo $file;
-
     /**
      * @var string
      */
@@ -40,21 +36,33 @@ class JSONFile
      */
     private $sourceEncodings = '';
 
-    private function __construct(FileInfo $file)
+    /**
+     * @param string|PathInfoInterface|SplFileInfo $path
+     * @return JSONFile
+     * @throws FileHelper_Exception
+     */
+    public static function factory($path) : JSONFile
     {
-        $this->file = $file;
-    }
+        if($path instanceof self) {
+            return $path;
+        }
 
-    public static function factory(FileInfo $file) : JSONFile
-    {
-        return new JSONFile($file);
+        $instance = self::createInstance($path);
+
+        if($instance instanceof self) {
+            return $instance;
+        }
+
+        throw new FileHelper_Exception(
+            'Invalid class.'
+        );
     }
 
     /**
      * @param string $targetEncoding
-     * @return JSONFile
+     * @return $this
      */
-    public function setTargetEncoding(string $targetEncoding) : JSONFile
+    public function setTargetEncoding(string $targetEncoding) : self
     {
         $this->targetEncoding = $targetEncoding;
         return $this;
@@ -62,9 +70,9 @@ class JSONFile
 
     /**
      * @param string|string[]|NULL $sourceEncodings
-     * @return JSONFile
+     * @return $this
      */
-    public function setSourceEncodings($sourceEncodings) : JSONFile
+    public function setSourceEncodings($sourceEncodings) : self
     {
         $this->sourceEncodings = $sourceEncodings;
         return $this;
@@ -74,8 +82,9 @@ class JSONFile
      * Opens a serialized file and returns the unserialized data.
      * Only supports serialized arrays - classes are not allowed.
      *
-     * @throws FileHelper_Exception
      * @return array<int|string,mixed>
+     * @throws FileHelper_Exception
+     * @throws JsonException
      * @see FileHelper::parseSerializedFile()
      *
      * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
@@ -100,7 +109,7 @@ class JSONFile
                 (string)sb()
                     ->sf(
                         'Loaded the contents of file [%s] successfully, but decoding it as JSON failed.',
-                        $this->file->getPath()
+                        $this->getPath()
                     )
                     ->eol()
                     ->sf('Source encodings: [%s]', json_encode($this->sourceEncodings, JSON_THROW_ON_ERROR))
@@ -112,21 +121,16 @@ class JSONFile
         }
     }
 
-    private function getContents() : string
+    public function getContents() : string
     {
-        $contents = $this->file
-            ->requireExists()
-            ->requireReadable()
-            ->getContents();
-
-        return $this->convertEncoding($contents);
+        return $this->convertEncoding(parent::getContents());
     }
 
     private function convertEncoding(string $contents) : string
     {
         if(!empty($this->targetEncoding))
         {
-            return mb_convert_encoding(
+            return (string)mb_convert_encoding(
                 $contents,
                 $this->targetEncoding,
                 $this->sourceEncodings
@@ -142,7 +146,7 @@ class JSONFile
      * @return $this
      * @throws FileHelper_Exception
      */
-    public function putData($data, bool $pretty) : JSONFile
+    public function putData($data, bool $pretty) : self
     {
         $options = null;
 
@@ -155,7 +159,7 @@ class JSONFile
         {
             $json = json_encode($data, JSON_THROW_ON_ERROR | $options);
 
-            $this->file->putContents($json);
+            $this->putContents($json);
 
             return $this;
         }
@@ -163,7 +167,7 @@ class JSONFile
         {
             throw new FileHelper_Exception(
                 'An error occurred while encoding a data set to JSON.',
-                sprintf('Tried saving to file: [%s].', $this->file->getPath()),
+                sprintf('Tried saving to file: [%s].', $this->getPath()),
                 FileHelper::ERROR_JSON_ENCODE_ERROR,
                 $e
             );

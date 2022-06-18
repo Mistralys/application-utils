@@ -7,6 +7,7 @@ namespace AppUtils\FileHelper;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 use DirectoryIterator;
+use SplFileInfo;
 
 /**
  * @method FolderInfo requireReadable(?int $errorCode = null)
@@ -21,7 +22,7 @@ class FolderInfo extends AbstractPathInfo
     private static $infoCache = array();
 
     /**
-     * @param string|PathInfoInterface|DirectoryIterator $path
+     * @param string|PathInfoInterface|SplFileInfo $path
      * @return FolderInfo
      * @throws FileHelper_Exception
      */
@@ -172,5 +173,25 @@ class FolderInfo extends AbstractPathInfo
     public function getExtension(bool $lowercase = true) : string
     {
         return '';
+    }
+
+    public function getFolderPath() : string
+    {
+        return $this->getPath();
+    }
+
+    public function createSubFolder(string $name) : FolderInfo
+    {
+        return FileHelper::createFolder($this->getPath().'/'.$name);
+    }
+
+    public function saveFile(string $fileName, string $content='') : FileInfo
+    {
+        return FileHelper::saveFile($this.'/'.$fileName, $content);
+    }
+
+    public function saveJSONFile(array $data, string $fileName, bool $pretty=false) : JSONFile
+    {
+        return FileHelper::saveAsJSON($data, $this.'/'.$fileName, $pretty);
     }
 }

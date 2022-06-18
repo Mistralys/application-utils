@@ -1,4 +1,9 @@
 <?php
+/**
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @see \AppUtils\FileHelper\SerializedFile
+ */
 
 declare(strict_types=1);
 
@@ -6,22 +11,40 @@ namespace AppUtils\FileHelper;
 
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
+use SplFileInfo;
 
-class SerializedFile
+/**
+ * Handles files containing data serialized with the
+ * PHP function {@see serialize()}.
+ *
+ * Create an instance with {@see SerializedFile::factory()}.
+ *
+ * @package Application Utils
+ * @subpackage FileHelper
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
+class SerializedFile extends FileInfo
 {
     /**
-     * @var FileInfo
+     * @param string|PathInfoInterface|SplFileInfo $path
+     * @return SerializedFile
+     * @throws FileHelper_Exception
      */
-    private $file;
-
-    private function __construct(FileInfo $file)
+    public static function factory($path) : SerializedFile
     {
-        $this->file = $file;
-    }
+        if($path instanceof self) {
+            return $path;
+        }
 
-    public static function factory(FileInfo $file) : SerializedFile
-    {
-        return new SerializedFile($file);
+        $instance = self::createInstance($path);
+
+        if($instance instanceof self) {
+            return $instance;
+        }
+
+        throw new FileHelper_Exception(
+            'Invalid class.'
+        );
     }
 
     /**
@@ -38,7 +61,7 @@ class SerializedFile
      */
     public function parse() : array
     {
-        $contents = $this->file
+        $contents = $this
             ->requireExists()
             ->requireReadable()
             ->getContents();
@@ -58,9 +81,23 @@ class SerializedFile
             'Cannot unserialize the file contents.',
             sprintf(
                 'Tried unserializing the data from file at [%s].',
-                $this->file->getPath()
+                $this->getPath()
             ),
             FileHelper::ERROR_SERIALIZED_FILE_UNSERIALZE_FAILED
         );
+    }
+
+    /**
+     * Saves the data serialized to the file.
+     *
+     * @param array<mixed> $data
+     * @return $this
+     * @throws FileHelper_Exception
+     */
+    public function putData(array $data) : self
+    {
+        $serialized = @serialize($data);
+
+        return $this->putContents($serialized);
     }
 }

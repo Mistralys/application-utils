@@ -11,16 +11,26 @@ declare(strict_types=1);
 
 namespace AppUtils\FileHelper;
 
+use AppUtils\ConvertHelper;
+use AppUtils\ConvertHelper_EOL;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo\FileSender;
 use AppUtils\FileHelper\FileInfo\LineReader;
 use AppUtils\FileHelper_Exception;
-use DirectoryIterator;
+use SplFileInfo;
 
 /**
  * Specialized class used to access information on a file path,
  * and do file-related operations: reading contents, deleting
  * or copying and the like.
+ *
+ * Create an instance with {@see FileInfo::factory()}.
+ *
+ * Some specialized file type classes exist:
+ *
+ * - {@see JSONFile}
+ * - {@see SerializedFile}
+ * - {@see PHPFile}
  *
  * @package Application Utils
  * @subpackage FileHelper
@@ -31,23 +41,47 @@ class FileInfo extends AbstractPathInfo
     /**
      * @var array<string,FileInfo>
      */
-    private static $infoCache = array();
+    protected static $infoCache = array();
 
     /**
-     * @param string|PathInfoInterface|DirectoryIterator $path
+     * @param string|PathInfoInterface|SplFileInfo $path
      * @return FileInfo
      * @throws FileHelper_Exception
      */
     public static function factory($path) : FileInfo
     {
-        $pathString = AbstractPathInfo::type2string($path);
-
-        if(!isset(self::$infoCache[$pathString]))
-        {
-            self::$infoCache[$pathString] = new FileInfo($pathString);
+        if($path instanceof self) {
+            return $path;
         }
 
-        return self::$infoCache[$pathString];
+        return self::createInstance($path);
+    }
+
+    /**
+     * @param string|PathInfoInterface|SplFileInfo $path
+     * @return FileInfo
+     * @throws FileHelper_Exception
+     */
+    public static function createInstance($path) : FileInfo
+    {
+        $pathString = AbstractPathInfo::type2string($path);
+        $key = $pathString.';'.static::class;
+
+        if(!isset(self::$infoCache[$key]))
+        {
+            $class = static::class;
+            $instance = new $class($pathString);
+
+            if(!$instance instanceof self) {
+                throw new FileHelper_Exception(
+                    'Invalid class'
+                );
+            }
+
+            self::$infoCache[$key] = $instance;
+        }
+
+        return self::$infoCache[$key];
     }
 
     /**
@@ -98,7 +132,7 @@ class FileInfo extends AbstractPathInfo
     {
         if(!$keepPath)
         {
-            return pathinfo($this->getName(), PATHINFO_FILENAME);
+            return (string)pathinfo($this->getName(), PATHINFO_FILENAME);
         }
 
         $parts = explode('/', $this->path);
@@ -112,7 +146,7 @@ class FileInfo extends AbstractPathInfo
 
     public function getExtension(bool $lowercase=true) : string
     {
-        $ext = pathinfo($this->path, PATHINFO_EXTENSION);
+        $ext = (string)pathinfo($this->path, PATHINFO_EXTENSION);
 
         if($lowercase)
         {
@@ -120,6 +154,11 @@ class FileInfo extends AbstractPathInfo
         }
 
         return $ext;
+    }
+
+    public function getFolderPath() : string
+    {
+        return dirname($this->path);
     }
 
     /**
@@ -154,17 +193,17 @@ class FileInfo extends AbstractPathInfo
     }
 
     /**
-     * @param string $targetPath
+     * @param string|PathInfoInterface|SplFileInfo $targetPath
      * @return FileInfo
      * @throws FileHelper_Exception
      */
-    public function copyTo(string $targetPath) : FileInfo
+    public function copyTo($targetPath) : FileInfo
     {
-        $this->checkCopyPrerequisites($targetPath);
+        $target = $this->checkCopyPrerequisites($targetPath);
 
-        if(copy($this->path, $targetPath))
+        if(copy($this->path, (string)$target))
         {
-            return self::factory($targetPath);
+            return $target;
         }
 
         throw new FileHelper_Exception(
@@ -183,22 +222,22 @@ class FileInfo extends AbstractPathInfo
     }
 
     /**
-     * @param string $targetPath
-     * @return void
+     * @param string|PathInfoInterface|SplFileInfo $targetPath
+     * @return FileInfo
      *
      * @throws FileHelper_Exception
      * @see FileHelper::ERROR_SOURCE_FILE_NOT_FOUND
      * @see FileHelper::ERROR_SOURCE_FILE_NOT_READABLE
      * @see FileHelper::ERROR_TARGET_COPY_FOLDER_NOT_WRITABLE
      */
-    private function checkCopyPrerequisites(string $targetPath) : void
+    private function checkCopyPrerequisites($targetPath) : FileInfo
     {
         $this->requireExists(FileHelper::ERROR_SOURCE_FILE_NOT_FOUND);
         $this->requireReadable(FileHelper::ERROR_SOURCE_FILE_NOT_READABLE);
 
-        FolderInfo::factory(dirname($targetPath))
-            ->create()
-            ->requireWritable(FileHelper::ERROR_TARGET_COPY_FOLDER_NOT_WRITABLE);
+        return FileHelper::getPathInfo($targetPath)
+            ->requireIsFile()
+            ->createFolder();
     }
 
     /**
@@ -214,7 +253,7 @@ class FileInfo extends AbstractPathInfo
      */
     public function getLineReader() : LineReader
     {
-        if(!isset($this->lineReader))
+        if($this->lineReader !== null)
         {
             $this->lineReader = new LineReader($this);
         }
@@ -284,5 +323,50 @@ class FileInfo extends AbstractPathInfo
     public function getDownloader() : FileSender
     {
         return new FileSender($this);
+    }
+
+    /**
+     * Attempts to create the folder of the file, if it
+     * does not exist yet. Use this with files that do
+     * not exist in the file system yet.
+     *
+     * @return $this
+     * @throws FileHelper_Exception
+     */
+    private function createFolder() : FileInfo
+    {
+        if(!$this->exists())
+        {
+            FolderInfo::factory($this->getFolderPath())
+                ->create()
+                ->requireWritable(FileHelper::ERROR_TARGET_COPY_FOLDER_NOT_WRITABLE);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Detects the end of line style used in the target file, if any.
+     * Can be used with large files, because it only reads part of it.
+     *
+     * @return NULL|ConvertHelper_EOL The end of line character information, or NULL if none is found.
+     * @throws FileHelper_Exception
+     */
+    public function detectEOLCharacter() : ?ConvertHelper_EOL
+    {
+        // 20 lines is enough to get a good picture of the newline style in the file.
+        $string = implode('', $this->getLineReader()->getLines(20));
+
+        return ConvertHelper::detectEOLCharacter($string);
+    }
+
+    public function countLines() : int
+    {
+        return $this->getLineReader()->countLines();
+    }
+
+    public function getLine(int $lineNumber) : ?string
+    {
+        return $this->getLineReader()->getLine($lineNumber);
     }
 }
