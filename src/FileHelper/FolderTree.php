@@ -7,6 +7,7 @@ namespace AppUtils\FileHelper;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 use DirectoryIterator;
+use SplFileInfo;
 
 class FolderTree
 {
@@ -14,7 +15,7 @@ class FolderTree
      * Deletes a folder tree with all files therein, including
      * the specified folder itself.
      *
-     * @param string|PathInfoInterface|DirectoryIterator $rootFolder
+     * @param string|PathInfoInterface|SplFileInfo $rootFolder
      * @return bool
      * @throws FileHelper_Exception
      */
@@ -62,23 +63,21 @@ class FolderTree
             return true;
         }
 
-        $itemPath = $item->getRealPath();
-
-        if (!is_readable($itemPath))
+        if (!$item->isReadable())
         {
             return false;
         }
 
         if ($item->isDir())
         {
-            return self::delete($itemPath);
+            return self::delete($item);
         }
 
         if ($item->isFile())
         {
             try
             {
-                FileHelper::deleteFile($itemPath);
+                FileHelper::deleteFile($item);
             }
             catch (FileHelper_Exception $e)
             {
