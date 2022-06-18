@@ -16,6 +16,7 @@ use AppUtils\FileHelper_Exception;
 use AppUtils\Interface_Optionable;
 use AppUtils\Traits_Optionable;
 use DirectoryIterator;
+use SplFileInfo;
 
 /**
  * File finder class used to fetch file lists from folders,
@@ -52,7 +53,7 @@ class FileFinder implements Interface_Optionable
     * The path must exist when the class is instantiated: its
     * real path will be determined to work with.
     * 
-    * @param string|PathInfoInterface|DirectoryIterator $path The absolute path to the target folder.
+    * @param string|PathInfoInterface|SplFileInfo $path The absolute path to the target folder.
     *
     * @throws FileHelper_Exception
     * @see FileHelper::ERROR_PATH_IS_NOT_A_FOLDER
