@@ -253,7 +253,7 @@ class FileInfo extends AbstractPathInfo
      */
     public function getLineReader() : LineReader
     {
-        if($this->lineReader !== null)
+        if($this->lineReader === null)
         {
             $this->lineReader = new LineReader($this);
         }
