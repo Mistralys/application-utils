@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace FileHelperTests;
 
 use AppUtils\FileHelper;
+use AppUtils\FileHelper\FolderInfo;
 use TestClasses\FileHelperTestCase;
 
 class FolderTreeTest extends FileHelperTestCase
 {
     public function test_getSubFolders() : void
     {
-        $folders = FileHelper::getSubfolders($this->assetsFolder.'/FolderTree');
+        $folders = FileHelper::getSubfolders($this->testFolder);
 
         $this->assertSame(
             array(
@@ -25,7 +26,7 @@ class FolderTreeTest extends FileHelperTestCase
     public function test_getSubFoldersRecursive() : void
     {
         $folders = FileHelper::getSubfolders(
-            $this->assetsFolder.'/FolderTree',
+            $this->testFolder,
             array(
                 'recursive' => true
             )
@@ -44,7 +45,7 @@ class FolderTreeTest extends FileHelperTestCase
 
     public function test_getSubFolders_folderFinder() : void
     {
-        $folders = FileHelper::getFolderInfo($this->assetsFolder.'/FolderTree')
+        $folders = FileHelper::getFolderInfo($this->testFolder)
             ->createFolderFinder()
             ->makeRecursive()
             ->getPaths();
@@ -58,5 +59,41 @@ class FolderTreeTest extends FileHelperTestCase
             ),
             $folders
         );
+    }
+
+    public function test_deleteTree() : void
+    {
+        $baseFolder = FolderInfo::factory($this->testFolder);
+
+        $folderA = $baseFolder->createSubFolder('DeleteRoot');
+        $folderA->createSubFolder('DeleteSubAEmpty');
+        $folderA->createSubFolder('DeleteSubBNonEmpty')
+            ->saveFile('DeleteFile.txt', 'Some content');
+
+        FileHelper::deleteTree($folderA);
+
+        $this->assertDirectoryDoesNotExist((string)$folderA);
+    }
+
+    public function test_copyTree() : void
+    {
+        $sourceFolder = $this->testFolder.'/SubFolderB';
+        $targetFolder = $this->testFolder.'/SubFolderBCopy';
+
+        FileHelper::copyTree($sourceFolder, $targetFolder);
+
+        $this->assertDirectoryExists($targetFolder);
+        $this->assertFileExists($targetFolder.'/SubSubFolder/SubSubSubFolder/readme.md');
+
+        FileHelper::deleteTree($targetFolder);
+    }
+
+    private string $testFolder;
+
+    protected function setUp() : void
+    {
+        parent::setUp();
+
+        $this->testFolder = __DIR__.'/../../assets/FileHelper/FolderTree';
     }
 }

@@ -6,10 +6,13 @@ namespace FileHelperTests;
 
 use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
+use SplFileInfo;
 use TestClasses\FileHelperTestCase;
 
 class FileInfoTest extends FileHelperTestCase
 {
+    // region: _Tests
+
     public function test_notFileException() : void
     {
         $this->expectExceptionCode(FileHelper::ERROR_PATH_IS_NOT_A_FILE);
@@ -92,4 +95,83 @@ class FileInfoTest extends FileHelperTestCase
             $this->addToAssertionCount(1);
         }
     }
+
+    public function test_copyFile() : void
+    {
+        $this->assertFileDoesNotExist($this->copyTargetFile);
+
+        FileHelper::copyFile($this->copySourceFile, $this->copyTargetFile);
+
+        $this->assertFileExists($this->copyTargetFile);
+
+        FileHelper::deleteFile($this->copyTargetFile);
+    }
+
+    public function test_copyTo() : void
+    {
+        $this->assertFileDoesNotExist($this->copyTargetFile);
+
+        $source = FileInfo::factory($this->copySourceFile);
+        $target = FileInfo::factory($this->copyTargetFile);
+
+        $source->copyTo($target);
+
+        $this->assertFileExists((string)$target);
+
+        FileHelper::deleteFile($target);
+    }
+
+    public function test_copyTo_splFileInfo() : void
+    {
+        $source = FileInfo::factory($this->copySourceFile);
+        $target = FileInfo::factory(new SplFileInfo($this->copyTargetFile));
+
+        $source->copyTo($target);
+
+        $this->assertFileExists((string)$target);
+
+        FileHelper::deleteFile($target);
+    }
+
+    public function test_copyTo_targetIsFolder() : void
+    {
+        $source = FileInfo::factory($this->copySourceFile);
+        $target = FileHelper::getPathInfo(dirname($this->copyTargetFile));
+
+        $this->expectExceptionCode(FileHelper::ERROR_PATH_IS_NOT_A_FILE);
+
+        $source->copyTo($target);
+    }
+    public function test_cache() : void
+    {
+        $info = FileInfo::factory($this->copySourceFile);
+
+        $this->assertSame($info, FileInfo::factory($this->copySourceFile));
+    }
+
+    public function test_clearCache() : void
+    {
+        $info = FileInfo::factory($this->copySourceFile);
+
+        FileInfo::clearCache();
+
+        $this->assertNotSame($info, FileInfo::factory($this->copySourceFile));
+    }
+
+    // endregion
+
+    // region: Support methods
+
+    private string $copySourceFile;
+    private string $copyTargetFile;
+
+    protected function setUp() : void
+    {
+        parent::setUp();
+
+        $this->copySourceFile = __DIR__.'/../../assets/FileHelper/copy-file.txt';
+        $this->copyTargetFile = __DIR__.'/../../assets/FileHelper/copy-file-target.txt';
+    }
+
+    // endregion
 }

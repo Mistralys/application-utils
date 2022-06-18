@@ -53,4 +53,15 @@ class FolderInfoTest extends FileHelperTestCase
         $this->assertFalse(FolderInfo::is_dir('.'));
         $this->assertFalse(FolderInfo::is_dir('..'));
     }
+
+    public function test_saveJSONFile() : void
+    {
+        $info = FolderInfo::factory(__DIR__.'/../../assets/FileHelper/PathInfo');
+
+        $jsonFile = $info->saveJSONFile(array('foo' => 'bar'), 'TestJSON.json');
+
+        $this->assertFileExists($jsonFile->getPath());
+
+        FileHelper::deleteFile($jsonFile);
+    }
 }

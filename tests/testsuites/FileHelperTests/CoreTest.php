@@ -549,45 +549,6 @@ final class CoreTest extends FileHelperTestCase
     }
 
     /**
-     * @see FileHelper::parseSerializedFile()
-     */
-    public function test_parseSerializedFile() : void
-    {
-        $file = $this->assetsFolder . '/serialized.ser';
-
-        $refData = array('key' => 'value', 'utf8' => 'öäüé');
-        $expected = json_encode($refData, JSON_THROW_ON_ERROR);
-
-        $result = FileHelper::parseSerializedFile($file);
-
-        $this->assertEquals($expected, json_encode($result, JSON_THROW_ON_ERROR));
-    }
-
-    /**
-     * @see FileHelper::parseSerializedFile()
-     */
-    public function test_parseSerializedFile_fileNotExists() : void
-    {
-        $file = $this->assetsFolder . '/unknown.ser';
-
-        $this->expectException(FileHelper_Exception::class);
-
-        FileHelper::parseSerializedFile($file);
-    }
-
-    /**
-     * @see FileHelper::parseSerializedFile()
-     */
-    public function test_parseSerializedFile_fileNotUnserializable() : void
-    {
-        $file = $this->assetsFolder . '/serialized-broken.ser';
-
-        $this->expectException(FileHelper_Exception::class);
-
-        FileHelper::parseSerializedFile($file);
-    }
-
-    /**
      * @see FileHelper::cliCommandExists()
      */
     public function test_cliCommandExists() : void
@@ -695,5 +656,12 @@ final class CoreTest extends FileHelperTestCase
         $normalized = FileHelper::requireFolderExists($folder);
 
         $this->assertEquals(FileHelper::normalizePath($folder), $normalized);
+    }
+
+    public function test_isPHPFile() : void
+    {
+        $this->assertTrue(FileHelper::isPHPFile('foo.php'));
+        $this->assertFalse(FileHelper::isPHPFile('bar.txt'));
+        $this->assertFalse(FileHelper::isPHPFile('/path/to/folder'));
     }
 }
