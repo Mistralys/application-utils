@@ -1,3 +1,13 @@
+### v2.0.1 - FileInfo maintenance update
+- FileHelper: Modified file and folder related methods to accept `SplFileInfo` instances.
+- FileHelper: Added `PHPFile`, which extends `FileInfo`.
+- FileHelper: Deprecated `checkPHPFileSyntax()`. Use `PHPFile::checkSyntax()` instead.
+- FileHelper: `JSONFile` now extends `FileInfo`.
+- FileHelper: `SerializedFile` now extends `FileInfo`.
+- FileHelper: The class has been converted to strict typing.
+- Microtime: Added all format character constants in the new class `DateFormatChars`.
+- ConvertHelper: Added case insensitivity to `string2bool()`.
+
 ### v2.0.0 - PHP7.4 and code quality update
 - FileHelper: Removed the deprecated `openUnserialized()` method.
 - StringBuilder: Added `bool()`.
