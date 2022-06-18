@@ -160,7 +160,10 @@ class XMLHelper
 
     public function removeTag(DOMElement $tag) : void
     {
-        $tag->parentNode->removeChild($tag);
+        if(isset($tag->parentNode))
+        {
+            $tag->parentNode->removeChild($tag);
+        }
     }
     
     public function indent(DOMNode $parent, int $amount) : void
