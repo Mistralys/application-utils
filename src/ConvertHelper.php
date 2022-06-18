@@ -9,6 +9,7 @@
 
 namespace AppUtils;
 
+use AppUtils\ConvertHelper\WordSplitter;
 use DateInterval;
 use DateTime;
 
@@ -919,6 +920,11 @@ class ConvertHelper
     public static function string2array(string $string) : array
     {
         return ConvertHelper_String::toArray($string);
+    }
+
+    public static function string2words(string $string) : WordSplitter
+    {
+        return new WordSplitter($string);
     }
     
    /**
