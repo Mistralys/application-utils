@@ -28,13 +28,13 @@ class HTMLHelper
      */
     public static function stripComments(string $html) : string
     {
-        return preg_replace('/<!--(?!<!)[^\[>].*?-->/si', '', $html);
+        return preg_replace('/<!--(?!<!)[^\[>].*?-->/s', '', $html);
     }
 
     /**
      * @var string[]
      */
-    private static $newParaTags = array(
+    private static array $newParaTags = array(
         'ul',
         'ol',
         'iframe',
@@ -69,6 +69,6 @@ class HTMLHelper
             $replace = $text.'</'.$tagName.'>';
         }
 
-        return substr_replace($html, $replace, $pos, strlen($html));
+        return (string)substr_replace($html, $replace, $pos, strlen($html));
     }
 }
