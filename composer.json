@@ -13,17 +13,18 @@
     ],
     "autoload" : 
     {
-        "psr-4" : 
-        {
-            "AppUtils\\" : "src/"
-        },
-        "files" : 
+        "files" :
         [
             "src/functions.php"
         ],
         "classmap" : 
         [
-            "src/",
+            "src/"
+        ]
+    },
+    "autoload-dev":
+    {
+        "classmap": [
             "tests/TestClasses"
         ]
     },
