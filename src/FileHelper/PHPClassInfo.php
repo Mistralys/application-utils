@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\FileHelper\PHPFile;
+
 /**
  * Used to retrieve information on the PHP classes contained
  * within the target PHP file. Does not use the reflection API.
@@ -25,13 +27,8 @@ namespace AppUtils;
  */
 class FileHelper_PHPClassInfo
 {
-    public const ERROR_TARGET_FILE_DOES_NOT_EXIST = 41401;
-
-    /**
-     * @var string
-     */
-    protected $path;
-
+    protected PHPFile $file;
+    protected string $namespace = '';
 
     /**
      * @var array<string,FileHelper_PHPClassInfo_Class>
@@ -39,31 +36,15 @@ class FileHelper_PHPClassInfo
     protected $classes = array();
     
    /**
-    * The namespace detected in the file, if any.
-    * @var string
-    */
-    protected $namespace = '';
-    
-   /**
-    * @param string $path The path to the PHP file to parse.
+    * @param PHPFile $path The path to the PHP file to parse.
     * @throws FileHelper_Exception
     * @see FileHelper::findPHPClasses()
     */
-    public function __construct(string $path)
+    public function __construct(PHPFile $path)
     {
-        $this->path = realpath($path);
-        
-        if($this->path === false)
-        {
-            throw new FileHelper_Exception(
-                'Cannot extract file information: file not found.',
-                sprintf(
-                    'Tried analyzing file at [%s].',
-                    $path
-                ),
-                self::ERROR_TARGET_FILE_DOES_NOT_EXIST
-            );
-        }
+        $this->file = $path
+            ->requireExists()
+            ->requireReadable();
         
         $this->parseFile();
     }
@@ -92,7 +73,7 @@ class FileHelper_PHPClassInfo
     */
     public function getPath() : string
     {
-        return $this->path;
+        return $this->file->getPath();
     }
    
    /**
@@ -127,18 +108,18 @@ class FileHelper_PHPClassInfo
     
     protected function parseFile() : void
     {
-        $code = php_strip_whitespace($this->path);
+        $code = php_strip_whitespace($this->getPath());
 
         $result = array();
-        preg_match_all('/namespace[\s]+([^;]+);/six', $code, $result, PREG_PATTERN_ORDER);
-        if(isset($result[0]) && isset($result[0][0])) {
+        preg_match_all('/namespace\s+([^;]+);/ix', $code, $result, PREG_PATTERN_ORDER);
+        if(isset($result[0][0])) {
             $this->namespace = trim($result[1][0]);
         }
         
         $result = array();
-        preg_match_all('/(abstract|final)[\s]+(class|trait)[\s]+([\sa-z0-9\\\\_,]+){|(class|trait)[\s]+([\sa-z0-9\\\\_,]+){/six', $code, $result, PREG_PATTERN_ORDER);
+        preg_match_all('/(abstract|final)\s+(class|trait)\s+([\sa-z\d\\\\_,]+){|(class|trait)\s+([\sa-z\d\\\\_,]+){/ix', $code, $result, PREG_PATTERN_ORDER);
 
-        if(!isset($result[0]) || !isset($result[0][0])) {
+        if(!isset($result[0][0])) {
             return;
         }
         
@@ -174,6 +155,6 @@ class FileHelper_PHPClassInfo
     */
     protected function stripWhitespace(string $string) : string 
     {
-        return preg_replace('/[\s]/', ' ', $string);
+        return preg_replace('/\s/', ' ', $string);
     }
 }
