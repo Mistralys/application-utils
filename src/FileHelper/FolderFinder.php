@@ -8,6 +8,7 @@ use AppUtils\FileHelper;
 use AppUtils\Interface_Optionable;
 use AppUtils\Traits_Optionable;
 use DirectoryIterator;
+use SplFileInfo;
 
 class FolderFinder implements Interface_Optionable
 {
@@ -24,7 +25,7 @@ class FolderFinder implements Interface_Optionable
     private array $folders;
 
     /**
-     * @param string|DirectoryIterator|FolderInfo $path
+     * @param string|SplFileInfo|FolderInfo $path
      */
     public function __construct($path)
     {
