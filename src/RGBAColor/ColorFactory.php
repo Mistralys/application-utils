@@ -233,7 +233,8 @@ class ColorFactory
             ColorChannel::eightBit($red),
             ColorChannel::eightBit($green),
             ColorChannel::eightBit($blue),
-            ColorChannel::decimal($opacity)
+            ColorChannel::decimal($opacity),
+            $name
         );
     }
 
