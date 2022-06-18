@@ -45,7 +45,7 @@ class FolderTree
         }
         catch (FileHelper_Exception $e)
         {
-
+            // Ignore the exception, since we're returning false instead.
         }
 
         return false;
