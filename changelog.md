@@ -8,7 +8,7 @@
 - Microtime: Added all format character constants in the new class `DateFormatChars`.
 - ConvertHelper: Added case insensitivity to `string2bool()`.
 - ConvertHelper: Added `string2words()`, using the new `WordSplitter` class.
-- LipsumHelper: Added the helper, with a lipsum dummy text detection tool.
+- LipsumHelper: Added the helper, with a lipsum dummy text detection tool (#7).
 
 ### v2.0.0 - PHP7.4 and code quality update
 - FileHelper: Removed the deprecated `openUnserialized()` method.
