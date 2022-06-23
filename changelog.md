@@ -5,6 +5,7 @@
 - FileHelper: `JSONFile` now extends `FileInfo`.
 - FileHelper: `SerializedFile` now extends `FileInfo`.
 - FileHelper: The class has been converted to strict typing.
+- FileHelper: Fixed `FileInfo` throwing an exception when cast to string on not existing files.
 - Microtime: Added all format character constants in the new class `DateFormatChars`.
 - ConvertHelper: Added case insensitivity to `string2bool()`.
 - ConvertHelper: Added `string2words()`, using the new `WordSplitter` class.

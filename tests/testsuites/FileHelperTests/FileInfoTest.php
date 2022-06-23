@@ -6,6 +6,7 @@ namespace FileHelperTests;
 
 use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
+use AppUtils\FileHelper_Exception;
 use SplFileInfo;
 use TestClasses\FileHelperTestCase;
 
@@ -38,6 +39,21 @@ class FileInfoTest extends FileHelperTestCase
         $this->assertSame('ext', $info->getExtension());
         $this->assertSame('unknown-file.ext', $info->getName());
         $this->assertSame('unknown-file', $info->removeExtension());
+    }
+
+    /**
+     * Added because of a bug, where a file that did not exist
+     * would throw a file not found exception when casting the
+     * instance to string.
+     *
+     * @return void
+     * @throws FileHelper_Exception
+     */
+    public function test_notExistsToString() : void
+    {
+        $info = FileInfo::factory('unknown-file.ext');
+
+        $this->assertSame('unknown-file.ext', (string)$info);
     }
 
     public function test_getExtensionOnlyExtension() : void
