@@ -35,24 +35,22 @@ class ClassHelper
      * and namespaces.
      *
      * @param string $legacyName
+     * @param string $nsPrefix Optional namespace prefix, if the namespace contains
+     *                         the vendor name, for example (Vendor\PackageName\Folder\Class).
      * @return string|null The detected class name, or NULL otherwise.
      */
-    public static function resolveClassName(string $legacyName) : ?string
+    public static function resolveClassName(string $legacyName, string $nsPrefix='') : ?string
     {
-        // Handle cases where we have a mix of styles because of
-        // get_class() used to build a class name.
-        $legacyName = str_replace('\\', '_', $legacyName);
+        $names = array(
+            str_replace('\\', '_', $legacyName),
+            str_replace('_', '\\', $legacyName),
+            $nsPrefix.'\\'.str_replace('_', '\\', $legacyName)
+        );
 
-        if(class_exists($legacyName))
-        {
-            return $legacyName;
-        }
-
-        $nameNS = str_replace('_', '\\', $legacyName);
-
-        if(class_exists($nameNS))
-        {
-            return ltrim($nameNS, '\\');
+        foreach($names as $name) {
+            if (class_exists($name)) {
+                return ltrim($name, '\\');
+            }
         }
 
         return null;
@@ -63,12 +61,14 @@ class ClassHelper
      * if the class can not be found.
      *
      * @param string $legacyName
+     * @param string $nsPrefix Optional namespace prefix, if the namespace contains
+     *                         the vendor name, for example (Vendor\PackageName\Folder\Class).
      * @return string
      * @throws ClassNotExistsException
      */
-    public static function requireResolvedClass(string $legacyName) : string
+    public static function requireResolvedClass(string $legacyName, string $nsPrefix='') : string
     {
-        $class = self::resolveClassName($legacyName);
+        $class = self::resolveClassName($legacyName, $nsPrefix);
 
         if($class !== null)
         {
