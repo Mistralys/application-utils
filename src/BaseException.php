@@ -31,7 +31,7 @@ class BaseException extends Exception
     * @param int|NULL $code
     * @param Throwable|NULL $previous
     */
-    public function __construct(string $message, ?string $details=null, $code=null, $previous=null)
+    public function __construct(string $message, ?string $details=null, ?int $code=null, ?Throwable $previous=null)
     {
         if(defined('APP_UTILS_TESTSUITE') && APP_UTILS_TESTSUITE === 'true')
         {
@@ -43,7 +43,7 @@ class BaseException extends Exception
              $code = 0;
         }
 
-        parent::__construct($message, $code, $previous);
+        parent::__construct($message, (int)$code, $previous);
         
         $this->details = $details;
     }
