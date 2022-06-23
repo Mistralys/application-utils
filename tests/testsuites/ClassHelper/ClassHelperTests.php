@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace testsuites;
 
 use AppUtils\ClassHelper;
+use AppUtils\ClassHelper\BaseClassHelperException;
 use AppUtils\ClassHelper\ClassNotExistsException;
 use AppUtils\ClassHelper\ClassNotImplementsException;
 use stdClass;
@@ -46,6 +47,11 @@ final class ClassHelperTests extends TestCase
         $this->assertSame(
             stdClass::class,
             ClassHelper::resolveClassName('\stdClass')
+        );
+
+        $this->assertSame(
+            BaseClassHelperException::class,
+            ClassHelper::resolveClassName('ClassHelper\BaseClassHelperException', 'AppUtils')
         );
     }
 
