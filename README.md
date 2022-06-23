@@ -95,6 +95,7 @@ ConvertHelper for example have many static methods not shown here.
     - [ThrowableInfo][]: Exception analysis tool for debugging, and persisting them to storage.
     - [URLFinder][]: Allows detecting URLs in a string.
     - WordWrapper: Intelligently wrap text to a specific length.
+* ClassHelper: Static analysis-friendly class loading methods and Composer `ClassLoader` access. 
 * CSVHelper: Read and generate CSV files.
 * Highlighter: Syntax highlighting using GeSHi, as well as some custom variants.
 * JSHelper: generate JavaScript statements from PHP with automatic PHP > JS conversion of variables.
@@ -107,7 +108,7 @@ ConvertHelper for example have many static methods not shown here.
     - [HTMLTag][]: Object-Oriented HTML tag generation.
     - AttributeCollection: Collection class for attributes (HTML or other).
 * ImageHelper: Image manipulation using native GD functions with alpha support.
-    - RGBAColor: Color container class with alpha channel support. 
+    - [RGBAColor][]: Color container class with alpha channel support. 
 * [IniHelper][]: INI file reader and editor.
 * [Microtime][]: `DateTime` class with microseconds support and friendly methods interface.
 * [NamedClosure][]: Wrapper for closures with the possibility to add a description.  
@@ -178,3 +179,4 @@ and being modernized.
 [OutputBuffering]: https://github.com/Mistralys/application-utils/wiki/OutputBuffering
 [Microtime]: https://github.com/Mistralys/application-utils/wiki/Microtime
 [HTMLTag]: https://github.com/Mistralys/application-utils/wiki/HTMLTag
+[RGBAColor]: https://github.com/Mistralys/application-utils/wiki/RGBAColor
