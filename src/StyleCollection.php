@@ -145,17 +145,17 @@ class StyleCollection implements Interface_Stringable
         return $this->style($name, $px.'px', $important);
     }
 
-    public function stylePercent(string $name, float $percent, bool $important) : StyleCollection
+    public function stylePercent(string $name, float $percent, bool $important=false) : StyleCollection
     {
         return $this->style($name, $percent.'%', $important);
     }
 
-    public function styleEM(string $name, float $em, bool $important) : StyleCollection
+    public function styleEM(string $name, float $em, bool $important=false) : StyleCollection
     {
         return $this->style($name, $em.'em', $important);
     }
 
-    public function styleREM(string $name, float $em, bool $important) : StyleCollection
+    public function styleREM(string $name, float $em, bool $important=false) : StyleCollection
     {
         return $this->style($name, $em.'rem', $important);
     }
