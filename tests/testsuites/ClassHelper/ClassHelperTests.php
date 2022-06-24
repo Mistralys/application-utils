@@ -115,4 +115,45 @@ final class ClassHelperTests extends TestCase
             new ExampleClass()
         );
     }
+
+    public function test_getClassTypeName() : void
+    {
+        $this->assertSame(
+            'Namespace',
+            ClassHelper::getClassTypeName('Class\With\Namespace')
+        );
+
+        $this->assertSame(
+            'Underscores',
+            ClassHelper::getClassTypeName('Class_Name_With_Underscores')
+        );
+
+        $this->assertSame(
+            'ClassName',
+            ClassHelper::getClassTypeName('ClassName')
+        );
+    }
+
+    public function test_getClassNamespace() : void
+    {
+        $this->assertSame(
+            '',
+            ClassHelper::getClassNamespace('ClassName')
+        );
+
+        $this->assertSame(
+            'AppUtils',
+            ClassHelper::getClassNamespace('AppUtils\ClassName')
+        );
+
+        $this->assertSame(
+            'AppUtils',
+            ClassHelper::getClassNamespace('\AppUtils\ClassName')
+        );
+
+        $this->assertSame(
+            'Mistralys\AppUtils',
+            ClassHelper::getClassNamespace('Mistralys\AppUtils\ClassName')
+        );
+    }
 }
