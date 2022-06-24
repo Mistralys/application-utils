@@ -200,4 +200,50 @@ class ClassHelper
 
         return self::$classLoader;
     }
+
+    /**
+     * Gets the last part in a class name, e.g.:
+     *
+     * - `Class_Name_With_Underscores` -> `Underscores`
+     * - `Class\With\Namespace` -> `Namespace`
+     *
+     * @param class-string|object $subject
+     * @return string
+     */
+    public static function getClassTypeName($subject) : string
+    {
+        $parts = self::splitClass($subject);
+        return array_pop($parts);
+    }
+
+    /**
+     * Retrieves the namespace part of a class name, if any.
+     *
+     * @param class-string|object $subject
+     * @return string
+     */
+    public static function getClassNamespace($subject) : string
+    {
+        $parts = self::splitClass($subject);
+        array_pop($parts);
+
+        return ltrim(implode('\\', $parts), '\\');
+    }
+
+    /**
+     * @param class-string|object $subject
+     * @return string[]
+     */
+    private static function splitClass($subject) : array
+    {
+        if(is_object($subject)) {
+            $class = get_class($subject);
+        } else {
+            $class = $subject;
+        }
+
+        $class = str_replace('\\', '_', $class);
+
+        return explode('_', $class);
+    }
 }
