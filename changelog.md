@@ -1,6 +1,6 @@
-### v2.0.2 - Maintenance release
+### v2.1.0 - Class helper release
+- ClassHelper: Added the new `ClassHelper` static class to help with class loading.
 - StyleCollection: Fixed mandatory `$important` parameter on `styleREM()`.
-- ClassHelper: Added the new `ClassHelper` static class to help with class loading. 
 
 ### v2.0.1 - FileInfo maintenance update
 - FileHelper: Modified file and folder related methods to accept `SplFileInfo` instances.
