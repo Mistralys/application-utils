@@ -13,6 +13,7 @@ use AppUtils\ClassHelper\ClassLoaderNotFoundException;
 use AppUtils\ClassHelper\ClassNotExistsException;
 use AppUtils\ClassHelper\ClassNotImplementsException;
 use Composer\Autoload\ClassLoader;
+use Throwable;
 
 /**
  * Helper class to simplify working with dynamic class loading,
@@ -127,6 +128,10 @@ class ClassHelper
      * If the target object is not an instance of the target class
      * or interface, throws an exception.
      *
+     * NOTE: If an exception is passed as object, it is thrown.
+     * As a result, Throwable instances can not be checked with this
+     * method.
+     *
      * @template ClassInstanceType
      * @param class-string<ClassInstanceType> $class
      * @param object $object
@@ -135,9 +140,15 @@ class ClassHelper
      *
      * @throws ClassNotExistsException
      * @throws ClassNotImplementsException
+     * @throws Throwable
      */
     public static function requireObjectInstanceOf(string $class, object $object, int $errorCode=0)
     {
+        if($object instanceof Throwable)
+        {
+            throw $object;
+        }
+
         if(!class_exists($class) && !interface_exists($class) && !trait_exists($class))
         {
             throw new ClassNotExistsException($class, $errorCode);
