@@ -117,7 +117,7 @@ class FileHelper_PHPClassInfo
         }
         
         $result = array();
-        preg_match_all('/(abstract|final)\s+(class|trait)\s+([\sa-z\d\\\\_,]+){|(class|trait)\s+([\sa-z\d\\\\_,]+){/ix', $code, $result, PREG_PATTERN_ORDER);
+        preg_match_all('/(abstract|final)\s+(class|trait|interface)\s+([\sa-z\d\\\\_,]+){|(class|trait|interface)\s+([\sa-z\d\\\\_,]+){/ix', $code, $result, PREG_PATTERN_ORDER);
 
         if(!isset($result[0][0])) {
             return;
