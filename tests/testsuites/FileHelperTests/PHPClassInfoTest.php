@@ -44,6 +44,26 @@ final class PHPClassInfoTest extends TestCase
                 'classes' => array(),
             ),
             array(
+                'label' => 'Interfaces',
+                'file' => 'interface',
+                'classes' => array(
+                    'ExampleTestInterface' => array(
+                        'name' => 'ExampleTestInterface',
+                        'extends' => '',
+                        'implements' => array(),
+                        'declaration' => 'interface ExampleTestInterface',
+                        'isInterface' => true
+                    ),
+                    'ExampleExtendsInterface' => array(
+                        'name' => 'ExampleExtendsInterface',
+                        'extends' => 'ExampleTestInterface',
+                        'implements' => array(),
+                        'declaration' => 'interface ExampleExtendsInterface extends ExampleTestInterface',
+                        'isInterface' => true
+                    )
+                ),
+            ),
+            array(
                 'label' => 'A single class',
                 'file' => 'single-class',
                 'classes' => array(
@@ -51,7 +71,8 @@ final class PHPClassInfoTest extends TestCase
                         'name' => 'SingleClass',
                         'extends' => '',
                         'implements' => array(),
-                        'declaration' => 'class SingleClass'
+                        'declaration' => 'class SingleClass',
+                        'isClass' => true
                     )
                 ),
             ),
@@ -63,7 +84,8 @@ final class PHPClassInfoTest extends TestCase
                         'name' => 'SingleClassExtended',
                         'extends' => 'FooClass',
                         'implements' => array(),
-                        'declaration' => 'class SingleClassExtended extends FooClass'
+                        'declaration' => 'class SingleClassExtended extends FooClass',
+                        'isClass' => true
                     )
                 ),
             ),
@@ -87,7 +109,8 @@ final class PHPClassInfoTest extends TestCase
                         'name' => 'SingleClass',
                         'extends' => '',
                         'implements' => array(),
-                        'declaration' => 'class SingleClass'
+                        'declaration' => 'class SingleClass',
+                        'isClass' => true
                     )
                 ),
             ),
@@ -123,7 +146,8 @@ final class PHPClassInfoTest extends TestCase
                         'name' => 'SupahTrait',
                         'extends' => '',
                         'implements' => array(),
-                        'declaration' => 'trait SupahTrait'
+                        'declaration' => 'trait SupahTrait',
+                        'isTrait' => true
                     )
                 ),
             ),
@@ -203,6 +227,18 @@ final class PHPClassInfoTest extends TestCase
             $this->assertEquals($def['extends'], $class->getExtends(), $test['label']);
             $this->assertEquals($def['implements'], $class->getImplements(), $test['label']);
             $this->assertEquals($def['declaration'], $class->getDeclaration(), $test['label']);
+
+            if(isset($test['isTrait'])) {
+                $this->assertSame($test['isTrait'], $class->isTrait());
+            }
+
+            if(isset($test['isClass'])) {
+                $this->assertSame($test['isClass'], $class->isClass());
+            }
+
+            if(isset($test['isInterface'])) {
+                $this->assertSame($test['isInterface'], $class->isInterface());
+            }
         }
     }
 }
