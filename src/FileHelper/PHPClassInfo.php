@@ -27,14 +27,27 @@ use AppUtils\FileHelper\PHPFile;
  */
 class FileHelper_PHPClassInfo
 {
+    public const TYPE_CLASS = 'class';
+    public const TYPE_TRAIT = 'trait';
+    public const TYPE_INTERFACE = 'interface';
+
     protected PHPFile $file;
     protected string $namespace = '';
 
     /**
      * @var array<string,FileHelper_PHPClassInfo_Class>
      */
-    protected $classes = array();
-    
+    protected array $classes = array();
+
+    /**
+     * @var string[]
+     */
+    private static array $types = array(
+        self::TYPE_CLASS,
+        self::TYPE_INTERFACE,
+        self::TYPE_TRAIT
+    );
+
    /**
     * @param PHPFile $path The path to the PHP file to parse.
     * @throws FileHelper_Exception
@@ -105,21 +118,15 @@ class FileHelper_PHPClassInfo
     {
         return array_values($this->classes);
     }
-    
+
     protected function parseFile() : void
     {
         $code = php_strip_whitespace($this->getPath());
 
-        $result = array();
-        preg_match_all('/namespace\s+([^;]+);/ix', $code, $result, PREG_PATTERN_ORDER);
-        if(isset($result[0][0])) {
-            $this->namespace = trim($result[1][0]);
-        }
-        
-        $result = array();
-        preg_match_all('/(abstract|final)\s+(class|trait|interface)\s+([\sa-z\d\\\\_,]+){|(class|trait|interface)\s+([\sa-z\d\\\\_,]+){/ix', $code, $result, PREG_PATTERN_ORDER);
+        $this->detectNamespace($code);
+        $result = $this->detectMatches($code);
 
-        if(!isset($result[0][0])) {
+        if($result === null) {
             return;
         }
         
@@ -127,23 +134,55 @@ class FileHelper_PHPClassInfo
         
         foreach($indexes as $idx)
         {
-            $keyword = $result[1][$idx];
-            $declaration = $result[3][$idx];
-            $type = $result[2][$idx];
-            if(empty($keyword)) {
-                $type = $result[4][$idx];
-                $declaration = $result[5][$idx];
-            }
-            
-            $class = new FileHelper_PHPClassInfo_Class(
-                $this, 
-                $this->stripWhitespace($declaration), 
-                trim($keyword),
-                $type
+            $this->parseResult(
+                $result[1][$idx],
+                $result[3][$idx],
+                $result[2][$idx],
+                $result[4][$idx],
+                $result[5][$idx]
             );
-            
-            $this->classes[$class->getNameNS()] = $class;
         }
+    }
+
+    private function detectMatches(string $code) : ?array
+    {
+        $types = implode('|', self::$types);
+        $result = array();
+
+        preg_match_all('/(abstract|final)\s+('.$types.')\s+([\sa-z\d\\\\_,]+){|('.$types.')\s+([\sa-z\d\\\\_,]+){/ix', $code, $result, PREG_PATTERN_ORDER);
+
+        if(isset($result[0][0])) {
+            return $result;
+        }
+
+        return null;
+    }
+
+    private function detectNamespace(string $code) : void
+    {
+        $result = array();
+        preg_match_all('/namespace\s+([^;]+);/ix', $code, $result, PREG_PATTERN_ORDER);
+
+        if(isset($result[0][0])) {
+            $this->namespace = trim($result[1][0]);
+        }
+    }
+
+    private function parseResult(string $keyword, string $declaration, string $type, string $simpleType, string $simpleDeclaration) : void
+    {
+        if(empty($keyword)) {
+            $type = $simpleType;
+            $declaration = $simpleDeclaration;
+        }
+
+        $class = new FileHelper_PHPClassInfo_Class(
+            $this,
+            $this->stripWhitespace($declaration),
+            trim($keyword),
+            $type
+        );
+
+        $this->classes[$class->getNameNS()] = $class;
     }
 
    /**
