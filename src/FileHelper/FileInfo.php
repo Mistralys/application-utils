@@ -144,6 +144,17 @@ class FileInfo extends AbstractPathInfo
         return implode('/', $parts);
     }
 
+    /**
+     * Gets the file name without extension.
+     * @return string
+     *
+     * @see FileInfo::removeExtension()
+     */
+    public function getBaseName() : string
+    {
+        return $this->removeExtension();
+    }
+
     public function getExtension(bool $lowercase=true) : string
     {
         $ext = (string)pathinfo($this->path, PATHINFO_EXTENSION);
