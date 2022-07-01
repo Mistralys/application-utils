@@ -190,7 +190,17 @@ class FileHelper_PHPClassInfo_Class
 
     public function isTrait() : bool
     {
-        return $this->type === 'trait';
+        return $this->type === FileHelper_PHPClassInfo::TYPE_TRAIT;
+    }
+
+    public function isClass() : bool
+    {
+        return $this->type === FileHelper_PHPClassInfo::TYPE_CLASS;
+    }
+
+    public function isInterface() : bool
+    {
+        return $this->type === FileHelper_PHPClassInfo::TYPE_INTERFACE;
     }
 
     protected function analyzeCode() : void
