@@ -41,6 +41,7 @@ abstract class AbstractPathInfo implements PathInfoInterface, Interface_Stringab
     }
 
     /**
+     * The full path to the file/folder.
      * @return string
      */
     public function getPath() : string
@@ -51,6 +52,10 @@ abstract class AbstractPathInfo implements PathInfoInterface, Interface_Stringab
     /**
      * Gets the file name without path, e.g. "filename.txt",
      * or the folder name if it's a folder.
+     *
+     * NOTE: This includes the file extension. To get a
+     * file's base name, get a file info instance, and use
+     * {@see FileInfo::getBaseName()}.
      *
      * @return string
      */
@@ -85,6 +90,7 @@ abstract class AbstractPathInfo implements PathInfoInterface, Interface_Stringab
     }
 
     /**
+     * The real path without symlinks to the file/folder.
      * @return string
      *
      * @throws FileHelper_Exception
