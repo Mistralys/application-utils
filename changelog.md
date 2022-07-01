@@ -1,3 +1,8 @@
+### v2.1.1 - Maintenance release
+- PHPClassInfo: Added support for detecting interfaces.
+- PHPClassInfo: Added `isInterface()` and `isClass()` to individual results.
+- FileInfo: Added `getBaseName()` to get the file name without extension.
+
 ### v2.1.0 - Class helper release
 - ClassHelper: Added the new `ClassHelper` static class to help with class loading.
 - StyleCollection: Fixed mandatory `$important` parameter on `styleREM()`.
