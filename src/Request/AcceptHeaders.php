@@ -11,8 +11,10 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\Request\AcceptHeader;
+
 /**
- * Accept header parser: fetches the accept header string
+ * Accept header parser: fetches the "Accept" header string
  * and splits it into its composing mime types.
  *
  * @package Application Utils
@@ -21,7 +23,10 @@ namespace AppUtils;
  */
 class Request_AcceptHeaders
 {
-    protected $headers = array();
+    /**
+     * @var AcceptHeader[]
+     */
+    protected array $headers = array();
     
     public function __construct()
     {
@@ -41,6 +46,8 @@ class Request_AcceptHeaders
     *     'image/webp'
     *     ...
     * )
+    *
+    * @return string[]
     */
     public function getMimeStrings() : array
     {
@@ -48,14 +55,14 @@ class Request_AcceptHeaders
         
         foreach($this->headers as $header)
         {
-            $result[] = $header['type'];
+            $result[] = $header->getMimeType();
         }
         
         return $result;
     }
     
    /**
-    * Checks that an accept header string exists, and tries to parse it.
+    * Checks that an "Accept" header string exists, and tries to parse it.
     */
     protected function parse() : void
     {
@@ -69,9 +76,10 @@ class Request_AcceptHeaders
     }
     
    /**
-    * Splits the accept header string and parses the mime types.
+    * Splits the "Accept" header string and parses the mime types.
     *  
-    * @param string $acceptHeader 
+    * @param string $acceptHeader
+    * @return AcceptHeader[]
     */
     protected function parseHeader(string $acceptHeader) : array
     {
@@ -92,66 +100,65 @@ class Request_AcceptHeaders
    /**
     * Parses a single mime type entry.
     * 
-    * @param int $i The position in the accept string
+    * @param int $i The position in the "Accept" string
     * @param string $mime The mime type
-    * @return array
+    * @return AcceptHeader
     */
-    protected function parseEntry(int $i, string $mime) : array
+    protected function parseEntry(int $i, string $mime) : AcceptHeader
     {
-        $entry = array(
-            'pos' => $i,
-            'params' => array(),
-            'quality' => 0,
-            'type' => null
-        );
+        $quality = 0;
+        $params = array();
         
-        if(strstr($mime, ';'))
+        if(strpos($mime, ';') !== false)
         {
             $parts = explode(';', $mime);
-            $mime = array_shift($parts);
+            $mime = (string)array_shift($parts);
             
             // several parameters are possible, and they can be parsed
-            // like an URL query string if separated by ampersands;
-            $entry['params'] = ConvertHelper::parseQueryString(implode('&', $parts));
+            // like a URL query string if separated by ampersands;
+            $params = ConvertHelper::parseQueryString(implode('&', $parts));
                 
-            if(isset($entry['params']['q'])) 
+            if(isset($params['q']))
             {
-                $entry['quality'] = (double)$entry['params']['q'];
+                $quality = (double)$params['q'];
             } 
         }
         
-        $entry['type'] = $mime;
-        
-        return $entry;
+        return new AcceptHeader(
+            $mime,
+            $i,
+            $params,
+            $quality
+        );
     }
-    
-   /**
-    * Sorts the mime types collection, first by quality
-    * and then by position in the list.
-    * 
-    * @param array $a
-    * @param array $b
-    * @return number
-    */
-    protected function sortMimeTypes(array $a, array $b)
+
+    /**
+     * Sorts the mime types collection, first by quality
+     * and then by position in the list.
+     *
+     * @param AcceptHeader $a
+     * @param AcceptHeader $b
+     * @return int
+     */
+    protected function sortMimeTypes(AcceptHeader $a, AcceptHeader $b) : int
     {
         /* first tier: highest q factor wins */
-        $diff = $b['quality'] - $a['quality'];
+        $diff = $b->getQuality() - $a->getQuality();
         
         if ($diff > 0) 
         {
             $diff = 1;
         } 
-        else 
+        else
         {
-            if ($diff < 0) 
+            if ($diff < 0)
             {
                 $diff = -1;
-            } 
-            else 
+            }
+            else
             {
                 /* tie-breaker: first listed item wins */
-                $diff = $a['pos'] - $b['pos'];
+                $diff = $a->getPosition() - $b->getPosition();
             }
         }
         
