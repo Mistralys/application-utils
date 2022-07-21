@@ -1,3 +1,6 @@
+### v2.1.2 - Maintenance release
+- ClassHelper: Better handling of exceptions passed to `requireObjectInstanceOf()`.
+
 ### v2.1.1 - Maintenance release
 - PHPClassInfo: Added support for detecting interfaces.
 - PHPClassInfo: Added `isInterface()` and `isClass()` to individual results.
