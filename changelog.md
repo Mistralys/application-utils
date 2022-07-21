@@ -3,6 +3,7 @@
 - PHPClassInfo: Added `isInterface()` and `isClass()` to individual results.
 - FileInfo: Added `getBaseName()` to get the file name without extension.
 - ClassHelper: Now throwing exceptions passed to `requireObjectInstanceOf`.
+- RequestHelper: Added the `AcceptHeader` class for individual headers.
 
 ### v2.1.0 - Class helper release
 - ClassHelper: Added the new `ClassHelper` static class to help with class loading.
