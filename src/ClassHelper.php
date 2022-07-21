@@ -29,6 +29,7 @@ class ClassHelper
     private static ?ClassLoader $classLoader = null;
 
     public const ERROR_CANNOT_RESOLVE_CLASS_NAME = 111001;
+    public const ERROR_THROWABLE_GIVEN_AS_OBJECT = 111002;
 
     /**
      * Attempts to detect the name of a class, switching between
@@ -128,9 +129,9 @@ class ClassHelper
      * If the target object is not an instance of the target class
      * or interface, throws an exception.
      *
-     * NOTE: If an exception is passed as object, it is thrown.
-     * As a result, Throwable instances can not be checked with this
-     * method.
+     * NOTE: If an exception is passed as object, a class helper
+     * exception is thrown with the error code {@see ClassHelper::ERROR_THROWABLE_GIVEN_AS_OBJECT},
+     * and the original exception as previous exception.
      *
      * @template ClassInstanceType
      * @param class-string<ClassInstanceType> $class
@@ -140,13 +141,16 @@ class ClassHelper
      *
      * @throws ClassNotExistsException
      * @throws ClassNotImplementsException
-     * @throws Throwable
      */
     public static function requireObjectInstanceOf(string $class, object $object, int $errorCode=0)
     {
         if($object instanceof Throwable)
         {
-            throw $object;
+            throw new ClassNotExistsException(
+                $class,
+                self::ERROR_THROWABLE_GIVEN_AS_OBJECT,
+                $object
+            );
         }
 
         if(!class_exists($class) && !interface_exists($class) && !trait_exists($class))
