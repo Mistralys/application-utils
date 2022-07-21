@@ -9,7 +9,7 @@
  */
 
    /**
-    * @var array $data
+    * @var array<string,array<mixed>> $data
     */
     $data = array(
         'request' => $_REQUEST,
@@ -23,4 +23,4 @@
     
     header('Content-Type:application/json');
     
-    echo json_encode($data, JSON_PRETTY_PRINT);
+    echo json_encode($data, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);

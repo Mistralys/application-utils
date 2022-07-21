@@ -18,6 +18,9 @@ namespace AppUtils\LipsumHelper;
  */
 class LipsumDetector
 {
+    /**
+     * @var string[]
+     */
     private static array $words = array(
         'exercitationem',
         'reprehenderit',
@@ -169,6 +172,9 @@ class LipsumDetector
         return $this->count >= $this->minWords;
     }
 
+    /**
+     * @return string[]
+     */
     public function getDetectedWords() : array
     {
         $this->detect();

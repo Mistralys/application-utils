@@ -12,7 +12,7 @@ declare(strict_types=1);
 namespace AppUtils;
 
 /**
- * Handles normalizing an URL.
+ * Handles normalizing a URL.
  *
  * @package Application Utils
  * @subpackage URLInfo
@@ -20,12 +20,8 @@ namespace AppUtils;
  */
 class URLInfo_Normalizer
 {
-    /**
-     * @var URLInfo
-     */
-    protected $info;
-    
-    protected $auth = true;
+    protected URLInfo $info;
+    protected bool $auth = true;
     
     public function __construct(URLInfo $info)
     {
@@ -86,7 +82,7 @@ class URLInfo_Normalizer
     
     protected function renderAuth(string $normalized) : string
     {
-        if(!$this->info->hasUsername() || !$this->auth) {
+        if(!$this->auth || !$this->info->hasUsername()) {
             return $normalized;
         }
          

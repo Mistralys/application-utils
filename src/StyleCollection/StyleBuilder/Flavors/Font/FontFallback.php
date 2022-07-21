@@ -13,7 +13,7 @@ class FontFallback extends StyleContainer
     /**
      * @var string[]
      */
-    private $fonts;
+    private array $fonts;
 
     /**
      * @param StyleBuilder $styles
@@ -37,6 +37,10 @@ class FontFallback extends StyleContainer
         return $this->setStyle(implode(', ', $this->renderFonts($fallback)), $important);
     }
 
+    /**
+     * @param string $fallback
+     * @return string[]
+     */
     private function renderFonts(string $fallback) : array
     {
         $fonts = $this->fonts;

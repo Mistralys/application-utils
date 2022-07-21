@@ -28,11 +28,11 @@ class FontFamily extends StyleContainer
     /**
      * @var string[]
      */
-    private $fonts = array();
+    private array $fonts = array();
 
     private function addFont(string $name) : FontFamily
     {
-        if(!in_array($name, $this->fonts))
+        if(!in_array($name, $this->fonts, true))
         {
             $this->fonts[] = $name;
         }
@@ -40,6 +40,9 @@ class FontFamily extends StyleContainer
         return $this;
     }
 
+    /**
+     * @return string[]
+     */
     public function getFonts() : array
     {
         return $this->fonts;

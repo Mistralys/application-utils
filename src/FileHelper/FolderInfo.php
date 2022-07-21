@@ -190,6 +190,13 @@ class FolderInfo extends AbstractPathInfo
         return FileHelper::saveFile($this.'/'.$fileName, $content);
     }
 
+    /**
+     * @param array<mixed> $data
+     * @param string $fileName
+     * @param bool $pretty
+     * @return JSONFile
+     * @throws FileHelper_Exception
+     */
     public function saveJSONFile(array $data, string $fileName, bool $pretty=false) : JSONFile
     {
         return FileHelper::saveAsJSON($data, $this.'/'.$fileName, $pretty);

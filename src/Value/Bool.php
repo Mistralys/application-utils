@@ -19,7 +19,7 @@ namespace AppUtils;
  */
 class Value_Bool extends Value
 {
-    protected $value = false;
+    protected bool $value = false;
     
     public function __construct(bool $value=false)
     {

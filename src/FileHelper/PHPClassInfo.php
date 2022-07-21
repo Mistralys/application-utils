@@ -144,6 +144,10 @@ class FileHelper_PHPClassInfo
         }
     }
 
+    /**
+     * @param string $code
+     * @return array<int,array<int,string>>|null
+     */
     private function detectMatches(string $code) : ?array
     {
         $types = implode('|', self::$types);

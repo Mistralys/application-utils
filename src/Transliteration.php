@@ -77,8 +77,10 @@ class Transliteration implements Interface_Optionable
     public function convert(string $string) : string
     {
         $space = $this->getStringOption(self::OPTION_SPACE_CHARACTER);
-        
+
         $result = str_replace(array_keys(self::$charTable), array_values(self::$charTable), $string);
+
+        // Must be done after the first replacement, to clean up the underscores.
         $result = str_replace('_', $space, $result);
 
         $regex = '/\A[a-zA-Z0-9_%s]+\Z/';
@@ -116,9 +118,9 @@ class Transliteration implements Interface_Optionable
      * The full character table with all ascii equivalents of
      * strings.
      *
-     * @var array
+     * @var array<string,string>
      */
-    protected static $charTable = array(
+    protected static array $charTable = array(
         '°' => '',
         'º' => '',
         '§' => '',

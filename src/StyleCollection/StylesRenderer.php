@@ -8,15 +8,8 @@ use AppUtils\StyleCollection;
 
 class StylesRenderer
 {
-    /**
-     * @var StyleCollection
-     */
-    private $collection;
-
-    /**
-     * @var StyleOptions
-     */
-    private $options;
+    private StyleCollection $collection;
+    private StyleOptions $options;
 
     public function __construct(StyleCollection $collection)
     {
@@ -79,6 +72,9 @@ class StylesRenderer
         return '';
     }
 
+    /**
+     * @return string[]
+     */
     private function renderLines() : array
     {
         $lines = array();
