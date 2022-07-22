@@ -8,10 +8,10 @@ declare(strict_types=1);
 namespace AppUtilsTests\TestSuites;
 
 use AppUtils\URLInfo\URISchemes;
+use AppUtils\URLInfo\URLHosts;
 use PHPUnit\Framework\TestCase;
 use AppUtils\URLInfo;
 use function AppUtils\parseURL;
-use AppUtils\URLInfo\URIParser;
 
 /**
  * @package AppUtilsTests
@@ -849,5 +849,16 @@ final class URLInfoTest extends TestCase
         URISchemes::removeScheme('myscheme://');
 
         $this->assertFalse(parseURL($url)->isValid());
+    }
+
+    public function test_addHosts() : void
+    {
+        $url = 'foohost';
+
+        $this->assertFalse(parseURL($url)->isValid());
+
+        URLHosts::addHost('foohost');
+
+        $this->assertTrue(parseURL($url)->isValid());
     }
 }
