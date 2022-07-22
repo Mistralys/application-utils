@@ -1,26 +1,26 @@
 <?php
 /**
- * File containing the {@see AppUtils\URLInfo_Filter} class.
- *
  * @package Application Utils
  * @subpackage URLInfo
- * @see AppUtils\URLInfo_Filter
+ * @see \AppUtils\URLInfo\URIFilter
  */
 
 declare(strict_types=1);
 
-namespace AppUtils;
+namespace AppUtils\URLInfo;
+
+use AppUtils\ConvertHelper;
 
 /**
  * Static class with utility methods to handle filtering
- * an URL string, by removing any unwanted special characters
+ * a URL string, by removing any unwanted special characters
  * and the like.
  *
  * @package Application Utils
  * @subpackage URLInfo
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class URLInfo_Filter
+class URIFilter
 {
     public static function filter(string $url) : string
     {
@@ -29,7 +29,7 @@ class URLInfo_Filter
 
         // In the case of tel URLs, we convert the syntax to use double
         // slashes to make them parsable.
-        if (strstr($url, 'tel:') !== false && strstr($url, 'tel://') === false)
+        if (stripos($url, 'tel:') !== false && stripos($url, 'tel://') === false)
         {
             $url = str_replace('tel:', 'tel://', $url);
         }
@@ -37,7 +37,7 @@ class URLInfo_Filter
         // we remove any control characters from the URL, since these
         // may be copied when copy+pasting from word or pdf documents
         // for example.
-        $url = \AppUtils\ConvertHelper::stripControlCharacters($url);
+        $url = ConvertHelper::stripControlCharacters($url);
 
         // fix the pesky unicode hyphen that looks like a regular hyphen,
         // but isn't and can cause all sorts of problems
@@ -46,8 +46,6 @@ class URLInfo_Filter
         // remove url encoded and characters of newlines and tabs
         $url = str_replace(array("\n", "\r", "\t", '%0D', '%0A', '%09'), '', $url);
 
-        $url = trim($url);
-
-        return $url;
+        return trim($url);
     }
 }

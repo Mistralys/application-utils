@@ -1,15 +1,15 @@
 <?php
 /**
- * File containing the {@see AppUtils\URLInfo_Normalizer} class.
- *
  * @package Application Utils
  * @subpackage URLInfo
- * @see AppUtils\URLInfo_Normalizer
+ * @see \AppUtils\URLInfo\URINormalizer
  */
 
 declare(strict_types=1);
 
-namespace AppUtils;
+namespace AppUtils\URLInfo;
+
+use AppUtils\URLInfo;
 
 /**
  * Handles normalizing a URL.
@@ -18,7 +18,7 @@ namespace AppUtils;
  * @subpackage URLInfo
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class URLInfo_Normalizer
+class URINormalizer
 {
     protected URLInfo $info;
     protected bool $auth = true;
@@ -33,9 +33,9 @@ class URLInfo_Normalizer
     * if a username and password are present.
     * 
     * @param bool $enable Whether to turn it on or off.
-    * @return URLInfo_Normalizer
+    * @return URINormalizer
     */
-    public function enableAuth(bool $enable=true) : URLInfo_Normalizer
+    public function enableAuth(bool $enable=true) : URINormalizer
     {
         $this->auth = $enable;
         return $this;
@@ -69,7 +69,14 @@ class URLInfo_Normalizer
     
     protected function normalize_url() : string
     {
-        $normalized = $this->info->getScheme().'://';
+        $scheme = $this->info->getScheme();
+        $normalized = '';
+
+        if(!empty($scheme))
+        {
+            $normalized = $this->info->getScheme() . '://';
+        }
+
         $normalized = $this->renderAuth($normalized);
         $normalized .= $this->info->getHost();
         $normalized = $this->renderPort($normalized);        

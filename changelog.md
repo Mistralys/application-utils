@@ -1,3 +1,9 @@
+### v2.1.3 - URLInfo maintenance release
+- URLInfo: Fixed parsing localhost URLs, with or without scheme.
+- URLInfo: Improved the parsing of some edge cases.
+- URLInfo: Namespaced and renamed internally used classes.
+- URLInfo: All exceptions are now instances of `URLException`.
+
 ### v2.1.2 - Maintenance release
 - ClassHelper: Better handling of exceptions passed to `requireObjectInstanceOf()`.
 

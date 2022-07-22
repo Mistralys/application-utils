@@ -1,31 +1,31 @@
 <?php
 /**
- * File containing the {@see AppUtils\URLInfo_ConnectionTester} class.
- *
  * @package Application Utils
  * @subpackage URLInfo
- * @see AppUtils\URLInfo_ConnectionTester
+ * @see \AppUtils\URLInfo\URIConnectionTester
  */
 
 declare(strict_types=1);
 
-namespace AppUtils;
+namespace AppUtils\URLInfo;
+
+use AppUtils\BaseException;
+use AppUtils\Interface_Optionable;
+use AppUtils\Traits_Optionable;
+use AppUtils\URLInfo;
 
 /**
- * Used to test whether an URL exists / can be connected to.
+ * Used to test whether a URL exists / can be connected to.
  *
  * @package Application Utils
  * @subpackage URLInfo
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class URLInfo_ConnectionTester implements Interface_Optionable
+class URIConnectionTester implements Interface_Optionable
 {
     use Traits_Optionable;
     
-   /**
-    * @var URLInfo
-    */
-    private $url;
+    private URLInfo $url;
     
     public function __construct(URLInfo $url)
     {
@@ -43,12 +43,12 @@ class URLInfo_ConnectionTester implements Interface_Optionable
     
    /**
     * Whether to verify the host's SSL certificate, in
-    * case of an https connection.
+    * case of a https connection.
     * 
     * @param bool $verifySSL
-    * @return URLInfo_ConnectionTester
+    * @return URIConnectionTester
     */
-    public function setVerifySSL(bool $verifySSL=true) : URLInfo_ConnectionTester
+    public function setVerifySSL(bool $verifySSL=true) : URIConnectionTester
     {
         $this->setOption('verify-ssl', $verifySSL);
             return $this;
@@ -59,7 +59,7 @@ class URLInfo_ConnectionTester implements Interface_Optionable
         return $this->getBoolOption('verify-ssl');
     }
     
-    public function setVerboseMode(bool $enabled=true) : URLInfo_ConnectionTester
+    public function setVerboseMode(bool $enabled=true) : URIConnectionTester
     {
         $this->setOption('curl-verbose', $enabled);
         return $this;
@@ -70,7 +70,7 @@ class URLInfo_ConnectionTester implements Interface_Optionable
         return $this->getBoolOption('curl-verbose');
     }
     
-    public function setTimeout(int $seconds) : URLInfo_ConnectionTester#
+    public function setTimeout(int $seconds) : URIConnectionTester#
     {
         $this->setOption('timeout', $seconds);
         return $this;
@@ -93,7 +93,7 @@ class URLInfo_ConnectionTester implements Interface_Optionable
         
         if(!is_resource($ch))
         {
-            throw new BaseException(
+            throw new URLException(
                 'Could not initialize a new cURL instance.',
                 'Calling curl_init returned false. Additional information is not available.',
                 URLInfo::ERROR_CURL_INIT_FAILED

@@ -1,15 +1,15 @@
 <?php
 /**
- * File containing the {@see AppUtils\URLInfo_Highlighter} class.
- *
  * @package Application Utils
  * @subpackage URLInfo
- * @see AppUtils\URLInfo_Highlighter
+ * @see \AppUtils\URIHighlighter
  */
 
 declare(strict_types=1);
 
 namespace AppUtils;
+
+use AppUtils\URLInfo\URLException;
 
 /**
  * Handles highlighting a previously parsed URL. 
@@ -18,12 +18,9 @@ namespace AppUtils;
  * @subpackage URLInfo
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class URLInfo_Highlighter
+class URIHighlighter
 {
-   /**
-    * @var URLInfo
-    */
-    protected $info;
+    protected URLInfo $info;
     
     public function __construct(URLInfo $info)
     {
@@ -275,7 +272,7 @@ class URLInfo_Highlighter
         $cssFolder = realpath(__DIR__.'/../../css');
         
         if($cssFolder === false) {
-            throw new BaseException(
+            throw new URLException(
                 'Cannot find package CSS folder.',
                 null,
                 URLInfo::ERROR_CANNOT_FIND_CSS_FOLDER

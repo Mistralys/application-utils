@@ -11,6 +11,11 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\URLInfo\URIConnectionTester;
+use AppUtils\URLInfo\URIFilter;
+use AppUtils\URLInfo\URINormalizer;
+use AppUtils\URLInfo\URIParser;
+use AppUtils\URLInfo\URLException;
 use ArrayAccess;
 
 /**
@@ -92,14 +97,14 @@ class URLInfo implements ArrayAccess
     protected string $url;
     
    /**
-    * @var URLInfo_Parser
+    * @var URIParser
     */
-    protected URLInfo_Parser $parser;
+    protected URIParser $parser;
     
    /**
-    * @var URLInfo_Normalizer|NULL
+    * @var URINormalizer|NULL
     */
-    protected ?URLInfo_Normalizer $normalizer = null;
+    protected ?URINormalizer $normalizer = null;
     
    /**
     * @var bool
@@ -116,7 +121,7 @@ class URLInfo implements ArrayAccess
     
     protected function parse() : void
     {
-        $this->parser = new URLInfo_Parser($this->url, $this->encodeUTFChars);
+        $this->parser = new URIParser($this->url, $this->encodeUTFChars);
         $this->info = $this->parser->getInfo();
     }
 
@@ -133,7 +138,7 @@ class URLInfo implements ArrayAccess
         if($this->encodeUTFChars !== $enabled)
         {
             $this->encodeUTFChars = $enabled;
-            $this->parse(); // re-parse the URL to apply the changes
+            $this->parse(); // reparse the URL to apply the changes
         }
         
         return $this;
@@ -145,19 +150,19 @@ class URLInfo implements ArrayAccess
     }
     
    /**
-    * Filters an URL: removes control characters and the
+    * Filters a URL: removes control characters and the
     * like to have a clean URL to work with.
     * 
     * @param string $url
     * @return string
     */
-    public static function filterURL(string $url)
+    public static function filterURL(string $url) : string
     {
-        return URLInfo_Filter::filter($url);
+        return URIFilter::filter($url);
     }
     
     /**
-     * Checks if it is an https link.
+     * Checks if it is a https link.
      * @return boolean
      */
     public function isSecure() : bool
@@ -227,7 +232,7 @@ class URLInfo implements ArrayAccess
     }
     
    /**
-    * Retrieves the port specified in the URL, or -1 if none is preseent.
+    * Retrieves the port specified in the URL, or -1 if none is present.
     * @return int
     */
     public function getPort() : int
@@ -329,7 +334,7 @@ class URLInfo implements ArrayAccess
     */
     public function getNormalized() : string
     {
-        return $this->normalize(true);
+        return $this->normalize();
     }
     
    /**
@@ -350,7 +355,7 @@ class URLInfo implements ArrayAccess
         }
         
         if(!isset($this->normalizer)) {
-            $this->normalizer = new URLInfo_Normalizer($this);
+            $this->normalizer = new URINormalizer($this);
         }
         
         $this->normalizer->enableAuth($auth);
@@ -366,9 +371,9 @@ class URLInfo implements ArrayAccess
     * 
     * @return string
     */
-    public function getHash()
+    public function getHash() : string
     {
-        return \AppUtils\ConvertHelper::string2shortHash($this->getNormalized());
+        return ConvertHelper::string2shortHash($this->getNormalized());
     }
 
    /**
@@ -383,9 +388,7 @@ class URLInfo implements ArrayAccess
             return '';
         }
         
-        $highlighter = new URLInfo_Highlighter($this);
-        
-        return $highlighter->highlight();
+        return (new URIHighlighter($this))->highlight();
     }
     
     public function getErrorMessage() : string
@@ -454,21 +457,17 @@ class URLInfo implements ArrayAccess
     */
     public function getParam(string $name) : string
     {
-        if(isset($this->info['params'][$name])) {
-            return $this->info['params'][$name];
-        }
-        
-        return '';
+        return $this->info['params'][$name] ?? '';
     }
     
    /**
-    * Excludes an URL parameter entirely if present:
+    * Excludes a URL parameter entirely if present:
     * the parser will act as if the parameter was not
     * even present in the source URL, effectively
     * stripping it.
     *
     * @param string $name
-    * @param string $reason A human readable explanation why this is excluded - used when highlighting links.
+    * @param string $reason A human-readable explanation why this is excluded - used when highlighting links.
     * @return URLInfo
     */
     public function excludeParam(string $name, string $reason='') : URLInfo
@@ -513,7 +512,7 @@ class URLInfo implements ArrayAccess
         
         if(!isset(self::$typeLabels[$type]))
         {
-            throw new BaseException(
+            throw new URLException(
                 sprintf('Unknown URL type label for type [%s].', $type),
                 null,
                 self::ERROR_UNKNOWN_TYPE_FOR_LABEL
@@ -541,7 +540,7 @@ class URLInfo implements ArrayAccess
      * Returns an array with all relevant URL information.
      *
      * @return array<string,mixed>
-     * @throws BaseException
+     * @throws URLException
      */
     public function toArray() : array
     {
@@ -626,19 +625,19 @@ class URLInfo implements ArrayAccess
         return in_array($name, $names);
     }
 
-    public function offsetSet($offset, $value) 
+    public function offsetSet($offset, $value)  : void
     {
-        if(in_array($offset, $this->infoKeys)) {
+        if(in_array($offset, $this->infoKeys, true)) {
             $this->info[$offset] = $value;
         }
     }
     
-    public function offsetExists($offset) 
+    public function offsetExists($offset) : bool
     {
         return isset($this->info[$offset]);
     }
     
-    public function offsetUnset($offset) 
+    public function offsetUnset($offset) : void
     {
         unset($this->info[$offset]);
     }
@@ -649,7 +648,7 @@ class URLInfo implements ArrayAccess
             return $this->getPort();
         }
         
-        if(in_array($offset, $this->infoKeys)) {
+        if(in_array($offset, $this->infoKeys, true)) {
             return $this->getInfoKey($offset);
         }
         
@@ -658,7 +657,7 @@ class URLInfo implements ArrayAccess
     
     public static function getHighlightCSS() : string
     {
-        return URLInfo_Highlighter::getHighlightCSS();
+        return URIHighlighter::getHighlightCSS();
     }
 
     /**
@@ -673,22 +672,22 @@ class URLInfo implements ArrayAccess
     {
         return $this->highlightExcluded;
     }
-    
-   /**
-    * Checks if the URL exists, i.e. can be connected to. Will return
-    * true if the returned HTTP status code is `200` or `302`.
-    * 
-    * NOTE: If the target URL requires HTTP authentication, the username
-    * and password should be integrated into the URL.
-    * 
-    * @return bool
-    * @throws BaseException
-    */
+
+    /**
+     * Checks if the URL exists, i.e. can be connected to. Will return
+     * true if the returned HTTP status code is `200` or `302`.
+     *
+     * NOTE: If the target URL requires HTTP authentication, the username
+     * and password should be integrated into the URL.
+     *
+     * @param bool $verifySSL
+     * @return bool
+     */
     public function tryConnect(bool $verifySSL=true) : bool
     {
         return $this->createConnectionTester()
-        ->setVerifySSL($verifySSL)
-        ->canConnect();
+            ->setVerifySSL($verifySSL)
+            ->canConnect();
     }
     
    /**
@@ -697,15 +696,15 @@ class URLInfo implements ArrayAccess
     * used in the {@see URLInfo::tryConnect()} method. It
     * allows more settings to be used.
     * 
-    * @return URLInfo_ConnectionTester
+    * @return URIConnectionTester
     */
-    public function createConnectionTester() : URLInfo_ConnectionTester
+    public function createConnectionTester() : URIConnectionTester
     {
-        return new URLInfo_ConnectionTester($this);
+        return new URIConnectionTester($this);
     }
     
    /**
-    * Adds/overwrites an URL parameter.
+    * Adds/overwrites a URL parameter.
     *  
     * @param string $name
     * @param string $val
@@ -719,7 +718,7 @@ class URLInfo implements ArrayAccess
     }
     
    /**
-    * Removes an URL parameter. Has no effect if the 
+    * Removes a URL parameter. Has no effect if the
     * parameter is not present to begin with.
     * 
     * @param string $param

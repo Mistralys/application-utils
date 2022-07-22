@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\URLInfo\URISchemes;
+
 /**
  * Can find any URLs in a string, be it plain text or HTML, XML.
  *
@@ -192,7 +194,7 @@ class ConvertHelper_URLFinder implements Interface_Optionable
         // Handle detecting an URI scheme
         if(strstr($line, ':') !== false)
         {
-            $scheme = URLInfo_Schemes::detectScheme($line);
+            $scheme = URISchemes::detectScheme($line);
 
             if ($scheme !== null)
             {
@@ -404,7 +406,7 @@ class ConvertHelper_URLFinder implements Interface_Optionable
 
         foreach ($lines as $line)
         {
-            $scheme = URLInfo_Schemes::detectScheme($line);
+            $scheme = URISchemes::detectScheme($line);
             if($scheme !== null) {
                 $this->matches[] = $line;
                 continue;
