@@ -31,11 +31,13 @@ class URLInfo implements ArrayAccess
     public const ERROR_CANNOT_FIND_CSS_FOLDER = 42104;
     public const ERROR_UNKNOWN_TYPE_FOR_LABEL = 42105;
     public const ERROR_CURL_INIT_FAILED = 42106;
+    public const ERROR_UNKNOWN_TYPE = 42107;
     
     public const TYPE_EMAIL = 'email';
     public const TYPE_FRAGMENT = 'fragment';
     public const TYPE_PHONE = 'phone';
     public const TYPE_URL = 'url';
+    public const TYPE_NONE = 'none';
 
    /**
     * The original URL that was passed to the constructor.
