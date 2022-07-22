@@ -3,6 +3,8 @@
 - URLInfo: Improved the parsing of some edge cases.
 - URLInfo: Namespaced and renamed internally used classes.
 - URLInfo: All exceptions are now instances of `URLException`.
+- URLInfo: Added custom schemes via `URISchemes`.
+- URLInfo: Added custom host names via `URLHosts`.
 
 ### v2.1.2 - Maintenance release
 - ClassHelper: Better handling of exceptions passed to `requireObjectInstanceOf()`.
