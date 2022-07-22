@@ -49,6 +49,21 @@ trait URLInfoTrait
         return $this->getKey('type');
     }
 
+    public function getUser() : ?string
+    {
+        return $this->getKey('user');
+    }
+
+    public function getPassword() : ?string
+    {
+        return $this->getKey('pass');
+    }
+
+    public function getQuery() : ?string
+    {
+        return $this->getKey('query');
+    }
+
     public function getPath() : ?string
     {
         return $this->getKey('path');
@@ -64,10 +79,20 @@ trait URLInfoTrait
         return $this->setKey('host', $host);
     }
 
-    public function setHostFromEmail(string $email) : void
+    public function setHostFromEmail(string $email) : self
     {
         $parts = explode('@', $email);
         $this->setHost(array_pop($parts));
+
+        return $this;
+    }
+
+    public function setAuth(string $user, string $password) : self
+    {
+        $this->setKey('user', $user);
+        $this->setKey('pass', $password);
+
+        return $this;
     }
 
     public function setPath(string $path) : self
@@ -133,6 +158,11 @@ trait URLInfoTrait
     {
         unset($this->info[$name]);
         return $this;
+    }
+
+    public function hasAuth() : bool
+    {
+        return isset($this->info['user'], $this->info['pass']);
     }
 
     public function hasKey(string $name) : bool
