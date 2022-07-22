@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\IniHelper\INILine;
+
 /**
  * Container for a section in the INI document: stores
  * all ini lines contained within it, and offers methods
@@ -21,20 +23,13 @@ namespace AppUtils;
  */
 class IniHelper_Section
 {
-   /**
-    * @var IniHelper
-    */
-    protected $ini;
+    protected IniHelper $ini;
+    protected string $name;
     
    /**
-    * @var string
+    * @var INILine[]
     */
-    protected $name;
-    
-   /**
-    * @var IniHelper_Line[]
-    */
-    protected $lines = array();
+    protected array $lines = array();
     
     public function __construct(IniHelper $ini, string $name)
     {
@@ -66,10 +61,10 @@ class IniHelper_Section
    /**
     * Adds a line instance to the section.
     * 
-    * @param IniHelper_Line $line
+    * @param INILine $line
     * @return IniHelper_Section
     */
-    public function addLine(IniHelper_Line $line) : IniHelper_Section
+    public function addLine(INILine $line) : IniHelper_Section
     {
         $this->lines[] = $line;
         
@@ -80,7 +75,7 @@ class IniHelper_Section
     * Converts the values contained in the section into 
     * an associative array.
     * 
-    * @return array
+    * @return array<string,array<int,string>>
     */
     public function toArray() : array
     {
@@ -101,7 +96,7 @@ class IniHelper_Section
             }
             
             // name exists in collection? Then this is a
-            // duplicate key and we need to convert it to
+            // duplicate key, and we need to convert it to
             // an indexed array of values.
             if(!is_array($result[$name])) 
             {
@@ -113,13 +108,14 @@ class IniHelper_Section
         
         return $result;
     }
-    
-   /**
-    * Converts the section's lines into an INI string.
-    * 
-    * @return string
-    */
-    public function toString()
+
+    /**
+     * Converts the section's lines into an INI string.
+     *
+     * @return string
+     * @throws IniHelper_Exception
+     */
+    public function toString() : string
     {
         $lines = array();
         if(!$this->isDefault()) 
@@ -143,10 +139,10 @@ class IniHelper_Section
    /**
     * Deletes a line from the section.
     * 
-    * @param IniHelper_Line $toDelete
+    * @param INILine $toDelete
     * @return IniHelper_Section
     */
-    public function deleteLine(IniHelper_Line $toDelete) : IniHelper_Section
+    public function deleteLine(INILine $toDelete) : IniHelper_Section
     {
         $keep = array();
         
@@ -161,14 +157,15 @@ class IniHelper_Section
         
         return $this;
     }
-    
-   /**
-    * Sets the value of a variable, overwriting any existing value.
-    * 
-    * @param string $name
-    * @param mixed $value If an array is specified, it is treated as duplicate keys and will add a line for each value.
-    * @return IniHelper_Section
-    */
+
+    /**
+     * Sets the value of a variable, overwriting any existing value.
+     *
+     * @param string $name
+     * @param mixed $value If an array is specified, it is treated as duplicate keys and will add a line for each value.
+     * @return IniHelper_Section
+     * @throws IniHelper_Exception
+     */
     public function setValue(string $name, $value) : IniHelper_Section
     {
         $lines = $this->getLinesByVariable($name);
@@ -279,16 +276,21 @@ class IniHelper_Section
         
         return $this;
     }
-    
-    protected function addValueLine(string $name, $value) : IniHelper_Line
+
+    /**
+     * @param string $name
+     * @param mixed|NULL $value
+     * @return INILine
+     * @throws IniHelper_Exception
+     */
+    protected function addValueLine(string $name, $value) : INILine
     {
-        $line = new IniHelper_Line(
+        $line = new INILine(
             sprintf('%s=%s', $name, 'dummyvalue'),
             0
         );
         
         $line->setValue($value);
-        
         $this->addLine($line);
         
         return $line;
@@ -299,9 +301,9 @@ class IniHelper_Section
     * Retrieves all lines for the specified variable name.
     *  
     * @param string $name
-    * @return \AppUtils\IniHelper_Line[]
+    * @return INILine[]
     */
-    public function getLinesByVariable(string $name)
+    public function getLinesByVariable(string $name) : array
     {
         $result = array();
         

@@ -1,14 +1,17 @@
 <?php
 /**
- * File containing the {@link IniHelper_Line} class.
+ * File containing the {@link \AppUtils\IniHelper\INILine} class.
  * @package Application Utils
  * @subpackage IniHelper
- * @see IniHelper_Line
+ * @see \AppUtils\IniHelper\INILine
  */
 
 declare(strict_types=1);
 
-namespace AppUtils;
+namespace AppUtils\IniHelper;
+
+use AppUtils\IniHelper_Exception;
+use function AppUtils\parseVariable;
 
 /**
  * Single INI line container.
@@ -17,60 +20,26 @@ namespace AppUtils;
  * @subpackage IniHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class IniHelper_Line
+class INILine
 {
     public const TYPE_SECTION_DECLARATION = 'section';
-    
     public const TYPE_COMMENT = 'comment';
-    
     public const TYPE_EMPTY = 'empty';
-    
     public const TYPE_INVALID = 'invalid';
-    
     public const TYPE_VALUE = 'value';
     
     public const ERROR_UNHANDLED_LINE_TYPE = 41901;
-    
     public const ERROR_NON_SCALAR_VALUE = 41902;
     
-    /**
-     * @var string
-     */
-    protected $text;
-    
-   /**
-    * @var string
-    */
-    protected $trimmed;
-    
-   /**
-    * @var int
-    */
-    protected $lineNumber;
-    
-   /**
-    * @var string
-    */
-    protected $type;
-    
-   /**
-    * @var string
-    */
-    protected $varName = '';
-    
-   /**
-    * @var string
-    */
-    protected $varValue = '';
-    
-    protected $valueUnquoted = '';
-    
-    protected $quoteStyle = '';
-    
-   /**
-    * @var string
-    */
-    protected $sectionName = '';
+    protected string $text;
+    protected string $trimmed;
+    protected int $lineNumber;
+    protected string $type;
+    protected string $varName = '';
+    protected string $varValue = '';
+    protected string $valueUnquoted = '';
+    protected string $quoteStyle = '';
+    protected string $sectionName = '';
     
     public function __construct(string $text, int $lineNumber)
     {
@@ -84,7 +53,7 @@ class IniHelper_Line
             return;
         }
         
-        $startChar = substr($this->trimmed, 0, 1);
+        $startChar = $this->trimmed[0];
         
         if($startChar === ';')
         {
@@ -112,18 +81,21 @@ class IniHelper_Line
         }
     }
     
-    protected function parseValue(string $value)
+    protected function parseValue(string $value) : void
     {
         $this->varValue = trim($value);
-        
         $value = $this->varValue;
+
+        if(empty($value)) {
+            return;
+        }
         
-        if(substr($value, 0, 1) == '"' && substr($value, -1, 1) == '"')
+        if($value[0] === '"' && $value[strlen($value) - 1] === '"')
         {
             $value = trim($value, '"');
             $this->quoteStyle = '"';
         }
-        else if(substr($value, 0, 1) == "'" && substr($value, -1, 1) == "'")
+        else if($value[0] === "'" && $value[strlen($value) - 1] === "'")
         {
             $value = trim($value, "'");
             $this->quoteStyle = "'";
@@ -195,10 +167,15 @@ class IniHelper_Line
     {
         return $this->type === $type;
     }
-    
-    public function setValue($value) : IniHelper_Line
+
+    /**
+     * @param mixed|NULL $value
+     * @return $this
+     * @throws IniHelper_Exception
+     */
+    public function setValue($value) : INILine
     {
-        if(!is_scalar($value)) 
+        if(!is_null($value) && !is_scalar($value))
         {
             throw new IniHelper_Exception(
                 'Cannot use non-scalar values.',
@@ -231,8 +208,7 @@ class IniHelper_Line
                 return '['.$this->getSectionName().']';
                 
             case self::TYPE_VALUE:
-                $string = $this->getVarName().'='.$this->getQuotedVarValue();
-                return $string;
+                return $this->getVarName().'='.$this->getQuotedVarValue();
         }
         
         throw new IniHelper_Exception(

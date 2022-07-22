@@ -46,6 +46,9 @@ class WordSplitter
         return $this;
     }
 
+    /**
+     * @return string[]
+     */
     public function split() : array
     {
         $words = preg_split("/\W+/", $this->subject);
@@ -63,6 +66,10 @@ class WordSplitter
         return $words;
     }
 
+    /**
+     * @param string[] $words
+     * @return string[]
+     */
     private function filterDuplicates(array $words) : array
     {
         if($this->duplicatesCaseInsensitive) {
@@ -72,6 +79,10 @@ class WordSplitter
         return array_unique($words);
     }
 
+    /**
+     * @param string[] $array
+     * @return string[]
+     */
     private function filterDuplicatesCaseInsensitive(array $array) : array
     {
         return array_intersect_key(

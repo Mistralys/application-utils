@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\IniHelper\INILine;
+
 /**
  * INI file reader and editor. Supports duplicate keys like
  * in the php.ini (list of extensions), and preserves the
@@ -24,12 +26,14 @@ class IniHelper
     public const SECTION_DEFAULT = '__inihelper_section_default';
     
     public const ERROR_TARGET_FILE_NOT_READABLE = 41802;
+
+    /**
+     * @var array<string,IniHelper_Section>
+     */
+    protected array $sections = array();
     
-    protected $sections = array();
-    
-    protected $eol = "\n";
-    
-    protected $pathSeparator = '/';
+    protected string $eol = "\n";
+    protected string $pathSeparator = '/';
     
     protected function __construct(string $iniString)
     {
@@ -45,12 +49,10 @@ class IniHelper
         }
         
         $lines = explode($this->eol, $iniString);
-        
-        $total = count($lines);
-        
-        for($i=0; $i < $total; $i++) 
+
+        foreach ($lines as $index => $value)
         {
-            $line = new IniHelper_Line($lines[$i], $i);
+            $line = new INILine($value, $index);
             
             if($line->isSection()) {
                 $section = $this->addSection($line->getSectionName());
@@ -68,16 +70,17 @@ class IniHelper
     {
         return $this->eol;
     }
-    
-   /**
-    * Factory method: creates a new helper instance loading the
-    * ini content from the specified file.
-    * 
-    * @param string $iniPath
-    * @return \AppUtils\IniHelper
-    * @throws IniHelper_Exception
-    */
-    public static function createFromFile(string $iniPath)
+
+    /**
+     * Factory method: creates a new helper instance loading the
+     * ini content from the specified file.
+     *
+     * @param string $iniPath
+     * @return IniHelper
+     * @throws FileHelper_Exception
+     * @throws IniHelper_Exception
+     */
+    public static function createFromFile(string $iniPath) : IniHelper
     {
         $iniPath = FileHelper::requireFileExists($iniPath);
         
@@ -100,9 +103,9 @@ class IniHelper
     * Factory method: Creates a new ini helper instance from an ini string.
     * 
     * @param string $iniContent
-    * @return \AppUtils\IniHelper
+    * @return IniHelper
     */
-    public static function createFromString(string $iniContent)
+    public static function createFromString(string $iniContent) : IniHelper
     {
         return new IniHelper($iniContent);
     }
@@ -110,9 +113,9 @@ class IniHelper
    /**
     * Factory method: Creates a new empty ini helper.
     *  
-    * @return \AppUtils\IniHelper
+    * @return IniHelper
     */
-    public static function createNew()
+    public static function createNew() : IniHelper
     {
         return self::createFromString('');
     }
@@ -142,17 +145,13 @@ class IniHelper
     */
     public function getSection(string $name) : ?IniHelper_Section
     {
-        if(isset($this->sections[$name])) {
-            return $this->sections[$name];
-        }
-        
-        return null;
+        return $this->sections[$name] ?? null;
     }
     
    /**
     * Gets the data from the INI file as an associative array.
     * 
-    * @return array
+    * @return array<string,mixed>
     */
     public function toArray() : array
     {
@@ -219,18 +218,23 @@ class IniHelper
     */
     public function setValue(string $path, $value) : IniHelper
     {
-        $path = $this->parsePath($path);
+        $info = $this->parsePath($path);
        
-        $this->addSection($path['section'])->setValue($path['name'], $value);
+        $this->addSection($info['section'])->setValue($info['name'], $value);
     
         return $this;
     }
-    
+
+    /**
+     * @param string $path
+     * @param mixed $value
+     * @return $this
+     */
     public function addValue(string $path, $value) : IniHelper
     {
-        $path = $this->parsePath($path);
+        $info = $this->parsePath($path);
         
-        $this->addSection($path['section'])->addValue($path['name'], $value);
+        $this->addSection($info['section'])->addValue($info['name'], $value);
         
         return $this;
     }
@@ -267,34 +271,38 @@ class IniHelper
     * Retrieves all variable lines for the specified path.
     * 
     * @param string $path A variable path. Either <code>varname</code> or <code>section.varname</code>.
-    * @return array|\AppUtils\IniHelper_Line[]
+    * @return INILine[]
     */
-    public function getLinesByVariable(string $path)
+    public function getLinesByVariable(string $path) : array
     {
-        $path = $this->parsePath($path);
+        $info = $this->parsePath($path);
         
-        if(!$this->sectionExists($path['section'])) {
+        if(!$this->sectionExists($info['section'])) {
             return array();
         }
         
-        return $this->addSection($path['section'])->getLinesByVariable($path['name']);
+        return $this->addSection($info['section'])->getLinesByVariable($info['name']);
     }
-    
+
+    /**
+     * @param string $path
+     * @return array{section:string,name:string}
+     */
     protected function parsePath(string $path) : array
     {
-        $path = explode($this->pathSeparator, $path);
+        $parts = explode($this->pathSeparator, $path);
         
-        if(count($path) === 1)
+        if(count($parts) === 1)
         {
             return array(
                 'section' => self::SECTION_DEFAULT,
-                'name' => trim(array_pop($path))
+                'name' => trim(array_pop($parts))
             );
         }
 
         return array(
-            'section' => trim(array_shift($path)),
-            'name' => trim(array_pop($path))
+            'section' => trim(array_shift($parts)),
+            'name' => trim(array_pop($parts))
         );
     }
 }
