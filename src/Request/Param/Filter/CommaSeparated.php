@@ -20,14 +20,17 @@ class Request_Param_Filter_CommaSeparated extends Request_Param_Filter
             'stripEmptyEntries' => true
         );
     }
-    
-    protected function _filter()
+
+    /**
+     * @return string[]
+     */
+    protected function _filter() : array
     {
         if(is_array($this->value)) {
             return $this->value;
         }
         
-        if($this->value === '' || $this->value === null || !is_string($this->value)) {
+        if($this->value === '' || !is_string($this->value)) {
             return array();
         }
         

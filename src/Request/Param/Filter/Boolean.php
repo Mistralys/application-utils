@@ -18,12 +18,8 @@ class Request_Param_Filter_Boolean extends Request_Param_Filter
         return array();
     }
     
-    protected function _filter()
+    protected function _filter() : bool
     {
-        if($this->value === 'yes' || $this->value === 'true' || $this->value === true) {
-            return true;
-        }
-        
-        return false;
+        return $this->value === 'yes' || $this->value === 'true' || $this->value === true;
     }
 }

@@ -25,14 +25,14 @@ class Request_Param_Validator_Regex extends Request_Param_Validator
         return array();
     }
     
-    protected function _validate()
+    protected function _validate() : ?string
     {
         if(!is_scalar($this->value)) {
             return null;
         }
         
         // the only scalar value we do not want to work with
-        // is a boolan, which is converted to an integer when
+        // is a boolean, which is converted to an integer when
         // converted to string, which in turn can be validated
         // with a regex.
         if(is_bool($this->value)) {

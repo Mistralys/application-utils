@@ -28,10 +28,10 @@ class Request_Param_Validator_Integer extends Request_Param_Validator
         return array();
     }
     
-    protected function _validate()
+    protected function _validate() : ?int
     {
         if(ConvertHelper::isInteger($this->value)) {
-            return intval($this->value);
+            return (int)$this->value;
         }
         
         return null;

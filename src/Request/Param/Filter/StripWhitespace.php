@@ -18,7 +18,7 @@ class Request_Param_Filter_StripWhitespace extends Request_Param_Filter
         return array();
     }
     
-    protected function _filter()
+    protected function _filter() : string
     {
         return preg_replace('/\s/', '', $this->value);
     }

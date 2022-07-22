@@ -24,7 +24,10 @@ class Request_Param_Validator_Numeric extends Request_Param_Validator
     {
         return array();
     }
-    
+
+    /**
+     * @return float|int|null
+     */
     protected function _validate()
     {
         if(is_numeric($this->value)) {

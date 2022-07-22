@@ -24,7 +24,10 @@ class Request_Param_Validator_Array extends Request_Param_Validator
     {
         return array();
     }
-    
+
+    /**
+     * @return mixed|NULL
+     */
     protected function _validate()
     {
         // subvalues cannot be arrays

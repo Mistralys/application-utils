@@ -25,14 +25,16 @@ class Request_Param_Validator_Alpha extends Request_Param_Validator
         return array();
     }
     
-    protected function _validate()
+    protected function _validate() : ?string
     {
         if(!is_scalar($this->value)) {
             return null;
         }
+
+        $value = (string)$this->value;
         
-        if(preg_match('/\A[a-zA-Z]+\z/', $this->value)) {
-            return $this->value;
+        if(preg_match('/\A[a-zA-Z]+\z/', $value)) {
+            return $value;
         }
         
         return null;

@@ -25,10 +25,12 @@ class Request_Param_Validator_Alnum extends Request_Param_Validator
         return array();
     }
     
-    protected function _validate()
+    protected function _validate() : ?string
     {
-        if (preg_match('/\A[a-zA-Z0-9]+\z/', $this->value)) {
-            return $this->value;
+        $value = (string)$this->value;
+
+        if (preg_match('/\A[a-zA-Z0-9]+\z/', $value)) {
+            return $value;
         }
         
         return null;

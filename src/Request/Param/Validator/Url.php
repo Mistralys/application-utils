@@ -25,7 +25,7 @@ class Request_Param_Validator_Url extends Request_Param_Validator
         return array();
     }
     
-    protected function _validate()
+    protected function _validate() : string
     {
         if(!is_string($this->value)) {
             return '';

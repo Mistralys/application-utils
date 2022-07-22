@@ -26,7 +26,10 @@ class Request_Param_Validator_Valueslist extends Request_Param_Validator
             'values' => array()
         );
     }
-    
+
+    /**
+     * @return array<mixed>|mixed|NULL
+     */
     protected function _validate()
     {
         $allowed = $this->getArrayOption('values');
@@ -35,7 +38,7 @@ class Request_Param_Validator_Valueslist extends Request_Param_Validator
         // validating a single value in the existing list.
         if($this->isSubvalue) 
         {
-            if(in_array($this->value, $allowed)) {
+            if(in_array($this->value, $allowed, true)) {
                 return $this->value;
             }
             
@@ -48,7 +51,7 @@ class Request_Param_Validator_Valueslist extends Request_Param_Validator
         
         $keep = array();
         foreach($this->value as $item) {
-            if(in_array($item, $allowed)) {
+            if(in_array($item, $allowed, true)) {
                 $keep[] = $item;
             }
         }

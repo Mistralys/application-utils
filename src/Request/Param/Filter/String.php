@@ -18,7 +18,7 @@ class Request_Param_Filter_String extends Request_Param_Filter
         return array();
     }
     
-    protected function _filter()
+    protected function _filter() : string
     {
         if(!is_scalar($this->value)) {
             return '';

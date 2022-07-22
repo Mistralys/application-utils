@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use Throwable;
+
 /**
  * Makes sure that the value is a JSON-encoded string.
  *
@@ -27,7 +29,7 @@ class Request_Param_Validator_Json extends Request_Param_Validator
         );
     }
     
-    protected function _validate()
+    protected function _validate() : string
     {
         if(!is_string($this->value)) {
             return '';
@@ -38,19 +40,25 @@ class Request_Param_Validator_Json extends Request_Param_Validator
         if(empty($value)) {
             return '';
         }
-        
-        // strictly validate for objects?
-        if($this->getBoolOption('arrays') === false)
+
+        try
         {
-            if(is_object(json_decode($value))) {
+            // strictly validate for objects?
+            if ($this->getBoolOption('arrays') === false)
+            {
+                if (is_object(json_decode($value, false, 512, JSON_THROW_ON_ERROR)))
+                {
+                    return $value;
+                }
+            }
+            else if (is_array(json_decode($value, true, 512, JSON_THROW_ON_ERROR)))
+            {
                 return $value;
             }
         }
-        else
+        catch (Throwable $e)
         {
-            if(is_array(json_decode($value, true))) {
-                return $value;
-            }
+
         }
         
         return '';

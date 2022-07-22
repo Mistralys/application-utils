@@ -27,7 +27,10 @@ class Request_Param_Validator_Callback extends Request_Param_Validator
             'callback' => null
         );
     }
-    
+
+    /**
+     * @return mixed|NULL
+     */
     protected function _validate()
     {
         $args = $this->getArrayOption('arguments');

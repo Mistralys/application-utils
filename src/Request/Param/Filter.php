@@ -24,18 +24,22 @@ abstract class Request_Param_Filter implements Interface_Optionable
 {
     use Traits_Optionable;
     
-   /**
-    * @var RequestParam
-    */
-    protected $param;
-    
+    protected RequestParam $param;
+
+    /**
+     * @var mixed|NULL
+     */
     protected $value;
     
     public function __construct(RequestParam $param)
     {
         $this->param = $param;
     }
-    
+
+    /**
+     * @param mixed|NULL $value
+     * @return mixed|NULL
+     */
     public function filter($value)
     {
         $this->value = $value;
@@ -43,5 +47,8 @@ abstract class Request_Param_Filter implements Interface_Optionable
         return $this->_filter();
     }
 
+    /**
+     * @return mixed|NULL
+     */
     abstract protected function _filter();
 }

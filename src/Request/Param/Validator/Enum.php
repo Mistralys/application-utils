@@ -26,10 +26,13 @@ class Request_Param_Validator_Enum extends Request_Param_Validator
             'values' => array()
         );
     }
-    
+
+    /**
+     * @return mixed|NULL
+     */
     protected function _validate()
     {
-        if(in_array($this->value, $this->getArrayOption('values'))) {
+        if(in_array($this->value, $this->getArrayOption('values'), true)) {
             return $this->value;
         }
         
