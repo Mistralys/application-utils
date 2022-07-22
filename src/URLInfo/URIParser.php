@@ -11,9 +11,9 @@ namespace AppUtils\URLInfo;
 
 use AppUtils\ClassHelper;
 use AppUtils\ConvertHelper;
-use AppUtils\URLInfo;
 use AppUtils\URLInfo\Parser\BaseURLTypeDetector;
 use AppUtils\URLInfo\Parser\BaseURLValidator;
+use AppUtils\URLInfo\Parser\ParsedInfoFilter;
 use AppUtils\URLInfo\Parser\URLTypeDetector\DetectEmail;
 use AppUtils\URLInfo\Parser\URLTypeDetector\DetectFragmentLink;
 use AppUtils\URLInfo\Parser\URLTypeDetector\DetectIPAddress;
@@ -201,55 +201,7 @@ class URIParser
     */
     protected function filterParsed() : void
     {
-        $this->info['params'] = array();
-        $this->info['type'] = URLInfo::TYPE_NONE;
-
-        if($this->hasScheme())
-        {
-            $this->setScheme(strtolower($this->getScheme()));
-        }
-        else
-        {
-            $scheme = URISchemes::detectScheme($this->url);
-            if(!empty($scheme)) {
-                $this->setScheme(URISchemes::resolveSchemeName($scheme));
-            }
-        }
-
-        if(isset($this->info['user'])) {
-            $this->info['user'] = urldecode($this->info['user']);
-        }
-
-        if(isset($this->info['pass'])) {
-            $this->info['pass'] = urldecode($this->info['pass']);
-        }
-        
-        if($this->hasHost()) {
-            $host = $this->getHost();
-            $host = strtolower($host);
-            $host = str_replace(' ', '', $host);
-            $this->setHost($host);
-        }
-        
-        if($this->hasPath()) {
-            $this->setPath(str_replace(' ', '', $this->getPath()));
-        }
-
-        if($this->getPath() === 'localhost')
-        {
-            $this->setHost('localhost');
-            $this->removePath();
-
-            if(!$this->hasScheme()) {
-                $this->setSchemeHTTPS();
-            }
-        }
-
-        if(isset($this->info['query']) && !empty($this->info['query']))
-        {
-            $this->info['params'] = ConvertHelper::parseQueryString($this->info['query']);
-            ksort($this->info['params']);
-        }
+        $this->info = (new ParsedInfoFilter($this->url, $this->info))->filter();
     }
     
    /**
