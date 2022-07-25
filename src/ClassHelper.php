@@ -222,7 +222,7 @@ class ClassHelper
      * - `Class_Name_With_Underscores` -> `Underscores`
      * - `Class\With\Namespace` -> `Namespace`
      *
-     * @param class-string|object $subject
+     * @param class-string|string|object $subject
      * @return string
      */
     public static function getClassTypeName($subject) : string
