@@ -167,7 +167,7 @@ class URLInfo implements ArrayAccess
      */
     public function isSecure() : bool
     {
-        return isset($this->info['scheme']) && $this->info['scheme'] === 'https';
+        return $this->getScheme() === 'https';
     }
     
     public function isAnchor() : bool
