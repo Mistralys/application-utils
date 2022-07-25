@@ -58,7 +58,9 @@ class Request_Param_Validator_Json extends Request_Param_Validator
         }
         catch (Throwable $e)
         {
-
+            // Invalid JSON must return an empty string.
+            // The application is responsible for asserting
+            // why the parameter is empty.
         }
         
         return '';
