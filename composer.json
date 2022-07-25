@@ -42,7 +42,8 @@
         "ext-gd": "*",
         "ext-simplexml": "*",
         "ext-dom": "*",
-        "ext-zip": "*"
+        "ext-zip": "*",
+        "ext-libxml": "*"
     },
     "require-dev" : 
     {
