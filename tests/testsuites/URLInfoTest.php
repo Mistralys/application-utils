@@ -164,6 +164,12 @@ final class URLInfoTest extends TestCase
                 'url' => 'localhost#foo',
                 'valid' => true,
                 'normalized' => 'https://localhost#foo'
+            ),
+            array(
+                'label' => 'Database DSN',
+                'url' => 'mariadb://user:pass@localhost/dbname',
+                'valid' => true,
+                'normalized' => 'mariadb://user:pass@localhost/dbname'
             )
         );
 
@@ -860,5 +866,23 @@ final class URLInfoTest extends TestCase
         URLHosts::addHost('foohost');
 
         $this->assertTrue(parseURL($url)->isValid());
+    }
+
+    public function test_databaseDSN() : void
+    {
+        $info = parseURL('mariadb://user:pass@localhost/dbname');
+
+        $this->assertSame('mariadb', $info->getScheme());
+        $this->assertSame('user', $info->getUsername());
+        $this->assertSame('pass', $info->getPassword());
+        $this->assertSame('localhost', $info->getHost());
+        $this->assertSame('/dbname', $info->getPath());
+    }
+
+    protected function setUp() : void
+    {
+        parent::setUp();
+
+        URISchemes::addScheme('mariadb://');
     }
 }
