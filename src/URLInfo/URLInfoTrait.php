@@ -39,39 +39,44 @@ trait URLInfoTrait
         return $this->info[$name] ?? null;
     }
 
-    public function getHost() : ?string
+    public function getKeyString(string $name) : string
     {
-        return $this->getKey('host');
+        return (string)$this->getKey($name);
+    }
+
+    public function getHost() : string
+    {
+        return $this->getKeyString('host');
     }
 
     public function getType() : string
     {
-        return $this->getKey('type');
+        return $this->getKeyString('type');
     }
 
-    public function getUser() : ?string
+    public function getUser() : string
     {
-        return $this->getKey('user');
+        return $this->getKeyString('user');
     }
 
-    public function getPassword() : ?string
+    public function getPassword() : string
     {
-        return $this->getKey('pass');
+        return $this->getKeyString('pass');
     }
 
-    public function getQuery() : ?string
+    public function getQuery() : string
     {
-        return $this->getKey('query');
+        return $this->getKeyString('query');
     }
 
-    public function getPath() : ?string
+    public function getPath() : string
     {
-        return $this->getKey('path');
+        return$this->getKeyString('path');
     }
 
-    public function getScheme() : ?string
+    public function getScheme() : string
     {
-        return $this->getKey('scheme');
+        return $this->getKeyString('scheme');
     }
 
     public function setHost(string $host) : self

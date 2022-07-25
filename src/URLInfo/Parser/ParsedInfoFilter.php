@@ -70,7 +70,7 @@ class ParsedInfoFilter
             return;
         }
 
-        $host = strtolower((string)$this->getHost());
+        $host = strtolower($this->getHost());
         $host = str_replace(' ', '', $host);
 
         $this->setHost($host);

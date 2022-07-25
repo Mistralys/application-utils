@@ -23,7 +23,7 @@ class DetectEmail extends BaseURLTypeDetector
     public function detect() : bool
     {
         if($this->getScheme() === 'mailto') {
-            $this->setHostFromEmail($this->getPath());
+            $this->setHostFromEmail((string)$this->getPath());
             $this->setTypeEmail();
             return true;
         }
