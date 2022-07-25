@@ -63,8 +63,8 @@ class VariableInfo implements Interface_Optionable
     );
 
     /**
-     * @param mixed $value
-     * @param array|null $serialized
+     * @param mixed|NULL $value
+     * @param array<mixed>|null $serialized
      * @throws BaseException
      */
     public function __construct($value, ?array $serialized=null)
@@ -94,9 +94,9 @@ class VariableInfo implements Interface_Optionable
 
     /**
      * Restores a variable info instance using a previously serialized
-     * array using the serialize() method.
+     * array using the {@see serialize()} method.
      *
-     * @param array $serialized
+     * @param array<mixed> $serialized
      * @return VariableInfo
      * @throws BaseException
      * @see VariableInfo::serialize()
@@ -110,14 +110,14 @@ class VariableInfo implements Interface_Optionable
     * Parses a previously serialized data set to restore the 
     * variable information from it.
     * 
-    * @param array $serialized
+    * @param array<mixed> $serialized
     * @throws BaseException
     * 
     * @see VariableInfo::ERROR_INVALID_SERIALIZED_DATA
     */
     protected function parseSerialized(array $serialized) : void
     {
-        if(!isset($serialized['string']) || !isset($serialized['type']) || !isset($serialized['options']))
+        if(!isset($serialized['string'], $serialized['type'], $serialized['options']))
         {
             throw new BaseException(
                 'Invalid variable info serialized data.',
@@ -132,25 +132,32 @@ class VariableInfo implements Interface_Optionable
         $this->setOptions($serialized['options']);
     }
 
-    protected function parseValue($value)
+    /**
+     * @param mixed|NULL $value
+     * @return void
+     */
+    protected function parseValue($value) : void
     {
         $this->value = $value;
         $this->type = strtolower(gettype($value));
         
         // Gettype will return a string like "Resource(closed)" when
         // working with a resource that has already been closed.
-        if(strstr($this->type, 'resource'))
+        if(stripos($this->type, 'resource') !== false)
         {
             $this->type = self::TYPE_RESOURCE;
         }
 
-        if(in_array($this->type, $this->callableTypes) && is_callable($value)) {
+        if(is_callable($value) && in_array($this->type, $this->callableTypes)) {
             $this->type = self::TYPE_CALLABLE;
         }
         
         $this->string = $this->_toString();
     }
-    
+
+    /**
+     * @return mixed|NULL
+     */
     public function getValue()
     {
         return $this->value;
@@ -166,7 +173,10 @@ class VariableInfo implements Interface_Optionable
     {
         return $this->type;
     }
-    
+
+    /**
+     * @return array<string,mixed>
+     */
     public function getDefaultOptions() : array
     {
         return array(
@@ -279,12 +289,18 @@ class VariableInfo implements Interface_Optionable
     protected function createRenderer(string $format) : VariableInfo_Renderer
     {
         $name = ucfirst(str_replace(' ', '', $this->type));
-        $class = '\AppUtils\VariableInfo_Renderer_'.$format.'_'.$name;
+        $class = VariableInfo_Renderer::class.'_'.$format.'_'.$name;
         
-        return new $class($this);
+        return ClassHelper::requireObjectInstanceOf(
+            VariableInfo_Renderer::class,
+            new $class($this)
+        );
     }
-    
-    public function serialize()
+
+    /**
+     * @return array<string,mixed>
+     */
+    public function serialize() : array
     {
         return array(
             'type' => $this->type,

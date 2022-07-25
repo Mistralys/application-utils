@@ -6,7 +6,7 @@ namespace AppUtils;
 
 class VariableInfo_Renderer_HTML_String extends VariableInfo_Renderer_HTML
 {
-    protected function _render()
+    protected function _render() : string
     {
         $string = $this->info->toString();
         $string = $this->cutString($string);

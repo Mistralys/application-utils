@@ -16,12 +16,19 @@ class ParsedInfoFilter
 
     private string $url;
 
+    /**
+     * @param string $url
+     * @param array<string,mixed> $info
+     */
     public function __construct(string $url, array $info)
     {
         $this->info = $info;
         $this->url = $url;
     }
 
+    /**
+     * @return array<string,mixed>
+     */
     public function filter() : array
     {
         $this->info['type'] = URLInfo::TYPE_NONE;

@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use JsonSerializable;
+use SimpleXMLElement;
+
 /**
  * Custom decorator for converting a SimpleXMLElement to
  * a meaningful JSON structure.
@@ -19,30 +22,27 @@ namespace AppUtils;
  * @subpackage XMLHelper
  * @see https://hakre.wordpress.com/2013/07/10/simplexml-and-json-encode-in-php-part-iii-and-end/
  */
-class XMLHelper_Converter_Decorator implements \JsonSerializable
+class XMLHelper_Converter_Decorator implements JsonSerializable
 {
-   /**
-    * @var \SimpleXMLElement
-    */
-    private $subject;
+    private SimpleXMLElement $subject;
     
     public const DEF_DEPTH = 512;
     
    /**
-    * @var array
+    * @var array<string,mixed>
     */
-    private $options = array(
+    private array $options = array(
         '@attributes' => true,
         '@text' => true,
         'depth' => self::DEF_DEPTH
     );
 
    /**
-    * @var array|string|null
+    * @var array<mixed>|string
     */
     protected $result = array();
     
-    public function __construct(\SimpleXMLElement $element)
+    public function __construct(SimpleXMLElement $element)
     {
         $this->subject = $element;
     }
@@ -55,7 +55,7 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
     */
     public function useAttributes(bool $bool) : XMLHelper_Converter_Decorator 
     {
-        $this->options['@attributes'] = (bool)$bool;
+        $this->options['@attributes'] = $bool;
         return $this;
     }
     
@@ -67,7 +67,7 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
     */
     public function useText(bool $bool) : XMLHelper_Converter_Decorator 
     {
-        $this->options['@text'] = (bool)$bool;
+        $this->options['@text'] = $bool;
         return $this;
     }
     
@@ -86,7 +86,7 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
     /**
      * Specify data which should be serialized to JSON
      *
-     * @return mixed data which can be serialized by json_encode.
+     * @return array<mixed>|NULL data which can be serialized by json_encode.
      */
     public function jsonSerialize()
     {
@@ -95,17 +95,17 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
         $this->detectAttributes();
         $this->traverseChildren();
         $this->encodeTextElements();
-        
-        // return empty elements as NULL (self-closing or empty tags)
-        if (empty($this->result) && !is_numeric($this->result) && !is_bool($this->result)) 
+
+        if(is_array($this->result) && !empty($this->result))
         {
-            $this->result = NULL;
+            return $this->result;
         }
-        
-        return $this->result;
+
+        // return empty elements as NULL (self-closing or empty tags)
+        return null;
     }
     
-    protected function detectAttributes()
+    protected function detectAttributes() : void
     {
         if(!$this->options['@attributes']) {
             return;
@@ -113,13 +113,20 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
         
         $attributes = $this->subject->attributes();
         
-        if(!empty($attributes)) 
+        if($attributes === null)
         {
-            $this->result['@attributes'] = array_map('strval', iterator_to_array($attributes));
+            return;
+        }
+
+        $values = array_map('strval', iterator_to_array($attributes));
+
+        if(!empty($values))
+        {
+            $this->result['@attributes'] = $values;
         }
     }
     
-    protected function traverseChildren()
+    protected function traverseChildren() : void
     {
         $children = $this->subject;
         $depth = $this->options['depth'] - 1;
@@ -132,16 +139,16 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
         // json encode child elements if any. group on duplicate names as an array.
         foreach ($children as $name => $element) 
         {
-            /* @var \SimpleXMLElement $element */
+            /* @var SimpleXMLElement $element */
             $decorator = new self($element);
             
             $decorator->options = ['depth' => $depth] + $this->options;
-            
-            if(isset($this->result[$name])) 
+
+            if(isset($this->result[$name]))
             {
                 if(!is_array($this->result[$name])) 
                 {
-                    $this->result[$name] = [$this->result[$name]];
+                    $this->result[$name] = array($this->result[$name]);
                 }
                 
                 $this->result[$name][] = $decorator;
@@ -153,12 +160,12 @@ class XMLHelper_Converter_Decorator implements \JsonSerializable
         }
     }
     
-    protected function encodeTextElements()
+    protected function encodeTextElements() : void
     {
         // json encode non-whitespace element simplexml text values.
         $text = trim((string)$this->subject);
         
-        if(strlen($text)) 
+        if($text !== '')
         {
             if($this->options['@text']) 
             {

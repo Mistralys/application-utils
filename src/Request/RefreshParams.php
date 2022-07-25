@@ -26,12 +26,12 @@ class Request_RefreshParams implements Interface_Optionable
    /**
     * @var array<string,mixed>
     */
-    private $overrides = array();
+    private array $overrides = array();
     
    /**
     * @var Request_RefreshParams_Exclude[]
     */
-    private $excludes = array();
+    private array $excludes = array();
     
     public function getDefaultOptions() : array
     {
@@ -77,22 +77,22 @@ class Request_RefreshParams implements Interface_Optionable
         
         return $this;
     }
-    
-   /**
-    * Exclude a request using a callback function.
-    * 
-    * The function gets two parameters:
-    * 
-    * - The name of the request parameter
-    * - The value of the request parameter
-    * 
-    * If the callback returns a boolean true, the
-    * parameter will be excluded.
-    * 
-    * @param callable $callback
-    * @return Request_RefreshParams
-    */
-    public function excludeParamByCallback($callback) : Request_RefreshParams
+
+    /**
+     * Exclude a request using a callback function.
+     *
+     * The function gets two parameters:
+     *
+     * - The name of the request parameter
+     * - The value of the request parameter
+     *
+     * If the callback returns a boolean true, the
+     * parameter will be excluded.
+     *
+     * @param callable $callback
+     * @return Request_RefreshParams
+     */
+    public function excludeParamByCallback(callable $callback) : Request_RefreshParams
     {
         $this->excludes[] = new Request_RefreshParams_Exclude_Callback($callback);
         
@@ -102,7 +102,7 @@ class Request_RefreshParams implements Interface_Optionable
    /**
     * Excludes a request parameter by name.
     * 
-    * @param array $paramNames
+    * @param array<int,string|number> $paramNames
     * @return Request_RefreshParams
     */
     public function excludeParamsByName(array $paramNames) : Request_RefreshParams
@@ -134,7 +134,7 @@ class Request_RefreshParams implements Interface_Optionable
    /**
     * Overrides an array of parameters. 
     * 
-    * @param array $params
+    * @param array<string|number,mixed> $params
     * @return Request_RefreshParams
     */
     public function overrideParams(array $params) : Request_RefreshParams
@@ -191,7 +191,7 @@ class Request_RefreshParams implements Interface_Optionable
         {
             $excludes[] = new Request_RefreshParams_Exclude_Callback(function(string $paramName)
             {
-                return strstr($paramName, '_qf__') !== false;
+                return strpos($paramName, '_qf__') !== false;
             });
         }
     }

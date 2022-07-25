@@ -19,36 +19,17 @@ namespace AppUtils;
  */
 class RequestHelper_Boundaries_Boundary
 {
-   /**
-    * @var string
-    */
-    protected $content;
-    
-   /**
-    * @var array
-    */
-    protected $dispositionParams = array();
+    protected string $content;
+    protected string $contentType = '';
+    protected string $contentEncoding = '';
+    protected RequestHelper_Boundaries $boundaries;
+    protected string $transferEncoding = '';
 
    /**
-    * @var string
+    * @var array<string,string>
     */
-    protected $contentType = '';
+    protected array $dispositionParams = array();
 
-   /**
-    * @var string
-    */
-    protected $contentEncoding = '';
-    
-   /**
-    * @var RequestHelper_Boundaries
-    */
-    protected $boundaries;
-    
-   /**
-    * @var string
-    */
-    protected $transferEncoding = '';
-    
     public function __construct(RequestHelper_Boundaries $boundaries, string $content)
     {
         $this->boundaries = $boundaries;
@@ -124,7 +105,7 @@ class RequestHelper_Boundaries_Boundary
     * 
     * @return string
     */
-    public function render()
+    public function render() : string
     {
         $eol = $this->boundaries->getEOL();
         
@@ -174,8 +155,6 @@ class RequestHelper_Boundaries_Boundary
     
     protected function renderTransferEncoding() : string
     {
-        $result = 'Content-Transfer-Encoding: ' . $this->transferEncoding;
-        
-        return $result;
+        return 'Content-Transfer-Encoding: ' . $this->transferEncoding;
     }
 }

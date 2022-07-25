@@ -22,6 +22,7 @@ class RequestHelper
     public const FILETYPE_TEXT = 'text/plain';
     public const FILETYPE_XML = 'text/xml';
     public const FILETYPE_HTML = 'text/html';
+
     public const ENCODING_UTF8 = 'UTF-8';
 
     public const TRANSFER_ENCODING_BASE64 = 'BASE64';
@@ -32,57 +33,25 @@ class RequestHelper
     public const ERROR_CURL_INIT_FAILED = 17903;
     public const ERROR_CANNOT_OPEN_LOGFILE = 17904;
 
-   /**
-    * @var string
-    */
-    protected $eol = "\r\n";
+    protected string $eol = "\r\n";
+    protected string $mimeBoundary;
+    protected string $destination;
+    protected bool $verifySSL = true;
+    protected RequestHelper_Boundaries $boundaries;
+    protected ?RequestHelper_Response $response = null;
+    protected int $timeout = 30; // seconds
+    protected string $logfile = '';
+    protected int $contentLength = 0;
 
-   /**
-    * @var string
-    */
-    protected $mimeBoundary;
-
-   /**
-    * @var string
-    */
-    protected $destination;
-
-   /**
+    /**
     * @var array<string,string>
     */
     protected $headers = array();
-    
-   /**
-    * Whether to verify SSL certificates.
-    * @var bool
-    */
-    protected $verifySSL = true;
-    
-   /**
-    * @var RequestHelper_Boundaries
-    */
-    protected $boundaries;
-    
-   /**
-    * @var RequestHelper_Response|NULL
-    */
-    protected $response;
-
-   /**
-    * Timeout duration, in seconds.
-    * @var integer
-    */
-    protected $timeout = 30;
-    
-   /**
-    * @var string
-    */
-    protected $logfile = '';
 
    /**
     * @var resource|NULL
     */
-    protected $logfilePointer = null;
+    protected $logfilePointer;
     
    /**
     * Creates a new request helper to send POST data to the specified destination URL.
@@ -158,14 +127,15 @@ class RequestHelper
         
         return $this;
     }
-    
-   /**
-    * Adds arbitrary content.
-    * 
-    * @param string $varName The variable name to send the content in.
-    * @param string $content
-    * @param string $contentType
-    */
+
+    /**
+     * Adds arbitrary content.
+     *
+     * @param string $varName The variable name to send the content in.
+     * @param string $content
+     * @param string $contentType
+     * @return RequestHelper
+     */
     public function addContent(string $varName, string $content, string $contentType) : RequestHelper
     {
         $this->boundaries->addContent($varName, $content, $contentType);
@@ -173,13 +143,14 @@ class RequestHelper
         return $this;
     }
 
-   /**
-    * Adds a variable to be sent with the request. If it
-    * already exists, its value is overwritten.
-    *
-    * @param string $name
-    * @param string $value
-    */
+    /**
+     * Adds a variable to be sent with the request. If it
+     * already exists, its value is overwritten.
+     *
+     * @param string $name
+     * @param string $value
+     * @return RequestHelper
+     */
     public function addVariable(string $name, string $value) : RequestHelper
     {
         $this->boundaries->addVariable($name, $value);
@@ -212,11 +183,6 @@ class RequestHelper
         return $this;
     }
    
-   /**
-    * @var integer
-    */
-    protected $contentLength = 0;
-
    /**
     * Sends the POST request to the destination, and returns
     * the response text.
@@ -336,11 +302,12 @@ class RequestHelper
         
         return $ch;
     }
-    
-   /**
-    * @param resource $ch
-    * @return bool Whether logging is enabled.
-    */
+
+    /**
+     * @param resource $ch
+     * @return bool Whether logging is enabled.
+     * @throws RequestHelper_Exception
+     */
     protected function configureLogging($ch) : bool
     {
         if(empty($this->logfile))
@@ -348,7 +315,7 @@ class RequestHelper
             return false;
         }
         
-        $res = fopen($this->logfile, 'w+');
+        $res = fopen($this->logfile, 'wb+');
         
         if($res === false)
         {
@@ -372,7 +339,7 @@ class RequestHelper
     * the format understood by CURL, namely an indexed
     * array with one header string per entry.
     * 
-    * @return array
+    * @return string[]
     */
     protected function renderHeaders() : array
     {
@@ -391,7 +358,7 @@ class RequestHelper
     * Retrieves the raw response header, in the form of an indexed
     * array containing all response header lines.
     * 
-    * @return array
+    * @return string[]
     */
     public function getResponseHeader() : array
     {
@@ -433,11 +400,6 @@ class RequestHelper
     */
     public function getHeader(string $name) : string
     {
-        if(isset($this->headers[$name]))
-        {
-            return $this->headers[$name];
-        }
-        
-        return '';
+        return $this->headers[$name] ?? '';
     }
 }

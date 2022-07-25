@@ -20,5 +20,10 @@ namespace AppUtils;
  */
 abstract class Request_RefreshParams_Exclude
 {
+    /**
+     * @param string $paramName
+     * @param mixed|NULL $paramValue
+     * @return bool
+     */
     abstract public function isExcluded(string $paramName, $paramValue) : bool;
 }

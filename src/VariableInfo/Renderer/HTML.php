@@ -6,7 +6,10 @@ namespace AppUtils;
 
 abstract class VariableInfo_Renderer_HTML extends VariableInfo_Renderer
 {
-    protected static $colors = array(
+    /**
+     * @var array<string,string>
+     */
+    protected static array $colors = array(
         VariableInfo::TYPE_DOUBLE => 'ce0237',
         VariableInfo::TYPE_INTEGER => 'ce0237',
         VariableInfo::TYPE_ARRAY => '027ace',
@@ -19,7 +22,7 @@ abstract class VariableInfo_Renderer_HTML extends VariableInfo_Renderer
         VariableInfo::TYPE_CALLABLE => 'cf5e20'
     );
     
-    protected function init()
+    protected function init() : void
     {
         
     }
@@ -29,7 +32,7 @@ abstract class VariableInfo_Renderer_HTML extends VariableInfo_Renderer
         return self::$colors[$this->type];
     }
     
-    public function render()
+    public function render() : string
     {
         $converted = sprintf(
             '<span style="color:#%1$s" class="variable-value-%3$s">'.

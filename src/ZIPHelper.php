@@ -33,8 +33,11 @@ class ZIPHelper
     public const ERROR_OPENING_ZIP_FILE = 338003;
     
     public const ERROR_CANNOT_SAVE_FILE_TO_DISK =338004;
-    
-    protected $options = array(
+
+    /**
+     * @var array<string,mixed>
+     */
+    protected array $options = array(
         'WriteThreshold' => 100
     );
     

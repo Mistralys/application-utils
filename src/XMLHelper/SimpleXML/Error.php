@@ -1,48 +1,52 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AppUtils;
+
+use LibXMLError;
 
 class XMLHelper_SimpleXML_Error
 {
-    protected $xml;
+    protected XMLHelper_SimpleXML $xml;
     
    /**
-    * @var  \LibXMLError
+    * @var  LibXMLError
     */
-    protected $nativeError;
+    protected LibXMLError $nativeError;
     
-    public function __construct(XMLHelper_SimpleXML $xml, \LibXMLError $nativeError)
+    public function __construct(XMLHelper_SimpleXML $xml, LibXMLError $nativeError)
     {
         $this->xml = $xml;
         $this->nativeError = $nativeError;
     }
     
-    public function getLevel()
+    public function getLevel() : int
     {
-        return $this->nativeError->level;
+        return (int)$this->nativeError->level;
     }
     
-    public function isWarning()
+    public function isWarning() : bool
     {
-        return $this->getLevel() == LIBXML_ERR_WARNING;
+        return $this->getLevel() === LIBXML_ERR_WARNING;
     }
     
-    public function isFatal()
+    public function isFatal() : bool
     {
-        return $this->getLevel() == LIBXML_ERR_FATAL;
+        return $this->getLevel() === LIBXML_ERR_FATAL;
     }
     
-    public function isError()
+    public function isError() : bool
     {
-        return $this->getLevel() == LIBXML_ERR_ERROR;
+        return $this->getLevel() === LIBXML_ERR_ERROR;
     }
     
-    public function getCode()
+    public function getCode() : int
     {
-        return $this->nativeError->code;
+        return (int)$this->nativeError->code;
     }
     
-    public function getMessage()
+    public function getMessage() : string
     {
         return htmlspecialchars($this->nativeError->message);
     }

@@ -19,39 +19,21 @@ namespace AppUtils;
  */
 class RequestHelper_Response
 {
-   /**
-    * @var RequestHelper
-    */
-    protected $request;
+    protected RequestHelper $request;
+    protected string $body = '';
+    protected bool $isError = false;
+    protected string $errorMessage = '';
+    protected int $errorCode = 0;
+
+    /**
+     * @var array<string,mixed>
+     */
+    protected array $info;
     
-   /**
-    * @var string
-    */
-    protected $body = '';
-    
-   /**
-    * @var array
-    */
-    protected $info;
-    
-   /**
-    * @var bool
-    */
-    protected $isError = false;
-    
-   /**
-    * @var string
-    */
-    protected $errorMessage = '';
-    
-   /**
-    * @var integer
-    */
-    protected $errorCode = 0;
-    
+
    /**
     * @param RequestHelper $helper
-    * @param array $info The CURL info array from curl_getinfo().
+    * @param array<string,mixed> $info The CURL info array from curl_getinfo().
     */
     public function __construct(RequestHelper $helper, array $info)
     {
@@ -148,14 +130,14 @@ class RequestHelper_Response
     */
     public function getCode() : int
     {
-        return intval($this->getInfoKey('http_code'));
+        return (int)$this->getInfoKey('http_code');
     }
     
    /**
     * Retrieves the actual headers that were sent in the request:
     * one header by entry in the indexed array.
     * 
-    * @return array
+    * @return string[]
     */
     public function getHeaders() : array
     {

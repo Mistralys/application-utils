@@ -96,7 +96,7 @@ class URIParser
     * Retrieves the array as parsed by PHP's parse_url,
     * filtered and adjusted as necessary.
     * 
-    * @return array
+    * @return array<string,mixed>
     */
     public function getInfo() : array
     {
@@ -208,8 +208,8 @@ class URIParser
     * Recursively goes through the array, and converts all previously
     * URL encoded characters with their unicode character counterparts.
     * 
-    * @param array $subject
-    * @return array
+    * @param array<string,mixed> $subject
+    * @return array<string,mixed>
     */
     protected function restoreUnicodeChars(array $subject) : array
     {

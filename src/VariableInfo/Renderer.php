@@ -7,19 +7,12 @@ namespace AppUtils;
 abstract class VariableInfo_Renderer
 {
    /**
-    * @var mixed
+    * @var mixed|NULL
     */
     protected $value;
     
-   /**
-    * @var VariableInfo
-    */
-    protected $info;
-    
-   /**
-    * @var string
-    */
-    protected $type;
+    protected VariableInfo $info;
+    protected string $type;
     
     public function __construct(VariableInfo $info)
     {
@@ -29,19 +22,19 @@ abstract class VariableInfo_Renderer
         $this->init();
     }
     
-    abstract protected function init();
+    abstract protected function init() : void;
 
    /**
     * Renders the value to the target format.
     * 
-    * @return mixed
+    * @return string
     */
-    public function render()
+    public function render() : string
     {
         return $this->_render();
     }
     
-    abstract protected function _render();
+    abstract protected function _render() : string;
 
     protected function cutString(string $string) : string
     {

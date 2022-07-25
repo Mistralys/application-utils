@@ -6,7 +6,7 @@ namespace AppUtils;
 
 class VariableInfo_Renderer_String_Unknowntype extends VariableInfo_Renderer_String
 {
-    protected function _render()
+    protected function _render() : string
     {
         return 'unknown type';
     }

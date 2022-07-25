@@ -45,16 +45,14 @@ use SimpleXMLElement;
 class XMLHelper_Converter
 {
     public const ERROR_FAILED_CONVERTING_TO_JSON = 37901;
+    public const ERROR_CANNOT_CREATE_ELEMENT_FROM_STRING = 37902;
     
-   /**
-    * @var SimpleXMLElement
-    */
-    protected $xml;
+    protected SimpleXMLElement $xml;
     
    /**
     * @var string|NULL
     */
-    protected $json;
+    protected ?string $json;
     
     protected function __construct(SimpleXMLElement $element)
     {
@@ -66,12 +64,12 @@ class XMLHelper_Converter
      *
      * @param string $path
      * @return XMLHelper_Converter
-     * @throws Exception
+     * @throws FileHelper_Exception
+     * @throws XMLHelper_Exception
      */
     public static function fromFile(string $path) : XMLHelper_Converter
     {
-        $xmlString = file_get_contents($path);
-        return self::fromString($xmlString);
+        return self::fromString(FileHelper::readContents($path));
     }
 
     /**
@@ -79,11 +77,23 @@ class XMLHelper_Converter
      *
      * @param string $xmlString
      * @return XMLHelper_Converter
-     * @throws Exception
+     * @throws XMLHelper_Exception
      */
     public static function fromString(string $xmlString) : XMLHelper_Converter
     {
-        return self::fromElement(new SimpleXMLElement($xmlString));
+        try
+        {
+            return self::fromElement(new SimpleXMLElement($xmlString));
+        }
+        catch (Exception $e)
+        {
+            throw new XMLHelper_Exception(
+                'Cannot create new element from string.',
+                '',
+                self::ERROR_CANNOT_CREATE_ELEMENT_FROM_STRING,
+                $e
+            );
+        }
     }
     
    /**
@@ -148,8 +158,9 @@ class XMLHelper_Converter
 
    /**
     * Converts the XML to an associative array.
-    * @return array
-    * @throws XMLHelper_Exception|JsonException
+    * @return array<mixed>
+    * @throws XMLHelper_Exception
+    * @throws JsonException
     */
     public function toArray() : array 
     {

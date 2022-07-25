@@ -20,27 +20,13 @@ namespace AppUtils;
  */
 class Request_RefreshParams_Exclude_Callback extends Request_RefreshParams_Exclude
 {
-    public const ERROR_INVALID_CALLBACK = 62101;
-    
    /**
     * @var callable
     */
     private $callback;
     
-    public function __construct($callback)
+    public function __construct(callable $callback)
     {
-        if(!is_callable($callback))
-        {
-            throw new Request_Exception(
-                'Invalid exclusion callback',
-                sprintf(
-                    'The variable [%s] is not a valid callback.',
-                    parseVariable($callback)->enableType()->toString()
-                ),
-                self::ERROR_INVALID_CALLBACK
-            );
-        }
-        
         $this->callback = $callback;
     }
     

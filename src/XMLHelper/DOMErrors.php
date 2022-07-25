@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use LibXMLError;
+
 /**
  * Container for libxml errors: converts an array of libxml errors
  * to dom error instances which are a lot easier to work with.
@@ -21,15 +23,15 @@ namespace AppUtils;
  */
 class XMLHelper_DOMErrors
 {
-    public const SERIALIZE_SEPARATOR = '__SERSEP__';
+    public const SERIALIZE_SEPARATOR = '__SERIALIZE_SEP__';
     
    /**
     * @var XMLHelper_DOMErrors_Error[]
     */
-    private $errors;
+    private array $errors = array();
     
    /**
-    * @param \LibXMLError[]|XMLHelper_DOMErrors_Error[] $libxmlErrors
+    * @param LibXMLError[]|XMLHelper_DOMErrors_Error[] $libxmlErrors
     */
     public function __construct(array $libxmlErrors)
     {
@@ -39,7 +41,7 @@ class XMLHelper_DOMErrors
             {
                 $this->errors[] = $error;
             }
-            else if($error instanceof \LibXMLError)
+            else if($error instanceof LibXMLError)
             {
                 $this->errors[] = new XMLHelper_DOMErrors_Error($error);
             }
@@ -50,8 +52,11 @@ class XMLHelper_DOMErrors
     {
         return empty($this->errors);
     }
-    
-    public function getAll()
+
+    /**
+     * @return XMLHelper_DOMErrors_Error[]
+     */
+    public function getAll() : array
     {
         return $this->errors;
     }
@@ -61,26 +66,35 @@ class XMLHelper_DOMErrors
     * 
     * @return XMLHelper_DOMErrors_Error[]
     */
-    public function getWarnings()
+    public function getWarnings() : array
     {
         return $this->getByLevel(LIBXML_ERR_WARNING);
     }
-    
-    public function getErrors()
+
+    /**
+     * @return XMLHelper_DOMErrors_Error[]
+     */
+    public function getErrors() : array
     {
         return $this->getByLevel(LIBXML_ERR_ERROR);
     }
-    
-    public function getFatalErrors()
+
+    /**
+     * @return XMLHelper_DOMErrors_Error[]
+     */
+    public function getFatalErrors() : array
     {
         return $this->getByLevel(LIBXML_ERR_FATAL);
     }
-    
-    public function getNestingErrors()
+
+    /**
+     * @return XMLHelper_DOMErrors_Error[]
+     */
+    public function getNestingErrors() : array
     {
         return $this->getByCode(XMLHelper_LibXML::TAG_NAME_MISMATCH);
     }
-    
+
     public function hasWarnings() : bool
     {
         return $this->hasErrorsByLevel(LIBXML_ERR_WARNING);
@@ -111,9 +125,9 @@ class XMLHelper_DOMErrors
     * Retrieves all errors by the specified libxml error level.
     * 
     * @param int $level
-    * @return \AppUtils\XMLHelper_DOMErrors_Error[]
+    * @return XMLHelper_DOMErrors_Error[]
     */
-    public function getByLevel(int $level)
+    public function getByLevel(int $level) : array
     {
         $result = array();
         
@@ -132,9 +146,9 @@ class XMLHelper_DOMErrors
     * Retrieves all errors by the specified libxml error code.
     * 
     * @param int $code
-    * @return \AppUtils\XMLHelper_DOMErrors_Error[]
+    * @return XMLHelper_DOMErrors_Error[]
     */
-    public function getByCode(int $code)
+    public function getByCode(int $code) : array
     {
         $result = array();
         
@@ -186,7 +200,10 @@ class XMLHelper_DOMErrors
         
         return false;
     }
-    
+
+    /**
+     * @return array<int,array<string,mixed>>
+     */
     public function toArray() : array
     {
         $result = array();
@@ -200,7 +217,7 @@ class XMLHelper_DOMErrors
     }
     
    /**
-    * Serializes the errors collection, so it can be stored and
+    * Serializes the error collection, so it can be stored and
     * restored as needed, using the `fromSerialized()` method.
     * 
     * @return string
@@ -217,15 +234,16 @@ class XMLHelper_DOMErrors
         
         return implode(self::SERIALIZE_SEPARATOR, $data);
     }
-    
-   /**
-    * Restores the errors collection from a previously serialized
-    * collection, using `serialize()`. 
-    * 
-    * @param string $serialized
-    * @return XMLHelper_DOMErrors
-    * @see XMLHelper_DOMErrors::serialize()
-    */
+
+    /**
+     * Restores the error collection from a previously serialized
+     * collection, using `serialize()`.
+     *
+     * @param string $serialized
+     * @return XMLHelper_DOMErrors
+     * @throws XMLHelper_Exception
+     * @see XMLHelper_DOMErrors::serialize()
+     */
     public static function fromSerialized(string $serialized) : XMLHelper_DOMErrors
     {
         $parts = explode(self::SERIALIZE_SEPARATOR, $serialized);

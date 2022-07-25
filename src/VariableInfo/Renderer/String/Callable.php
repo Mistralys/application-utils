@@ -8,7 +8,7 @@ use Closure;
 
 class VariableInfo_Renderer_String_Callable extends VariableInfo_Renderer_String
 {
-    protected function _render()
+    protected function _render() : string
     {
         $string = '';
 

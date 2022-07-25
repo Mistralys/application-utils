@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use JsonException;
+use SimpleXMLElement;
+
 /**
  * Utility class to create SimpleXML elements, with
  * easier error handling. 
@@ -23,15 +26,12 @@ class XMLHelper_SimpleXML
 {
     public const ERROR_NOT_LOADED_YET = 56501;
     
-   /**
-    * @var \SimpleXMLElement|NULL
-    */
-    private $element = null;
+    private ?SimpleXMLElement $element = null;
     
    /**
     * @var XMLHelper_SimpleXML_Error[]
     */
-    private $errors = array();
+    private array $errors = array();
     
    /**
     * Creates a simplexml instance from an XML string.
@@ -39,9 +39,9 @@ class XMLHelper_SimpleXML
     * NOTE: returns false in case of a fatal error.
     *
     * @param string $string
-    * @return \SimpleXMLElement|NULL
+    * @return SimpleXMLElement|NULL
     */
-    public function loadString(string $string) : ?\SimpleXMLElement
+    public function loadString(string $string) : ?SimpleXMLElement
     {
         return $this->load('string', $string);
     }
@@ -52,14 +52,14 @@ class XMLHelper_SimpleXML
     * NOTE: returns false in case of a fatal error.
     * 
     * @param string $file
-    * @return \SimpleXMLElement|NULL
+    * @return SimpleXMLElement|NULL
     */
-    public function loadFile(string $file) : ?\SimpleXMLElement
+    public function loadFile(string $file) : ?SimpleXMLElement
     {
         return $this->load('file', $file);
     }
     
-    private function load(string $mode, string $subject) : ?\SimpleXMLElement
+    private function load(string $mode, string $subject) : ?SimpleXMLElement
     { 
         $this->errors = array();
         
@@ -91,13 +91,13 @@ class XMLHelper_SimpleXML
         libxml_clear_errors();
     }
     
-    private function createInstance(string $mode, string $subject) : ?\SimpleXMLElement
+    private function createInstance(string $mode, string $subject) : ?SimpleXMLElement
     {
         $function = 'simplexml_load_'.$mode;
         
         $xml = $function($subject);
         
-        if($xml instanceof \SimpleXMLElement)
+        if($xml instanceof SimpleXMLElement)
         {
             return $xml;
         }
@@ -107,14 +107,19 @@ class XMLHelper_SimpleXML
     
     public function getConverter() : XMLHelper_Converter
     {
-        if($this->element instanceof \SimpleXMLElement)
+        if($this->element instanceof SimpleXMLElement)
         {
             return XMLHelper::convertElement($this->element);
         }
         
         throw $this->createNotLoadedException(); 
     }
-     
+
+    /**
+     * @return array<mixed>
+     * @throws XMLHelper_Exception
+     * @throws JsonException
+     */
     public function toArray() : array
     {
         return $this->getConverter()->toArray();
@@ -140,7 +145,7 @@ class XMLHelper_SimpleXML
      * Retrieves all errors (if any) recorded during parsing.
      * @return XMLHelper_SimpleXML_Error[]
      */
-    public function getErrorMessages()
+    public function getErrorMessages() : array
     {
         return $this->errors;
     }

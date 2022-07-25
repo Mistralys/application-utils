@@ -11,6 +11,9 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use DOMNode;
+use DOMNodeList;
+
 /**
  * Wrapper around the `DOMDocument->loadHTML()` method to
  * make it easier to work with, and add a number of utility
@@ -156,9 +159,9 @@ class XMLHelper_HTMLLoader
     * Retrieves all nodes from the HTML fragment (= child nodes
     * of the `<body>` element).
     * 
-    * @return \DOMNodeList
+    * @return DOMNodeList<DOMNode>
     */
-    public function getFragmentNodes() : \DOMNodeList
+    public function getFragmentNodes() : DOMNodeList
     {
         return $this->bodyNode->childNodes;
     }

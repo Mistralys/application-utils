@@ -1,6 +1,6 @@
 <?php
 
-function NoClassesFunction()
+function NoClassesFunction() : void
 {
     
 }
