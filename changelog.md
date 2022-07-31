@@ -12,6 +12,10 @@
 
 - ImageHelper: Renamed all `opacity` methods to `alpha`.
 
+#### Deprecated features
+
+- SVNHelper: Marked as deprecated, will be removed in a future release.
+
 ### v2.1.3 - URLInfo maintenance release
 - URLInfo: Fixed parsing localhost URLs, with or without scheme.
 - URLInfo: Improved the parsing of some edge cases.
