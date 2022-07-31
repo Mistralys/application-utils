@@ -1,6 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace AppUtils;
+
+use ArrayAccess;
 
 /**
  * Size container: instances of this class are returned when
@@ -10,12 +14,20 @@ namespace AppUtils;
  * @package Application Utils
  * @subpackage ImageHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ * @implements ArrayAccess<string|int,int>
+ *
  * @see ImageHelper::getImageSize()
  */
-class ImageHelper_Size implements \ArrayAccess
+class ImageHelper_Size implements ArrayAccess
 {
-    protected $size;
-    
+    /**
+     * @var array{width:int,height:int,channels:int,bits:int,0:int,1:int}
+     */
+    protected array $size;
+
+    /**
+     * @param array<string|int,int> $size
+     */
     public function __construct(array $size)
     {
         if(!isset($size['width'])) {
@@ -37,10 +49,27 @@ class ImageHelper_Size implements \ArrayAccess
         if(!isset($size['channels'])) {
             $size['channels'] = 1;
         }
+
+        if(!isset($size['bits'])) {
+            $size['bits'] = -1;
+        }
         
         $this->size = $size;
     }
-    
+
+    /**
+     * @param array<string|int,int>|ImageHelper_Size $arrayOrInstance
+     * @return ImageHelper_Size
+     */
+    public static function create($arrayOrInstance) : ImageHelper_Size
+    {
+        if($arrayOrInstance instanceof self) {
+            return new self($arrayOrInstance->toArray());
+        }
+
+        return new self($arrayOrInstance);
+    }
+
     public function getWidth() : int
     {
         return $this->size['width'];
@@ -60,31 +89,48 @@ class ImageHelper_Size implements \ArrayAccess
     {
         return $this->size['bits'];
     }
-    
-    public function offsetExists($offset)
+
+    /**
+     * @return array{width:int,height:int,channels:int,bits:int,0:int,1:int}
+     */
+    public function toArray() : array
+    {
+        return $this->size;
+    }
+
+    /**
+     * @param string|int $offset
+     * @return bool
+     */
+    public function offsetExists($offset) : bool
     {
         return isset($this->size[$offset]);
     }
-    
-    public function offsetGet($offset)
+
+    /**
+     * @param string|int $offset
+     * @return int|null
+     */
+    public function offsetGet($offset) : ?int
     {
-        if(isset($this->size[$offset])) {
-            return $this->size[$offset];
-        }
-        
-        return null;
+        return $this->size[$offset] ?? null;
     }
-    
-    public function offsetSet($offset, $value)
+
+    /**
+     * @param string|int $offset
+     * @param int $value
+     * @return void
+     */
+    public function offsetSet($offset, $value) : void
     {
-        if(is_null($offset)) {
-            $this->size[] = $value;
-        } else {
-            $this->size[$offset] = $value;
-        }
+        $this->size[$offset] = $value;
     }
-    
-    public function offsetUnset($offset)
+
+    /**
+     * @param string|int $offset
+     * @return void
+     */
+    public function offsetUnset($offset) : void
     {
         unset($this->size[$offset]);
     }
