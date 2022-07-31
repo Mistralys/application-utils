@@ -11,9 +11,9 @@ use AppUtils\StyleCollection\StyleBuilder;
 
 abstract class ColorContainer extends StyleContainer
 {
-    public function rgbaValues(int $red, int $green, int $blue, float $opacity=1) : StyleBuilder
+    public function rgbaValues(int $red, int $green, int $blue, float $alpha=0) : StyleBuilder
     {
-        return $this->rgba(ColorFactory::createCSS($red, $green, $blue, $opacity));
+        return $this->rgba(ColorFactory::createCSS($red, $green, $blue, $alpha));
     }
 
     public function rgba(RGBAColor $color, bool $important=false) : StyleBuilder
