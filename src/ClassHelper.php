@@ -234,7 +234,7 @@ class ClassHelper
     /**
      * Retrieves the namespace part of a class name, if any.
      *
-     * @param class-string|object $subject
+     * @param class-string|string|object $subject
      * @return string
      */
     public static function getClassNamespace($subject) : string
@@ -246,7 +246,7 @@ class ClassHelper
     }
 
     /**
-     * @param class-string|object $subject
+     * @param class-string|string|object $subject
      * @return string[]
      */
     private static function splitClass($subject) : array
