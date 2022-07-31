@@ -997,7 +997,7 @@ class ConvertHelper
      * actually callable, as compared to
      * `parseVariable($callback)->toString()`.
      *
-     * @param callable $callback
+     * @param callable|array{0:string,1:string} $callback
      * @return string
      */
     public static function callback2string($callback) : string
