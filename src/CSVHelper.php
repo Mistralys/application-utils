@@ -7,8 +7,11 @@
  * @see CSVHelper
  */
 
+declare(strict_types=1);
+
 namespace AppUtils;
 
+use JsonException;
 use ParseCsv\Csv;
 
 /**
@@ -48,7 +51,28 @@ class CSVHelper
     public const HEADERS_LEFT = 'hleft';
     public const HEADERS_TOP = 'htop';
     public const HEADERS_NONE = 'hnone';
-    
+
+    protected string $csv = '';
+    protected string $headersPosition = self::HEADERS_NONE;
+    protected string $separator = ';';
+    protected int $columnCount = 0;
+    protected int $rowCount = 0;
+
+    /**
+     * @var string[]
+     */
+    protected array $errors = array();
+
+    /**
+     * @var array<int,array<int,mixed>>
+     */
+    protected array $data = array();
+
+    /**
+     * @var string[]
+     */
+    protected array $headers = array();
+
     public function __construct()
     {
         
@@ -60,22 +84,13 @@ class CSVHelper
     * 
     * @return CSVHelper_Builder
     */
-    public static function createBuilder()
+    public static function createBuilder() : CSVHelper_Builder
     {
         return new CSVHelper_Builder();
     }
 
-   /**
-    * @var string
-    */
-    protected $csv = '';
-    
-    protected $data = array();
-    
-    protected $headers = array();
-    
-    protected $headersPosition = self::HEADERS_NONE;
-    
+
+
    /**
     * Loads CSV data from a string. 
     * 
@@ -84,9 +99,9 @@ class CSVHelper
     * afterwards.
     * 
     * @param string $string
-    * @return CSVHelper
+    * @return $this
     */
-    public function loadString($string)
+    public function loadString(string $string) : self
     {
         // remove any UTF byte order marks that may still be present in the string
         $this->csv = ConvertHelper::stripUTFBom($string);
@@ -113,68 +128,64 @@ class CSVHelper
     * @see FileHelper::ERROR_FILE_DOES_NOT_EXIST
     * @see FileHelper::ERROR_CANNOT_READ_FILE_CONTENTS
     */
-    public function loadFile(string $file) : CSVHelper
+    public function loadFile(string $file) : self
     {
         $csv = FileHelper::readContents($file);
         
         return $this->loadString($csv);
     }
-    
-    protected $errors = array();
-    
-    protected $columnCount = 0;
-    
-    protected $rowCount = 0;
-    
-   /**
-    * Specifies that headers are positioned on top, horizontally.
-    * @return CSVHelper
-    */
-    public function setHeadersTop()
+
+    /**
+     * Specifies that headers are positioned on top, horizontally.
+     * @return $this
+     *
+     * @throws CSVHelper_Exception
+     */
+    public function setHeadersTop() : self
     {
         return $this->setHeadersPosition(self::HEADERS_TOP);
     }
-    
-   /**
-    * Specifies that headers are positioned on the left, vertically.
-    * @return CSVHelper
-    */
-    public function setHeadersLeft()
+
+    /**
+     * Specifies that headers are positioned on the left, vertically.
+     * @return $this
+     *
+     * @throws CSVHelper_Exception
+     */
+    public function setHeadersLeft() : self
     {
         return $this->setHeadersPosition(self::HEADERS_LEFT);
     }
-    
-   /**
-    * Specifies that there are no headers in the file (default).
-    * @return CSVHelper
-    */
-    public function setHeadersNone()
+
+    /**
+     * Specifies that there are no headers in the file (default).
+     * @return $this
+     *
+     * @throws CSVHelper_Exception
+     */
+    public function setHeadersNone() : self
     {
         return $this->setHeadersPosition(self::HEADERS_NONE);
     }
-    
-    public function isHeadersLeft()
+
+    public function isHeadersLeft() : bool
     {
         return $this->isHeadersPosition(self::HEADERS_LEFT);
     }
     
-    public function isHeadersTop()
+    public function isHeadersTop() : bool
     {
         return $this->isHeadersPosition(self::HEADERS_TOP);
     }
     
-    public function isHeadersNone()
+    public function isHeadersNone() : bool
     {
         return $this->isHeadersPosition(self::HEADERS_NONE);
     }
     
-    public function isHeadersPosition($position)
+    public function isHeadersPosition(string $position) : bool
     {
-        if($this->headersPosition === $position) {
-            return true;
-        }
-        
-        return false;
+        return $this->headersPosition === $position;
     }
     
    /**
@@ -184,12 +195,13 @@ class CSVHelper
     * 
     * @param string $position
     * @throws CSVHelper_Exception
-    * @return CSVHelper
+    * @return $this
+    *
     * @see CSVHelper::HEADERS_LEFT
     * @see CSVHelper::HEADERS_TOP
     * @see CSVHelper::HEADERS_NONE
     */
-    public function setHeadersPosition($position)
+    public function setHeadersPosition(string $position) : self
     {
         $validPositions = array(
             self::HEADERS_LEFT, 
@@ -220,9 +232,9 @@ class CSVHelper
     * with a new file, or to start building a new CSV file from
     * scratch.
     * 
-    * @return CSVHelper
+    * @return $this
     */
-    public function reset()
+    public function reset() : self
     {
         $this->data = array();
         $this->headers = array();
@@ -232,8 +244,11 @@ class CSVHelper
         
         return $this;
     }
-    
-    public function getData()
+
+    /**
+     * @return array<int,array<int,mixed>>
+     */
+    public function getData() : array
     {
         return $this->data;
     }
@@ -248,16 +263,12 @@ class CSVHelper
     * whether the specified row exists.
     * 
     * @param integer $index
-    * @return array()
+    * @return array<int,mixed>
     * @see rowExists()
     */
-    public function getRow($index)
+    public function getRow(int $index) : array
     {
-        if(isset($this->data[$index])) {
-            return $this->data[$index];
-        }
-        
-        return array_fill(0, $this->rowCount, '');
+        return $this->data[$index] ?? array_fill(0, $this->rowCount, '');
     }
     
    /**
@@ -265,7 +276,7 @@ class CSVHelper
     * @param integer $index
     * @return boolean
     */
-    public function rowExists($index)
+    public function rowExists(int $index) : bool
     {
         return isset($this->data[$index]);
     }
@@ -277,7 +288,7 @@ class CSVHelper
     * 
     * @return integer
     */
-    public function countRows()
+    public function countRows() : int
     {
         return $this->rowCount;
     }
@@ -289,7 +300,7 @@ class CSVHelper
     * 
     * @return integer
     */
-    public function countColumns()
+    public function countColumns() : int
     {
         return $this->columnCount;
     }
@@ -298,9 +309,9 @@ class CSVHelper
     * Retrieves the headers, if any. Specify the position of the
     * headers first to ensure this works correctly.
     * 
-    * @return array Indexed array with header names.
+    * @return string[] Indexed array with header names.
     */
-    public function getHeaders()
+    public function getHeaders() : array
     {
         return $this->headers;
     }
@@ -317,15 +328,14 @@ class CSVHelper
     * @return string[]
     * @see columnExists()
     */
-    public function getColumn($index)
+    public function getColumn(int $index) : array
     {
         $data = array();
-        for($i=0; $i < $this->rowCount; $i++) {
-            $value = '';
-            if(isset($this->data[$i][$index])) {
-                $value = $this->data[$i][$index];
-            }
-            
+
+        for($i=0; $i < $this->rowCount; $i++)
+        {
+            $value = $this->data[$i][$index] ?? '';
+
             $data[] = $value;
         }
         
@@ -337,16 +347,12 @@ class CSVHelper
     * @param integer $index
     * @return boolean
     */
-    public function columnExists($index)
+    public function columnExists(int $index) : bool
     {
-        if($index < $this->columnCount) {
-            return true;
-        }
-        
-        return false;
+        return $index < $this->columnCount;
     }
     
-    protected function parse()
+    protected function parse() : void
     {
         $this->reset();
         
@@ -377,13 +383,14 @@ class CSVHelper
                 
             case self::HEADERS_LEFT:
                 $keep = array();
-                $total = count($result);
-                for($i=0; $i < $total; $i++) {
-                    $row = $result[$i];
+
+                foreach ($result as $value)
+                {
+                    $row = $value;
                     $this->headers[] = array_shift($row);
                     $keep[] = $row;
                 }
-                
+
                 $result = $keep;
                 break;
         }
@@ -406,28 +413,27 @@ class CSVHelper
     * @return boolean
     * @see getErrorMessages()
     */
-    public function hasErrors()
+    public function hasErrors() : bool
     {
         return !empty($this->errors);
     }
     
    /**
     * Retrieves all error messages.
-    * @return array
+    * @return string[]
     */
-    public function getErrorMessages()
+    public function getErrorMessages() : array
     {
         return $this->errors;
     }
     
-    protected function addError($error)
+    protected function addError(string $error) : self
     {
         $this->errors[] = $error;
+        return $this;
     }
     
-    protected $separator = ';';
-    
-    protected function detectSeparator()
+    protected function detectSeparator() : string
     {
         $search = array(
             "\"\t\"" => "\t",
@@ -438,7 +444,7 @@ class CSVHelper
         );
         
         foreach($search as $char => $separator) {
-            if(strstr($this->csv, $char)) {
+            if(strpos($this->csv, $char) !== false) {
                 return $separator;
             }
         }
@@ -469,8 +475,11 @@ class CSVHelper
      * if any.
      *
      * @param string $path
-     * @return array
-     * @throws CSVHelper_Exception|FileHelper_Exception
+     * @return array<int,array<int,mixed>>
+     *
+     * @throws CSVHelper_Exception
+     * @throws FileHelper_Exception
+     * @throws JsonException
      *
      * @see CSVHelper::ERROR_CSV_FILE_NOT_READABLE
      * @see CSVHelper::ERROR_FILE_PARSING_FAILED
@@ -507,7 +516,7 @@ class CSVHelper
      * if any.
      *
      * @param string $string
-     * @return array
+     * @return array<int,array<int,mixed>>
      * @throws CSVHelper_Exception
      *
      * @see CSVHelper::ERROR_STRING_PARSING_FAILED
