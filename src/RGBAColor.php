@@ -53,7 +53,7 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     /**
      * @var array<string,ColorChannel>
      */
-    private $color;
+    private array $color;
 
     /**
      * @var string[]
@@ -65,24 +65,21 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
         self::CHANNEL_ALPHA
     );
 
-    /**
-     * @var string
-     */
-    private $name;
+    private string $name;
 
     /**
      * @param ColorChannel $red
      * @param ColorChannel $green
      * @param ColorChannel $blue
-     * @param ColorChannel $opacity
+     * @param ColorChannel $alpha
      * @param string $name
      */
-    public function __construct(ColorChannel $red, ColorChannel $green, ColorChannel $blue, ColorChannel $opacity, string $name)
+    public function __construct(ColorChannel $red, ColorChannel $green, ColorChannel $blue, ColorChannel $alpha, string $name)
     {
         $this->color[self::CHANNEL_RED] = $red;
         $this->color[self::CHANNEL_GREEN] = $green;
         $this->color[self::CHANNEL_BLUE] = $blue;
-        $this->color[self::CHANNEL_ALPHA] = $opacity;
+        $this->color[self::CHANNEL_ALPHA] = $alpha;
         $this->name = $name;
     }
 
@@ -98,15 +95,6 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     }
 
     /**
-     * Whether the alpha channel has a transparency value.
-     * @return bool
-     */
-    public function hasTransparency() : bool
-    {
-        return $this->getOpacity()->get8Bit() < 255;
-    }
-
-    /**
      * Human-readable label of the color. Automatically
      * switches between RGBA and RGB depending on whether
      * the color has any transparency.
@@ -116,6 +104,45 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     public function getLabel() : string
     {
         return FormatsConverter::color2readable($this);
+    }
+
+    // region: Get components
+
+    /**
+     * Gets the color's luminance equivalent.
+     *
+     * @return int Integer, from 0 to 255 (0=black, 255=white)
+     */
+    public function getLuma() : int
+    {
+        return (int)floor(
+            (
+                ($this->getRed()->get8Bit()*2)
+                +
+                $this->getBlue()->get8Bit()
+                +
+                ($this->getGreen()->get8Bit()*3)
+            )
+            /6
+        );
+    }
+
+    /**
+     * Retrieves the brightness of the color, in percent.
+     * @return float
+     */
+    public function getBrightness() : float
+    {
+        return $this->getLuma() * 100 / 255;
+    }
+
+    /**
+     * Whether the alpha channel has a transparency value.
+     * @return bool
+     */
+    public function hasTransparency() : bool
+    {
+        return $this->getAlpha()->get8Bit() > 0;
     }
 
     /**
@@ -149,11 +176,11 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     }
 
     /**
-     * The opacity of the color (smaller value = transparent, higher value = opaque).
+     * The opacity of the color (smaller value = opaque, higher value = transparent).
      *
      * @return ColorChannel
      */
-    public function getOpacity() : ColorChannel
+    public function getAlpha() : ColorChannel
     {
         return $this->color[self::CHANNEL_ALPHA];
     }
@@ -183,6 +210,8 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
 
         return $this->color[$name];
     }
+
+    // endregion
 
     // region: Converting
 
@@ -230,7 +259,7 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
             $red,
             $this->getGreen(),
             $this->getBlue(),
-            $this->getOpacity()
+            $this->getAlpha()
         );
     }
 
@@ -247,7 +276,7 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
             $this->getRed(),
             $green,
             $this->getBlue(),
-            $this->getOpacity()
+            $this->getAlpha()
         );
     }
 
@@ -264,7 +293,7 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
             $this->getRed(),
             $this->getGreen(),
             $blue,
-            $this->getOpacity()
+            $this->getAlpha()
         );
     }
 
@@ -272,22 +301,22 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
      * Returns a new instance with the modified color channel,
      * keeping all other color values.
      *
-     * @param ColorChannel $opacity
+     * @param ColorChannel $alpha
      * @return RGBAColor
      */
-    public function setOpacity(ColorChannel $opacity) : RGBAColor
+    public function setAlpha(ColorChannel $alpha) : RGBAColor
     {
         return ColorFactory::create(
             $this->getRed(),
             $this->getGreen(),
             $this->getBlue(),
-            $opacity
+            $alpha
         );
     }
 
     /**
      * Sets the transparency of the color, which is an alias
-     * for the opacity, but inverted. Returns a new color
+     * for the alpha, but inverted. Returns a new color
      * instance with the modified value.
      *
      * @param ColorChannel $transparency
@@ -295,7 +324,7 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
      */
     public function setTransparency(ColorChannel $transparency) : RGBAColor
     {
-        return $this->setOpacity($transparency->invert());
+        return $this->setAlpha($transparency->invert());
     }
 
     /**
@@ -317,7 +346,7 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
             self::CHANNEL_RED => $this->getRed(),
             self::CHANNEL_GREEN => $this->getGreen(),
             self::CHANNEL_BLUE => $this->getBlue(),
-            self::CHANNEL_ALPHA => $this->getOpacity()
+            self::CHANNEL_ALPHA => $this->getAlpha()
         );
 
         $channels[$name] = $value;

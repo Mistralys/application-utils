@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace AppUtils\RGBAColor;
 
+use AppUtils\ImageHelper_Exception;
 use AppUtils\RGBAColor;
 use AppUtils\RGBAColor\ColorPresets\CannedColors;
 
@@ -25,6 +26,8 @@ use AppUtils\RGBAColor\ColorPresets\CannedColors;
  */
 class ColorFactory
 {
+    public const ERROR_INVALID_GD_ERROR_CODE = 113801;
+
     /**
      * @var PresetsManager|null
      */
@@ -50,18 +53,18 @@ class ColorFactory
      * @param ColorChannel $red
      * @param ColorChannel $green
      * @param ColorChannel $blue
-     * @param ColorChannel|null $opacity
+     * @param ColorChannel|null $alpha
      * @param string $name
      * @return RGBAColor
      */
-    public static function create(ColorChannel $red, ColorChannel $green, ColorChannel $blue, ?ColorChannel $opacity=null, string $name='') : RGBAColor
+    public static function create(ColorChannel $red, ColorChannel $green, ColorChannel $blue, ?ColorChannel $alpha=null, string $name='') : RGBAColor
     {
-        if($opacity === null)
+        if($alpha === null)
         {
-            $opacity = ColorChannel::eightBit(255);
+            $alpha = ColorChannel::eightBit(0);
         }
 
-        return new RGBAColor($red, $green, $blue, $opacity, $name);
+        return new RGBAColor($red, $green, $blue, $alpha, $name);
     }
 
     /**
@@ -129,7 +132,7 @@ class ColorFactory
      *    'red' => 45,
      *    'green' => 121,
      *    'blue' => 147,
-     *    ['alpha' => 255]
+     *    ['alpha' => 0]
      * ));
      * </pre>
      *
@@ -140,7 +143,7 @@ class ColorFactory
      *    45,
      *    121,
      *    147,
-     *    [255]
+     *    [0]
      * ));
      * </pre>
      *
@@ -157,7 +160,7 @@ class ColorFactory
 
         if(!isset($color[RGBAColor::CHANNEL_ALPHA]))
         {
-            $color[RGBAColor::CHANNEL_ALPHA] = 255;
+            $color[RGBAColor::CHANNEL_ALPHA] = 0;
         }
 
         return self::create(
@@ -201,17 +204,17 @@ class ColorFactory
      * @param float $red 0-100
      * @param float $green 0-100
      * @param float $blue 0-100
-     * @param float $opacity 0-100
+     * @param float $alpha 0-100
      * @param string $name
      * @return RGBAColor
      */
-    public static function createPercent(float $red, float $green, float $blue, float $opacity=100, string $name='') : RGBAColor
+    public static function createPercent(float $red, float $green, float $blue, float $alpha=0, string $name='') : RGBAColor
     {
         return new RGBAColor(
             ColorChannel::percent($red),
             ColorChannel::percent($green),
             ColorChannel::percent($blue),
-            ColorChannel::percent($opacity),
+            ColorChannel::percent($alpha),
             $name
         );
     }
@@ -223,17 +226,17 @@ class ColorFactory
      * @param int $red 0-255
      * @param int $green 0-255
      * @param int $blue 0-255
-     * @param float $opacity 0-1
+     * @param float $alpha 0-1
      * @param string $name
      * @return RGBAColor
      */
-    public static function createCSS(int $red, int $green, int $blue, float $opacity=1, string $name='') : RGBAColor
+    public static function createCSS(int $red, int $green, int $blue, float $alpha=0, string $name='') : RGBAColor
     {
         return self::create(
             ColorChannel::eightBit($red),
             ColorChannel::eightBit($green),
             ColorChannel::eightBit($blue),
-            ColorChannel::decimal($opacity),
+            ColorChannel::decimal($alpha),
             $name
         );
     }
@@ -245,17 +248,17 @@ class ColorFactory
      * @param int $red 0-255
      * @param int $green 0-255
      * @param int $blue 0-255
-     * @param int $opacity 0-255
+     * @param int $alpha 0-255
      * @param string $name
      * @return RGBAColor
      */
-    public static function create8Bit(int $red, int $green, int $blue, int $opacity=255, string $name='') : RGBAColor
+    public static function create8Bit(int $red, int $green, int $blue, int $alpha=0, string $name='') : RGBAColor
     {
         return self::create(
             ColorChannel::eightBit($red),
             ColorChannel::eightBit($green),
             ColorChannel::eightBit($blue),
-            ColorChannel::eightBit($opacity),
+            ColorChannel::eightBit($alpha),
             $name
         );
     }
@@ -268,18 +271,45 @@ class ColorFactory
      * @param int $red 0-255
      * @param int $green 0-255
      * @param int $blue 0-255
-     * @param int $opacity 0-127
+     * @param int $alpha 0-127
      * @param string $name
      * @return RGBAColor
      */
-    public static function createGD(int $red, int $green, int $blue, int $opacity=127, string $name='') : RGBAColor
+    public static function createGD(int $red, int $green, int $blue, int $alpha=0, string $name='') : RGBAColor
     {
         return self::create(
             ColorChannel::eightBit($red),
             ColorChannel::eightBit($green),
             ColorChannel::eightBit($blue),
-            ColorChannel::sevenBit($opacity),
+            ColorChannel::sevenBit($alpha),
             $name
+        );
+    }
+
+    /**
+     * @param resource $img
+     * @param int $colorIndex
+     * @return RGBAColor
+     * @throws ImageHelper_Exception
+     */
+    public static function createFromIndex($img, int $colorIndex) : RGBAColor
+    {
+        $color = imagecolorsforindex($img, $colorIndex);
+
+        // it seems imagecolorsforindex() may return false (undocumented, unproven)
+        if(is_array($color)) {
+            return self::create(
+                ColorChannel::eightBit($color['red']),
+                ColorChannel::eightBit($color['green']),
+                ColorChannel::eightBit($color['blue']),
+                ColorChannel::sevenBit($color['alpha'])
+            );
+        }
+
+        throw new ImageHelper_Exception(
+            'Invalid color index',
+            '',
+            self::ERROR_INVALID_GD_ERROR_CODE
         );
     }
 }

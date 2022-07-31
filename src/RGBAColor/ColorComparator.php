@@ -68,6 +68,6 @@ class ColorComparator
         return
             self::colorsMatch($sourceColor, $targetColor)
             &&
-            $sourceColor->getOpacity()->get8Bit() === $targetColor->getOpacity()->get8Bit();
+            $sourceColor->getAlpha()->get8Bit() === $targetColor->getAlpha()->get8Bit();
     }
 }

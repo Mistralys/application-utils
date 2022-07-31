@@ -46,7 +46,7 @@ class FormatsConverter
 
         if($color->hasTransparency())
         {
-            $hex .= UnitsConverter::int2hex($color->getOpacity()->get8Bit());
+            $hex .= UnitsConverter::int2hex($color->getAlpha()->get8Bit());
         }
 
         return strtoupper($hex);
@@ -67,7 +67,7 @@ class FormatsConverter
                 $color->getRed()->get8Bit(),
                 $color->getGreen()->get8Bit(),
                 $color->getBlue()->get8Bit(),
-                $color->getOpacity()->getDecimal()
+                $color->getAlpha()->getDecimal()
             );
         }
 
@@ -155,7 +155,7 @@ class FormatsConverter
                 $color->getRed()->get8Bit(),
                 $color->getGreen()->get8Bit(),
                 $color->getBlue()->get8Bit(),
-                $color->getOpacity()->get8Bit()
+                $color->getAlpha()->get8Bit()
             );
         }
 

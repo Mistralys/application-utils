@@ -68,9 +68,9 @@ class PresetsManager
         }
 
         $this
-            ->registerGlobalPreset(self::COLOR_WHITE, 255, 255, 255, 255)
-            ->registerGlobalPreset(self::COLOR_BLACK, 0,0,0, 255)
-            ->registerGlobalPreset(self::COLOR_TRANSPARENT, 0, 0, 0, 0);
+            ->registerGlobalPreset(self::COLOR_WHITE, 255, 255, 255, 0)
+            ->registerGlobalPreset(self::COLOR_BLACK, 0, 0, 0, 0)
+            ->registerGlobalPreset(self::COLOR_TRANSPARENT, 0, 0, 0, 255);
     }
 
     public function hasPreset(string $name) : bool

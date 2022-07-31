@@ -27,7 +27,7 @@ class ArrayConverter
             RGBAColor::CHANNEL_RED => $this->color->getRed()->get8Bit(),
             RGBAColor::CHANNEL_GREEN => $this->color->getGreen()->get8Bit(),
             RGBAColor::CHANNEL_BLUE => $this->color->getBlue()->get8Bit(),
-            RGBAColor::CHANNEL_ALPHA => $this->color->getOpacity()->get8Bit()
+            RGBAColor::CHANNEL_ALPHA => $this->color->getAlpha()->get8Bit()
         );
     }
 
@@ -40,7 +40,7 @@ class ArrayConverter
             RGBAColor::CHANNEL_RED => $this->color->getRed()->getPercent(),
             RGBAColor::CHANNEL_GREEN => $this->color->getGreen()->getPercent(),
             RGBAColor::CHANNEL_BLUE => $this->color->getBlue()->getPercent(),
-            RGBAColor::CHANNEL_ALPHA => $this->color->getOpacity()->getPercent()
+            RGBAColor::CHANNEL_ALPHA => $this->color->getAlpha()->getPercent()
         );
     }
 
@@ -53,7 +53,7 @@ class ArrayConverter
             RGBAColor::CHANNEL_RED => $this->color->getRed()->get8Bit(),
             RGBAColor::CHANNEL_GREEN => $this->color->getGreen()->get8Bit(),
             RGBAColor::CHANNEL_BLUE => $this->color->getBlue()->get8Bit(),
-            RGBAColor::CHANNEL_ALPHA => $this->color->getOpacity()->get7Bit()
+            RGBAColor::CHANNEL_ALPHA => $this->color->getAlpha()->get7Bit()
         );
     }
 
@@ -66,7 +66,7 @@ class ArrayConverter
             RGBAColor::CHANNEL_RED => $this->color->getRed()->get8Bit(),
             RGBAColor::CHANNEL_GREEN => $this->color->getGreen()->get8Bit(),
             RGBAColor::CHANNEL_BLUE => $this->color->getBlue()->get8Bit(),
-            RGBAColor::CHANNEL_ALPHA => $this->color->getOpacity()->getDecimal()
+            RGBAColor::CHANNEL_ALPHA => $this->color->getAlpha()->getDecimal()
         );
     }
 }
