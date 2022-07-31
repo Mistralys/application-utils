@@ -17,6 +17,7 @@ namespace AppUtils;
  * @package Application Utils
  * @subpackage SVNHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ * @deprecated Will be removed in a future release.
  * 
  * @see SVNHelper_Exception
  * @see SVNHelper_CommandException
