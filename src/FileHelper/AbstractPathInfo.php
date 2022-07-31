@@ -26,7 +26,7 @@ use SplFileInfo;
  * @subpackage FileHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-abstract class AbstractPathInfo implements PathInfoInterface, Interface_Stringable
+abstract class AbstractPathInfo implements PathInfoInterface
 {
     protected string $path;
 

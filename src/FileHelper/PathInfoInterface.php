@@ -13,6 +13,7 @@ namespace AppUtils\FileHelper;
 
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
+use AppUtils\Interface_Stringable;
 
 /**
  * Interface for the file and folder info classes.
@@ -21,7 +22,7 @@ use AppUtils\FileHelper_Exception;
  * @subpackage FileHelper
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-interface PathInfoInterface
+interface PathInfoInterface extends Interface_Stringable
 {
     public function getName() : string;
     public function getExtension(bool $lowercase=true) : string;
