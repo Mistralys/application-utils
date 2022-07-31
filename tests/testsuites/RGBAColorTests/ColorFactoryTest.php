@@ -232,7 +232,6 @@ class ColorFactoryTest extends TestCase
         $this->assertEquals('FFFFFF', ColorPresets::white()->toHEX());
         $this->assertEquals('000000', ColorPresets::black()->toHEX());
 
-        print_r(ColorPresets::transparent()->toArray()->GD());
         $this->assertEquals(127, ColorPresets::transparent()->getAlpha()->get7Bit());
     }
 }
