@@ -11,8 +11,10 @@ namespace AppUtils\URLInfo;
 
 use AppUtils\BaseException;
 use AppUtils\Interface_Optionable;
+use AppUtils\RequestHelper;
 use AppUtils\Traits_Optionable;
 use AppUtils\URLInfo;
+use CurlHandle;
 
 /**
  * Used to test whether a URL exists / can be connected to.
@@ -82,29 +84,7 @@ class URIConnectionTester implements Interface_Optionable
     }
     
    /**
-    * Initializes the CURL instance.
-    * 
-    * @throws BaseException
-    * @return resource
-    */
-    private function initCURL()
-    {
-        $ch = curl_init();
-        
-        if(!is_resource($ch))
-        {
-            throw new URLException(
-                'Could not initialize a new cURL instance.',
-                'Calling curl_init returned false. Additional information is not available.',
-                URLInfo::ERROR_CURL_INIT_FAILED
-            );
-        }
-        
-        return $ch;
-    }
-    
-   /**
-    * @param resource $ch
+    * @param resource|CurlHandle $ch
     */
     private function configureOptions($ch) : void
     {
@@ -133,7 +113,7 @@ class URIConnectionTester implements Interface_Optionable
         
     public function canConnect() : bool
     {
-        $ch = $this->initCURL();
+        $ch = RequestHelper::createCURL();
         
         $this->configureOptions($ch);
         

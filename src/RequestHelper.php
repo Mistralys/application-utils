@@ -8,6 +8,8 @@
 
 namespace AppUtils;
 
+use CurlHandle;
+
 /**
  * Handles sending POST requests with file attachments and regular variables.
  * Creates the raw request headers required for the request and sends them
@@ -201,7 +203,7 @@ class RequestHelper
     {
         $info = parseURL($this->destination);
         
-        $ch = $this->createCURL($info);
+        $ch = $this->configureCURL($info);
 
         $output = curl_exec($ch);
 
@@ -247,7 +249,33 @@ class RequestHelper
     {
         return $this->getMimeBody();
     }
-    
+
+    /**
+     * Creates a new CURL resource configured according to the
+     * request's settings.
+     *
+     * @return resource|CurlHandle
+     * @throws RequestHelper_Exception
+     */
+    public static function createCURL()
+    {
+        $ch = curl_init();
+
+        if($ch instanceof CurlHandle || is_resource($ch))
+        {
+            return $ch;
+        }
+
+        throw new RequestHelper_Exception(
+            'Could not initialize a new cURL instance.',
+            sprintf(
+                'Calling curl_init failed to return a valid resource or instance. Given: [%s].',
+                parseVariable($ch)->enableType()->toString()
+            ),
+            self::ERROR_CURL_INIT_FAILED
+        );
+    }
+
    /**
     * Creates a new CURL resource configured according to the
     * request's settings.
@@ -256,18 +284,9 @@ class RequestHelper
     * @throws RequestHelper_Exception
     * @return resource
     */
-    protected function createCURL(URLInfo $url)
+    protected function configureCURL(URLInfo $url)
     {
-        $ch = curl_init();
-        
-        if(!is_resource($ch))
-        {
-            throw new RequestHelper_Exception(
-                'Could not initialize a new cURL instance.',
-                'Calling curl_init returned false. Additional information is not available.',
-                self::ERROR_CURL_INIT_FAILED
-            );
-        }
+        $ch = self::createCURL();
 
         $this->setHeader('Content-Length', (string)$this->boundaries->getContentLength());
         $this->setHeader('Content-Type', 'multipart/form-data; boundary=' . $this->mimeBoundary);

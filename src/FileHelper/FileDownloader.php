@@ -6,6 +6,7 @@ namespace AppUtils\FileHelper;
 
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
+use AppUtils\RequestHelper;
 
 class FileDownloader
 {
@@ -106,16 +107,7 @@ class FileDownloader
      */
     private function initCurl()
     {
-        $ch = curl_init();
-
-        if(!is_resource($ch))
-        {
-            throw new FileHelper_Exception(
-                'Could not initialize a new cURL instance.',
-                'Calling curl_init returned false. Additional information is not available.',
-                FileHelper::ERROR_CURL_INIT_FAILED
-            );
-        }
+        $ch = RequestHelper::createCURL();
 
         curl_setopt($ch, CURLOPT_URL, $this->url);
         curl_setopt($ch, CURLOPT_REFERER, $this->url);
