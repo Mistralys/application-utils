@@ -1,3 +1,17 @@
+### v3.0.0 - ImageHelper and PHP8 compatibility
+- ImageHelper: Improved the `trim()` method.
+- ImageHelper: Prepared for PHP8's GD library changes.
+- ImageHelper: Renamed `opacity` to  `alpha` to keep the terminology consistent.
+- ImageHelper: Fixed some alpha channel-related issues.
+- ImageHelper: Added some unit tests for methods like `trim()`.
+- RequestHelper: Made `RequestHelper::createCURL()` public.
+- RequestHelper: Fixed PHP8 compatibility when initializing CURL.
+- Code: All unit tests running on PHP8.
+
+#### Breaking changes
+
+- ImageHelper: Renamed all `opacity` methods to `alpha`.
+
 ### v2.1.3 - URLInfo maintenance release
 - URLInfo: Fixed parsing localhost URLs, with or without scheme.
 - URLInfo: Improved the parsing of some edge cases.
