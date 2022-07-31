@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace testsuites;
 
+use AppUtils\RGBAColor\ColorFactory;
 use PHPUnit\Framework\TestCase;
 
 use AppUtils\ImageHelper;
@@ -80,7 +81,7 @@ final class ImageHelperTest extends TestCase
     /**
      * @see ImageHelper::getImageSize()
      */
-    public function test_getImageSize()
+    public function test_getImageSize() : void
     {
         foreach ($this->testImages as $entry)
         {
@@ -101,7 +102,7 @@ final class ImageHelperTest extends TestCase
         }
     }
 
-    public function test_getSizeByWidth()
+    public function test_getSizeByWidth() : void
     {
         foreach ($this->testImages as $entry)
         {
@@ -118,6 +119,125 @@ final class ImageHelperTest extends TestCase
             $this->assertEquals($entry['resample'][0], $size->getWidth());
             $this->assertEquals($entry['resample'][1], $size->getHeight());
         }
+    }
+
+    public function test_getAverageColor() : void
+    {
+        $img = ImageHelper::createFromFile($this->dataPath.'/test-image-fill-cc0000.png');
+
+        $color = $img->calcAverageColor();
+
+        $this->assertSame('CC0000', $color->toHEX());
+    }
+
+    public function test_getColorAt() : void
+    {
+        $path = $this->dataPath.'/test-image-dot-cc0000-center.png';
+        $img = ImageHelper::createFromFile($path);
+
+        $this->assertSame('FFFFFF', $img->getColorAt(0, 0)->toHEX(), '1x1');
+        $this->assertSame('CC0000', $img->getColorAt(5, 5)->toHEX(), '5x5');
+    }
+
+    public function test_fillWhite() : void
+    {
+        $img = ImageHelper::createFromFile($this->dataPath.'/test-image-fill-cc0000.png');
+
+        $this->assertNotSame('FFFFFF', $img->getColorAt(0, 0)->toHEX());
+
+        $img->fillWhite();
+
+        $this->assertSame('FFFFFF', $img->getColorAt(0, 0)->toHEX());
+    }
+
+    /**
+     * When filling with a transparent color, only
+     * the opacity value of the color is relevant.
+     * The actual red/green/blue color values will
+     * vary, because the helper assigns a random,
+     * unused color to use as transparent color.
+     */
+    public function test_fillTransparent() : void
+    {
+        $img = ImageHelper::createFromFile($this->dataPath.'/test-image-fill-cc0000.png');
+
+        $img->fillTransparent();
+
+        $this->assertSame(127, $img->getColorAt(0, 0)->getAlpha()->get7Bit());
+    }
+
+    public function test_paste() : void
+    {
+        $path = $this->dataPath.'/test-image-dot-cc0000-center.png';
+        $img1 = ImageHelper::createFromFile($path);
+
+        // Fill the image with white
+        $img1->fillWhite();
+
+        $img2 = ImageHelper::createFromFile($path);
+
+        // Paste the same image into the white area,
+        // but offset by 1x1 pixel, changing the position
+        // of the red dot. It is not at 5x5 anymore,
+        // but at 6x6.
+        $img1->paste($img2, 1, 1);
+
+        $this->assertSame('CC0000', $img1->getColorAt(6, 6)->toHEX());
+    }
+
+    /**
+     * Test the brightness with a white and a black image.
+     */
+    public function test_getBrightness() : void
+    {
+        $white = ImageHelper::createFromFile($this->dataPath.'/test-image-fill-ffffff.png');
+        $this->assertSame(100.0, $white->getBrightness());
+
+        $white = ImageHelper::createFromFile($this->dataPath.'/test-image-fill-000000.png');
+        $this->assertSame(0.0, $white->getBrightness());
+    }
+
+    /**
+     * To test the blurring, we use the image with the red
+     * dot in its center. Before the blurring, an adjacent
+     * pixel must be white. Afterwards, with the blurring, it
+     * must not be entirely white anymore.
+     */
+    public function test_blur() : void
+    {
+        $img = ImageHelper::createFromFile($this->dataPath.'/test-image-dot-cc0000-center.png');
+
+        $this->assertSame('FFFFFF', $img->getColorAt(4,4)->toHEX());
+
+        $img->blur(50);
+
+        $this->assertNotSame('FFFFFF', $img->getColorAt(4, 4)->toHEX());
+    }
+
+    /**
+     * To test the cropping, we crop the image with the red
+     * dot so only the red dot remains.
+     */
+    public function test_crop() : void
+    {
+        $img = ImageHelper::createFromFile($this->dataPath.'/test-image-dot-cc0000-center.png');
+
+        $img->crop(1, 1, 5, 5);
+
+        $this->assertSame('CC0000', $img->getColorAt(0, 0)->toHEX());
+        $this->assertSame(1, $img->getWidth());
+        $this->assertSame(1, $img->getHeight());
+    }
+
+    public function test_trim() : void
+    {
+        $img = ImageHelper::createFromFile($this->dataPath.'/test-image-black-square-white-trim.png');
+
+        $img->trim(ColorFactory::createFromHEX('FFFFFF'));
+
+        $this->assertSame(7, $img->getWidth());
+        $this->assertSame(7, $img->getHeight());
+        $this->assertSame('000000', $img->getColorAt(0, 0)->toHEX());
     }
 
     // endregion

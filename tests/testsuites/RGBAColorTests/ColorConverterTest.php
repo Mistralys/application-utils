@@ -35,7 +35,7 @@ class ColorConverterTest extends TestCase
             ->GD();
 
         $this->assertSame(204, $array[RGBAColor::CHANNEL_RED]);
-        $this->assertSame(127, $array[RGBAColor::CHANNEL_ALPHA]);
+        $this->assertSame(0, $array[RGBAColor::CHANNEL_ALPHA]);
     }
 
     public function test_arrayCSS() : void

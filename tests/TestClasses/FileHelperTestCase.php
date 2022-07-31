@@ -65,6 +65,8 @@ class FileHelperTestCase extends BaseTestCase
 
     protected function setUp() : void
     {
+        parent::setUp();
+
         $this->registerFilesToDelete();
 
         $this->initAssetsFolder();

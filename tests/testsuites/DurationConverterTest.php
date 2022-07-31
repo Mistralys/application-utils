@@ -1,14 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
+namespace AppUtilsTests\TestSuites;
+
+use DateInterval;
+use DateTime;
 use PHPUnit\Framework\TestCase;
 use AppUtils\ConvertHelper_DurationConverter;
 
 final class DurationConverterTest extends TestCase
 {
-    public function test_conversion()
+    public function test_conversion() : void
     {
         $now = new DateTime();
-        
+
         $tests = array(
             array(
                 'duration' => 50,
@@ -39,18 +45,18 @@ final class DurationConverterTest extends TestCase
                 'expected' => 'One year ago'
             )
         );
-        
-        foreach($tests as $test)
+
+        foreach ($tests as $test)
         {
             $converter = new ConvertHelper_DurationConverter();
             $converter->setDateFrom($now);
-            
+
             $target = new DateTime();
-            $target->add(new DateInterval('PT'.$test['duration'].'S'));
+            $target->add(new DateInterval('PT' . $test['duration'] . 'S'));
             $converter->setDateTo($target);
-            
+
             $result = $converter->convert();
-            
+
             $this->assertEquals($test['expected'], $result);
         }
     }

@@ -48,11 +48,11 @@ class ColorImmutableTest extends TestCase
     {
         $color = ColorFactory::create8Bit(200, 200, 200, 200);
 
-        $modified = $color->setOpacity(ColorChannel::eightBit(100));
+        $modified = $color->setAlpha(ColorChannel::eightBit(100));
 
         $this->assertNotSame($color, $modified);
-        $this->assertSame(200, $color->getOpacity()->get8Bit());
-        $this->assertSame(100, $modified->getOpacity()->get8Bit());
+        $this->assertSame(200, $color->getAlpha()->get8Bit());
+        $this->assertSame(100, $modified->getAlpha()->get8Bit());
     }
 
     public function test_setTransparency() : void

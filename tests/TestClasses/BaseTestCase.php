@@ -8,6 +8,15 @@ use PHPUnit\Framework\TestCase;
 
 class BaseTestCase extends TestCase
 {
+    protected string $assetsRootFolder;
+
+    protected function setUp() : void
+    {
+        parent::setUp();
+
+        $this->assetsRootFolder = __DIR__.'/../assets';
+    }
+
     protected function skipWebserverURL() : void
     {
         if(!defined('TESTS_WEBSERVER_URL'))

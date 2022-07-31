@@ -11,7 +11,7 @@ use AppUtils\ConvertHelper_StorageSizeEnum;
 
 final class ConvertHelperTest extends TestCase
 {
-    protected $assetsFolder;
+    protected string $assetsFolder;
     
     protected function setUp() : void
     {
@@ -33,7 +33,7 @@ final class ConvertHelperTest extends TestCase
     /**
      * @see ConvertHelper::areVariablesEqual()
      */
-    public function test_areVariablesEqual()
+    public function test_areVariablesEqual() : void
     {
         $tests = array(
             array('0', 0, true, 'String zero, numeric zero'),
@@ -63,7 +63,7 @@ final class ConvertHelperTest extends TestCase
    /**
     * @see ConvertHelper::filenameRemoveExtension()
     */
-    public function test_filenameRemoveExtension()
+    public function test_filenameRemoveExtension() : void
     {
         $tests = array(
             'somename.ext' => 'somename',
@@ -84,7 +84,7 @@ final class ConvertHelperTest extends TestCase
     /**
      * @see ConvertHelper::isStringHTML()
      */
-    public function test_isStringHTML()
+    public function test_isStringHTML() : void
     {
         $tests = array(
             'Text without HTML' => false,
@@ -108,7 +108,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_bool2string()
+    public function test_bool2string() : void
     {
         $tests = array(
             true => 'true',
@@ -135,7 +135,7 @@ final class ConvertHelperTest extends TestCase
         $this->assertSame('no', ConvertHelper::boolStrict2string(false, true));
     }
     
-    public function test_string2bool()
+    public function test_string2bool() : void
     {
         $tests = array(
             array(
@@ -216,7 +216,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_isStringASCII()
+    public function test_isStringASCII() : void
     {
         $tests = array(
             array('regular text', true, 'Regular text'),
@@ -289,7 +289,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_string2array()
+    public function test_string2array() : void
     {
         $tests = array(
             array(
@@ -316,7 +316,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_text_cut()
+    public function test_text_cut() : void
     {
         $tests = array(
             array(
@@ -342,7 +342,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_time2string()
+    public function test_time2string() : void
     {
         $tests = array(
             array(
@@ -369,7 +369,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_isBool()
+    public function test_isBool() : void
     {
         $tests = array(
             array(
@@ -442,7 +442,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_parseQueryString()
+    public function test_parseQueryString() : void
     {
         $tests = array(
             array(
@@ -721,7 +721,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_explodeTrim()
+    public function test_explodeTrim() : void
     {
         $tests = array(
             array(
@@ -782,7 +782,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_date2timestamp()
+    public function test_date2timestamp() : void
     {
         $timestamp = mktime(10, 15, 0, 2, 2, 2006);
         $date = ConvertHelper::timestamp2date($timestamp);
@@ -792,7 +792,7 @@ final class ConvertHelperTest extends TestCase
         $this->assertEquals($timestamp, $back);
     }
     
-    public function test_isInteger()
+    public function test_isInteger() : void
     {
         $tests = array(
             array(
@@ -875,7 +875,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_seconds2interval()
+    public function test_seconds2interval() : void
     {
         $tests = array(
             array(
@@ -921,7 +921,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_interval2total()
+    public function test_interval2total() : void
     {
         $tests = array(
             array(
@@ -952,7 +952,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_var2json()
+    public function test_var2json() : void
     {
         $tests = array(
             array(
@@ -970,7 +970,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_var2json_error()
+    public function test_var2json_error() : void
     {
         $this->expectException(ConvertHelper_Exception::class);
         
@@ -978,7 +978,7 @@ final class ConvertHelperTest extends TestCase
         ConvertHelper::var2json(array(utf8_decode('öäöü§')));
     }
     
-    public function test_duration2string()
+    public function test_duration2string() : void
     {
         $time = time();
         
@@ -1011,7 +1011,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_intervalstring()
+    public function test_intervalstring() : void
     {
         $tests = array(
             array(
@@ -1044,7 +1044,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_size2bytes()
+    public function test_size2bytes() : void
     {
         $tests = array(
             array(
@@ -1152,14 +1152,14 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-     public function test_parseSize() 
+    public function test_parseSize() : void
     {
         $size = ConvertHelper::parseSize('50MB');
         
         $this->assertInstanceOf(ConvertHelper_SizeNotation::class, $size);
     }
     
-    public function test_parseSize_errors()
+    public function test_parseSize_errors() : void
     {
         $tests = array(
             array(
@@ -1188,7 +1188,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_bytes2readable()
+    public function test_bytes2readable() : void
     {
         $tests = array(
             array(
@@ -1241,7 +1241,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_bytes2readable_precision()
+    public function test_bytes2readable_precision() : void
     {
         $tests = array(
             array(
@@ -1272,7 +1272,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_bytes2readable_base2()
+    public function test_bytes2readable_base2() : void
     {
         $tests = array(
             array(
@@ -1325,7 +1325,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_storageSizeEnum_localeSwitching()
+    public function test_storageSizeEnum_localeSwitching() : void
     {
         if(!class_exists('\AppLocalize\Localization')) 
         {
@@ -1346,7 +1346,7 @@ final class ConvertHelperTest extends TestCase
         \AppLocalize\Localization::reset();
     }
     
-    public function test_spaces2tabs()
+    public function test_spaces2tabs() : void
     {
         $tests = array(
             array(
@@ -1393,7 +1393,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_hidden2visible()
+    public function test_hidden2visible() : void
     {
         $tests = array(
             array(
@@ -1416,7 +1416,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_normalizeTabs()
+    public function test_normalizeTabs() : void
     {
         $tests = array(
             array(
@@ -1458,7 +1458,7 @@ final class ConvertHelperTest extends TestCase
         }
     }
     
-    public function test_stripControlChars()
+    public function test_stripControlChars() : void
     {
         $string = file_get_contents($this->assetsFolder.'/ControlCharacters.txt');
         
@@ -1470,7 +1470,7 @@ final class ConvertHelperTest extends TestCase
    /**
     * Ensure that the automatic fixing of UTF8 characters works as intended.
     */
-    public function test_stripControlChars_brokenUTF8()
+    public function test_stripControlChars_brokenUTF8() : void
     {
         $string = file_get_contents($this->assetsFolder.'/ControlCharactersBrokenUTF8.txt');
         
@@ -1480,7 +1480,7 @@ final class ConvertHelperTest extends TestCase
     }
     
     /**
-     * The callback2string method must work even if the
+     * The `callback2string()` method must work even if the
      * target is not actually a callable. This is different
      * from `parseVariable($callback)->toString()`, which
      * can only detect callable arrays by checking if they

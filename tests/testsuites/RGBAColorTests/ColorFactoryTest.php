@@ -94,7 +94,7 @@ class ColorFactoryTest extends TestCase
         $this->assertSame(self::RED_INTEGER, $color->getRed()->get8Bit());
         $this->assertSame(self::GREEN_INTEGER, $color->getGreen()->get8Bit());
         $this->assertSame(self::BLUE_INTEGER, $color->getBlue()->get8Bit());
-        $this->assertSame(self::ALPHA_INTEGER, $color->getOpacity()->get8Bit());
+        $this->assertSame(self::ALPHA_INTEGER, $color->getAlpha()->get8Bit());
     }
 
     public function test_createFromArray() : void
@@ -108,7 +108,7 @@ class ColorFactoryTest extends TestCase
         $this->assertSame(self::RED_INTEGER, $color->getRed()->get8Bit());
         $this->assertSame(self::GREEN_INTEGER, $color->getGreen()->get8Bit());
         $this->assertSame(self::BLUE_INTEGER, $color->getBlue()->get8Bit());
-        $this->assertSame(255, $color->getOpacity()->get8Bit());
+        $this->assertSame(0, $color->getAlpha()->get8Bit());
     }
 
     public function test_parseHEX() : void
@@ -116,15 +116,15 @@ class ColorFactoryTest extends TestCase
         $tests = array(
             array(
                 'hex' => 'FFF',
-                'expected' => array(255, 255, 255, 255)
+                'expected' => array(255, 255, 255, 0)
             ),
             array(
                 'hex' => '000',
-                'expected' => array(0, 0, 0, 255)
+                'expected' => array(0, 0, 0, 0)
             ),
             array(
                 'hex' => 'FFFFFF',
-                'expected' => array(255, 255, 255, 255)
+                'expected' => array(255, 255, 255, 0)
             ),
             array(
                 'hex' => 'ABDE0911',
@@ -139,7 +139,7 @@ class ColorFactoryTest extends TestCase
             $this->assertSame($test['expected'][0], $color->getRed()->get8Bit());
             $this->assertSame($test['expected'][1], $color->getGreen()->get8Bit());
             $this->assertSame($test['expected'][2], $color->getBlue()->get8Bit());
-            $this->assertSame($test['expected'][3], $color->getOpacity()->get8Bit());
+            $this->assertSame($test['expected'][3], $color->getAlpha()->get8Bit());
         }
     }
 
@@ -202,7 +202,7 @@ class ColorFactoryTest extends TestCase
         $this->assertSame(self::RED_INTEGER, $color->getRed()->get8Bit());
         $this->assertSame(self::GREEN_INTEGER, $color->getGreen()->get8Bit());
         $this->assertSame(self::BLUE_INTEGER, $color->getBlue()->get8Bit());
-        $this->assertSame(self::ALPHA_INTEGER, $color->getOpacity()->get8Bit());
+        $this->assertSame(self::ALPHA_INTEGER, $color->getAlpha()->get8Bit());
     }
 
     public function test_createFromInvalidHexLength() : void
@@ -224,13 +224,15 @@ class ColorFactoryTest extends TestCase
         $this->assertSame(self::RED_INTEGER, $color->getRed()->get8Bit());
         $this->assertSame(self::GREEN_INTEGER, $color->getGreen()->get8Bit());
         $this->assertSame(self::BLUE_INTEGER, $color->getBlue()->get8Bit());
-        $this->assertSame(self::ALPHA_INTEGER, $color->getOpacity()->get8Bit());
+        $this->assertSame(self::ALPHA_INTEGER, $color->getAlpha()->get8Bit());
     }
 
     public function test_createFromPreset() : void
     {
         $this->assertEquals('FFFFFF', ColorPresets::white()->toHEX());
         $this->assertEquals('000000', ColorPresets::black()->toHEX());
-        $this->assertEquals('00000000', ColorPresets::transparent()->toHEX());
+
+        print_r(ColorPresets::transparent()->toArray()->GD());
+        $this->assertEquals(127, ColorPresets::transparent()->getAlpha()->get7Bit());
     }
 }

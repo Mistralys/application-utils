@@ -93,7 +93,7 @@ class ColorStyleTest extends TestCase
     public function test_transparent() : void
     {
         $this->assertEquals(
-            'color:rgba(0, 0, 0, 0)',
+            'color:rgba(0, 0, 0, 1)',
             (string)StyleBuilder::create()
                 ->color()->transparent()
         );
@@ -102,7 +102,7 @@ class ColorStyleTest extends TestCase
     public function test_combineColors() : void
     {
         $this->assertEquals(
-            'background-color:rgb(0, 0, 0);color:rgba(0, 0, 0, 0)',
+            'background-color:rgb(0, 0, 0);color:rgba(0, 0, 0, 1)',
             (string)StyleBuilder::create()
                 ->color()->transparent()
                 ->background()->color()->black()

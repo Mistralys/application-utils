@@ -6,6 +6,7 @@ namespace RGBAColorTests;
 
 use AppUtils\RGBAColor\ColorFactory;
 use PHPUnit\Framework\TestCase;
+use testsuites\FileHelperTests\PathInfoTest;
 
 class ColorMatchingTest extends TestCase
 {
@@ -24,5 +25,23 @@ class ColorMatchingTest extends TestCase
 
         $this->assertTrue($colorA->matches($colorB));
         $this->assertFalse($colorA->matchesAlpha($colorB));
+    }
+
+    public function test_matchMixedColors() : void
+    {
+        $colorA = ColorFactory::createFromHEX('FFFFFF00');
+        $colorB = ColorFactory::createFromHEX('FFFFFF');
+
+        $this->assertTrue($colorA->matches($colorB));
+        $this->assertTrue($colorA->matchesAlpha($colorB));
+    }
+
+    public function test_getOpacity() : void
+    {
+        $colorA = ColorFactory::createFromHEX('FFFFFF00');
+        $colorB = ColorFactory::createFromHEX('FFFFFF');
+
+        $this->assertSame($colorA->getAlpha()->get8Bit(), 0);
+        $this->assertSame($colorB->getAlpha()->get8Bit(), 0);
     }
 }

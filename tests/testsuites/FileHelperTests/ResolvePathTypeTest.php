@@ -39,7 +39,7 @@ final class ResolvePathTypeTest extends FileHelperTestCase
     {
         $this->markTestSkipped('Turned it off for tests to pass.');
 
-        $this->debugIterator($this->iterateFiles);
+        //$this->debugIterator($this->iterateFiles);
     }
 
     /**
@@ -79,7 +79,7 @@ final class ResolvePathTypeTest extends FileHelperTestCase
             }
 
             $this->assertTrue($item->isDir());
-            $this->assertTrue(is_dir($item->getPathname()));
+            $this->assertDirectoryExists($item->getPathname());
 
             $pathInfo = AbstractPathInfo::resolveType($iterator);
 

@@ -3,9 +3,10 @@
 use AppUtils\NamedClosure;
 use PHPUnit\Framework\TestCase;
 use AppUtils\VariableInfo;
+use TestClasses\BaseTestCase;
 use function AppUtils\parseVariable;
 
-final class VariableInfoTest extends TestCase
+final class VariableInfoTest extends BaseTestCase
 {
     public function test_variables()
     {
@@ -36,7 +37,7 @@ final class VariableInfoTest extends TestCase
             ),
             array(
                 'label' => 'Class instance',
-                'value' => new \VariableInfoTest_DummyClass(),
+                'value' => new VariableInfoTest_DummyClass(),
                 'type' => VariableInfo::TYPE_OBJECT,
                 'string' => 'VariableInfoTest_DummyClass'
             ),
@@ -54,7 +55,7 @@ final class VariableInfoTest extends TestCase
             ),
             array(
                 'label' => 'Resource',
-                'value' => imagecreate(1, 1),
+                'value' => fopen($this->assetsRootFolder.'/FileHelper/single-line.txt', 'rb'),
                 'type' => VariableInfo::TYPE_RESOURCE,
                 'string' => null
             ),
@@ -190,7 +191,7 @@ final class VariableInfoTest extends TestCase
             ),
             array(
                 'label' => 'class value',
-                'value' => new \VariableInfoTest_DummyClass(),
+                'value' => new VariableInfoTest_DummyClass(),
                 'string' => 'object VariableInfoTest_DummyClass',
                 'type' => VariableInfo::TYPE_OBJECT
             ),
@@ -202,7 +203,7 @@ final class VariableInfoTest extends TestCase
             ),
             array(
                 'label' => 'resource value',
-                'value' => imagecreate(10, 10),
+                'value' => fopen($this->assetsRootFolder.'/FileHelper/single-line.txt', 'rb'),
                 'string' => 'resource #',
                 'type' => VariableInfo::TYPE_RESOURCE
             )
@@ -250,7 +251,7 @@ final class VariableInfoTest extends TestCase
             ),
             array(
                 'label' => 'class value',
-                'value' => new \VariableInfoTest_DummyClass(),
+                'value' => new VariableInfoTest_DummyClass(),
                 'string' => 'VariableInfoTest_DummyClass'
             ),
             array(
