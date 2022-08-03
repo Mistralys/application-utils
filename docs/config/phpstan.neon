@@ -2,9 +2,8 @@ parameters:
     bootstrapFiles:
         - ../phpstan/constants.php
     excludePaths:
-        - tests/*
-        - vendor/*
-        - css/*
+        - ../../css/*
+        - ../../src/SVNHelper/*
     paths:
         - ../../src
         - ../../tests
