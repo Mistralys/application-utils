@@ -6,6 +6,7 @@
 - ImageHelper: Added some unit tests for methods like `trim()`.
 - RequestHelper: Made `RequestHelper::createCURL()` public.
 - RequestHelper: Fixed PHP8 compatibility when initializing CURL.
+- FileHelper: Fixed `removeExtension` throwing an exception with extensionless paths.
 - Code: All unit tests running on PHP8.
 
 #### Breaking changes

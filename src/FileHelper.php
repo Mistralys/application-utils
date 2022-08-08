@@ -479,7 +479,19 @@ class FileHelper
      */
     public static function removeExtension($filename, bool $keepPath=false) : string
     {
-        return self::getFileInfo($filename)->removeExtension($keepPath);
+        $path = self::getPathInfo($filename);
+
+        if($path instanceof FileInfo)
+        {
+            return $path->removeExtension($keepPath);
+        }
+
+        if($keepPath)
+        {
+            return $filename;
+        }
+
+        return basename($filename);
     }
 
     /**

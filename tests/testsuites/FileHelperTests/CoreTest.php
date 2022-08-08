@@ -116,7 +116,9 @@ final class CoreTest extends FileHelperTestCase
             '/path/to/file.txt' => 'file',
             'F:\\path\name.extension' => 'name',
             'With.Several.Dots.file' => 'With.Several.Dots',
-            '.ext' => ''
+            '.ext' => '',
+            'without_extension' => 'without_extension',
+            '/path/to/without_extension' => 'without_extension',
         );
 
         foreach ($tests as $string => $expected)
@@ -134,7 +136,9 @@ final class CoreTest extends FileHelperTestCase
             '/path/to/file.txt' => '/path/to/file',
             'F:\\path\name.extension' => 'F:/path/name',
             'With.Several.Dots.file' => 'With.Several.Dots',
-            '.ext' => ''
+            '.ext' => '',
+            'without_extension' => 'without_extension',
+            '/path/to/without_extension' => '/path/to/without_extension',
         );
 
         foreach ($tests as $string => $expected)
