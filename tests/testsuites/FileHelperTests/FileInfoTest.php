@@ -21,6 +21,14 @@ class FileInfoTest extends FileHelperTestCase
         FileHelper::getFileInfo('/not/a/file');
     }
 
+    public function test_noExtensionFile() : void
+    {
+        $info = FileInfo::factory($this->withoutExtensionFile);
+
+        $this->assertTrue($info->isFile());
+        $this->assertSame('', $info->getExtension());
+    }
+
     public function test_getExtensionFileExists() : void
     {
         $info = FileInfo::factory($this->assetsFolder.'/'.self::CASE_FILE_LOWER);
@@ -180,6 +188,7 @@ class FileInfoTest extends FileHelperTestCase
 
     private string $copySourceFile;
     private string $copyTargetFile;
+    private string $withoutExtensionFile;
 
     protected function setUp() : void
     {
@@ -187,6 +196,7 @@ class FileInfoTest extends FileHelperTestCase
 
         $this->copySourceFile = __DIR__.'/../../assets/FileHelper/copy-file.txt';
         $this->copyTargetFile = __DIR__.'/../../assets/FileHelper/copy-file-target.txt';
+        $this->withoutExtensionFile = __DIR__.'/../../assets/FileHelper/file-without-extension';
     }
 
     // endregion
