@@ -71,6 +71,7 @@ class FileHelper
     public const ERROR_PATH_IS_NOT_A_FILE = 340038;
     public const ERROR_PATH_NOT_WRITABLE = 340039;
     public const ERROR_PATH_INVALID = 340040;
+    public const ERROR_CANNOT_COPY_FILE_TO_FOLDER = 340041;
 
    /**
     * Opens a serialized file and returns the unserialized data.

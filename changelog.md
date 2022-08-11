@@ -8,10 +8,15 @@
 - RequestHelper: Fixed PHP8 compatibility when initializing CURL.
 - FileHelper: Fixed `removeExtension` throwing an exception with extensionless paths.
 - Code: All unit tests running on PHP8.
+- FileHelper: Added `IndeterminatePath` for paths that can be either a file or a folder.
+- FileHelper: `FileInfo` and `FolderInfo` can now work with paths that do not exist.
 
 #### Breaking changes
 
 - ImageHelper: Renamed all `opacity` methods to `alpha`.
+- FileHelper: Paths like `/path/to/folder` are not recognized as folders anymore, but
+  as `IndeterminatePath`, as the target can also be a file. To avoid confusion when
+  working with folders, use `/path/to/folder/` instead.
 
 #### Deprecated features
 

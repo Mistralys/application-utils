@@ -30,6 +30,26 @@ class FolderInfo extends AbstractPathInfo
     {
         $pathString = AbstractPathInfo::type2string($path);
 
+        if(empty($path)) {
+            throw new FileHelper_Exception(
+                'Invalid',
+                '',
+                FileHelper::ERROR_PATH_INVALID
+            );
+        }
+
+        if($path instanceof FileInfo || FileInfo::is_file($pathString))
+        {
+            throw new FileHelper_Exception(
+                'Cannot use a file',
+                sprintf(
+                    'The path [%s] seems to be a file, not a folder.',
+                    $pathString
+                ),
+                FileHelper::ERROR_PATH_IS_NOT_A_FOLDER
+            );
+        }
+
         if(!isset(self::$infoCache[$pathString]))
         {
             self::$infoCache[$pathString] = new FolderInfo($pathString);
@@ -51,28 +71,13 @@ class FolderInfo extends AbstractPathInfo
     }
 
     /**
-     * @param string $path
-     * @throws FileHelper_Exception
-     * @see FileHelper::ERROR_PATH_IS_NOT_A_FOLDER
-     */
-    public function __construct(string $path)
-    {
-        parent::__construct($path);
-
-        if(!self::is_dir($this->path))
-        {
-            throw new FileHelper_Exception(
-                'Not a folder',
-                sprintf('The path is not a folder: [%s].', $this->path),
-                FileHelper::ERROR_PATH_IS_NOT_A_FOLDER
-            );
-        }
-    }
-
-    /**
-     * Detects if the target path is a folder. If the folder
-     * does not exist, returns true if the path does not
-     * contain a file extension.
+     * Detects if the target path is a folder.
+     *
+     * NOTE: If the folder does not exist on disk, this will
+     * return true under the following conditions:
+     *
+     * - The path does not contain a file extension
+     * - The path ends with a slash
      *
      * @param string $path
      * @return bool
@@ -80,20 +85,16 @@ class FolderInfo extends AbstractPathInfo
     public static function is_dir(string $path) : bool
     {
         $path = trim($path);
+        $test = trim($path, '/\\');
 
-        if($path === '' || $path === '.' || $path === '..')
+        if($path === '' || $test === '.' || $test === '..')
         {
             return false;
         }
 
-        if(is_dir($path))
-        {
-            return true;
-        }
+        $endingChar = $path[strlen($path) - 1];
 
-        $path = FileHelper::normalizePath($path);
-
-        return pathinfo($path, PATHINFO_EXTENSION) === '';
+        return $endingChar === '/' || $endingChar === '\\' || is_dir($path);
     }
 
     /**

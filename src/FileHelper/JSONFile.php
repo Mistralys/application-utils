@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace AppUtils\FileHelper;
 
+use AppUtils\ClassHelper;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 use JsonException;
@@ -43,18 +44,9 @@ class JSONFile extends FileInfo
      */
     public static function factory($path) : JSONFile
     {
-        if($path instanceof self) {
-            return $path;
-        }
-
-        $instance = self::createInstance($path);
-
-        if($instance instanceof self) {
-            return $instance;
-        }
-
-        throw new FileHelper_Exception(
-            'Invalid class.'
+        return ClassHelper::requireObjectInstanceOf(
+            self::class,
+            self::createInstance($path)
         );
     }
 

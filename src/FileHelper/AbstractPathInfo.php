@@ -35,7 +35,7 @@ abstract class AbstractPathInfo implements PathInfoInterface
      */
     private array $runtimeProperties = array();
 
-    public function __construct(string $path)
+    protected function __construct(string $path)
     {
         $this->path = FileHelper::normalizePath($path);
     }
@@ -64,14 +64,19 @@ abstract class AbstractPathInfo implements PathInfoInterface
         return basename($this->path);
     }
 
-    public function isFolder() : bool
+    final public function isFolder() : bool
     {
-        return FolderInfo::is_dir($this->path);
+        return $this instanceof FolderInfo;
     }
 
-    public function isFile() : bool
+    final public function isIndeterminate() : bool
     {
-        return FileInfo::is_file($this->path);
+        return $this instanceof IndeterminatePath;
+    }
+
+    final public function isFile() : bool
+    {
+        return $this instanceof FileInfo;
     }
 
     public function exists() : bool
@@ -246,7 +251,7 @@ abstract class AbstractPathInfo implements PathInfoInterface
             return $path->getPathname();
         }
 
-        return $path;
+        return trim($path);
     }
 
     /**
@@ -280,12 +285,14 @@ abstract class AbstractPathInfo implements PathInfoInterface
             return FileInfo::factory($path);
         }
 
+        if(!empty($path) && $path !== '.' && $path !== '..')
+        {
+            return new IndeterminatePath($path);
+        }
+
         throw new FileHelper_Exception(
-            'Invalid file or folder path.',
-            sprintf(
-                'Target path: [%s].',
-                $path
-            ),
+            'Empty or invalid path given.',
+            '',
             FileHelper::ERROR_PATH_INVALID
         );
     }

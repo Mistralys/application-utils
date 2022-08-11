@@ -6,6 +6,7 @@ namespace FileHelperTests;
 
 use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
+use AppUtils\FileHelper\IndeterminatePath;
 use AppUtils\FileHelper_Exception;
 use SplFileInfo;
 use TestClasses\FileHelperTestCase;
@@ -18,7 +19,7 @@ class FileInfoTest extends FileHelperTestCase
     {
         $this->expectExceptionCode(FileHelper::ERROR_PATH_IS_NOT_A_FILE);
 
-        FileHelper::getFileInfo('/not/a/file');
+        FileHelper::getFileInfo('/not/a/file/')->requireIsFile();
     }
 
     public function test_noExtensionFile() : void
@@ -86,19 +87,21 @@ class FileInfoTest extends FileHelperTestCase
     {
         $this->expectExceptionCode(FileHelper::ERROR_PATH_IS_NOT_A_FILE);
 
-        FileInfo::factory('path/to/folder');
+        FileInfo::factory('path/to/folder/');
     }
 
     public function test_folderIsNotFile() : void
     {
         foreach($this->testFolderNames as $folderName)
         {
-            $info = FileHelper::getPathInfo($folderName);
+            $info = FileHelper\FolderInfo::factory($folderName);
+
+            $message = 'Folder name: ['.$folderName.']';
 
             $this->assertNotInstanceOf(FileInfo::class, $info);
-            $this->assertTrue($info->isFolder());
-            $this->assertFalse($info->isFile());
-            $this->assertFalse(FileInfo::is_file($folderName));
+            $this->assertTrue($info->isFolder(), $message);
+            $this->assertFalse($info->isFile(), $message);
+            $this->assertFalse(FileInfo::is_file($folderName), $message);
         }
     }
 
@@ -162,10 +165,25 @@ class FileInfoTest extends FileHelperTestCase
         $source = FileInfo::factory($this->copySourceFile);
         $target = FileHelper::getPathInfo(dirname($this->copyTargetFile));
 
-        $this->expectExceptionCode(FileHelper::ERROR_PATH_IS_NOT_A_FILE);
+        $this->expectExceptionCode(FileHelper::ERROR_CANNOT_COPY_FILE_TO_FOLDER);
 
         $source->copyTo($target);
     }
+
+    public function test_copyTo_targetFileNotExists() : void
+    {
+        $source = FileInfo::factory($this->copySourceFile);
+        $target = FileHelper::getPathInfo($this->copyTargetFileNoExtension);
+
+        $this->assertInstanceOf(IndeterminatePath::class, $target);
+
+        $source->copyTo($target);
+
+        $this->assertFileExists((string)$target);
+
+        FileHelper::deleteFile($target);
+    }
+
     public function test_cache() : void
     {
         $info = FileInfo::factory($this->copySourceFile);
@@ -188,6 +206,7 @@ class FileInfoTest extends FileHelperTestCase
 
     private string $copySourceFile;
     private string $copyTargetFile;
+    private string $copyTargetFileNoExtension;
     private string $withoutExtensionFile;
 
     protected function setUp() : void
@@ -196,6 +215,7 @@ class FileInfoTest extends FileHelperTestCase
 
         $this->copySourceFile = __DIR__.'/../../assets/FileHelper/copy-file.txt';
         $this->copyTargetFile = __DIR__.'/../../assets/FileHelper/copy-file-target.txt';
+        $this->copyTargetFileNoExtension = __DIR__.'/../../assets/FileHelper/copy-file-target-no-ext';
         $this->withoutExtensionFile = __DIR__.'/../../assets/FileHelper/file-without-extension';
     }
 

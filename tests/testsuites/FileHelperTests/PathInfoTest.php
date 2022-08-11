@@ -7,6 +7,7 @@ namespace testsuites\FileHelperTests;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo;
 use AppUtils\FileHelper\FolderInfo;
+use AppUtils\FileHelper\IndeterminatePath;
 use AppUtils\FileHelper_Exception;
 use TestClasses\FileHelperTestCase;
 
@@ -23,12 +24,14 @@ class PathInfoTest extends FileHelperTestCase
     {
         foreach($this->testFolderNames as $folderName)
         {
-            $info = FileHelper::getPathInfo($folderName);
+            $info = FolderInfo::factory($folderName);
 
-            $this->assertInstanceOf(FolderInfo::class, $info);
-            $this->assertTrue($info->isFolder());
-            $this->assertFalse($info->isFile());
-            $this->assertTrue(FolderInfo::is_dir($folderName));
+            $message = 'Folder: ['.$folderName.']';
+
+            $this->assertInstanceOf(FolderInfo::class, $info, $message);
+            $this->assertTrue($info->isFolder(), $message);
+            $this->assertFalse($info->isFile(), $message);
+            $this->assertTrue(FolderInfo::is_dir($folderName), $message);
 
             FileHelper::getFolderInfo($folderName);
             $this->addToAssertionCount(1);
@@ -50,27 +53,30 @@ class PathInfoTest extends FileHelperTestCase
 
     public function test_emptyPath() : void
     {
-        $this->expectException(FileHelper_Exception::class);
+        $this->expectExceptionCode(FileHelper::ERROR_PATH_INVALID);
 
         $this->assertInstanceOf(FolderInfo::class, FileHelper::getPathInfo(''));
     }
 
     public function test_dotPath() : void
     {
-        $this->expectException(FileHelper_Exception::class);
+        $this->expectExceptionCode(FileHelper::ERROR_PATH_INVALID);
 
-        $this->assertInstanceOf(FolderInfo::class, FileHelper::getPathInfo('.'));
+        FileHelper::getPathInfo('.');
     }
 
     public function test_dotDotPath() : void
     {
-        $this->expectException(FileHelper_Exception::class);
+        $this->expectExceptionCode(FileHelper::ERROR_PATH_INVALID);
 
         $this->assertInstanceOf(FolderInfo::class, FileHelper::getPathInfo('..'));
     }
 
     public function test_endsInDot() : void
     {
-        $this->assertInstanceOf(FolderInfo::class, FileHelper::getPathInfo('name.'));
+        $this->assertInstanceOf(
+            IndeterminatePath::class,
+            FileHelper::getPathInfo('name.')
+        );
     }
 }

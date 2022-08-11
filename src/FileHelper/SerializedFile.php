@@ -9,6 +9,9 @@ declare(strict_types=1);
 
 namespace AppUtils\FileHelper;
 
+use AppUtils\ClassHelper;
+use AppUtils\ClassHelper\ClassNotExistsException;
+use AppUtils\ClassHelper\ClassNotImplementsException;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 use SplFileInfo;
@@ -28,22 +31,16 @@ class SerializedFile extends FileInfo
     /**
      * @param string|PathInfoInterface|SplFileInfo $path
      * @return SerializedFile
+     *
+     * @throws ClassNotExistsException
+     * @throws ClassNotImplementsException
      * @throws FileHelper_Exception
      */
     public static function factory($path) : SerializedFile
     {
-        if($path instanceof self) {
-            return $path;
-        }
-
-        $instance = self::createInstance($path);
-
-        if($instance instanceof self) {
-            return $instance;
-        }
-
-        throw new FileHelper_Exception(
-            'Invalid class.'
+        return ClassHelper::requireObjectInstanceOf(
+            self::class,
+            self::createInstance($path)
         );
     }
 

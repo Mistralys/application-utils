@@ -19,12 +19,12 @@ class FileHelperTestCase extends BaseTestCase
      * @var string[]
      */
     protected array $testFolderNames = array(
-        'path',
-        'path-ending-in-dot.',
-        'path/to/folder',
+        'path/',
+        'path-ending-in-dot./',
+        'path/to/folder/',
         '/',
-        '/user',
-        '\unix\path'
+        '/user/',
+        '\unix\path\\'
     );
 
     /**

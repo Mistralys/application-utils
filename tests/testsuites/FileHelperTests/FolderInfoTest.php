@@ -37,7 +37,7 @@ class FolderInfoTest extends FileHelperTestCase
 
     public function test_emptyFolder() : void
     {
-        $this->expectExceptionCode(FileHelper::ERROR_PATH_IS_NOT_A_FOLDER);
+        $this->expectExceptionCode(FileHelper::ERROR_PATH_INVALID);
 
         FolderInfo::factory('');
     }
@@ -47,11 +47,13 @@ class FolderInfoTest extends FileHelperTestCase
         $this->assertFalse(FolderInfo::is_dir('file-name.ext'));
         $this->assertFalse(FolderInfo::is_dir('path/to/folder/file-name.ext'));
         $this->assertFalse(FolderInfo::is_dir(''));
-        $this->assertTrue(FolderInfo::is_dir('path/to/folder'));
-        $this->assertTrue(FolderInfo::is_dir('path'));
-        $this->assertTrue(FolderInfo::is_dir('path.'));
+        $this->assertTrue(FolderInfo::is_dir('path/to/folder/'));
+        $this->assertTrue(FolderInfo::is_dir('path/'));
+        $this->assertTrue(FolderInfo::is_dir('path./'));
         $this->assertFalse(FolderInfo::is_dir('.'));
         $this->assertFalse(FolderInfo::is_dir('..'));
+        $this->assertFalse(FolderInfo::is_dir('./'));
+        $this->assertFalse(FolderInfo::is_dir('../'));
     }
 
     public function test_saveJSONFile() : void

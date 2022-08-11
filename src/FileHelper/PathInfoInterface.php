@@ -31,6 +31,7 @@ interface PathInfoInterface extends Interface_Stringable
     public function exists() : bool;
     public function isFolder() : bool;
     public function isFile() : bool;
+    public function isIndeterminate() : bool;
     public function isWritable() : bool;
     public function isReadable() : bool;
 

@@ -18,6 +18,7 @@ use AppUtils\FileHelper\FileInfo\FileSender;
 use AppUtils\FileHelper\FileInfo\LineReader;
 use AppUtils\FileHelper_Exception;
 use SplFileInfo;
+use function AppUtils\parseVariable;
 
 /**
  * Specialized class used to access information on a file path,
@@ -38,6 +39,8 @@ use SplFileInfo;
  */
 class FileInfo extends AbstractPathInfo
 {
+    public const ERROR_INVALID_INSTANCE_CREATED = 115601;
+
     /**
      * @var array<string,FileInfo>
      */
@@ -50,10 +53,6 @@ class FileInfo extends AbstractPathInfo
      */
     public static function factory($path) : FileInfo
     {
-        if($path instanceof self) {
-            return $path;
-        }
-
         return self::createInstance($path);
     }
 
@@ -62,9 +61,31 @@ class FileInfo extends AbstractPathInfo
      * @return FileInfo
      * @throws FileHelper_Exception
      */
-    public static function createInstance($path) : FileInfo
+    protected static function createInstance($path) : FileInfo
     {
         $pathString = AbstractPathInfo::type2string($path);
+        $endingChar = $pathString[strlen($pathString) - 1];
+
+        if(empty($path)) {
+            throw new FileHelper_Exception(
+                'Invalid',
+                '',
+                FileHelper::ERROR_PATH_INVALID
+            );
+        }
+
+        if($path instanceof FolderInfo || $endingChar === '/' || $endingChar === '\\')
+        {
+            throw new FileHelper_Exception(
+                'Cannot use a folder as a file',
+                sprintf(
+                    'This looks like a folder path: [%s].',
+                    $pathString
+                ),
+                FileHelper::ERROR_PATH_IS_NOT_A_FILE
+            );
+        }
+
         $key = $pathString.';'.static::class;
 
         if(!isset(self::$infoCache[$key]))
@@ -74,7 +95,14 @@ class FileInfo extends AbstractPathInfo
 
             if(!$instance instanceof self) {
                 throw new FileHelper_Exception(
-                    'Invalid class'
+                    'Invalid class created',
+                    sprintf(
+                        'Expected: [%s]'.PHP_EOL.
+                        'Created: [%s]',
+                        self::class,
+                        parseVariable($instance)->enableType()->toString()
+                    ),
+                    self::ERROR_INVALID_INSTANCE_CREATED
                 );
             }
 
@@ -96,26 +124,6 @@ class FileInfo extends AbstractPathInfo
         self::$infoCache = array();
     }
 
-    /**
-     * @param string $path
-     *
-     * @throws FileHelper_Exception
-     * @see FileHelper::ERROR_PATH_IS_NOT_A_FILE
-     */
-    public function __construct(string $path)
-    {
-        parent::__construct($path);
-
-        if(!self::is_file($this->path))
-        {
-            throw new FileHelper_Exception(
-                'Not a file path',
-                sprintf('The path is not a file: [%s].', $this->path),
-                FileHelper::ERROR_PATH_IS_NOT_A_FILE
-            );
-        }
-    }
-
     public static function is_file(string $path) : bool
     {
         $path = trim($path);
@@ -125,7 +133,7 @@ class FileInfo extends AbstractPathInfo
             return false;
         }
 
-        return is_file($path) || pathinfo($path, PATHINFO_EXTENSION) !== '';
+        return pathinfo($path, PATHINFO_EXTENSION) !== '' || is_file($path);
     }
 
     public function removeExtension(bool $keepPath=false) : string
@@ -246,9 +254,33 @@ class FileInfo extends AbstractPathInfo
         $this->requireExists(FileHelper::ERROR_SOURCE_FILE_NOT_FOUND);
         $this->requireReadable(FileHelper::ERROR_SOURCE_FILE_NOT_READABLE);
 
-        return FileHelper::getPathInfo($targetPath)
-            ->requireIsFile()
-            ->createFolder();
+        $target = FileHelper::getPathInfo($targetPath);
+
+        // It's a file? Then we can use it as-is.
+        if($target instanceof self) {
+            return $target
+                ->requireIsFile()
+                ->createFolder();
+        }
+
+        // The target is a path that can not be recognized as a file,
+        // but is not a folder: very likely a file without extension.
+        // In this case we create an empty file to be able to return
+        // a FileInfo instance.
+        if($target instanceof IndeterminatePath)
+        {
+            return $target->convertToFile();
+        }
+
+        throw new FileHelper_Exception(
+            'Cannot copy a file to a folder.',
+            sprintf(
+                'Tried to copy file [%s] to folder [%s].',
+                $this,
+                $target
+            ),
+            FileHelper::ERROR_CANNOT_COPY_FILE_TO_FOLDER
+        );
     }
 
     /**
