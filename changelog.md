@@ -1,4 +1,4 @@
-### v3.0.0 - ImageHelper and PHP8 compatibility
+### v2.2.0 - ImageHelper and PHP8 compatibility
 - ImageHelper: Improved the `trim()` method.
 - ImageHelper: Prepared for PHP8's GD library changes.
 - ImageHelper: Renamed `opacity` to  `alpha` to keep the terminology consistent.
