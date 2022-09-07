@@ -13,10 +13,19 @@
 
 #### Breaking changes
 
-- ImageHelper: Renamed all `opacity` methods to `alpha`.
-- FileHelper: Paths like `/path/to/folder` are not recognized as folders anymore, but
-  as `IndeterminatePath`, as the target can also be a file. To avoid confusion when
-  working with folders, use `/path/to/folder/` instead.
+##### ImageHelper
+
+Renamed all `opacity` methods to `alpha`.
+
+##### FileHelper
+
+Using `getPathInfo()` on paths like `/path/to/folder` when the target 
+file or folder do not exist, will not return a folder instance anymore, but an
+`IndeterminatePath`. This is because the target can be either a file or a folder. 
+
+To avoid confusion when working with folders, use `/path/to/folder/` instead. 
+Alternatively, use `getFolderInfo()` or `getFileInfo()` to specify the expected
+type.
 
 #### Deprecated features
 
