@@ -11,6 +11,7 @@ namespace AppUtils;
 
 use AppUtils\ArrayDataCollection\ArrayDataCollectionException;
 use JsonException;
+use testsuites\Traits\RenderableTests;
 
 /**
  * Collection class used to work with associative arrays used to
@@ -41,8 +42,16 @@ class ArrayDataCollection
         $this->data = $data;
     }
 
-    public static function create(array $data=array()) : ArrayDataCollection
+    /**
+     * @param ArrayDataCollection|array<string,mixed>|NULL $data
+     * @return ArrayDataCollection
+     */
+    public static function create($data=array()) : ArrayDataCollection
     {
+        if($data instanceof self) {
+            return $data;
+        }
+
         return new ArrayDataCollection($data);
     }
 
@@ -245,5 +254,41 @@ class ArrayDataCollection
         }
 
         return 0.0;
+    }
+
+    /**
+     * Whether the specified key exists in the data set,
+     * even if its value is <code>NULL</code>.
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function keyExists(string $name) : bool
+    {
+        return array_key_exists($name, $this->data);
+    }
+
+    /**
+     * Whether the specified key exists in the data set,
+     * and has a non-<code>NULL</code> value.
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function keyHasValue(string $name) : bool
+    {
+        return isset($this->data[$name]);
+    }
+
+    /**
+     * Removes the specified key from the data set, if it exists.
+     *
+     * @param string $name
+     * @return $this
+     */
+    public function removeKey(string $name) : self
+    {
+        unset($this->data[$name]);
+        return $this;
     }
 }
