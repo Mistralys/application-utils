@@ -161,6 +161,8 @@ final class ImageHelperTest extends TestCase
     {
         $img = ImageHelper::createFromFile($this->dataPath.'/test-image-fill-cc0000.png');
 
+        $this->assertSame(0, $img->getColorAt(0, 0)->getAlpha()->get7Bit());
+
         $img->fillTransparent();
 
         $this->assertSame(127, $img->getColorAt(0, 0)->getAlpha()->get7Bit());
@@ -234,6 +236,19 @@ final class ImageHelperTest extends TestCase
         $img = ImageHelper::createFromFile($this->dataPath.'/test-image-black-square-white-trim.png');
 
         $img->trim(ColorFactory::createFromHEX('FFFFFF'));
+
+        $this->assertSame(7, $img->getWidth());
+        $this->assertSame(7, $img->getHeight());
+        $this->assertSame('000000', $img->getColorAt(0, 0)->toHEX());
+    }
+
+    public function test_trimTransparent() : void
+    {
+        $img = ImageHelper::createFromFile($this->dataPath.'/test-image-black-square-transparent-trim.png');
+
+        $this->assertSame(255, $img->getColorAt(0, 0)->getAlpha()->get8Bit());
+
+        $img->trim();
 
         $this->assertSame(7, $img->getWidth());
         $this->assertSame(7, $img->getHeight());
