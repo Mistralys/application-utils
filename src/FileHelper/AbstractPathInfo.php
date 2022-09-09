@@ -40,6 +40,20 @@ abstract class AbstractPathInfo implements PathInfoInterface
         $this->path = FileHelper::normalizePath($path);
     }
 
+    public static function pathHasEndingSlash(string $path) : bool
+    {
+        $path = trim($path);
+
+        if (empty($path))
+        {
+            return false;
+        }
+
+        $ending = $path[strlen($path) - 1];
+
+        return $ending === '/' || $ending === '\\';
+    }
+
     /**
      * The full path to the file/folder.
      * @return string
