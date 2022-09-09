@@ -1,3 +1,6 @@
+### v2.2.1 - Data array collection
+- Collections: Added the `ArrayDataCollection` helper class.
+
 ### v2.2.0 - ImageHelper and PHP8 compatibility
 - ImageHelper: Improved the `trim()` method.
 - ImageHelper: Prepared for PHP8's GD library changes.
