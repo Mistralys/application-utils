@@ -12,6 +12,15 @@ class ArrayDataCollectionTest extends BaseTestCase
 {
     // region: _Tests
 
+    public function test_createFromExisting() : void
+    {
+        $collection = ArrayDataCollection::create();
+
+        $instance = ArrayDataCollection::create($collection);
+
+        $this->assertSame($collection, $instance);
+    }
+
     public function test_getString() : void
     {
         $tests = array(
@@ -335,6 +344,33 @@ class ArrayDataCollectionTest extends BaseTestCase
         $this->assertSame('bar_B', $collectionA->getKey('foo'));
         $this->assertSame('value_A', $collectionA->getKey('a_only'));
         $this->assertSame('value_B', $collectionA->getKey('b_only'));
+    }
+
+    public function test_keyExists() : void
+    {
+        $collection = ArrayDataCollection::create(array('foo' => null));
+
+        $this->assertFalse($collection->keyExists('bar'));
+        $this->assertTrue($collection->keyExists('foo'));
+    }
+
+    public function test_keyHasValue() : void
+    {
+        $collection = ArrayDataCollection::create(array('foo' => null, 'bar' => 'yes'));
+
+        $this->assertFalse($collection->keyHasValue('foo'));
+        $this->assertTrue($collection->keyHasValue('bar'));
+    }
+
+    public function test_remove() : void
+    {
+        $collection = ArrayDataCollection::create(array('foo' => 'bar'));
+
+        $this->assertTrue($collection->keyExists('foo'));
+
+        $collection->removeKey('foo');
+
+        $this->assertFalse($collection->keyExists('foo'));
     }
 
     // endregion

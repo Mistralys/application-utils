@@ -21,10 +21,17 @@ class FileHelperTestCase extends BaseTestCase
     protected array $testFolderNames = array(
         'path/',
         'path-ending-in-dot./',
+        __DIR__.'/../assets/FileHelper/PathInfo/EndingInDot.',
         'path/to/folder/',
         '/',
         '/user/',
-        '\unix\path\\'
+        '\unix\path\\',
+
+        // Has a dot, which means it would be assumed to be a file without the ending slash
+        '.dot-path/',
+
+        // No ending slash, but exists in the file system, so must be recognized as folder
+        __DIR__.'/../assets/FileHelper/PathInfo/.DotFolder',
     );
 
     /**

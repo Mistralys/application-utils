@@ -28,7 +28,6 @@ class PathInfoTest extends FileHelperTestCase
 
             $message = 'Folder: ['.$folderName.']';
 
-            $this->assertInstanceOf(FolderInfo::class, $info, $message);
             $this->assertTrue($info->isFolder(), $message);
             $this->assertFalse($info->isFile(), $message);
             $this->assertTrue(FolderInfo::is_dir($folderName), $message);
