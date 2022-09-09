@@ -128,12 +128,12 @@ class FileInfo extends AbstractPathInfo
     {
         $path = trim($path);
 
-        if(empty($path))
+        if(empty($path) || FolderInfo::is_dir($path))
         {
             return false;
         }
 
-        return pathinfo($path, PATHINFO_EXTENSION) !== '' || is_file($path);
+        return is_file($path) || pathinfo($path, PATHINFO_EXTENSION) !== '';
     }
 
     public function removeExtension(bool $keepPath=false) : string
