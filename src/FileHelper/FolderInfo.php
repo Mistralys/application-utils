@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace AppUtils\FileHelper;
 
+use AppUtils\ConvertHelper;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 use DirectoryIterator;
@@ -92,9 +93,7 @@ class FolderInfo extends AbstractPathInfo
             return false;
         }
 
-        $endingChar = $path[strlen($path) - 1];
-
-        return $endingChar === '/' || $endingChar === '\\' || is_dir($path);
+        return is_dir($path) || AbstractPathInfo::pathHasEndingSlash($path);
     }
 
     /**
