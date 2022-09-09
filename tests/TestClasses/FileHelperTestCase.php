@@ -21,7 +21,10 @@ class FileHelperTestCase extends BaseTestCase
     protected array $testFolderNames = array(
         'path/',
         'path-ending-in-dot./',
-        __DIR__.'/../assets/FileHelper/PathInfo/EndingInDot.',
+
+        // Removed this test, as Windows does not allow creating such folders.
+        // __DIR__.'/../assets/FileHelper/PathInfo/EndingInDot.',
+
         'path/to/folder/',
         '/',
         '/user/',
