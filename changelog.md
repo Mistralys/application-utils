@@ -1,3 +1,9 @@
+### v2.2.2 - FileHelper bugfix
+- FileInfo: Fixed `is_file()` wrongly detecting existing folders as files in some cases.
+- DataArrayCollection: Added `remove()`.
+- DataArrayCollection: Added `keyExists()` and `keyHasValue()`.
+- DataArrayCollection: An existing collection can now be used in `create()`, as pass-through value.
+
 ### v2.2.1 - Data array collection
 - Collections: Added the `ArrayDataCollection` helper class.
 
