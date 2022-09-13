@@ -1,3 +1,6 @@
+### v2.2.3 - DataArrayCollection tweak
+- DataArrayCollection: `getJSONArray` now works with array values.
+
 ### v2.2.2 - FileHelper bugfix
 - FileInfo: Fixed `is_file()` wrongly detecting existing folders as files in some cases.
 - DataArrayCollection: Added `remove()`.
