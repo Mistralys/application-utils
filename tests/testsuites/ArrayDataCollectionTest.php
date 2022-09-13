@@ -251,6 +251,10 @@ class ArrayDataCollectionTest extends BaseTestCase
             'json' => array(
                 'value' => json_encode(array('data' => 'here'), JSON_THROW_ON_ERROR),
                 'expected' => array('data' => 'here')
+            ),
+            'array' => array(
+                'value' => array('data' => 'here'),
+                'expected' => array('data' => 'here')
             )
         );
 
