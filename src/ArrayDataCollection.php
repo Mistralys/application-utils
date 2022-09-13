@@ -180,9 +180,14 @@ class ArrayDataCollection
      */
     public function getJSONArray(string $name) : array
     {
-        $value = $this->getString($name);
+        $value = $this->getKey($name);
 
-        if(empty($value)) {
+        // Does not need to be decoded after all
+        if(is_array($value)) {
+            return $value;
+        }
+
+        if(empty($value) || !is_string($value)) {
             return array();
         }
 
