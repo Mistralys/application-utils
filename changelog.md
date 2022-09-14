@@ -1,4 +1,4 @@
-### v2.3.4 - Added the JSON converter
+### v2.2.4 - Added the JSON converter
 - ConvertHelper: Added `json2var()`, `json2array()` and `array2json()`.
 - JSONConverter: Added the static class with all utility methods.
 - JSONConverter: All JSON methods now throw `JSONConverterException` exceptions.
