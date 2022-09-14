@@ -142,7 +142,7 @@ class JSONFile extends FileInfo
      */
     public function putData($data, bool $pretty) : self
     {
-        $options = null;
+        $options = 0;
 
         if($pretty)
         {
