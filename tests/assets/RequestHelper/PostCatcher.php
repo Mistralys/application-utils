@@ -8,22 +8,37 @@
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
 
-   /**
-    * @var array<string,array<mixed>> $data
-    */
+require_once __DIR__.'/../../../vendor/autoload.php';
 
 use AppUtils\ConvertHelper\JSONConverter;
+use AppUtils\FileHelper;
 
+/**
+* @var array<string,array<mixed>> $data
+*/
 $data = array(
-        'request' => $_REQUEST,
-        'files' => $_FILES
-    );
-    
-    foreach($data['files'] as $idx => $file)
-    {
-        $data['files'][$idx]['content'] = file_get_contents($file['tmp_name']);
+    'request' => $_REQUEST,
+    'files' => $_FILES
+);
+
+// Security: Only allow files with the exact same content
+// as the allowed files to be uploaded.
+$allowedContents = array(
+    FileHelper::readContents(__DIR__.'/upload.html'),
+    FileHelper::readContents(__DIR__.'/upload.txt')
+);
+
+foreach($data['files'] as $idx => $file)
+{
+    $content = file_get_contents($file['tmp_name']);
+
+    if(!in_array($content, $allowedContents, true)) {
+        die('Invalid file uploaded.');
     }
-    
-    header('Content-Type:application/json');
-    
-    echo JSONConverter::var2json($data, JSON_PRETTY_PRINT);
+
+    $data['files'][$idx]['content'] = file_get_contents($file['tmp_name']);
+}
+
+header('Content-Type:application/json');
+
+echo JSONConverter::var2json($data, JSON_PRETTY_PRINT);
