@@ -9,9 +9,12 @@
 
 namespace AppUtils;
 
+use AppUtils\ConvertHelper\JSONConverter;
+use AppUtils\ConvertHelper\JSONConverter\JSONConverterException;
 use AppUtils\ConvertHelper\WordSplitter;
 use DateInterval;
 use DateTime;
+use JsonException;
 
 /**
  * Static conversion helper class: offers a number of utility methods
@@ -27,6 +30,8 @@ class ConvertHelper
     public const ERROR_MONTHTOSTRING_NOT_VALID_MONTH_NUMBER = 23303;
     public const ERROR_CANNOT_NORMALIZE_NON_SCALAR_VALUE = 23304;
     public const ERROR_JSON_ENCODE_FAILED = 23305;
+    public const ERROR_JSON_DECODE_FAILED = 23307;
+    public const ERROR_JSON_UNEXPECTED_DECODED_TYPE = 23308;
     public const ERROR_INVALID_BOOLEAN_STRING = 23306;
 
     public const INTERVAL_DAYS = 'days';
@@ -549,6 +554,20 @@ class ConvertHelper
     {
         return ConvertHelper_Array::toAttributeString($array);
     }
+
+    /**
+     * Converts an array to a JSON string. Alias for
+     * the method {@see ConvertHelper::var2json()}.
+     *
+     * @param array<mixed> $array
+     * @return string
+     *
+     * @throws ConvertHelper_Exception
+     */
+    public static function array2json(array $array) : string
+    {
+        return self::var2json($array);
+    }
     
    /**
     * Converts a string, so it can safely be used in a javascript
@@ -645,37 +664,52 @@ class ConvertHelper
     }
     
    /**
-    * Converts the specified variable to JSON. Works just
-    * like the native `json_encode` method, except that it
-    * will trigger an exception on failure, which has the 
-    * json error details included in its developer details.
+    * Converts the specified variable to a JSON string.
+    *
+    * Works just like the native `json_encode` method,
+    * except that it will trigger an exception on failure,
+    * which has the json error details included in its
+    * developer details.
     * 
     * @param mixed $variable
     * @param int $options JSON encode options.
     * @param int $depth 
     * @return string
     *
-    * @throws ConvertHelper_Exception
+    * @throws JSONConverterException
     * @see ConvertHelper::ERROR_JSON_ENCODE_FAILED
     */
     public static function var2json($variable, int $options=0, int $depth=512) : string
     {
-        $result = json_encode($variable, $options, $depth);
-        
-        if($result !== false) {
-            return $result;
-        }
-        
-        throw new ConvertHelper_Exception(
-            'Could not create json array'.json_last_error_msg(),
-            sprintf(
-                'The call to json_encode failed for the variable [%s]. JSON error details: #%s, %s',
-                parseVariable($variable)->toString(),
-                json_last_error(),
-                json_last_error_msg()
-            ),
-            self::ERROR_JSON_ENCODE_FAILED
-        );
+        return JSONConverter::var2json($variable, $options, $depth);
+    }
+
+    /**
+     * Decodes a JSON encoded string to the relevant variable type.
+     *
+     * @param string $json
+     * @return mixed
+     * @throws JSONConverterException
+     */
+    public static function json2var(string $json)
+    {
+        return JSONConverter::json2var($json);
+    }
+
+    /**
+     * Attempts to convert a JSON string explicitly to
+     * an associative array.
+     *
+     * @param array<mixed>|string $json Either a JSON-encoded string or an array,
+     *                                  which will be passed through as-is, to
+     *                                  avoid having to check if the string has
+     *                                  already been decoded.
+     * @return array<mixed>
+     * @throws JSONConverterException
+     */
+    public static function json2array($json) : array
+    {
+        return JSONConverter::json2array($json);
     }
 
     /**
