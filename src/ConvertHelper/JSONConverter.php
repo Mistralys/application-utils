@@ -66,11 +66,15 @@ class JSONConverter
     /**
      * @param string $json
      * @param bool $assoc
-     * @return mixed
+     * @return mixed|NULL
      * @throws JSONConverterException
      */
     public static function json2var(string $json, bool $assoc=true)
     {
+        if(empty($json)) {
+            return null;
+        }
+
         try
         {
             return json_decode($json, $assoc, 512, JSON_THROW_ON_ERROR);
@@ -78,10 +82,11 @@ class JSONConverter
         catch (JsonException $e)
         {
             throw new JSONConverterException(
-                'Could not create json array'.json_last_error_msg(),
+                'Could not decode JSON string.',
                 sprintf(
                     'The call to json_decode failed for the given string. '.PHP_EOL.
                     'JSON error details: #%s, %s'.PHP_EOL.
+                    '(More details available via the previous exception)'.PHP_EOL.
                     'Source JSON string: '.PHP_EOL.
                     '%s',
                     $e->getCode(),
@@ -129,6 +134,27 @@ class JSONConverter
         );
     }
 
+    /**
+     * Like {@see JSONConverter::json2array()}, but does not trigger an
+     * exception on errors. It returns an empty array instead.
+     *
+     * @param array<mixed>|string $json Either a JSON-encoded string or an array,
+     *                                  which will be passed through as-is, to
+     *                                  avoid having to check if the string has
+     *                                  already been decoded.
+     * @return array<mixed>
+     */
+    public static function json2arraySilent($json) : array
+    {
+        try
+        {
+            return self::json2array($json);
+        }
+        catch (JSONConverterException $e)
+        {
+            return array();
+        }
+    }
 
     /**
      * Like {@see JSONConverter::var2json()}, but ignores any encoding
