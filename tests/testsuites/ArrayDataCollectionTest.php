@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace AppUtilsTests\TestSuites;
 
 use AppUtils\ArrayDataCollection;
+use AppUtils\Microtime;
+use DateTime;
 use TestClasses\BaseTestCase;
 use function AppUtils\parseVariable;
 
@@ -270,13 +272,11 @@ class ArrayDataCollectionTest extends BaseTestCase
         }
     }
 
-    public function test_getJSON_Exception() : void
+    public function test_getJSONInvalid() : void
     {
         $collection = ArrayDataCollection::create(array('json' => 'not valid JSON'));
 
-        $this->expectExceptionCode(ArrayDataCollection::ERROR_JSON_DECODE_FAILED);
-
-        $collection->getJSONArray('json');
+        $this->assertSame(array(), $collection->getJSONArray('json'));
     }
 
     public function test_setKey() : void
@@ -375,6 +375,67 @@ class ArrayDataCollectionTest extends BaseTestCase
         $collection->removeKey('foo');
 
         $this->assertFalse($collection->keyExists('foo'));
+    }
+
+    public function test_dateTime() : void
+    {
+        $collection = ArrayDataCollection::create();
+
+        $value = '2022-09-14 12:00:00';
+
+        $collection->setDateTime('date', new DateTime($value));
+
+        $stored = $collection->getDateTime('date');
+
+        $this->assertNotNull($stored);
+        $this->assertSame(
+            $value,
+            $stored->format('Y-m-d H:i:s')
+        );
+    }
+
+    public function test_dateTimeTimestamp() : void
+    {
+        $collection = ArrayDataCollection::create();
+
+        $date = new DateTime('2022-09-14 12:00:00');
+
+        $collection->setDateTime('date', $date);
+
+        $this->assertSame(
+            $date->getTimestamp(),
+            $collection->getTimestamp('date')
+        );
+    }
+
+    public function test_microtimeTimestamp() : void
+    {
+        $collection = ArrayDataCollection::create();
+
+        $date = Microtime::createNow();
+
+        $collection->setMicrotime('date', $date);
+
+        $this->assertSame(
+            $date->getTimestamp(),
+            $collection->getTimestamp('date')
+        );
+    }
+
+    public function test_microtime() : void
+    {
+        $collection = ArrayDataCollection::create();
+        $time = Microtime::createNow();
+
+        $collection->setMicrotime('time', $time);
+
+        $stored = $collection->getMicrotime('time');
+
+        $this->assertNotNull($stored);
+        $this->assertSame(
+            $time->getISODate(),
+            $stored->getISODate()
+        );
     }
 
     // endregion
