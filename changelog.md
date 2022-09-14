@@ -1,3 +1,17 @@
+### v2.3.4 - Added the JSON converter
+- ConvertHelper: Added `json2var()`, `json2array()` and `array2json()`.
+- JSONConverter: Added the static class with all utility methods.
+- JSONConverter: All JSON methods now throw `JSONConverterException` exceptions.
+- Updated all relevant internal calls to use the JSON converter methods.
+
+#### Exception changes
+
+Any methods that were documented to trigger a `JsonException` before
+now exclusively trigger `JSONConverterException`, which is not compatible
+with `JsonException`. Try/Catch blocks must be updated.
+
+> Note: The original `JsonException` is still available via the previous exception.
+
 ### v2.2.3 - DataArrayCollection tweak
 - DataArrayCollection: `getJSONArray` now works with array values.
 
