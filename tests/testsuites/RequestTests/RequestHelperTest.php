@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace RequestTests;
 
+use AppUtils\ConvertHelper\JSONConverter;
 use AppUtils\RequestHelper;
 use AppUtils\RequestHelper_Exception;
 use TestClasses\BaseTestCase;
@@ -28,7 +29,7 @@ final class RequestHelperTest extends BaseTestCase
         
         $helper->send();
     }
-    
+
    /**
     * Checks that sending a file works as intended.
     */
@@ -55,7 +56,7 @@ final class RequestHelperTest extends BaseTestCase
         $this->assertNotEmpty($json);
         $this->assertEquals(200, $response->getCode());
         
-        $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        $data = JSONConverter::json2array($json);
         
         $this->assertIsArray($data);
         $this->assertArrayHasKey('files', $data);
