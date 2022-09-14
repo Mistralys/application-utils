@@ -9,9 +9,9 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
-use AppUtils\ArrayDataCollection\ArrayDataCollectionException;
-use JsonException;
-use testsuites\Traits\RenderableTests;
+use AppUtils\ConvertHelper\JSONConverter;
+use DateTime;
+use Exception;
 
 /**
  * Collection class used to work with associative arrays used to
@@ -21,14 +21,19 @@ use testsuites\Traits\RenderableTests;
  * remove the hassle of checking whether keys exist, and whether
  * they are of the expected type.
  *
+ * ## Exception-free handling
+ *
+ * The collection is not intended to validate any of the stored
+ * data, this is the purview of the host class. The utility
+ * methods will only return values that match the expected type.
+ * Invalid data is ignored, and a matching default value returned.
+ *
  * @package Application Utils
  * @subpackage Collections
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
 class ArrayDataCollection
 {
-    public const ERROR_JSON_DECODE_FAILED = 116001;
-
     /**
      * @var array<string,mixed>
      */
@@ -170,13 +175,12 @@ class ArrayDataCollection
     /**
      * Attempts to decode the stored string as JSON.
      *
-     * NOTE: Only JSON that decodes into an array is
-     * accepted. Other values, like booleans or numbers,
-     * will return an empty array.
+     * NOTE: Only _valid JSON_ that decodes into an array is
+     * accepted. Invalid JSON, booleans or numbers will
+     * return an empty array.
      *
      * @param string $name
-     * @return array<mixed>
-     * @throws ArrayDataCollectionException
+     * @return array<mixed> The decoded array, or an empty array otherwise.
      */
     public function getJSONArray(string $name) : array
     {
@@ -191,34 +195,7 @@ class ArrayDataCollection
             return array();
         }
 
-        try
-        {
-            $value = json_decode($value, true, 512, JSON_THROW_ON_ERROR);
-
-            if(is_array($value)) {
-                return $value;
-            }
-
-            return array();
-        }
-        catch (JsonException $e)
-        {
-            throw new ArrayDataCollectionException(
-                'Invalid JSON encountered in array data collection.',
-                sprintf(
-                    'The JSON string could not be decoded.'.PHP_EOL.
-                    'Reason: %s'.PHP_EOL.
-                    'Raw JSON given:'.PHP_EOL.
-                    '---------------------------------------'.PHP_EOL.
-                    '%s'.PHP_EOL.
-                    '---------------------------------------'.PHP_EOL,
-                    $e->getMessage(),
-                    ConvertHelper::text_cut($value, 500)
-                ),
-                self::ERROR_JSON_DECODE_FAILED,
-                $e
-            );
-        }
+        return JSONConverter::json2arraySilent($value);
     }
 
     public function getArray(string $name) : array
@@ -295,5 +272,113 @@ class ArrayDataCollection
     {
         unset($this->data[$name]);
         return $this;
+    }
+
+    /**
+     * Fetches a {@see DateTime} instance from the stored
+     * key value, which can be either of the following:
+     *
+     * - A timestamp (int|string)
+     * - A DateTime string
+     *
+     * @param string $name
+     * @return DateTime|null The {@see DateTime} instance, or <code>NULL</code> if empty or invalid.
+     */
+    public function getDateTime(string $name) : ?DateTime
+    {
+        $value = $this->getString($name);
+
+        if(empty($value)) {
+            return null;
+        }
+
+        if(is_numeric($value)) {
+            $date = new DateTime();
+            $date->setTimestamp((int)$value);
+            return $date;
+        }
+
+        try
+        {
+            return new DateTime($value);
+        }
+        catch (Exception $e)
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Restores a {@see Microtime} instance from a key previously
+     * set using {@see ArrayDataCollection::setMicrotime()}.
+     *
+     * @param string $name
+     * @return Microtime|null The {@see Microtime} instance, or <code>NULL</code> if empty or invalid.
+     */
+    public function getMicrotime(string $name) : ?Microtime
+    {
+        try
+        {
+            return Microtime::createFromString($this->getString($name));
+        }
+        catch (Exception $e)
+        {
+            return null;
+        }
+    }
+
+    /**
+     * Sets a date and time key, which can be restored later
+     * using {@see ArrayDataCollection::getDateTime()} or
+     * {@see ArrayDataCollection::getTimestamp()}.
+     *
+     * @param string $name
+     * @param DateTime $time
+     * @return $this
+     */
+    public function setDateTime(string $name, DateTime $time) : self
+    {
+        return $this->setKey($name, $time->format(DATE_W3C));
+    }
+
+    /**
+     * Sets a microtime key: Guarantees that the microseconds
+     * information will be persisted correctly if restored later
+     * using {@see ArrayDataCollection::getMicrotime()}.
+     *
+     * **NOTE:** Fetching a timestamp from a microtime key with
+     * {@see ArrayDataCollection::getTimestamp()} will work,
+     * but the microseconds information will be lost.
+     *
+     * @param $name
+     * @param Microtime $time
+     * @return $this
+     */
+    public function setMicrotime($name, Microtime $time) : self
+    {
+        return $this->setKey($name, $time->getISODate());
+    }
+
+    /**
+     * Fetches a stored timestamp. The source value can be
+     * any of the following:
+     *
+     * - An timestamp (int|string)
+     * - A DateTime key
+     * - A Microtime key
+     *
+     * @param string $name
+     * @return int The timestamp, or <code>0</code> if none/invalid.
+     */
+    public function getTimestamp(string $name) : int
+    {
+        $date = $this->getDateTime($name);
+
+        if($date !== null)
+        {
+            return $date->getTimestamp();
+        }
+
+        return 0;
     }
 }
