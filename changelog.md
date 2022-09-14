@@ -3,6 +3,12 @@
 - JSONConverter: Added the static class with all utility methods.
 - JSONConverter: All JSON methods now throw `JSONConverterException` exceptions.
 - Updated all relevant internal calls to use the JSON converter methods.
+- DataArrayCollection: Added date and time related methods.
+  - `getMicrotime()`
+  - `setMicrotime()`
+  - `getDateTime()`
+  - `setDateTime()`
+  - `getTimestamp()`
 
 #### Exception changes
 
