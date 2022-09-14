@@ -9,9 +9,10 @@
 
 namespace AppUtils;
 
+use AppUtils\ConvertHelper\JSONConverter;
+use AppUtils\ConvertHelper\JSONConverter\JSONConverterException;
 use DOMElement;
 use Exception;
-use JsonException;
 use SimpleXMLElement;
 
 /**
@@ -46,6 +47,7 @@ class XMLHelper_Converter
 {
     public const ERROR_FAILED_CONVERTING_TO_JSON = 37901;
     public const ERROR_CANNOT_CREATE_ELEMENT_FROM_STRING = 37902;
+    public const ERROR_FAILED_CONVERTING_TO_ARRAY = 37902;
     
     protected SimpleXMLElement $xml;
     
@@ -122,7 +124,7 @@ class XMLHelper_Converter
     * Converts the XML to JSON.
     * 
     * @return string
-    * @throws XMLHelper_Exception|JsonException
+    * @throws XMLHelper_Exception
     */
     public function toJSON() : string
     {
@@ -135,20 +137,22 @@ class XMLHelper_Converter
 
         try
         {
-            $this->json = json_encode($decorator, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+            $this->json = JSONConverter::var2json($decorator, JSON_PRETTY_PRINT);
 
             unset($this->xml);
 
             return $this->json;
         }
-        catch (Exception $e)
+        catch (JSONConverterException $e)
         {
             throw new XMLHelper_Exception(
-                'Could not convert the XML source to JSON',
+                'Could not convert the XML source to JSON.',
                 sprintf(
-                    'Native error: #%s %s',
-                    json_last_error(),
-                    json_last_error_msg()
+                    'XML source excerpt: '.PHP_EOL.
+                    '-----------------------------------------------------------'.
+                    '%s'.PHP_EOL.
+                    '-----------------------------------------------------------',
+                    ConvertHelper::text_cut($this->xml, 300)
                 ),
                 self::ERROR_FAILED_CONVERTING_TO_JSON,
                 $e
@@ -156,16 +160,26 @@ class XMLHelper_Converter
         }
     }
 
-   /**
-    * Converts the XML to an associative array.
-    * @return array<mixed>
-    * @throws XMLHelper_Exception
-    * @throws JsonException
-    */
+    /**
+     * Converts the XML to an associative array.
+     * @return array<mixed>
+     *
+     * @throws XMLHelper_Exception
+     */
     public function toArray() : array 
     {
-        $json = $this->toJSON();
-        
-        return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        try
+        {
+            return JSONConverter::json2array($this->toJSON());
+        }
+        catch (JSONConverterException $e)
+        {
+            throw new XMLHelper_Exception(
+                'Could not convert the JSON string to an array.',
+                '',
+                self::ERROR_FAILED_CONVERTING_TO_ARRAY,
+                $e
+            );
+        }
     }
 }

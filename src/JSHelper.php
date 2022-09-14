@@ -11,6 +11,10 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\ConvertHelper\JSONConverter;
+use AppUtils\ConvertHelper\JSONConverter\JSONConverterException;
+use AppUtils\JSHelper\JSHelperException;
+
 /**
  * Simplifies building JavaScript statements from PHP variables.
  * Automatically converts variables to their JS equivalents, 
@@ -26,10 +30,14 @@ namespace AppUtils;
  */
 class JSHelper
 {
+    public const ERROR_EMPTY_REGEX_STRING = 116201;
+
     public const QUOTE_STYLE_SINGLE = 1;
     public const QUOTE_STYLE_DOUBLE = 2;
+    public const JS_REGEX_OBJECT = 'object';
+    public const JS_REGEX_JSON = 'json';
 
-   /**
+    /**
     * @var array<string,string>
     */
     protected static array $variableCache = array();
@@ -94,39 +102,42 @@ class JSHelper
         return $call . ');';
     }
 
-   /**
-    * Builds a set variable statement. The variable value is
-    * automatically converted to the javascript equivalent.
-    *
-    * Examples:
-    *
-    * // foo = 'bar';
-    * JSHelper::buildVariable('foo', 'bar');
-    *
-    * // foo = 42;
-    * JSHelper::buildVariable('foo', 42);
-    *
-    * // foo = true;
-    * JSHelper::buildVariable('foo', true);
-    *
-    * @param string $varName
-    * @param mixed $varValue
-    * @return string
-    */
+    /**
+     * Builds a set variable statement. The variable value is
+     * automatically converted to the javascript equivalent.
+     *
+     * Examples:
+     *
+     * // foo = 'bar';
+     * JSHelper::buildVariable('foo', 'bar');
+     *
+     * // foo = 42;
+     * JSHelper::buildVariable('foo', 42);
+     *
+     * // foo = true;
+     * JSHelper::buildVariable('foo', true);
+     *
+     * @param string $varName
+     * @param mixed $varValue
+     * @return string
+     *
+     * @throws JSONConverterException
+     */
     public static function buildVariable(string $varName, $varValue) : string
     {
         return $varName . "=" . self::phpVariable2JS($varValue) . ';';
     }
-    
-   /**
-    * Converts a PHP variable to its javascript equivalent. Note that
-    * if a variable cannot be converted (like a PHP resource), this will
-    * return a javascript "null".
-    *
-    * @param mixed $variable
-    * @param int $quoteStyle The quote style to use for strings
-    * @return string
-    */
+
+    /**
+     * Converts a PHP variable to its javascript equivalent. Note that
+     * if a variable cannot be converted (like a PHP resource), this will
+     * return a javascript "null".
+     *
+     * @param mixed $variable
+     * @param int $quoteStyle The quote style to use for strings
+     * @return string
+     * @throws JSONConverterException
+     */
     public static function phpVariable2JS($variable, int $quoteStyle=self::QUOTE_STYLE_DOUBLE) : string
     {
         // after much profiling, this variant of the method offers
@@ -162,15 +173,11 @@ class JSHelper
         {
             case 'double':
             case 'string':
-                $string = json_encode($variable);
+                $string = JSONConverter::var2json($variable);
                 
-                if($string === false) 
+                if($quoteStyle === self::QUOTE_STYLE_SINGLE)
                 {
-                    $string = '';
-                } 
-                else if($quoteStyle === self::QUOTE_STYLE_SINGLE) 
-                {
-                    $string = mb_substr($string, 1, mb_strlen($string)-2);
+                    $string = mb_substr($string, 1, -1);
                     $string = "'".str_replace("'", "\'", $string)."'";
                 }
                 
@@ -191,7 +198,7 @@ class JSHelper
 
             case 'object':
             case 'array':
-                $result = json_encode($variable);
+                $result = JSONConverter::var2json($variable);
                 break;
         }
 
@@ -203,15 +210,16 @@ class JSHelper
 
         return $result;
     }
-    
-   /**
-    * Converts a variable to a JS string that can be 
-    * used in an HTML attribute: it uses single quotes
-    * instead of the default double quotes.
-    * 
-    * @param mixed $variable
-    * @return string
-    */
+
+    /**
+     * Converts a variable to a JS string that can be
+     * used in an HTML attribute: it uses single quotes
+     * instead of the default double quotes.
+     *
+     * @param mixed $variable
+     * @return string
+     * @throws JSONConverterException
+     */
     public static function phpVariable2AttributeJS($variable) : string
     {
         return self::phpVariable2JS($variable, self::QUOTE_STYLE_SINGLE);
@@ -263,9 +271,6 @@ class JSHelper
         self::$idPrefix = $prefix;
     }
 
-    public const JS_REGEX_OBJECT = 'object';
-    public const JS_REGEX_JSON = 'json';
-    
     /**
      * Takes a regular expression and attempts to convert it to
      * its javascript equivalent. Returns an array containing the
@@ -298,18 +303,31 @@ class JSHelper
      * @param string $statementType The statement type to generate: Default to a statement to create a RegExp object.
      * @return string
      *
+     * @throws JSHelperException
+     * @throws JSONConverterException
+     *
      * @see JSHelper::JS_REGEX_OBJECT
      * @see JSHelper::JS_REGEX_JSON
      */
     public static function buildRegexStatement(string $regex, string $statementType=self::JS_REGEX_OBJECT) : string
     {
         $regex = trim($regex);
-        $separator = substr($regex, 0, 1);
+
+        if(empty($regex))
+        {
+            throw new JSHelperException(
+                'Empty regex.',
+                'An empty regex string cannot be used to build a regex statement.',
+                self::ERROR_EMPTY_REGEX_STRING
+            );
+        }
+
+        $separator = $regex[0];
         $parts = explode($separator, $regex);
         array_shift($parts);
         
         $modifiers = array_pop($parts);
-        if($modifiers == $separator) {
+        if($modifiers === $separator) {
             $modifiers = '';
         }
         
@@ -318,14 +336,18 @@ class JSHelper
             'U' => ''
         );
         
-        $modifiers = str_replace(array_keys($modifierReplacements), array_values($modifierReplacements), $modifiers);
+        $modifiers = str_replace(
+            array_keys($modifierReplacements),
+            array_values($modifierReplacements),
+            $modifiers
+        );
         
         $format = implode($separator, $parts);
         
         // convert the anchors that are not supported in js regexes
         $format = str_replace(array('\\A', '\\Z', '\\z'), array('^', '$', ''), $format);
         
-        if($statementType==self::JS_REGEX_JSON)
+        if($statementType === self::JS_REGEX_JSON)
         {
             return ConvertHelper::var2json(array(
                 'format' => $format,

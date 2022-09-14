@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace AppUtils\FileHelper;
 
 use AppUtils\ClassHelper;
+use AppUtils\ConvertHelper\JSONConverter;
+use AppUtils\ConvertHelper\JSONConverter\JSONConverterException;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper_Exception;
 use JsonException;
@@ -104,7 +106,7 @@ class JSONFile extends FileInfo
                         $this->getPath()
                     )
                     ->eol()
-                    ->sf('Source encodings: [%s]', json_encode($this->sourceEncodings, JSON_THROW_ON_ERROR))
+                    ->sf('Source encodings: [%s]', JSONConverter::var2jsonSilent($this->sourceEncodings))
                     ->eol()
                     ->sf('Target encoding: [%s]', $this->targetEncoding),
                 FileHelper::ERROR_CANNOT_DECODE_JSON_FILE,
@@ -149,13 +151,13 @@ class JSONFile extends FileInfo
 
         try
         {
-            $json = json_encode($data, JSON_THROW_ON_ERROR | $options);
+            $json = JSONConverter::var2json($data, $options);
 
             $this->putContents($json);
 
             return $this;
         }
-        catch (JsonException $e)
+        catch (JSONConverterException $e)
         {
             throw new FileHelper_Exception(
                 'An error occurred while encoding a data set to JSON.',

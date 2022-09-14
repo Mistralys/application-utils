@@ -8,6 +8,8 @@
 
 namespace AppUtils;
 
+use AppUtils\ConvertHelper\JSONConverter;
+use AppUtils\ConvertHelper\JSONConverter\JSONConverterException;
 use ZipArchive;
 
 /**
@@ -27,11 +29,8 @@ use ZipArchive;
 class ZIPHelper
 {
     public const ERROR_SOURCE_FILE_DOES_NOT_EXIST = 338001;
-    
     public const ERROR_NO_FILES_IN_ARCHIVE = 338002;
-    
     public const ERROR_OPENING_ZIP_FILE = 338003;
-    
     public const ERROR_CANNOT_SAVE_FILE_TO_DISK =338004;
 
     /**
@@ -50,7 +49,9 @@ class ZIPHelper
     * @var ZipArchive|NULL
     */
     protected $zip;
-    
+
+    protected bool $open = false;
+
     public function __construct(string $targetFile)
     {
         $this->file = $targetFile;
@@ -128,11 +129,6 @@ class ZIPHelper
     }
 
     /**
-     * @var bool
-     */
-    protected $open = false;
-
-    /**
      * @throws ZIPHelper_Exception
      * @see ZIPHelper::ERROR_OPENING_ZIP_FILE
      */
@@ -200,7 +196,11 @@ class ZIPHelper
             $this->fileTracker = 0;
         }
     }
-    
+
+    /**
+     * @return void
+     * @throws ZIPHelper_Exception
+     */
     protected function close() : void
     {
         if(!$this->open) {
@@ -223,7 +223,11 @@ class ZIPHelper
         
         $this->open = false;
     }
-    
+
+    /**
+     * @return $this
+     * @throws ZIPHelper_Exception
+     */
     public function save() : ZIPHelper
     {
         $this->open();
@@ -292,14 +296,15 @@ class ZIPHelper
         return $this;
     }
 
-   /**
-    * Extracts all files and folders from the zip to the 
-    * target folder. If no folder is specified, the files
-    * are extracted into the same folder as the zip itself.
-    * 
-    * @param string|NULL $outputFolder If no folder is specified, uses the target file's folder.
-    * @return boolean
-    */
+    /**
+     * Extracts all files and folders from the zip to the
+     * target folder. If no folder is specified, the files
+     * are extracted into the same folder as the zip itself.
+     *
+     * @param string|NULL $outputFolder If no folder is specified, uses the target file's folder.
+     * @return boolean
+     * @throws ZIPHelper_Exception
+     */
     public function extractAll(?string $outputFolder=null) : bool
     {
         if(empty($outputFolder)) {
@@ -311,28 +316,31 @@ class ZIPHelper
         return $this->zip->extractTo($outputFolder);
     }
 
-   /**
-    * @return ZipArchive
-    */
+    /**
+     * @return ZipArchive
+     * @throws ZIPHelper_Exception
+     */
     public function getArchive() : ZipArchive
     {
         $this->open();
         
         return $this->zip;
     }
-    
-   /**
-    * JSON encodes the specified data and adds the json as
-    * a file in the ZIP archive.
-    * 
-    * @param mixed $data
-    * @param string $zipPath
-    * @return boolean
-    */
+
+    /**
+     * JSON encodes the specified data and adds the json as
+     * a file in the ZIP archive.
+     *
+     * @param mixed $data
+     * @param string $zipPath
+     * @return boolean
+     *
+     * @throws JSONConverterException
+     */
     public function addJSON($data, string $zipPath) : bool
     {
         return $this->addString(
-            json_encode($data, JSON_THROW_ON_ERROR),
+            JSONConverter::var2json($data),
             $zipPath
         );
     }
@@ -340,6 +348,7 @@ class ZIPHelper
     /**
      * Counts the amount of files currently present in the archive.
      * @return int
+     * @throws ZIPHelper_Exception
      */
     public function countFiles() : int
     {

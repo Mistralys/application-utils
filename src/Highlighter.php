@@ -9,6 +9,8 @@
 
 namespace AppUtils;
 
+use AppUtils\ConvertHelper\JSONConverter;
+use AppUtils\ConvertHelper\JSONConverter\JSONConverterException;
 use GeSHi;
 use DOMDocument;
 
@@ -99,18 +101,20 @@ class Highlighter
     {
         return self::parseString($sql, 'sql');
     }
-    
-   /**
-    * Adds HTML syntax highlighting to a JSON string, or a data array/object.
-    *
-    * @param array<int|string,mixed>|object|string $subject A JSON string, or data array/object to convert to JSON to highlight.
-    * @return string
-    */
+
+    /**
+     * Adds HTML syntax highlighting to a JSON string, or a data array/object.
+     *
+     * @param array<int|string,mixed>|object|string $subject A JSON string, or data array/object to convert to JSON to highlight.
+     * @return string
+     *
+     * @throws JSONConverterException
+     */
     public static function json($subject) : string
     {
         if(!is_string($subject))
         {
-            $subject = json_encode($subject, JSON_PRETTY_PRINT);
+            $subject = JSONConverter::var2json($subject, JSON_PRETTY_PRINT);
         }
         
         $subject = str_replace('\/', '/', $subject);

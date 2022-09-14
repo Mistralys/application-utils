@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\ConvertHelper\JSONConverter;
+use AppUtils\ConvertHelper\JSONConverter\JSONConverterException;
 use JsonException;
 use LibXMLError;
 
@@ -166,10 +168,14 @@ class XMLHelper_DOMErrors_Error
     {
         return $this->getCode() === $code;
     }
-    
+
+    /**
+     * @return string
+     * @throws JSONConverterException
+     */
     public function serialize() : string
     {
-        return json_encode($this->toArray(), JSON_THROW_ON_ERROR);
+        return JSONConverter::var2json($this->toArray());
     }
 
     /**

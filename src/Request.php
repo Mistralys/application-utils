@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\ConvertHelper\JSONConverter;
+use AppUtils\ConvertHelper\JSONConverter\JSONConverterException;
 use AppUtils\Request\RequestParam;
 use JsonException;
 use stdClass;
@@ -472,21 +474,14 @@ class Request
         
         if(!empty($value) && is_string($value)) 
         {
-            try
-            {
-                $data = json_decode($value, $assoc, 512, JSON_THROW_ON_ERROR);
-            }
-            catch (JsonException $e)
-            {
-                return array();
+            $value = JSONConverter::json2varSilent($value, $assoc);
+
+            if($assoc && is_array($value)) {
+                return $value;
             }
             
-            if($assoc && is_array($data)) {
-                return $data;
-            }
-            
-            if(is_object($data)) {
-                return $data;
+            if(is_object($value)) {
+                return $value;
             }
         }
         
@@ -535,14 +530,14 @@ class Request
      * Sends a JSON response with the correct headers.
      *
      * @param array<mixed>|string $data
-     * @throws JsonException
+     * @throws JSONConverterException
      */
     public static function sendJSON($data) : void
     {
         $payload = $data;
 
         if(!is_string($payload)) {
-            $payload = json_encode($payload, JSON_THROW_ON_ERROR);
+            $payload = JSONConverter::var2json($payload);
         }
         
         header('Cache-Control: no-cache, must-revalidate');
@@ -555,7 +550,7 @@ class Request
     /**
      * @param array<mixed>|string $data
      * @return never
-     * @throws JsonException
+     * @throws JSONConverterException
      */
     public static function sendJSONAndExit($data) : void
     {

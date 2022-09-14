@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\ConvertHelper\JSONConverter;
 use JsonException;
 use ParseCsv\Csv;
 
@@ -479,7 +480,6 @@ class CSVHelper
      *
      * @throws CSVHelper_Exception
      * @throws FileHelper_Exception
-     * @throws JsonException
      *
      * @see CSVHelper::ERROR_CSV_FILE_NOT_READABLE
      * @see CSVHelper::ERROR_FILE_PARSING_FAILED
@@ -504,7 +504,7 @@ class CSVHelper
                 'Additional information: '.PHP_EOL.
                 '%s',
                 $path,
-                json_encode($parser->error_info, JSON_THROW_ON_ERROR)
+                JSONConverter::var2jsonSilent($parser->error_info)
             ),
             self::ERROR_FILE_PARSING_FAILED
         );
