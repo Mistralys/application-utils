@@ -1,9 +1,13 @@
+### v2.2.5 - Minor enhancements
+- ArrayDataCollection: Added `createFromJSON()`.
+- ImageHelper: Fixed the `trim()` method borking colors in some cases.
+
 ### v2.2.4 - Added the JSON converter
 - ConvertHelper: Added `json2var()`, `json2array()` and `array2json()`.
 - JSONConverter: Added the static class with all utility methods.
 - JSONConverter: All JSON methods now throw `JSONConverterException` exceptions.
 - Updated all relevant internal calls to use the JSON converter methods.
-- DataArrayCollection: Added date and time related methods.
+- ArrayDataCollection: Added date and time related methods.
   - `getMicrotime()`
   - `setMicrotime()`
   - `getDateTime()`
