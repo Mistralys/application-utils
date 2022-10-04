@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace AppUtils;
 
 use AppUtils\ConvertHelper\JSONConverter;
+use AppUtils\ConvertHelper\JSONConverter\JSONConverterException;
 use DateTime;
 use Exception;
 
@@ -58,6 +59,18 @@ class ArrayDataCollection
         }
 
         return new ArrayDataCollection($data);
+    }
+
+    /**
+     * Creates an array converter from a JSON encoded array.
+     *
+     * @param string $json
+     * @return ArrayDataCollection
+     * @throws JSONConverterException
+     */
+    public static function createFromJSON(string $json) : ArrayDataCollection
+    {
+        return self::create(JSONConverter::json2array($json));
     }
 
     /**
