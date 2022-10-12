@@ -175,6 +175,22 @@ function isCLI() : bool
 }
 
 /**
+ * Removes the specified values from the target array.
+ *
+ * @param array<mixed> $haystack
+ * @param array<mixed> $values
+ * @param bool $strict
+ * @return array<mixed>
+ */
+function array_remove_values(array $haystack, array $values, bool $strict=true) : array
+{
+    return array_filter(
+        $haystack,
+        static fn($entry) => !in_array($entry, $values, $strict)
+    );
+}
+
+/**
  * Initializes the utilities: this is called automatically
  * because this file is included in the files list in the
  * composer.json, guaranteeing it is always loaded.
