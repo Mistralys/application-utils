@@ -113,4 +113,14 @@ final class HTMLTagTest extends TestCase
             );
         }
     }
+
+    public function test_keepEmptyAttribute() : void
+    {
+        $this->assertEquals(
+            '<option value="">Content</option>',
+            (string)HTMLTag::create('option')
+                ->attr('value', '', true)
+                ->setContent('Content')
+        );
+    }
 }

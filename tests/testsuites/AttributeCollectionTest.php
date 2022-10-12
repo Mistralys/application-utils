@@ -88,4 +88,47 @@ final class AttributeCollectionTest extends TestCase
         $this->assertEquals('42.5', $attribs->getAttribute('float'));
         $this->assertEquals('true', $attribs->getAttribute('bool'));
     }
+
+    public function test_renderEmptyAttribute() : void
+    {
+        $attribs = AttributeCollection::create(array(
+            'empty' => '',
+        ));
+
+        $this->assertSame('', $attribs->render());
+    }
+
+    public function test_renderForcedEmptyAttribute() : void
+    {
+        $attribs = AttributeCollection::create(array(
+            'empty' => '',
+        ))
+            ->setKeepIfEmpty('empty');
+
+        $this->assertSame(' empty=""', $attribs->render());
+    }
+
+    public function test_setEmptyLater() : void
+    {
+        $attribs = AttributeCollection::create(array(
+            'string' => 'Non empty value',
+        ))
+            ->setKeepIfEmpty('string');
+
+        $attribs->attr('string', '');
+
+        $this->assertSame(' string=""', $attribs->render());
+    }
+
+    public function test_setValueLater() : void
+    {
+        $attribs = AttributeCollection::create(array(
+            'string' => '',
+        ))
+            ->setKeepIfEmpty('string');
+
+        $attribs->attr('string', 'Value');
+
+        $this->assertSame(' string="Value"', $attribs->render());
+    }
 }
