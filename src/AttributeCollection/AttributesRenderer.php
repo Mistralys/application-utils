@@ -31,7 +31,7 @@ class AttributesRenderer
 
         foreach($attributes as $name => $value)
         {
-            if($value === '')
+            if($value === '' && !$this->collection->isKeepIfEmpty($name))
             {
                 continue;
             }
