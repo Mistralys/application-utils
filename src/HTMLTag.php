@@ -216,11 +216,17 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
     /**
      * @param string $name
      * @param string $value
+     * @param bool $keepIfEmpty
      * @return $this
      */
-    public function attr(string $name, string $value) : self
+    public function attr(string $name, string $value, bool $keepIfEmpty=false) : self
     {
         $this->attributes->attr($name, $value);
+
+        if($keepIfEmpty) {
+            $this->attributes->setKeepIfEmpty($name);
+        }
+
         return $this;
     }
 
