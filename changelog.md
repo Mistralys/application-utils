@@ -1,3 +1,10 @@
+### v2.2.6 - Bugfixes
+- ArrayDataCollection: Fixed `getBool()` not accepting a string `1` as true.
+- FileHelper: Fixed `sendFileAuto()` not being static.
+- AttributeCollection: Added `setKeepIfEmpty()` to keep select empty attributes.
+- HTMLTag: Added the possibility to keep empty attributes in the rendered tag.
+- Functions: Added `array_remove_values()`.
+
 ### v2.2.5 - Minor enhancements
 - ArrayDataCollection: Added `createFromJSON()`.
 - ImageHelper: Fixed the `trim()` method borking colors in some cases.
