@@ -225,7 +225,7 @@ class FileHelper
      * @param string $fileName
      * @throws FileHelper_Exception
      */
-    public function sendFileAuto($filePath, string $fileName = '') : void
+    public static function sendFileAuto($filePath, string $fileName = '') : void
     {
         $file = FileInfo::factory($filePath)
             ->requireExists()
