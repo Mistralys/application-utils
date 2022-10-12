@@ -47,6 +47,16 @@ class AttributeCollection
     private ?AttributesRenderer $renderer = null;
 
     /**
+     * @var array<string,bool>
+     */
+    private array $keepEmpty = array();
+
+    /**
+     * @var string[]
+     */
+    private array $empty = array();
+
+    /**
      * @param array<string,string|number|bool|NULL|Interface_Stringable|StringBuilder_Interface> $attributes
      */
     private function __construct(array $attributes)
@@ -122,6 +132,17 @@ class AttributeCollection
         if($string !== '')
         {
             $this->attributes[$name] = $string;
+
+            // remove it from the empty stack if it was empty before.
+            if(in_array($name, $this->empty, true)) {
+                $this->empty = array_remove_values($this->empty, array($name));
+            }
+        }
+        else
+        {
+            unset($this->attributes[$name]);
+
+            $this->empty[] = $name;
         }
 
         return $this;
@@ -206,7 +227,47 @@ class AttributeCollection
      */
     public function getRawAttributes() : array
     {
-        return $this->attributes;
+        $attributes = $this->attributes;
+
+        // Are there any empty attributes to keep?
+        if(!empty($this->keepEmpty))
+        {
+            $names = array_keys($this->keepEmpty);
+
+            foreach($names as $name) {
+                if(in_array($name, $this->empty, true)) {
+                    $attributes[$name] = '';
+                }
+            }
+        }
+
+        return $attributes;
+    }
+
+    public function setKeepIfEmpty(string $name, bool $keep=true) : self
+    {
+        if($keep === true)
+        {
+            $this->keepEmpty[$name] = true;
+        }
+        else if(isset($this->keepEmpty[$name]))
+        {
+            unset($this->keepEmpty[$name]);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Whether the attribute should be kept even it is empty.
+     *
+     * @param string $name
+     * @return bool
+     * @see AttributeCollection::setKeepIfEmpty()
+     */
+    public function isKeepIfEmpty(string $name) : bool
+    {
+        return isset($this->keepEmpty[$name]) && $this->keepEmpty[$name] === true;
     }
 
     public function render() : string
