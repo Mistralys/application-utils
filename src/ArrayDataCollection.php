@@ -237,7 +237,9 @@ class ArrayDataCollection
             ||
             $value === 'yes'
             ||
-            $value === 1;
+            $value === 1
+            ||
+            $value === '1';
     }
 
     public function getFloat(string $name) : float
