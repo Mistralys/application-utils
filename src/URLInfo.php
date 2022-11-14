@@ -490,6 +490,7 @@ class URLInfo implements ArrayAccess
      * @see URLInfo::TYPE_FRAGMENT
      * @see URLInfo::TYPE_PHONE
      * @see URLInfo::TYPE_URL
+     * @see URLInfo::TYPE_NONE
      */
     public function getType() : string
     {
@@ -505,6 +506,7 @@ class URLInfo implements ArrayAccess
                 self::TYPE_FRAGMENT => t('Jump mark'),
                 self::TYPE_PHONE => t('Phone number'),
                 self::TYPE_URL => t('URL'),
+                self::TYPE_NONE => t('Unknown')
             );
         }
         
