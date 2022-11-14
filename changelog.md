@@ -1,3 +1,6 @@
+### v2.2.7 - Bugfixes
+- URLInfo: Fixed a PHP error when calling `getTypeLabel()` with the `none` type.
+
 ### v2.2.6 - Bugfixes
 - ArrayDataCollection: Fixed `getBool()` not accepting a string `1` as true.
 - FileHelper: Fixed `sendFileAuto()` not being static.
