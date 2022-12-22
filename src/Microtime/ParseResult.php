@@ -26,7 +26,7 @@ use DateTimeZone;
  * @subpackage Microtime
  * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
-class Microtime_ParseResult
+class Microtime_ParseResult implements Interface_Stringable
 {
     /**
      * @var string
@@ -40,8 +40,33 @@ class Microtime_ParseResult
 
     public function __construct(string $datetime, DateTimeZone $timeZone)
     {
+        if(stripos($datetime, 'T') !== false) {
+            $datetime = $this->parseISO8601($datetime);
+        }
+
         $this->dateTime = $datetime;
         $this->timeZone = $timeZone;
+    }
+
+    private function parseISO8601(string $datetime) : string
+    {
+        preg_match('/([0-9]{4}-[0-9]{2}-[0-9]{2})T([0-9]{2}:[0-9]{2}:[0-9]{2})\.([0-9]+)Z/', $datetime, $matches);
+
+        if(!empty($matches[0])) {
+            return sprintf(
+                '%s %s.%s',
+                $matches[1],
+                $matches[2],
+                substr($matches[3], 0, 6)
+            );
+        }
+
+        return $datetime;
+    }
+
+    public function __toString() : string
+    {
+        return $this->getDateTime();
     }
 
     /**
