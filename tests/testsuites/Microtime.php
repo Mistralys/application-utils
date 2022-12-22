@@ -43,6 +43,15 @@ final class MicrotimeTest extends TestCase
         $this->assertSame($vanilla->format('Y-m-d H:i:s'), $micro->format('Y-m-d H:i:s'));
     }
 
+    public function test_ISO8601() : void
+    {
+        $date = Microtime::createFromString('2022-12-22T09:06:21.366976535Z');
+
+        $this->assertSame('2022-12-22', $date->format('Y-m-d'));
+        $this->assertSame('09:06:21', $date->format('H:i:s'));
+        $this->assertSame(366976, $date->getMicroseconds());
+    }
+
     public function test_createNow() : void
     {
         $now = Microtime::createNow();
