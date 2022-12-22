@@ -1,3 +1,6 @@
+### v2.2.8 - Microtime ISO8601 support
+- Microtime: Added support for date strings in ISO8601 format.
+
 ### v2.2.7 - Bugfixes
 - URLInfo: Fixed a PHP error when calling `getTypeLabel()` with the `none` type.
 
