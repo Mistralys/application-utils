@@ -74,7 +74,8 @@ class Microtime extends DateTime implements Interface_Stringable
                     'Source date string: [%s].',
                     $datetime
                 ),
-                self::ERROR_FAILED_CONVERTING_STRING
+                self::ERROR_FAILED_CONVERTING_STRING,
+                $e
             );
         }
     }
@@ -87,7 +88,7 @@ class Microtime extends DateTime implements Interface_Stringable
      */
     private function parseDate($datetime, ?DateTimeZone $timeZone=null) : Microtime_ParseResult
     {
-        if($datetime instanceof Microtime)
+        if($datetime instanceof self)
         {
             return new Microtime_ParseResult(
                 $datetime->getISODate(),
