@@ -1,3 +1,7 @@
+### v2.2.9 - Minor enhancements
+- URLInfo: URLs that cannot be parsed by `parse_url` no longer cause a PHP error.
+- URLInfo: URLs with too many slashes, e.g. `https:///` are now fixed automatically.
+
 ### v2.2.8 - Microtime ISO8601 support
 - Microtime: Added support for date strings in ISO8601 format.
 
