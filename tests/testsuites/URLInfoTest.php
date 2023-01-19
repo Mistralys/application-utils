@@ -70,6 +70,12 @@ final class URLInfoTest extends TestCase
                 'normalized' => 'http://www.foo.com'
             ),
             array(
+                'label' => 'URL with too many scheme slashes',
+                'url' => 'http:///www.foo.com',
+                'valid' => true,
+                'normalized' => 'http://www.foo.com'
+            ),
+            array(
                 'label' => 'URL with whitespace',
                 'url' => '   http://www.foo.com    ',
                 'valid' => true,

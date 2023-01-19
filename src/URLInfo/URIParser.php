@@ -106,8 +106,20 @@ class URIParser
     protected function parse() : void
     {
         $this->filterUnicodeChars();
-        
-        $this->info = parse_url($this->url);
+
+        $result = parse_url($this->url);
+        $this->info = array();
+
+        if(!is_array($result))
+        {
+            $this->fixBrokenURL();
+            $result = parse_url($this->url);
+        }
+
+        if(is_array($result))
+        {
+            $this->info = $result;
+        }
 
         $this->filterParsed();
 
@@ -117,6 +129,28 @@ class URIParser
         {
             $this->info = $this->restoreUnicodeChars($this->info);
         }
+    }
+
+    /**
+     * Tries to fix broken URLs by checking for common user mistakes.
+     * @return void
+     */
+    private function fixBrokenURL() : void
+    {
+        if(strpos($this->url, ':') === false) {
+            return;
+        }
+
+        // Using explode to exclude breaking a URL that contains :/// somewhere
+        // else, as unlikely as it may be.
+        $parts = explode(':', $this->url);
+
+        while(strpos($parts[1], '///') === 0)
+        {
+            $parts[1] = str_replace('///', '//', $parts[1]);
+        }
+
+        $this->url = implode(':', $parts);
     }
 
    /**
