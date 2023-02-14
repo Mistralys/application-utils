@@ -125,6 +125,11 @@ class URLInfo implements ArrayAccess
         $this->info = $this->parser->getInfo();
     }
 
+    public function getParser(): URIParser
+    {
+        return $this->parser;
+    }
+
    /**
     * Whether to URL encode any non-encoded UTF8 characters in the URL.
     * Default is to leave them as-is for better readability, since 
