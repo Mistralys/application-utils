@@ -1,3 +1,6 @@
+### v2.2.10 - URLInfo path fix
+- URLInfo: Fixed spaces stripped from the path component of URLs.
+
 ### v2.2.9 - Minor enhancements
 - URLInfo: URLs that cannot be parsed by `parse_url` no longer cause a PHP error.
 - URLInfo: URLs with too many slashes, e.g. `https:///` are now fixed automatically.
