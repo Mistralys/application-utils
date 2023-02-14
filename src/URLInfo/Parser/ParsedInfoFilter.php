@@ -39,8 +39,27 @@ class ParsedInfoFilter
         $this->filterPath();
         $this->filterKnownHosts();
         $this->filterParams();
+        $this->filterEmail();
 
         return $this->info;
+    }
+
+    /**
+     * Special case for Email addresses: the path component
+     * must be stripped of spaces, as no spaces are allowed.
+     * This differs from the usual path behavior, which is to
+     * allow spaces.
+     *
+     * @return void
+     */
+    private function filterEmail() : void
+    {
+        $path = $this->info['path'] ?? '';
+
+        if(strpos($path, '@') !== false)
+        {
+            $this->info['path'] = str_replace(' ', '', $path);
+        }
     }
 
     private function filterScheme() : void
@@ -65,8 +84,8 @@ class ParsedInfoFilter
         }
 
         $this->setAuth(
-            urldecode((string)$this->getUser()),
-            urldecode((string)$this->getPassword())
+            urldecode($this->getUser()),
+            urldecode($this->getPassword())
         );
     }
 
@@ -86,7 +105,7 @@ class ParsedInfoFilter
     private function filterPath() : void
     {
         if($this->hasPath()) {
-            $this->setPath(str_replace(' ', '', $this->getPath()));
+            $this->setPath($this->getPath());
         }
     }
 
