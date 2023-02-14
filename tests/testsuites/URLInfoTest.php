@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace AppUtilsTests\TestSuites;
 
+use AppUtils\URLInfo\URIFilter;
 use AppUtils\URLInfo\URISchemes;
 use AppUtils\URLInfo\URLHosts;
 use PHPUnit\Framework\TestCase;
@@ -97,7 +98,7 @@ final class URLInfoTest extends TestCase
                 'label' => 'With whitespaces within the URL',
                 'url' => "http://www.   foo-bar.   com /  some/ folder /",
                 'valid' => true,
-                'normalized' => 'http://www.foo-bar.com/some/folder/'
+                'normalized' => 'http://www.foo-bar.com/  some/ folder /'
             ),
             array(
                 'label' => 'With HTML encoded ampersands',
@@ -188,6 +189,22 @@ final class URLInfoTest extends TestCase
         }
     }
 
+    public function test_foldersWithSpaces() : void
+    {
+        $url = 'https://bar.com/folder with spaces';
+
+        $control = parse_url($url);
+        $this->assertSame('/folder with spaces', $control['path']);
+
+        $info = parseURL($url);
+        $parser = $info->getParser();
+
+        $this->assertSame($url, URIFilter::filter($url));
+        $this->assertSame('/folder with spaces', $parser->getPath());
+        $this->assertSame('/folder with spaces', $info->getPath());
+        $this->assertStringContainsString('/folder with spaces', $info->getNormalized());
+    }
+
     public function test_detectEmail() : void
     {
         $tests = array(
@@ -212,6 +229,12 @@ final class URLInfoTest extends TestCase
             array(
                 'label' => 'With whitespace',
                 'url' => '    mailto:      foo@  bar.com   ',
+                'isEmail' => true,
+                'normalized' => 'mailto:foo@bar.com',
+            ),
+            array(
+                'label' => 'Without mailto, and with whitespace',
+                'url' => '      foo@  bar.com   ',
                 'isEmail' => true,
                 'normalized' => 'mailto:foo@bar.com',
             ),
