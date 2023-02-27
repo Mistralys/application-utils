@@ -123,11 +123,12 @@ class UnitsConverter
     public static function int2hex(int $int) : string
     {
         $str = dechex($int);
+
         if (strlen($str) === 1)
         {
-            $str .= $str;
+            $str = str_pad($str, 2, '0', STR_PAD_LEFT);
         }
 
-        return $str;
+        return strtoupper($str);
     }
 }
