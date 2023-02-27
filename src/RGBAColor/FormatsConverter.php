@@ -49,7 +49,7 @@ class FormatsConverter
             $hex .= UnitsConverter::int2hex($color->getAlpha()->get8Bit());
         }
 
-        return strtoupper($hex);
+        return $hex;
     }
 
     /**
