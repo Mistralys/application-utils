@@ -1,3 +1,6 @@
+### v2.2.11 - RGBAColor fix
+- RGBAColor: Fixed `toHEX()` returning erroneous values ([#10](https://github.com/Mistralys/application-utils/issues/10)).
+
 ### v2.2.10 - URLInfo path fix
 - URLInfo: Fixed spaces stripped from the path component of URLs.
 
