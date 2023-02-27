@@ -6,6 +6,7 @@ namespace RGBAColorTests;
 
 use AppUtils\RGBAColor;
 use AppUtils\RGBAColor\ColorFactory;
+use AppUtils\RGBAColor\UnitsConverter;
 use PHPUnit\Framework\TestCase;
 
 class ColorConverterTest extends TestCase
@@ -65,5 +66,10 @@ class ColorConverterTest extends TestCase
     {
         $this->assertSame('CCCCCC', ColorFactory::createFromHEX('CCC')->toHEX());
         $this->assertSame('CCCCCCCC', ColorFactory::createFromHEX('CCCCCCCC')->toHEX());
+    }
+
+    public function test_int2hex() : void
+    {
+        $this->assertSame('0A', UnitsConverter::int2hex(10));
     }
 }

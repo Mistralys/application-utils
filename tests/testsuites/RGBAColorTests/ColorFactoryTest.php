@@ -10,6 +10,7 @@ use AppUtils\RGBAColor\FormatsConverter;
 use AppUtils\RGBAColor\ColorPresets;
 use AppUtils\RGBAColor\PresetsManager;
 use PHPUnit\Framework\TestCase;
+use testsuites\FileHelperTests\PathInfoTest;
 
 class ColorFactoryTest extends TestCase
 {
@@ -116,19 +117,28 @@ class ColorFactoryTest extends TestCase
         $tests = array(
             array(
                 'hex' => 'FFF',
-                'expected' => array(255, 255, 255, 0)
+                'expected' => array(255, 255, 255, 0),
+                'hex-normalized' => 'FFFFFF'
             ),
             array(
                 'hex' => '000',
-                'expected' => array(0, 0, 0, 0)
+                'expected' => array(0, 0, 0, 0),
+                'hex-normalized' => '000000'
             ),
             array(
                 'hex' => 'FFFFFF',
-                'expected' => array(255, 255, 255, 0)
+                'expected' => array(255, 255, 255, 0),
+                'hex-normalized' => 'FFFFFF'
             ),
             array(
                 'hex' => 'ABDE0911',
-                'expected' => array(hexdec('AB'), hexdec('DE'), hexdec('09'), hexdec('11'))
+                'expected' => array(hexdec('AB'), hexdec('DE'), hexdec('09'), hexdec('11')),
+                'hex-normalized' => 'ABDE0911'
+            ),
+            array(
+                'hex' => 'C80A00',
+                'expected' => array(hexdec('C8'), hexdec('0A'), hexdec('00'), 0),
+                'hex-normalized' => 'C80A00'
             )
         );
 
@@ -140,7 +150,19 @@ class ColorFactoryTest extends TestCase
             $this->assertSame($test['expected'][1], $color->getGreen()->get8Bit());
             $this->assertSame($test['expected'][2], $color->getBlue()->get8Bit());
             $this->assertSame($test['expected'][3], $color->getAlpha()->get8Bit());
+            $this->assertSame($test['hex-normalized'], $color->toHEX());
         }
+    }
+
+    /**
+     * @link https://github.com/Mistralys/application-utils/issues/10
+     */
+    public function test_bug_10() : void
+    {
+        $this->assertSame(
+            'C80A00',
+            FormatsConverter::hex2color('C80A00')->toHEX()
+        );
     }
 
     /**
