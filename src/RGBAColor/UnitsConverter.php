@@ -30,14 +30,18 @@ class UnitsConverter
 
     /**
      * Converts a color value to a percentage.
-     * @param int $colorValue 0-255
-     * @return float
+     * @param int $eightBit 0-255
+     * @return float 0-100
      */
-    public static function intEightBit2Percent(int $colorValue) : float
+    public static function intEightBit2Percent(int $eightBit) : float
     {
-        return $colorValue * 100 / 255;
+        return $eightBit * 100 / 255;
     }
 
+    /**
+     * @param int $colorValue 0-127
+     * @return float 0-100
+     */
     public static function intSevenBit2Percent(int $colorValue) : float
     {
         return $colorValue * 100 / 127;
@@ -45,7 +49,7 @@ class UnitsConverter
 
     /**
      * Converts a percentage to an integer color value.
-     * @param float $percent
+     * @param float $percent 0-100
      * @return int 0-255
      */
     public static function percent2IntEightBit(float $percent) : int
@@ -55,7 +59,7 @@ class UnitsConverter
     }
 
     /**
-     * @param float $percent
+     * @param float $percent 0-100
      * @return int 0-127
      */
     public static function percent2IntSevenBit(float $percent) : int
@@ -68,47 +72,75 @@ class UnitsConverter
      * Converts an alpha value based on a 0-255 numeric
      * value to a 0-1 based float value.
      *
-     * @param int $alpha
-     * @return float
+     * @param int $eightBit 255
+     * @return float 0.0 to 1.0
      */
-    public static function intEightBit2Float(int $alpha) : float
+    public static function intEightBit2Alpha(int $eightBit) : float
     {
-        return round($alpha / 255, self::$floatPrecision);
+        return round($eightBit / 255, self::$floatPrecision);
     }
 
-    public static function intEightBit2IntSevenBit(int $alpha) : int
+    /**
+     * @param int $eightBit 0 to 255
+     * @return int 0 to 127
+     */
+    public static function intEightBit2IntSevenBit(int $eightBit) : int
     {
-        return (int)round($alpha * 127 / 255);
+        return (int)round($eightBit * 127 / 255);
     }
 
-    public static function intSevenBit2IntEightBit(int $alpha) : int
+    /**
+     * @param int $sevenBit 0-127
+     * @return int 0-255
+     */
+    public static function intSevenBit2IntEightBit(int $sevenBit) : int
     {
-        return (int)round($alpha * 255 / 127);
+        return (int)round($sevenBit * 255 / 127);
     }
 
-    public static function intSevenBit2Float(int $alpha) : float
+    /**
+     * @param int $sevenBit 0-127
+     * @return float 0.0-1.0
+     */
+    public static function intSevenBit2Alpha(int $sevenBit) : float
     {
-        return round($alpha / 127, self::$floatPrecision);
+        return round($sevenBit / 127, self::$floatPrecision);
     }
 
-    public static function float2IntEightBit(float $alpha) : int
+    /**
+     * @param float $alpha 0.0-1.0
+     * @return int 0-255
+     */
+    public static function alpha2IntEightBit(float $alpha) : int
     {
         return (int)round($alpha * 255);
     }
 
-    public static function float2IntSevenBit(float $alpha) : int
+    /**
+     * @param float $alpha 0.0-1.0
+     * @return int 0-127
+     */
+    public static function alpha2IntSevenBit(float $alpha) : int
     {
         return (int)round($alpha * 127);
     }
 
-    public static function percent2Float(float $percent) : float
+    /**
+     * @param float $percent 0-100
+     * @return float 0.0-1.0
+     */
+    public static function percent2Alpha(float $percent) : float
     {
         return round($percent/100, self::$floatPrecision);
     }
 
-    public static function float2percent(float $value) : float
+    /**
+     * @param float $alpha 0.0-1.0
+     * @return float 0-100
+     */
+    public static function alpha2percent(float $alpha) : float
     {
-        return $value * 100;
+        return $alpha * 100;
     }
 
     /**
@@ -130,5 +162,41 @@ class UnitsConverter
         }
 
         return strtoupper($str);
+    }
+
+    /**
+     * @param float $hue 0-360
+     * @return int 127
+     */
+    public static function hue2IntSevenBit(float $hue) : int
+    {
+        return (int)round($hue * 360 / 127);
+    }
+
+    /**
+     * @param float $hue 0-360
+     * @return int 0-255
+     */
+    public static function hue2IntEightBit(float $hue) : int
+    {
+        return (int)round($hue * 360 / 255);
+    }
+
+    /**
+     * @param float $hue 0-360
+     * @return float 0.0-1.0
+     */
+    public static function hue2Alpha(float $hue) : float
+    {
+        return round($hue / 360, self::$floatPrecision);
+    }
+
+    /**
+     * @param float $hue 0-360
+     * @return float 0-100
+     */
+    public static function hue2Percent(float $hue) : float
+    {
+        return $hue * 100 / 360;
     }
 }
