@@ -23,6 +23,10 @@ class UnitsConverter
 {
     private static int $floatPrecision = 2;
 
+    /**
+     * @param string $hex
+     * @return int 0 to 255
+     */
     public static function hex2int(string $hex) : int
     {
         return (int)hexdec($hex);
@@ -30,8 +34,8 @@ class UnitsConverter
 
     /**
      * Converts a color value to a percentage.
-     * @param int $eightBit 0-255
-     * @return float 0-100
+     * @param int $eightBit 0 to 255
+     * @return float 0 to 100
      */
     public static function intEightBit2Percent(int $eightBit) : float
     {
@@ -39,8 +43,8 @@ class UnitsConverter
     }
 
     /**
-     * @param int $colorValue 0-127
-     * @return float 0-100
+     * @param int $colorValue 0 to 127
+     * @return float 0 to 100
      */
     public static function intSevenBit2Percent(int $colorValue) : float
     {
@@ -49,8 +53,8 @@ class UnitsConverter
 
     /**
      * Converts a percentage to an integer color value.
-     * @param float $percent 0-100
-     * @return int 0-255
+     * @param float $percent 0 to 100
+     * @return int 0 to 255
      */
     public static function percent2IntEightBit(float $percent) : int
     {
@@ -59,8 +63,8 @@ class UnitsConverter
     }
 
     /**
-     * @param float $percent 0-100
-     * @return int 0-127
+     * @param float $percent 0 to 100
+     * @return int 0 to 127
      */
     public static function percent2IntSevenBit(float $percent) : int
     {
@@ -90,8 +94,8 @@ class UnitsConverter
     }
 
     /**
-     * @param int $sevenBit 0-127
-     * @return int 0-255
+     * @param int $sevenBit 0 to 127
+     * @return int 0 to 255
      */
     public static function intSevenBit2IntEightBit(int $sevenBit) : int
     {
@@ -99,8 +103,8 @@ class UnitsConverter
     }
 
     /**
-     * @param int $sevenBit 0-127
-     * @return float 0.0-1.0
+     * @param int $sevenBit 0 to 127
+     * @return float 0.0 to 1.0
      */
     public static function intSevenBit2Alpha(int $sevenBit) : float
     {
@@ -108,8 +112,8 @@ class UnitsConverter
     }
 
     /**
-     * @param float $alpha 0.0-1.0
-     * @return int 0-255
+     * @param float $alpha 0.0 to 1.0
+     * @return int 0 to 255
      */
     public static function alpha2IntEightBit(float $alpha) : int
     {
@@ -117,8 +121,8 @@ class UnitsConverter
     }
 
     /**
-     * @param float $alpha 0.0-1.0
-     * @return int 0-127
+     * @param float $alpha 0.0 to 1.0
+     * @return int 0 to 127
      */
     public static function alpha2IntSevenBit(float $alpha) : int
     {
