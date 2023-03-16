@@ -1,4 +1,9 @@
 <?php
+/**
+ * @package Application Utils
+ * @subpackage RGBAColor
+ * @see \AppUtils\RGBAColor\ColorChannel\SevenBitChannel
+ */
 
 declare(strict_types=1);
 
@@ -7,8 +12,20 @@ namespace AppUtils\RGBAColor\ColorChannel;
 use AppUtils\RGBAColor\ColorChannel;
 use AppUtils\RGBAColor\UnitsConverter;
 
+/**
+ * Color channel with values from 0 to 127.
+ *
+ * Native value: {@see self::get7Bit()}.
+ *
+ * @package Application Utils
+ * @subpackage RGBAColor
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class SevenBitChannel extends ColorChannel
 {
+    public const VALUE_MIN = 0;
+    public const VALUE_MAX = 127;
+
     /**
      * @var int
      */
@@ -19,7 +36,15 @@ class SevenBitChannel extends ColorChannel
      */
     public function __construct(int $value)
     {
+        if($value < self::VALUE_MIN) { $value = self::VALUE_MIN; }
+        if($value > self::VALUE_MAX) { $value = self::VALUE_MAX; }
+
         $this->value = $value;
+    }
+
+    public function getValue() : int
+    {
+        return $this->value;
     }
 
     /**
@@ -41,9 +66,9 @@ class SevenBitChannel extends ColorChannel
     /**
      * @return float 0-1
      */
-    public function getDecimal() : float
+    public function getAlpha() : float
     {
-        return UnitsConverter::intSevenBit2Float($this->value);
+        return UnitsConverter::intSevenBit2Alpha($this->value);
     }
 
     /**

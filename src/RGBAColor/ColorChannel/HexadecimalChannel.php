@@ -14,6 +14,10 @@ namespace AppUtils\RGBAColor\ColorChannel;
 use AppUtils\RGBAColor\ColorException;
 
 /**
+ * Color channel with values from 0 to 255.
+ *
+ * Native value: {@see self::get8Bit()}.
+ *
  * The hexadecimal is actually an eight bit channel,
  * and can be used as one, as it extends the {@see EightBitChannel}
  * class.

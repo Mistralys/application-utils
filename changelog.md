@@ -1,3 +1,13 @@
+### v2.3.0 - HSVColor feature (Breaking)
+- HSVColor: Added a new color utility class for color adjustments.
+- ColorChannel: Added `getPercentRounded()`.
+- ColorChannel: Added support for passing through existing instances in factory methods.
+- 
+
+#### Breaking changes
+
+- Renamed `RGBAColor::` to
+
 ### v2.2.11 - RGBAColor fix
 - RGBAColor: Fixed `toHEX()` returning erroneous values ([#10](https://github.com/Mistralys/application-utils/issues/10)).
 
