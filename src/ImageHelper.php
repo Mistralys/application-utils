@@ -1650,7 +1650,10 @@ class ImageHelper
      */
     public function getBrightness() : float
     {
-        return $this->calcAverageColorRGB()->getBrightness();
+        return $this
+            ->calcAverageColorRGB()
+            ->getBrightness()
+            ->getValue();
     }
     
    /**
