@@ -11,9 +11,15 @@ declare(strict_types=1);
 
 namespace AppUtils\RGBAColor;
 
+use AppUtils\HSVColor;
 use AppUtils\ImageHelper_Exception;
 use AppUtils\RGBAColor;
+use AppUtils\RGBAColor\ColorChannel\AlphaChannel;
+use AppUtils\RGBAColor\ColorChannel\BrightnessChannel;
+use AppUtils\RGBAColor\ColorChannel\HueChannel;
+use AppUtils\RGBAColor\ColorChannel\SaturationChannel;
 use AppUtils\RGBAColor\ColorPresets\CannedColors;
+use JsonException;
 
 /**
  * The factory is a static class with methods to create color
@@ -27,6 +33,7 @@ use AppUtils\RGBAColor\ColorPresets\CannedColors;
 class ColorFactory
 {
     public const ERROR_INVALID_GD_ERROR_CODE = 113801;
+    public const ERROR_INVALID_HSV_COLOR_ARRAY = 113802;
 
     /**
      * @var PresetsManager|null
@@ -34,7 +41,7 @@ class ColorFactory
     private static ?PresetsManager $presets = null;
 
     /**
-     * Retrieves the presets manager, which can be used to
+     * Retrieves the preset manager, which can be used to
      * add new color presets to use with the {@see ColorPresets} class.
      *
      * @return PresetsManager
@@ -236,7 +243,7 @@ class ColorFactory
             ColorChannel::eightBit($red),
             ColorChannel::eightBit($green),
             ColorChannel::eightBit($blue),
-            ColorChannel::decimal($alpha),
+            ColorChannel::alpha($alpha),
             $name
         );
     }
@@ -310,6 +317,73 @@ class ColorFactory
             'Invalid color index',
             '',
             self::ERROR_INVALID_GD_ERROR_CODE
+        );
+    }
+
+    /**
+     * @param int|float|HueChannel $hue
+     * @param int|float|SaturationChannel $saturation
+     * @param int|float|BrightnessChannel $brightness
+     * @param float|AlphaChannel|NULL $alpha 0 to 1 or NULL if none.
+     * @return HSVColor
+     */
+    public static function createHSV($hue, $saturation, $brightness, $alpha=null) : HSVColor
+    {
+        $alphaChannel = null;
+        if($alpha !== null) {
+            $alphaChannel = ColorChannel::alpha($alpha);
+        }
+
+        return new HSVColor(
+            ColorChannel::hue($hue),
+            ColorChannel::saturation($saturation),
+            ColorChannel::brightness($brightness),
+            $alphaChannel
+        );
+    }
+
+    /**
+     * Creates an HSV color instance from an array of values.
+     *
+     * Values are looked for in the following keys:
+     *
+     * <pre>
+     * - Hue........: `0` and `hue`
+     * - Saturation.: `1` and `saturation`
+     * - Brightness.: `2` and `brightness`
+     * - Alpha......: `3` and `alpha` (optional)
+     * </pre>
+     *
+     * @param array<int|string,int|float|ColorChannel|NULL> $hsv
+     * @return HSVColor
+     * @throws ColorException
+     * @throws JsonException
+     */
+    public static function createHSVFromArray(array $hsv) : HSVColor
+    {
+        $hue = $hsv['hue'] ?? $hsv[0] ?? null;
+        $saturation = $hsv['saturation'] ?? $hsv[1] ?? null;
+        $brightness = $hsv['brightness'] ?? $hsv[2] ?? null;
+        $alpha = $hsv['alpha'] ?? $hsv[3] ?? null;
+
+        if($hue !== null && $saturation !== null && $brightness !== null) {
+            return self::createHSV(
+                $hue,
+                $saturation,
+                $brightness,
+                $alpha
+            );
+        }
+
+        throw new ColorException(
+            'Invalid HSV color array.',
+            sprintf(
+                'The specified array did not contain the expected keys. '.PHP_EOL.
+                'Given: '.PHP_EOL.
+                '%s',
+                json_encode($hsv, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR)
+            ),
+            self::ERROR_INVALID_HSV_COLOR_ARRAY
         );
     }
 }
