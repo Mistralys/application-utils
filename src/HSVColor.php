@@ -31,9 +31,9 @@ class HSVColor implements ArrayAccess
     private HueChannel $hue;
     private SaturationChannel $saturation;
     private BrightnessChannel $brightness;
-    private AlphaChannel $alpha;
+    private ColorChannel $alpha;
 
-    public function __construct(HueChannel $hue, SaturationChannel $saturation, BrightnessChannel $brightness, ?AlphaChannel $alpha=null)
+    public function __construct(HueChannel $hue, SaturationChannel $saturation, BrightnessChannel $brightness, ?ColorChannel $alpha=null)
     {
         if($alpha === null) {
             $alpha = ColorChannel::alpha(0);
@@ -60,7 +60,7 @@ class HSVColor implements ArrayAccess
         return $this->saturation;
     }
 
-    public function getAlpha() : AlphaChannel
+    public function getAlpha() : ColorChannel
     {
         return $this->alpha;
     }
@@ -162,7 +162,7 @@ class HSVColor implements ArrayAccess
             'hue' => $this->getHue()->getValue(),
             'saturation' => $this->getSaturation()->getValue(),
             'brightness' => $this->getBrightness()->getValue(),
-            'alpha' => $this->getAlpha()->getValue()
+            'alpha' => $this->getAlpha()->getAlpha()
         );
     }
 
