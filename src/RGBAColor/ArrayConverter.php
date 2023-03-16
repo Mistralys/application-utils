@@ -1,4 +1,9 @@
 <?php
+/**
+ * @package AppUtils
+ * @subpackage RGBAColor
+ * @see \AppUtils\RGBAColor\ArrayConverter
+ */
 
 declare(strict_types=1);
 
@@ -6,6 +11,18 @@ namespace AppUtils\RGBAColor;
 
 use AppUtils\RGBAColor;
 
+/**
+ * Utility class used to convert an RGB color to
+ * different array constructs depending on the use
+ * cases.
+ *
+ * An instance of this class is returned by the
+ * method {@see RGBAColor::toArray()}.
+ *
+ * @package AppUtils
+ * @subpackage RGBAColor
+ * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
+ */
 class ArrayConverter
 {
     /**
@@ -66,7 +83,7 @@ class ArrayConverter
             RGBAColor::CHANNEL_RED => $this->color->getRed()->get8Bit(),
             RGBAColor::CHANNEL_GREEN => $this->color->getGreen()->get8Bit(),
             RGBAColor::CHANNEL_BLUE => $this->color->getBlue()->get8Bit(),
-            RGBAColor::CHANNEL_ALPHA => $this->color->getAlpha()->getDecimal()
+            RGBAColor::CHANNEL_ALPHA => $this->color->getAlpha()->getAlpha()
         );
     }
 }
