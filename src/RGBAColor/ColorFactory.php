@@ -66,11 +66,6 @@ class ColorFactory
      */
     public static function create(ColorChannel $red, ColorChannel $green, ColorChannel $blue, ?ColorChannel $alpha=null, string $name='') : RGBAColor
     {
-        if($alpha === null)
-        {
-            $alpha = ColorChannel::eightBit(0);
-        }
-
         return new RGBAColor($red, $green, $blue, $alpha, $name);
     }
 
