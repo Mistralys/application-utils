@@ -69,6 +69,9 @@ class AlphaChannel extends ColorChannel
 
     public function invert() : AlphaChannel
     {
-        return ColorChannel::alpha(1-$this->value);
+        // Float calculations are fuzzy, which is why we multiply
+        // the values to be able to work with whole numbers. Then
+        // we can divide it again to get a float.
+        return ColorChannel::alpha((1000 - ($this->value * 1000)) / 1000);
     }
 }
