@@ -13,6 +13,7 @@ namespace AppUtils;
 
 use AppUtils\RGBAColor\ArrayConverter;
 use AppUtils\RGBAColor\ColorChannel;
+use AppUtils\RGBAColor\ColorChannel\BrightnessChannel;
 use AppUtils\RGBAColor\ColorComparator;
 use AppUtils\RGBAColor\ColorException;
 use AppUtils\RGBAColor\ColorFactory;
@@ -112,28 +113,20 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
      * Gets the color's luminance equivalent.
      *
      * @return int Integer, from 0 to 255 (0=black, 255=white)
+     * @see self::getBrightness()
      */
     public function getLuma() : int
     {
-        return (int)floor(
-            (
-                ($this->getRed()->get8Bit()*2)
-                +
-                $this->getBlue()->get8Bit()
-                +
-                ($this->getGreen()->get8Bit()*3)
-            )
-            /6
-        );
+        return $this->toHSV()->getBrightness()->get8Bit();
     }
 
     /**
      * Retrieves the brightness of the color, in percent.
-     * @return float
+     * @return BrightnessChannel
      */
-    public function getBrightness() : float
+    public function getBrightness() : BrightnessChannel
     {
-        return $this->getLuma() * 100 / 255;
+        return $this->toHSV()->getBrightness();
     }
 
     /**
@@ -213,6 +206,22 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
 
     // endregion
 
+    // region: Operations
+
+    /**
+     * @param float $percent -100 to 100
+     * @return RGBAColor (New instance)
+     */
+    public function adjustBrightness(float $percent) : RGBAColor
+    {
+        return $this
+            ->toHSV()
+            ->adjustBrightness($percent)
+            ->toRGB();
+    }
+
+    // endregion
+
     // region: Converting
 
     /**
@@ -230,6 +239,28 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     public function toCSS() : string
     {
         return FormatsConverter::color2CSS($this);
+    }
+
+    /**
+     * Converts the color to a Hue/Saturation/Brightness value.
+     * Practical for adjusting the values, which is difficult
+     * with pure RGB values.
+     *
+     * @return HSVColor
+     */
+    public function toHSV() : HSVColor
+    {
+        $hsv = FormatsConverter::rgb2hsv(
+            $this->getRed()->get8Bit(),
+            $this->getGreen()->get8Bit(),
+            $this->getBlue()->get8Bit()
+        );
+
+        return new HSVColor(
+            ColorChannel::hue($hsv['hue']),
+            ColorChannel::saturation($hsv['saturation']),
+            ColorChannel::brightness($hsv['brightness'])
+        );
     }
 
     /**
@@ -325,6 +356,20 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     public function setTransparency(ColorChannel $transparency) : RGBAColor
     {
         return $this->setAlpha($transparency->invert());
+    }
+
+    /**
+     * Changes the color's brightness to the specified level.
+     *
+     * @param int|float $brightness 0 to 100
+     * @return RGBAColor
+     */
+    public function setBrightness($brightness) : RGBAColor
+    {
+        return $this
+            ->toHSV()
+            ->setBrightness($brightness)
+            ->toRGB();
     }
 
     /**
