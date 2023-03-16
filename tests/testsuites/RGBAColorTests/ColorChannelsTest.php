@@ -14,7 +14,7 @@ class ColorChannelsTest extends TestCase
         $this->assertSame(200, ColorChannel::eightBit(55)->invert()->get8Bit());
         $this->assertSame(100, ColorChannel::sevenBit(27)->invert()->get7Bit());
         $this->assertSame(45.5, ColorChannel::percent(54.5)->invert()->getPercent());
-        $this->assertSame(0.45, ColorChannel::decimal(0.55)->invert()->getDecimal());
+        $this->assertSame(0.45, ColorChannel::alpha(0.55)->invert()->getAlpha());
     }
 
     public function test_8bit_fullSaturation() : void
@@ -24,7 +24,7 @@ class ColorChannelsTest extends TestCase
         $this->assertSame(255, $channel->get8Bit());
         $this->assertSame(127, $channel->get7Bit());
         $this->assertSame(100.0, $channel->getPercent());
-        $this->assertSame(1.0, $channel->getDecimal());
+        $this->assertSame(1.0, $channel->getAlpha());
     }
 
     public function test_8bit_partialSaturation() : void
@@ -35,7 +35,7 @@ class ColorChannelsTest extends TestCase
         $this->assertSame($value, $channel->get8Bit());
         $this->assertSame((int)round($value * 127 / 255), $channel->get7Bit());
         $this->assertSame($value * 100 / 255, $channel->getPercent());
-        $this->assertSame(round($value / 255, 2), $channel->getDecimal());
+        $this->assertSame(round($value / 255, 2), $channel->getAlpha());
     }
 
     public function test_7bit_fullSaturation() : void
@@ -45,7 +45,7 @@ class ColorChannelsTest extends TestCase
         $this->assertSame(255, $channel->get8Bit());
         $this->assertSame(127, $channel->get7Bit());
         $this->assertSame(100.0, $channel->getPercent());
-        $this->assertSame(1.0, $channel->getDecimal());
+        $this->assertSame(1.0, $channel->getAlpha());
     }
 
     public function test_7bit_partialSaturation() : void
@@ -56,7 +56,7 @@ class ColorChannelsTest extends TestCase
         $this->assertSame((int)round($value * 255 / 127), $channel->get8Bit());
         $this->assertSame($value, $channel->get7Bit());
         $this->assertSame($value * 100 / 127, $channel->getPercent());
-        $this->assertSame(round($value / 127, 2), $channel->getDecimal());
+        $this->assertSame(round($value / 127, 2), $channel->getAlpha());
     }
 
     public function test_percent_fullSaturation() : void
@@ -66,7 +66,7 @@ class ColorChannelsTest extends TestCase
         $this->assertSame(255, $channel->get8Bit());
         $this->assertSame(127, $channel->get7Bit());
         $this->assertSame(100.0, $channel->getPercent());
-        $this->assertSame(1.0, $channel->getDecimal());
+        $this->assertSame(1.0, $channel->getAlpha());
     }
 
     public function test_percent_partialSaturation() : void
@@ -77,6 +77,6 @@ class ColorChannelsTest extends TestCase
         $this->assertSame((int)round($value * 255 / 100), $channel->get8Bit());
         $this->assertSame((int)round($value * 127 / 100), $channel->get7Bit());
         $this->assertSame($value, $channel->getPercent());
-        $this->assertSame(round($value / 100, 2), $channel->getDecimal());
+        $this->assertSame(round($value / 100, 2), $channel->getAlpha());
     }
 }
