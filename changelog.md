@@ -2,11 +2,20 @@
 - HSVColor: Added a new color utility class for color adjustments.
 - ColorChannel: Added `getPercentRounded()`.
 - ColorChannel: Added support for passing through existing instances in factory methods.
-- 
+- Colors: Renamed `decimal` related methods to `alpha` as it was too confusing.
 
 #### Breaking changes
 
-- Renamed `RGBAColor::` to
+- `RGBAColor::getBrightness()` now returns `BrightnessChannel`.
+- Renamed `ColorChannel::getDecimal()` to `getAlpha()`.
+- Renamed `ColorChannel::decimal()` to `alpha`.
+- Renamed `UnitsConverter::float2IntSevenBit()` to `alpha2IntSevenBit()`.
+- Renamed `UnitsConverter::float2IntEightBit()` to `alpha2IntEightBit()`.
+- Renamed `UnitsConverter::percent2Float()` to `percent2Alpha()`.
+- Renamed `UnitsConverter::float2percent()` to `alpha2percent()`.
+- Renamed `UnitsConverter::intSevenBit2Float()` to `intSevenBit2Alpha()`.
+- Renamed `UnitsConverter::intEightBit2IntSevenBit()` to `intSevenBit2Alpha()`.
+- Renamed `UnitsConverter::intEightBit2Float()` to `intEightBit2Alpha()`.
 
 ### v2.2.11 - RGBAColor fix
 - RGBAColor: Fixed `toHEX()` returning erroneous values ([#10](https://github.com/Mistralys/application-utils/issues/10)).
