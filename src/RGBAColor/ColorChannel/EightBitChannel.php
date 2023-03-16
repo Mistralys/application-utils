@@ -60,7 +60,7 @@ class EightBitChannel extends ColorChannel
 
     public function getAlpha() : float
     {
-        return UnitsConverter::intEightBit2Float($this->value);
+        return UnitsConverter::intEightBit2Alpha($this->value);
     }
 
     public function getPercent() : float
