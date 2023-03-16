@@ -72,4 +72,18 @@ class ColorConverterTest extends TestCase
     {
         $this->assertSame('0A', UnitsConverter::int2hex(10));
     }
+
+    public function test_alpha2Int8Bit() : void
+    {
+        $this->assertSame(255, UnitsConverter::alpha2IntEightBit(1));
+        $this->assertSame(0, UnitsConverter::alpha2IntEightBit(0));
+        $this->assertSame(128, UnitsConverter::alpha2IntEightBit(0.5));
+    }
+
+    public function test_alpha2Int7Bit() : void
+    {
+        $this->assertSame(127, UnitsConverter::alpha2IntSevenBit(1));
+        $this->assertSame(0, UnitsConverter::alpha2IntSevenBit(0));
+        $this->assertSame(64, UnitsConverter::alpha2IntSevenBit(0.5));
+    }
 }
