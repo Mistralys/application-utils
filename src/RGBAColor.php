@@ -259,7 +259,8 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
         return new HSVColor(
             ColorChannel::hue($hsv['hue']),
             ColorChannel::saturation($hsv['saturation']),
-            ColorChannel::brightness($hsv['brightness'])
+            ColorChannel::brightness($hsv['brightness']),
+            $this->getAlpha()
         );
     }
 
