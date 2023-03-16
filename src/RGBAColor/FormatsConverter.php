@@ -27,6 +27,8 @@ class FormatsConverter
 {
     public const ERROR_INVALID_COLOR_ARRAY = 99701;
 
+    private static ?HEXParser $hexParser = null;
+
     /**
      * Converts the color to a HEX color value. This is either
      * a RRGGBB or RRGGBBAA string, depending on whether there
@@ -67,7 +69,7 @@ class FormatsConverter
                 $color->getRed()->get8Bit(),
                 $color->getGreen()->get8Bit(),
                 $color->getBlue()->get8Bit(),
-                $color->getAlpha()->getDecimal()
+                $color->getAlpha()->getAlpha()
             );
         }
 
@@ -168,11 +170,6 @@ class FormatsConverter
     }
 
     /**
-     * @var HEXParser|NULL
-     */
-    private static $hexParser = null;
-
-    /**
      * Parses a HEX color value, and converts it to
      * an RGBA color array.
      *
@@ -204,7 +201,7 @@ class FormatsConverter
     /**
      * @var array<int,array{key:string,mandatory:bool}>
      */
-    private static $keys = array(
+    private static array $keys = array(
         array(
             'key' => RGBAColor::CHANNEL_RED,
             'mandatory' => true
@@ -278,5 +275,135 @@ class FormatsConverter
         }
 
         return $result;
+    }
+
+    /**
+     * Converts an RGB color value to HSV.
+     *
+     * @param int $red 0-255
+     * @param int $green 0-255
+     * @param int $blue 0-255
+     * @return array{hue:float,saturation:float,brightness:float} HSV values: 0-360, 0-100, 0-100
+     */
+    public static function rgb2hsv(int $red, int $green, int $blue) : array
+    {
+        // Convert the RGB byte-values to percentages
+        $R = ($red / 255);
+        $G = ($green / 255);
+        $B = ($blue / 255);
+
+        // Calculate a few basic values, the maximum value of R,G,B, the
+        //   minimum value, and the difference of the two (chroma).
+        $maxRGB = max($R, $G, $B);
+        $minRGB = min($R, $G, $B);
+        $chroma = $maxRGB - $minRGB;
+
+        // Value (also called Brightness) is the easiest component to calculate,
+        //   and is simply the highest value among the R,G,B components.
+        // We multiply by 100 to turn the decimal into a readable percent value.
+        $computedV = 100 * $maxRGB;
+
+        // Special case if hueless (equal parts RGB make black, white, or grays)
+        // Note that Hue is technically undefined when chroma is zero, as
+        //   attempting to calculate it would cause division by zero (see
+        //   below), so most applications simply substitute a Hue of zero.
+        // Saturation will always be zero in this case, see below for details.
+        if ($chroma === 0)
+        {
+            return array(
+                'hue' => 0.0,
+                'saturation' => 0.0,
+                'brightness' => $computedV
+            );
+        }
+
+        // Saturation is also simple to compute, and is simply the chroma
+        //   over the Value (or Brightness)
+        // Again, multiplied by 100 to get a percentage.
+        $computedS = 100 * ($chroma / $maxRGB);
+
+        // Calculate Hue component
+        // Hue is calculated on the "chromacity plane", which is represented
+        //   as a 2D hexagon, divided into six 60-degree sectors. We calculate
+        //   the bisecting angle as a value 0 <= x < 6, that represents which
+        //   portion of which sector the line falls on.
+        if ($R === $minRGB)
+        {
+            $h = 3 - (($G - $B) / $chroma);
+        }
+        elseif ($B === $minRGB)
+        {
+            $h = 1 - (($R - $G) / $chroma);
+        }
+        else
+        { // $G == $minRGB
+            $h = 5 - (($B - $R) / $chroma);
+        }
+
+        // After we have the sector position, we multiply it by the size of
+        //   each sector's arc (60 degrees) to obtain the angle in degrees.
+        $computedH = 60 * $h;
+
+        return array(
+            'hue' => $computedH,
+            'saturation' => $computedS,
+            'brightness' => $computedV
+        );
+    }
+
+    /**
+     * Converts an HSV value to RGB.
+     *
+     * @param float $hue 0-360
+     * @param float $saturation 0-100
+     * @param float $brightness 0-100
+     * @return array{red:int,green:int,blue:int} 0-255
+     * @link https://gist.github.com/vkbo/2323023
+     */
+    public static function hsv2rgb(float $hue, float $saturation, float $brightness) : array
+    {
+
+        if($hue < 0) {  $hue = 0.0; } // Hue:
+        if($hue > 360) { $hue = 360.0; } // 0.0 to 360.0
+        if($saturation < 0) { $saturation = 0.0; } // Saturation:
+        if($saturation > 100) { $saturation = 100.0; } // 0.0 to 100.0
+        if($brightness < 0) { $brightness = 0.0; }  // Brightness:
+        if($brightness > 100) { $brightness = 100.0; } // 0.0 to 100.0
+
+        $dS = $saturation/100.0; // Saturation: 0.0 to 1.0
+        $dV = $brightness/100.0; // Brightness: 0.0 to 1.0
+        $dC = $dV*$dS; // Chroma: 0.0 to 1.0
+        $dH = $hue/60.0; // H-Prime: 0.0 to 6.0
+        $dT = $dH; // Temp variable
+
+        while($dT >= 2.0) { $dT -= 2.0; } // php modulus does not work with float
+        $dX = $dC*(1-abs($dT-1)); // as used in the Wikipedia link
+
+        switch(floor($dH)) {
+            case 0:
+                $dR = $dC; $dG = $dX; $dB = 0.0; break;
+            case 1:
+                $dR = $dX; $dG = $dC; $dB = 0.0; break;
+            case 2:
+                $dR = 0.0; $dG = $dC; $dB = $dX; break;
+            case 3:
+                $dR = 0.0; $dG = $dX; $dB = $dC; break;
+            case 4:
+                $dR = $dX; $dG = 0.0; $dB = $dC; break;
+            case 5:
+                $dR = $dC; $dG = 0.0; $dB = $dX; break;
+            default:
+                $dR = 0.0; $dG = 0.0; $dB = 0.0; break;
+        }
+
+        $dM  = $dV - $dC;
+        $dR += $dM; $dG += $dM; $dB += $dM;
+        $dR *= 255; $dG *= 255; $dB *= 255;
+
+        return array(
+            'red' => (int)round($dR),
+            'green' => (int)round($dG),
+            'blue' => (int)round($dB)
+        );
     }
 }
