@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppUtilsTests\TestSuites;
 
 use AppUtils\ArrayDataCollection;
+use AppUtils\BaseException;
 use AppUtils\Microtime;
 use DateTime;
 use TestClasses\BaseTestCase;
@@ -442,6 +443,13 @@ class ArrayDataCollectionTest extends BaseTestCase
 
     // region: Support methods
 
+
+    /**
+     * @param string $name
+     * @param array{expected:mixed} $test
+     * @return string
+     * @throws BaseException
+     */
     private function renderMessage(string $name, array $test) : string
     {
         return
@@ -451,7 +459,7 @@ class ArrayDataCollectionTest extends BaseTestCase
 
     private function create(array $tests) : ArrayDataCollection
     {
-         return ArrayDataCollection::create($this->compileData( $tests));
+         return ArrayDataCollection::create($this->compileData($tests));
     }
 
     private function compileData(array $tests) : array
