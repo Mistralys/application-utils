@@ -8,10 +8,12 @@ declare(strict_types=1);
 
 namespace testsuites;
 
+use AppUtils\ImageHelper_Size;
 use AppUtils\RGBAColor\ColorFactory;
 use PHPUnit\Framework\TestCase;
 
 use AppUtils\ImageHelper;
+use function AppUtils\RGBAColor\imgSize;
 use const TESTS_ROOT;
 
 /**
@@ -253,6 +255,112 @@ final class ImageHelperTest extends TestCase
         $this->assertSame(7, $img->getWidth());
         $this->assertSame(7, $img->getHeight());
         $this->assertSame('000000', $img->getColorAt(0, 0)->toHEX());
+    }
+
+    public function test_imgSizeFunction() : void
+    {
+        $size = imgSize(88, 33);
+        $this->assertSame(88, $size->getWidth());
+        $this->assertSame(33, $size->getHeight());
+
+        $size = imgSize(array(88, 33));
+        $this->assertSame(88, $size->getWidth());
+        $this->assertSame(33, $size->getHeight());
+
+        $size = imgSize(array('width' => 88, 'height' => 33));
+        $this->assertSame(88, $size->getWidth());
+        $this->assertSame(33, $size->getHeight());
+
+        $size = imgSize(array(0 => 88, 'height' => 33));
+        $this->assertSame(88, $size->getWidth());
+        $this->assertSame(33, $size->getHeight());
+
+        $size = imgSize(88, 33);
+        $copy = imgSize($size);
+        $this->assertSame(88, $copy->getWidth());
+        $this->assertSame(33, $copy->getHeight());
+        $this->assertNotSame($size, $copy);
+    }
+
+    public function test_resizeByWidth() : void
+    {
+        $size = imgSize(100, 40);
+        $result = $size->resizeByWidth(60);
+
+        $this->assertSame(60, $result->getWidth());
+        $this->assertSame(24, $result->getHeight());
+    }
+
+    public function test_resizeByHeight() : void
+    {
+        $size = imgSize(40, 100);
+        $result = $size->resizeByHeight(60);
+
+        $this->assertSame(24, $result->getWidth());
+        $this->assertSame(60, $result->getHeight());
+    }
+
+    /**
+     * Fitting a size into another, keeping the aspect
+     * ratio, even if the orientations are not the same.
+     */
+    public function test_resizeInto() : void
+    {
+        $tests = array(
+            array(
+                'label' => 'Landscape to Square',
+                'size' => array(100, 40),
+                'target' => array(60, 60),
+                'expected' => array(60, 24)
+            ),
+            array(
+                'label' => 'Portrait to Square',
+                'size' => array(40, 100),
+                'target' => array(60, 60),
+                'expected' => array(24, 60)
+            ),
+            array(
+                'label' => 'Landscape to Landscape',
+                'size' => array(100, 40),
+                'target' => array(60, 40),
+                'expected' => array(60, 24)
+            ),
+            array(
+                'label' => 'Portrait to Landscape',
+                'size' => array(40, 100),
+                'target' => array(60, 40),
+                'expected' => array(16, 40)
+            ),
+            array(
+                'label' => 'Landscape to Portrait',
+                'size' => array(100, 40),
+                'target' => array(40, 60),
+                'expected' => array(40, 16)
+            ),
+            array(
+                'label' => 'Portrait to Portrait',
+                'size' => array(40, 100),
+                'target' => array(40, 60),
+                'expected' => array(24, 60)
+            )
+        );
+
+        foreach ($tests as $test)
+        {
+            $size = imgSize($test['size']);
+            $targetSize = imgSize($test['target']);
+            $newSize = $size->resizeInto($targetSize);
+            $expected = imgSize($test['expected']);
+
+            $label = $test['label'].PHP_EOL.
+                'Size.......: '.$size->toReadableString().PHP_EOL.
+                'Resize to..: '.$targetSize->toReadableString().PHP_EOL.
+                'Result.....: '.$newSize->toReadableString().PHP_EOL.
+                'Expected...: '.$expected->toReadableString();
+
+            $this->assertSame($expected->getWidth(), $newSize->getWidth(), $label);
+            $this->assertSame($expected->getHeight(), $newSize->getHeight(), $label);
+        }
     }
 
     // endregion
