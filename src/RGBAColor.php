@@ -72,11 +72,15 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
      * @param ColorChannel $red
      * @param ColorChannel $green
      * @param ColorChannel $blue
-     * @param ColorChannel $alpha
+     * @param ColorChannel|NULL $alpha
      * @param string $name
      */
-    public function __construct(ColorChannel $red, ColorChannel $green, ColorChannel $blue, ColorChannel $alpha, string $name)
+    public function __construct(ColorChannel $red, ColorChannel $green, ColorChannel $blue, ?ColorChannel $alpha=null, string $name='')
     {
+        if($alpha === null) {
+            $alpha = ColorChannel::alpha(0);
+        }
+
         $this->color[self::CHANNEL_RED] = $red;
         $this->color[self::CHANNEL_GREEN] = $green;
         $this->color[self::CHANNEL_BLUE] = $blue;
