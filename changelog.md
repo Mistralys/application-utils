@@ -1,3 +1,6 @@
+### v2.3.1 - HSV bugfix
+- HSVColor: Fixed a division by zero issue with some color values.
+
 ### v2.3.0 - HSVColor feature (Breaking)
 - HSVColor: Added a new color utility class for color adjustments.
 - ColorChannel: Added `getPercentRounded()`.
