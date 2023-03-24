@@ -305,10 +305,10 @@ class FormatsConverter
 
         // Special case if hueless (equal parts RGB make black, white, or grays)
         // Note that Hue is technically undefined when chroma is zero, as
-        //   attempting to calculate it would cause division by zero (see
-        //   below), so most applications simply substitute a Hue of zero.
+        // attempting to calculate it would cause division by zero (see
+        // below), so most applications simply substitute a Hue of zero.
         // Saturation will always be zero in this case, see below for details.
-        if ($chroma === 0)
+        if ($chroma <= 0)
         {
             return array(
                 'hue' => 0.0,
@@ -318,15 +318,18 @@ class FormatsConverter
         }
 
         // Saturation is also simple to compute, and is simply the chroma
-        //   over the Value (or Brightness)
-        // Again, multiplied by 100 to get a percentage.
-        $computedS = 100 * ($chroma / $maxRGB);
+        // over the Value (or Brightness). Multiplied by 100 to get a percentage.
+        if($maxRGB > 0) {
+            $computedS = 100 * ($chroma / $maxRGB);
+        } else {
+            $computedS = 100 * $chroma;
+        }
 
         // Calculate Hue component
         // Hue is calculated on the "chromacity plane", which is represented
-        //   as a 2D hexagon, divided into six 60-degree sectors. We calculate
-        //   the bisecting angle as a value 0 <= x < 6, that represents which
-        //   portion of which sector the line falls on.
+        // as a 2D hexagon, divided into six 60-degree sectors. We calculate
+        // the bisecting angle as a value 0 <= x < 6, that represents which
+        // portion of which sector the line falls on.
         if ($R === $minRGB)
         {
             $h = 3 - (($G - $B) / $chroma);
@@ -341,7 +344,7 @@ class FormatsConverter
         }
 
         // After we have the sector position, we multiply it by the size of
-        //   each sector's arc (60 degrees) to obtain the angle in degrees.
+        // each sector's arc (60 degrees) to obtain the angle in degrees.
         $computedH = 60 * $h;
 
         return array(
