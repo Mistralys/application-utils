@@ -12,7 +12,7 @@ use Throwable;
  * @param bool $forceNew
  * @return NumberInfo
  */
-function parseNumber($value, bool $forceNew=false)
+function parseNumber($value, bool $forceNew=false) : NumberInfo
 {
     if($value instanceof NumberInfo && $forceNew !== true) {
         return $value;
@@ -38,9 +38,10 @@ function parseNumberImmutable($value) : NumberInfo_Immutable
 /**
  * Parses the specified variable, and allows accessing
  * information on it.
- * 
+ *
  * @param mixed $variable
  * @return VariableInfo
+ * @throws BaseException
  */
 function parseVariable($variable) : VariableInfo
 {
@@ -74,11 +75,12 @@ function parseThrowable(Throwable $e) : ConvertHelper_ThrowableInfo
 }
 
 /**
- * Restores a throwable info instance from a previously 
+ * Restores a throwable info instance from a previously
  * serialized array.
- * 
+ *
  * @param array<string,mixed> $serialized
  * @return ConvertHelper_ThrowableInfo
+ * @throws ConvertHelper_Exception
  */
 function restoreThrowable(array $serialized) : ConvertHelper_ThrowableInfo
 {
@@ -98,13 +100,15 @@ function parseInterval(DateInterval $interval) : ConvertHelper_DateInterval
 }
 
 /**
- * Translation function used to translate some of the internal
- * strings: if the localization is installed, it will use this
- * to do the translation.
- * 
+ * Translation function used to translate internal strings:
+ * if the localization is installed, it will use this to
+ * do the translation.
+ *
+ * @param string $text
+ * @param string|int|float|Interface_Stringable ...$placeholderValues
  * @return string
  */
-function t() : string
+function t(string $text, ...$placeholderValues) : string
 {
     $args = func_get_args();
     
@@ -115,7 +119,7 @@ function t() : string
     }
     
     // simulate the translation function
-    return strval(call_user_func_array('sprintf', $args));
+    return (string)call_user_func_array('sprintf', $args);
 }
 
 /**
@@ -171,7 +175,7 @@ function sb() : StringBuilder
  */
 function isCLI() : bool
 {
-    return php_sapi_name() === "cli";
+    return PHP_SAPI === "cli";
 }
 
 /**
@@ -201,7 +205,7 @@ function init() : void
         return;
     }
     
-    $installFolder = realpath(__DIR__.'/../');
+    $installFolder = __DIR__.'/../';
     
     // Register the classes as a localization source,
     // so they can be found, and use the bundled localization
