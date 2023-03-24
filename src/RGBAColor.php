@@ -39,7 +39,6 @@ use ArrayAccess;
  */
 class RGBAColor implements ArrayAccess, Interface_Stringable
 {
-    public const ERROR_UNKNOWN_COLOR_SUBJECT = 93401;
     public const ERROR_INVALID_COLOR_COMPONENT = 93402;
     public const ERROR_INVALID_PERCENTAGE_VALUE = 93503;
     public const ERROR_INVALID_HEX_LENGTH = 93505;
@@ -50,6 +49,15 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     public const CHANNEL_GREEN = 'green';
     public const CHANNEL_BLUE = 'blue';
     public const CHANNEL_ALPHA = 'alpha';
+
+    /**
+     * Default luminance percentage starting at which a color
+     * is considered to be dark.
+     *
+     * @see self::isDark()
+     * @see self::isLight()
+     */
+    public const DEFAULT_LUMA_THRESHOLD = 50.0;
 
     /**
      * @var array<string,ColorChannel>
@@ -67,6 +75,7 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     );
 
     private string $name;
+    private static ?float $lumaThreshold = null;
 
     /**
      * @param ColorChannel $red
@@ -114,19 +123,55 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     // region: Get components
 
     /**
-     * Gets the color's luminance equivalent.
+     * Gets the color's Luma equivalent. This is more useful
+     * than the brightness in some cases, as it represents
+     * how light or dark a color is for human eyes.
      *
-     * @return int Integer, from 0 to 255 (0=black, 255=white)
+     * The HSV brightness is only marginally indicative of
+     * the brightness a human will experience. Example:
+     * A yellow color will look brighter to human eyes than
+     * a blue one, even if they have the same brightness.
+     *
+     * @return int Luminance value from 0 to 255 (0=black, 255=white)
+     * @see self::getLumaPercent()
      * @see self::getBrightness()
+     *
+     * @link https://en.wikipedia.org/wiki/Luma_(video)
      */
     public function getLuma() : int
     {
-        return $this->toHSV()->getBrightness()->get8Bit();
+        return (int)round($this->getLumaPercent() * 255 / 100);
+    }
+
+    /**
+     * Gets the color's Luma in percent.
+     *
+     * @return float Luminance percentage from 0 to 100 (0=black, 100=white)
+     * @see self::getLuma()
+     */
+    public function getLumaPercent() : float
+    {
+        return
+        (
+            (
+                0.2126 * $this->getRed()->get8Bit()
+                +
+                0.7152 * $this->getGreen()->get8Bit()
+                +
+                0.0722 * $this->getBlue()->get8Bit()
+            )
+            / 255
+        ) * 100;
     }
 
     /**
      * Retrieves the brightness of the color, in percent.
+     *
+     * NOTE: Also see the {@see self::getLuma()} method
+     * for a human eye luminance equivalent.
+     *
      * @return BrightnessChannel
+     * @see self::getLuma()
      */
     public function getBrightness() : BrightnessChannel
     {
@@ -460,6 +505,67 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     public function matchesAlpha(RGBAColor $targetColor) : bool
     {
         return ColorComparator::colorsMatchAlpha($this, $targetColor);
+    }
+
+    /**
+     * Gets the Luma percentage from which a color is considered
+     * to be dark to human eyes.
+     *
+     * @return float
+     * @see self::setDarkLumaThreshold()
+     */
+    public static function getDarkLumaThreshold() : float
+    {
+        return self::$lumaThreshold ?? self::DEFAULT_LUMA_THRESHOLD;
+    }
+
+    /**
+     * Sets the Luma percentage starting at which a color
+     * is considered to be dark to human eyes, globally
+     * for all RGBAColor instances.
+     *
+     * @param float $percent
+     * @return void
+     * @see self::isDark()
+     * @see self::isLight()
+     */
+    public static function setDarkLumaThreshold(float $percent) : void
+    {
+        if($percent < 0) {
+            $percent = 0.0;
+        } else if($percent > 100.0) {
+            $percent = 100.0;
+        }
+
+        self::$lumaThreshold = $percent;
+    }
+
+    /**
+     * Whether the color can be considered to be dark to human eyes,
+     * according to the current threshold. See {@see self::setDarkLumaThreshold()}
+     * to adjust this setting as needed.
+     *
+     * @return bool
+     * @see self::isLight()
+     * @see self::setDarkLumaThreshold()
+     */
+    public function isDark() : bool
+    {
+        return $this->getLumaPercent() <= self::getDarkLumaThreshold();
+    }
+
+    /**
+     * Whether the color can be considered to be light to human eyes,
+     * according to the current threshold. See {@see self::setDarkLumaThreshold()}
+     * to adjust this setting as needed.
+     *
+     * @return bool
+     * @see self::isDark()
+     * @see self::setDarkLumaThreshold()
+     */
+    public function isLight() : bool
+    {
+        return $this->getLumaPercent() > self::getDarkLumaThreshold();
     }
 
     public function __toString()
