@@ -43,14 +43,16 @@ class ImageHelper_Size implements ArrayAccess
      */
     public function __construct(array $size)
     {
-        $this->size = array();
+        $data = array();
 
-        $this->size['width'] = $size['width'] ?? $size[0] ?? 0;
-        $this->size['height'] = $size['height'] ?? $size[1] ?? 0;
-        $this->size[0] = $this->size['width'];
-        $this->size[1] = $this->size['height'];
-        $this->size['channels'] = $size['channels'] ?? 1;
-        $this->size['bits'] = $size['bits'] ?? -1;
+        $data['width'] = $size['width'] ?? $size[0] ?? 0;
+        $data['height'] = $size['height'] ?? $size[1] ?? 0;
+        $data[0] = $data['width'];
+        $data[1] = $data['height'];
+        $data['channels'] = $size['channels'] ?? 1;
+        $data['bits'] = $size['bits'] ?? -1;
+
+        $this->size = $data;
     }
 
     /**
