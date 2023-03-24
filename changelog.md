@@ -1,3 +1,8 @@
+### v2.3.2 - Luma fix
+- RGBAColor: Better Luma calculation, based on an actual Luma formula.
+- RGBAColor: Added `getLumaPercent()`.
+- RGBAColor: Added `isDark()` and `isLight()`.
+
 ### v2.3.1 - HSV bugfix
 - HSVColor: Fixed a division by zero issue with some color values.
 
