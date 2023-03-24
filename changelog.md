@@ -3,6 +3,11 @@
 - ColorChannel: Added `getPercentRounded()`.
 - ColorChannel: Added support for passing through existing instances in factory methods.
 - Colors: Renamed `decimal` related methods to `alpha` as it was too confusing.
+- Stringable Interface: Now using Symfony's PHP8 shim to make it `Stringable` compatible.
+- ImageSize: Added `getRatio()` to get the size aspect ratio value.
+- ImageSize: Added `toStringRedable()` utility method.
+- ImageSize: Added resize methods, including the practical `resizeInto()`.
+- ImageSize: Added the global function `imgSize()` to create an instance.
 
 #### Breaking changes
 
