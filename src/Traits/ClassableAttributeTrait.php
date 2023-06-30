@@ -33,7 +33,7 @@ trait ClassableAttributeTrait
      * @param string $name
      * @return $this
      */
-    public function addClass(string $name) : self
+    public function addClass($name) : self // No type hint on purpose, see interface
     {
         $this->getAttributes()->addClass($name);
         return $this;
