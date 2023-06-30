@@ -35,7 +35,7 @@ class HTMLTag implements Interface_Stringable, Interface_Classable
     private bool $allowEmpty = false;
     private static ?GlobalOptions $globalOptions = null;
 
-    private function __construct(string $name, AttributeCollection $attributes)
+    public function __construct(string $name, AttributeCollection $attributes)
     {
         $this->name = $name;
         $this->attributes = $attributes;
