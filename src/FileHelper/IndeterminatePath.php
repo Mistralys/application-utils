@@ -37,6 +37,11 @@ class IndeterminatePath extends AbstractPathInfo
         return $this;
     }
 
+    public function getSize(): int
+    {
+        return 0;
+    }
+
     public function convertToFile() : FileInfo
     {
         // Doing this manually, as FileHelper::saveFile()
