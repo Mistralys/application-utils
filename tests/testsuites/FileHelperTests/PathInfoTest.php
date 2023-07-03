@@ -81,60 +81,70 @@ class PathInfoTest extends FileHelperTestCase
 
     public function test_isWithinPath() : void
     {
+        $baseFolder = $this->assetsFolder;
+
+        $this->assertFileExists($baseFolder);
+
         $tests = array(
             array(
                 'label' => 'File within folder',
-                'source' => '/path/to/folder',
-                'target' => '/path/to/folder/some-file.txt',
+                'source' => $baseFolder.'/FolderTree/SubFolderA',
+                'target' => $baseFolder.'/FolderTree/SubFolderA/readme.md',
                 'expected' => true
             ),
             array(
                 'label' => 'File within subfolder',
-                'source' => '/path/to/folder',
-                'target' => '/path/to/folder/subfolder/foo.txt',
+                'source' => $baseFolder.'/FolderTree/SubFolderB',
+                'target' => $baseFolder.'/FolderTree/SubFolderB/SubSubFolder/SubSubSubFolder/readme.md',
                 'expected' => true
             ),
             array(
                 'label' => 'Subfolder within folder',
-                'source' => '/path/to/folder',
-                'target' => '/path/to/folder/subfolder',
+                'source' => $baseFolder.'/FolderTree/SubFolderB',
+                'target' => $baseFolder.'/FolderTree/SubFolderB/SubSubFolder',
                 'expected' => true
             ),
             array(
                 'label' => 'Parent folder',
-                'source' => '/path/to/folder',
-                'target' => '/path/to',
+                'source' => $baseFolder.'/FolderTree/SubFolderB',
+                'target' => $baseFolder,
                 'expected' => false
             ),
             array(
                 'label' => 'Other folder',
-                'source' => '/path/to/folder',
-                'target' => '/other/path',
+                'source' => $baseFolder,
+                'target' => __DIR__,
                 'expected' => false
             ),
             array(
                 'label' => 'File within file',
-                'source' => '/path/to/folder/foobar.txt',
-                'target' => '/path/to/folder/foo.txt',
+                'source' => $baseFolder.'/copy-file.txt',
+                'target' => $baseFolder.'/42-bytes.txt',
                 'expected' => true
             ),
             array(
                 'label' => 'Subfolder file within file',
-                'source' => '/path/to/folder/foobar.txt',
-                'target' => '/path/to/folder/subfolder/foo.txt',
+                'source' => $baseFolder.'/42-bytes.txt',
+                'target' => $baseFolder.'/FolderTree/SubFolderA/readme.md',
                 'expected' => true
             ),
             array(
                 'label' => 'Subfolder within file',
-                'source' => '/path/to/folder/foobar.txt',
-                'target' => '/path/to/folder',
+                'source' => $baseFolder.'/42-bytes.txt',
+                'target' => $baseFolder.'/FolderTree/',
                 'expected' => true
             ),
             array(
                 'label' => 'Parent folder within file',
-                'source' => '/path/to/folder/foobar.txt',
-                'target' => '/path/to',
+                'source' => $baseFolder.'/FolderTree/SubFolderA/readme.md',
+                'target' => $baseFolder.'/FolderTree',
                 'expected' => false
+            ),
+            array(
+                'label' => 'Relative path shenanigans',
+                'source' => $baseFolder.'/FolderTree/SubFolderA/readme.md',
+                'target' => $baseFolder.'/FolderTree/SubFolderB/SubSubFolder/../../SubFolderA/readme.md',
+                'expected' => true
             )
         );
 
