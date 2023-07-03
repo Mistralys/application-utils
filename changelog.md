@@ -1,3 +1,6 @@
+### v2.3.4 - FileHelper improvements
+- PathInfo: `isWithinFolder()` now correctly handles `../` in paths.
+
 ### v2.3.3 - FileHelper improvements
 - PathInfo: Added `getSize()` to get the size in bytes.
 - PathInfo: Added `isWithinFolder()` to compare paths.
