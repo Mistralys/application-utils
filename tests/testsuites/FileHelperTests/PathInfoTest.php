@@ -78,4 +78,75 @@ class PathInfoTest extends FileHelperTestCase
             FileHelper::getPathInfo('name.')
         );
     }
+
+    public function test_isWithinPath() : void
+    {
+        $tests = array(
+            array(
+                'label' => 'File within folder',
+                'source' => '/path/to/folder',
+                'target' => '/path/to/folder/some-file.txt',
+                'expected' => true
+            ),
+            array(
+                'label' => 'File within subfolder',
+                'source' => '/path/to/folder',
+                'target' => '/path/to/folder/subfolder/foo.txt',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Subfolder within folder',
+                'source' => '/path/to/folder',
+                'target' => '/path/to/folder/subfolder',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Parent folder',
+                'source' => '/path/to/folder',
+                'target' => '/path/to',
+                'expected' => false
+            ),
+            array(
+                'label' => 'Other folder',
+                'source' => '/path/to/folder',
+                'target' => '/other/path',
+                'expected' => false
+            ),
+            array(
+                'label' => 'File within file',
+                'source' => '/path/to/folder/foobar.txt',
+                'target' => '/path/to/folder/foo.txt',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Subfolder file within file',
+                'source' => '/path/to/folder/foobar.txt',
+                'target' => '/path/to/folder/subfolder/foo.txt',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Subfolder within file',
+                'source' => '/path/to/folder/foobar.txt',
+                'target' => '/path/to/folder',
+                'expected' => true
+            ),
+            array(
+                'label' => 'Parent folder within file',
+                'source' => '/path/to/folder/foobar.txt',
+                'target' => '/path/to',
+                'expected' => false
+            )
+        );
+
+        foreach($tests as $test)
+        {
+            $this->assertSame(
+                $test['expected'],
+                FileHelper::getPathInfo($test['target'])->isWithinPath($test['source']),
+                'Checked test "'.$test['label'].'": '.PHP_EOL.
+                '- Source: '.$test['source'].PHP_EOL.
+                '- Target: '.$test['target']
+            );
+        }
+    }
 }

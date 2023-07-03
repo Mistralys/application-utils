@@ -200,6 +200,13 @@ class FileInfoTest extends FileHelperTestCase
         $this->assertNotSame($info, FileInfo::factory($this->copySourceFile));
     }
 
+    public function test_getSize() : void
+    {
+        $info = FileInfo::factory(__DIR__.'/../../assets/FileHelper/42-bytes.txt');
+
+        $this->assertSame(42, $info->getSize());
+    }
+
     // endregion
 
     // region: Support methods

@@ -66,4 +66,11 @@ class FolderInfoTest extends FileHelperTestCase
 
         FileHelper::deleteFile($jsonFile);
     }
+
+    public function test_getSize() : void
+    {
+        $info = FolderInfo::factory(__DIR__.'/../../assets/FileHelper/PathInfo/FolderWithFiles');
+
+        $this->assertSame(14, $info->getSize());
+    }
 }
