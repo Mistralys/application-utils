@@ -58,6 +58,9 @@ interface PathInfoInterface extends Interface_Stringable
      * - /path/to/folder = false (different path)
      * - /home/user = false (parent folder of the path)
      *
+     * NOTE: Both paths must exist on disk to resolve relative
+     * paths with <code>../</code> parts.
+     *
      * @param string|PathInfoInterface|SplFileInfo $targetPath
      * @return bool
      */
