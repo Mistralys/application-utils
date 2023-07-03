@@ -65,8 +65,12 @@ abstract class AbstractPathInfo implements PathInfoInterface
 
     public function isWithinPath($targetPath): bool
     {
-        $target = FileHelper::getPathInfo($targetPath)->getFolderPath();
-        $source = $this->getFolderPath();
+        $target = FolderInfo::factory(FileHelper::getPathInfo($targetPath)->getFolderPath())->getRealPath();
+        $source = FolderInfo::factory($this->getFolderPath())->getRealPath();
+
+        if($target === $source) {
+            return true;
+        }
 
         $sourceParts = explode('/', $source);
         $targetParts = explode('/', $target);
