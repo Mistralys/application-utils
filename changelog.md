@@ -1,3 +1,10 @@
+### v2.4.0
+- HTMLTag: Made the constructor public to allow extending the class.
+- Classable: Removed `addClass()` param type hint for interface compatibility.
+- RBGAColor: Fixed setting a color channel via Array access.
+- RGBAColor: Added the non-immutable `applyXXX()` methods required for Array access.
+- Core: Fixed PHP8 deprecation notices.
+
 ### v2.3.4 - FileHelper improvements
 - PathInfo: `isWithinFolder()` now correctly handles `../` in paths.
 
