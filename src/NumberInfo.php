@@ -310,7 +310,7 @@ class NumberInfo
      */
     public function isEven() : bool
     {
-        return !$this->isEmpty() && !($this->getNumber() & 1);
+        return !$this->isEmpty() && !((int)$this->getNumber() & 1);
     }
     
     /**
