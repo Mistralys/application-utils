@@ -36,7 +36,7 @@ class OutputBuffering
     /**
      * @var int[]
      */
-    private static $stack = array();
+    private static array $stack = array();
 
     /**
      * Checks whether any level of output buffering is currently active,
