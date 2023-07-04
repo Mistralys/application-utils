@@ -10,6 +10,8 @@ declare(strict_types=1);
 
 namespace AppUtils\Request;
 
+use AppUtils\ConvertHelper;
+use AppUtils\ConvertHelper_Exception;
 use AppUtils\RegexHelper;
 use AppUtils\Request;
 use AppUtils\Request_Exception;
@@ -502,7 +504,9 @@ class RequestParam
 
         return $this;
     }
-    
+
+    // region: Getting the value
+
    /**
     * Retrieves the value of the request parameter,
     * applying all filters (if any) and validation
@@ -520,6 +524,33 @@ class RequestParam
 
         return $this->validate($default);
     }
+
+    public function getInt(int $default=0) : int
+    {
+        return (int)$this->get($default);
+    }
+
+    public function getString(string $default='') : string
+    {
+        return (string)$this->get($default);
+    }
+
+    /**
+     * @param bool $default
+     * @return bool
+     * @throws ConvertHelper_Exception {@see ConvertHelper::ERROR_INVALID_BOOLEAN_STRING}
+     */
+    public function getBool(bool $default=false) : bool
+    {
+        return ConvertHelper::string2bool($this->get($default));
+    }
+
+    public function getFloat(float $default=0.0) : float
+    {
+        return (float)$this->get($default);
+    }
+
+    // endregion
 
     // region: Filtering
 
