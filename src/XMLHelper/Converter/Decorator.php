@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace AppUtils;
 
 use JsonSerializable;
+use ReturnTypeWillChange;
 use SimpleXMLElement;
 
 /**
@@ -88,6 +89,7 @@ class XMLHelper_Converter_Decorator implements JsonSerializable
      *
      * @return array<mixed>|NULL data which can be serialized by json_encode.
      */
+    #[ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $this->result = array();
