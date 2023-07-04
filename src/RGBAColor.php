@@ -14,11 +14,13 @@ namespace AppUtils;
 use AppUtils\RGBAColor\ArrayConverter;
 use AppUtils\RGBAColor\ColorChannel;
 use AppUtils\RGBAColor\ColorChannel\BrightnessChannel;
+use AppUtils\RGBAColor\ColorChannel\EightBitChannel;
 use AppUtils\RGBAColor\ColorComparator;
 use AppUtils\RGBAColor\ColorException;
 use AppUtils\RGBAColor\ColorFactory;
 use AppUtils\RGBAColor\FormatsConverter;
 use ArrayAccess;
+use ReturnTypeWillChange;
 
 /**
  * Container for RGB color information, with optional alpha channel.
@@ -423,8 +425,11 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
     }
 
     /**
-     * Sets the color, and returns a new RGBAColor instance
+     * Sets the color, and returns <b>a new RGBAColor instance</b>
      * with the target color modified.
+     *
+     * Note: To change a color channel without creating a new
+     * instance, use {@see self::applyColor()}.
      *
      * @param string $name
      * @param ColorChannel $value
@@ -452,6 +457,35 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
             $channels[self::CHANNEL_BLUE],
             $channels[self::CHANNEL_ALPHA]
         );
+    }
+
+    public function applyColor(string $name, ColorChannel $value) : self
+    {
+        $this->requireValidComponent($name);
+
+        $this->color[$name] = $value;
+
+        return $this;
+    }
+
+    public function applyGreen(ColorChannel $value) : self
+    {
+        return $this->applyColor(self::CHANNEL_GREEN, $value);
+    }
+
+    public function applyRed(ColorChannel $value) : self
+    {
+        return $this->applyColor(self::CHANNEL_RED, $value);
+    }
+
+    public function applyBlue(ColorChannel $value) : self
+    {
+        return $this->applyColor(self::CHANNEL_BLUE, $value);
+    }
+
+    public function applyAlpha(ColorChannel $value) : self
+    {
+        return $this->applyColor(self::CHANNEL_ALPHA, $value);
     }
 
     // endregion
@@ -575,26 +609,26 @@ class RGBAColor implements ArrayAccess, Interface_Stringable
 
     // region: ArrayAccess interface methods
 
-    public function offsetExists($offset)
+    public function offsetExists($offset) : bool
     {
         $key = (string)$offset;
 
         return isset($this->color[$key]);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet($offset) : ColorChannel
     {
         $key = (string)$offset;
 
-        return $this->color[$key] ?? 0;
+        return $this->color[$key] ?? new EightBitChannel(0);
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet($offset, $value) : void
     {
-        $this->setColor((string)$offset, $value);
+        $this->applyColor((string)$offset, $value);
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset($offset) : void
     {
 
     }
