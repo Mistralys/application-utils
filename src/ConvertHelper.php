@@ -255,10 +255,8 @@ class ConvertHelper
     * Converts a string, number or boolean value to a boolean value.
     *
     * @param mixed $string
-    * @throws ConvertHelper_Exception
+    * @throws ConvertHelper_Exception {@see self::ERROR_INVALID_BOOLEAN_STRING}
     * @return bool
-    *
-    * @see ConvertHelper::ERROR_INVALID_BOOLEAN_STRING
     */
     public static function string2bool($string) : bool
     {
