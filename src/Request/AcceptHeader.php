@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace AppUtils\Request;
 
 use ArrayAccess;
+use ReturnTypeWillChange;
 
 /**
  * Holds the information on an "Accept" header.
@@ -79,6 +80,7 @@ class AcceptHeader implements ArrayAccess
      * @param mixed $offset
      * @return array<string,string>|int|float|string
      */
+    #[ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->data[$offset] ?? null;
