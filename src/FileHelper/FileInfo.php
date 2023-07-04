@@ -163,6 +163,30 @@ class FileInfo extends AbstractPathInfo
         return $this->removeExtension();
     }
 
+    /**
+     * @return int The size of the file, in bytes.
+     * @throws FileHelper_Exception {@see FileHelper::ERROR_CANNOT_GET_SIZE} or {@see FileHelper::ERROR_FILE_DOES_NOT_EXIST}
+     */
+    public function getSize(): int
+    {
+        $this->requireExists();
+
+        $size = filesize($this->getPath());
+        if($size !== false) {
+            return $size;
+        }
+
+        throw new FileHelper_Exception(
+            'Cannot get file size.',
+            sprintf(
+                'Tried to get size of file: '.PHP_EOL.
+                '[%s]',
+                $this->getPath()
+            ),
+            FileHelper::ERROR_CANNOT_GET_SIZE
+        );
+    }
+
     public function getExtension(bool $lowercase=true) : string
     {
         $ext = (string)pathinfo($this->path, PATHINFO_EXTENSION);

@@ -63,6 +63,32 @@ abstract class AbstractPathInfo implements PathInfoInterface
         return $this->path;
     }
 
+    public function isWithinPath($targetPath): bool
+    {
+        $target = FolderInfo::factory(FileHelper::getPathInfo($targetPath)->getFolderPath())->getRealPath();
+        $source = FolderInfo::factory($this->getFolderPath())->getRealPath();
+
+        if($target === $source) {
+            return true;
+        }
+
+        $sourceParts = explode('/', $source);
+        $targetParts = explode('/', $target);
+
+        foreach ($targetParts as $idx => $part)
+        {
+            if(!isset($sourceParts[$idx])) {
+                return false;
+            }
+
+            if($sourceParts[$idx] !== $part) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /**
      * Gets the file name without path, e.g. "filename.txt",
      * or the folder name if it's a folder.

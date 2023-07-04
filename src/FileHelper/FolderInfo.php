@@ -175,6 +175,35 @@ class FolderInfo extends AbstractPathInfo
         return '';
     }
 
+    /**
+     * @return int The size of all files in the folder (recursive), in bytes.
+     */
+    public function getSize(): int
+    {
+        return $this->walkSize($this->getPath());
+    }
+
+    private function walkSize(string $path) : int
+    {
+        $this->requireExists();
+
+        $size = 0;
+
+        foreach (glob(rtrim($path, '/').'/*', GLOB_NOSORT) as $item)
+        {
+            if(is_file($item)) {
+                $bytes = filesize($item);
+                if($bytes !== false) {
+                    $size += $bytes;
+                }
+            } else {
+                $size += $this->walkSize($item);
+            }
+        }
+
+        return $size;
+    }
+
     public function getFolderPath() : string
     {
         return $this->getPath();
