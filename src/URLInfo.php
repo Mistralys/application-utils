@@ -17,6 +17,7 @@ use AppUtils\URLInfo\URINormalizer;
 use AppUtils\URLInfo\URIParser;
 use AppUtils\URLInfo\URLException;
 use ArrayAccess;
+use ReturnTypeWillChange;
 
 /**
  * Replacement for PHP's native `parse_url` function, which
@@ -648,7 +649,8 @@ class URLInfo implements ArrayAccess
     {
         unset($this->info[$offset]);
     }
-    
+
+    #[ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         if($offset === 'port') {
