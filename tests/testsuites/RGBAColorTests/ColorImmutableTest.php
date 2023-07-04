@@ -7,6 +7,7 @@ namespace RGBAColorTests;
 use AppUtils\RGBAColor;
 use AppUtils\RGBAColor\ColorChannel;
 use AppUtils\RGBAColor\ColorFactory;
+use AppUtils\StyleCollection\StyleBuilder\Flavors\Color;
 use PHPUnit\Framework\TestCase;
 
 class ColorImmutableTest extends TestCase
@@ -75,5 +76,22 @@ class ColorImmutableTest extends TestCase
         $this->assertNotSame($color, $modified);
         $this->assertSame(200, $color->getGreen()->get8Bit());
         $this->assertSame(100, $modified->getGreen()->get8Bit());
+    }
+
+    public function test_applyNonImmutable() : void
+    {
+        $color = ColorFactory::preset()->white();
+
+        $applied = $color
+            ->applyRed(ColorChannel::eightBit(11))
+            ->applyGreen(ColorChannel::eightBit(22))
+            ->applyBlue(ColorChannel::eightBit(33))
+            ->applyAlpha(ColorChannel::eightBit(44));
+
+        $this->assertSame($color, $applied);
+        $this->assertSame($color->getRed()->get8Bit(), 11);
+        $this->assertSame($color->getGreen()->get8Bit(), 22);
+        $this->assertSame($color->getBlue()->get8Bit(), 33);
+        $this->assertSame($color->getAlpha()->get8Bit(), 44);
     }
 }

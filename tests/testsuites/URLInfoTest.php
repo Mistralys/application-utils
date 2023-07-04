@@ -471,13 +471,13 @@ final class URLInfoTest extends TestCase
         $tests = array(
             array(
                 'label' => 'No port specified',
-                'url' => 'http://foo.com',
+                'url' => 'https://foo.com',
                 'expected' => -1,
                 'hasPort' => false,
             ),
             array(
                 'label' => 'Port specified',
-                'url' => 'http://foo.com:3120',
+                'url' => 'https://foo.com:3120',
                 'expected' => 3120,
                 'hasPort' => true,
             )
@@ -498,8 +498,8 @@ final class URLInfoTest extends TestCase
      */
     public function test_getHash() : void
     {
-        $url1 = 'http://foo.com?param1=foo&param2=bar&param3=dog';
-        $url2 = 'http://foo.com?param3=dog&param1=foo&param2=bar';
+        $url1 = 'https://foo.com?param1=foo&param2=bar&param3=dog';
+        $url2 = 'https://foo.com?param3=dog&param1=foo&param2=bar';
 
         $info1 = parseURL($url1);
         $info2 = parseURL($url2);
@@ -510,7 +510,8 @@ final class URLInfoTest extends TestCase
 
     public function test_tryConnect() : void
     {
-        $this->assertTrue(parseURL('https://google.com')->tryConnect(), 'Could not connect to google.com.');
+        $this->assertTrue(parseURL('https://google.com')->tryConnect(false), 'Could not connect to google.com without SSL checks enabled.');
+        $this->assertTrue(parseURL('https://google.com')->tryConnect(), 'Could not connect to google.com with SSL checks enabled.');
 
         $this->assertFalse(parseURL('https://' . md5((string)microtime(true)) . '.org')->tryConnect(), 'Could connect to an unknown website.');
     }
