@@ -1,4 +1,4 @@
-### v2.4.0
+### v2.4.0 - Maintenance and RGBAColor update
 - HTMLTag: Made the constructor public to allow extending the class.
 - Classable: Removed `addClass()` param type hint for interface compatibility.
 - RBGAColor: Fixed setting a color channel via Array access.
