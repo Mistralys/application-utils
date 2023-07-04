@@ -132,7 +132,7 @@ class ImageHelper
             );
         }
         
-        if(is_resource($resource) || $resource instanceof GdImage)
+        if(self::isResource($resource))
         {
             $this->sourceImage = $resource;
             $this->type = $type;
@@ -648,7 +648,7 @@ class ImageHelper
             return $this;
         }
         
-        if(!is_resource($this->newImage)) {
+        if(!self::isResource($this->newImage)) {
             throw new ImageHelper_Exception(
                 'Error creating new image',
                 'Cannot save an image, no valid image resource was created. You have to call one of the resample methods to create a new image.',
@@ -693,15 +693,24 @@ class ImageHelper
      */
     public function dispose() : self
     {
-        if(is_resource($this->sourceImage)) {
+        if(self::isResource($this->sourceImage)) {
             imagedestroy($this->sourceImage);
         }
         
-        if(is_resource($this->newImage)) {
+        if(self::isResource($this->newImage)) {
             imagedestroy($this->newImage);
         }
 
         return $this;
+    }
+
+    /**
+     * @param resource|GdImage|NULL $subject
+     * @return bool
+     */
+    public static function isResource($subject) : bool
+    {
+        return $subject instanceof GdImage || is_resource($subject);
     }
 
     protected function resolveQuality() : int
@@ -1107,7 +1116,7 @@ class ImageHelper
     */
     public static function requireResource($subject) : void
     {
-        if(is_resource($subject) && imagesx($subject)) {
+        if(self::isResource($subject) && imagesx($subject)) {
             return;
         }
 
@@ -1406,7 +1415,7 @@ class ImageHelper
      */
 	public static function getImageSize($pathOrResource) : ImageHelper_Size
 	{
-	    if(is_resource($pathOrResource) || $pathOrResource instanceof GdImage)
+	    if(self::isResource($pathOrResource))
 	    {
 	        return new ImageHelper_Size(array(
 	            'width' => imagesx($pathOrResource),
