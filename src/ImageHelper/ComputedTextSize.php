@@ -123,6 +123,7 @@ class ComputedTextSize implements ArrayAccess
      * @param string $offset
      * @return int|float
      */
+    #[\ReturnTypeWillChange]
     public function offsetGet($offset)
     {
         return $this->size[$offset] ?? -1;
