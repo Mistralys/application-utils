@@ -1,3 +1,6 @@
+### v2.4.1 - PHP8 compatibility release
+- ImageHelper: Removed some PHP8 deprecation notices.
+
 ### v2.4.0 - Maintenance and RGBAColor update
 - HTMLTag: Made the constructor public to allow extending the class.
 - Classable: Removed `addClass()` param type hint for interface compatibility.
