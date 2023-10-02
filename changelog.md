@@ -1,3 +1,8 @@
+### v2.4.2 - Microtime release
+- Microtime: Fixed parsing dates with the `T` separator, but no time component.
+- Microtime: Added time zone offset parsing.
+- Microtime: Added `getTimezoneOffset()`.
+
 ### v2.4.1 - PHP8 compatibility release
 - ImageHelper: Removed some PHP8 deprecation notices.
 

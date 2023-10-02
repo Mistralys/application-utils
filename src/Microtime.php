@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace AppUtils;
 
 use AppUtils\Microtime\DateFormatChars;
+use AppUtils\Microtime\TimeZoneOffset;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -33,6 +34,7 @@ class Microtime extends DateTime implements Interface_Stringable
 
     public const DATETIME_NOW = 'now';
     public const FORMAT_ISO = 'Y-m-d H:i:s.u';
+    private Microtime_ParseResult $parseResult;
 
     /**
      * Attempts to determine the kind of date to create dynamically.
@@ -64,6 +66,8 @@ class Microtime extends DateTime implements Interface_Stringable
 
         try
         {
+            $this->parseResult = $parsed;
+
             parent::__construct($parsed->getDateTime(), $parsed->getTimeZone());
         }
         catch (Exception $e)
@@ -78,6 +82,11 @@ class Microtime extends DateTime implements Interface_Stringable
                 $e
             );
         }
+    }
+
+    public function getTimezoneOffset() : TimeZoneOffset
+    {
+        return $this->parseResult->getTimeZoneOffset();
     }
 
     /**

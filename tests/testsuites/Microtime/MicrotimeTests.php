@@ -2,10 +2,14 @@
 
 declare(strict_types=1);
 
+namespace AppUtilsTests\TestSuites\Microtime;
+
 use AppUtils\Microtime;
+use DateTime;
+use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 
-final class MicrotimeTest extends TestCase
+final class MicrotimeTests extends TestCase
 {
     public function test_getMicroseconds() : void
     {
@@ -18,6 +22,38 @@ final class MicrotimeTest extends TestCase
 
         $this->assertEquals('2021-06-30 14:05:11.000000', $time->getISODate());
         $this->assertSame(0, $time->getMicroseconds());
+    }
+
+    public function test_emptyTimezoneMustUseUTC() : void
+    {
+        $time = new Microtime('2023-10-01T11:45:00.001863219');
+
+        $this->assertEquals('2023-10-01 11:45:00.001863', $time->getISODate());
+        $this->assertSame(1863, $time->getMicroseconds());
+        $this->assertSame('+00:00', $time->getTimezone()->getName());
+        $this->assertSame('+00:00', $time->getTimezoneOffset()->getAsString());
+    }
+
+    public function test_specificTimezone() : void
+    {
+        $time = new Microtime('2022-02-16T18:36:14.509742500+05:30');
+
+        $this->assertEquals('2022-02-16 18:36:14.509742', $time->getISODate());
+        $this->assertSame(509742, $time->getMicroseconds());
+    }
+
+    /**
+     * Even if a timezone has been specified when creating
+     * the Microtime instance, the timezone offset contained
+     * in the date must take precedence.
+     */
+    public function test_specificTimezoneOverwritesSpecifiedZone() : void
+    {
+        $customZone = new DateTimeZone('Europe/Paris');
+        $time = new Microtime('2022-02-16T18:36:14.509742500+05:30', $customZone);
+
+        $this->assertSame('+05:30', $time->getTimezone()->getName());
+        $this->assertSame('Asia/Kolkata', $time->getTimezoneOffset()->getName());
     }
 
     /**

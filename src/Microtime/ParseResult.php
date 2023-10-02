@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\Microtime\TimeZoneOffset;
 use DateTimeZone;
 
 /**
@@ -28,40 +29,53 @@ use DateTimeZone;
  */
 class Microtime_ParseResult implements Interface_Stringable
 {
-    /**
-     * @var string
-     */
-    private $dateTime;
-
-    /**
-     * @var DateTimeZone
-     */
-    private $timeZone;
+    private string $dateTime;
+    private DateTimeZone $timeZone;
+    private TimeZoneOffset $timeZoneOffset;
 
     public function __construct(string $datetime, DateTimeZone $timeZone)
     {
-        if(stripos($datetime, 'T') !== false) {
-            $datetime = $this->parseISO8601($datetime);
-        }
-
         $this->dateTime = $datetime;
         $this->timeZone = $timeZone;
+
+        if(stripos($datetime, 'T') !== false) {
+            $this->parseISO8601($datetime);
+        }
     }
 
-    private function parseISO8601(string $datetime) : string
+    public function getTimeZoneOffset() : TimeZoneOffset
     {
-        preg_match('/([0-9]{4}-[0-9]{2}-[0-9]{2})T([0-9]{2}:[0-9]{2}:[0-9]{2})\.([0-9]+)Z/', $datetime, $matches);
-
-        if(!empty($matches[0])) {
-            return sprintf(
-                '%s %s.%s',
-                $matches[1],
-                $matches[2],
-                substr($matches[3], 0, 6)
-            );
+        if(!isset($this->timeZoneOffset)) {
+            $this->timeZoneOffset = new TimeZoneOffset('Z');
         }
 
-        return $datetime;
+        return $this->timeZoneOffset;
+    }
+
+    private function parseISO8601(string $datetime) : void
+    {
+        preg_match('/([0-9]{4}-[0-9]{2}-[0-9]{2})T([0-9]{2}:[0-9]{2}:[0-9]{2})\.([0-9]+)(.*)/', $datetime, $matches);
+
+        if(empty($matches[0])) {
+            return;
+        }
+
+        $this->timeZoneOffset = new TimeZoneOffset(trim($matches[4]));
+
+        $this->timeZone = new DateTimeZone(sprintf(
+            '%s%02d%02d',
+            $this->timeZoneOffset->getSign(),
+            $this->timeZoneOffset->getHours(),
+            $this->timeZoneOffset->getMinutes()
+        ));
+
+        $this->dateTime = sprintf(
+            '%s %s.%s%s',
+            $matches[1],
+            $matches[2],
+            substr($matches[3], 0, 6),
+            $this->timeZoneOffset
+        );
     }
 
     public function __toString() : string
