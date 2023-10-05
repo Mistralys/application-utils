@@ -1,7 +1,24 @@
-### v2.4.2 - Microtime release
-- Microtime: Fixed parsing dates with the `T` separator, but no time component.
-- Microtime: Added time zone offset parsing.
-- Microtime: Added `getTimezoneOffset()`.
+### v2.5.0 - Microtime Time Zones support
+- Microtime: Now detecting milliseconds independently of formatting.
+- Microtime: Added time zone recognition.
+- Microtime: Added the `TimeZoneInfo` utility class.
+- Microtime: Added `getTimezoneInfo()`.
+- Microtime: Added `getMilliseconds()`.
+- Microtime: Added `getNanoseconds()`.
+- Microtime: Added `getNanoDate()`.
+- Microtime: Nanoseconds are now persisted when cloning dates.
+- Microtime: Time zone identifiers are no longer case sensitive.
+- Microtime: `getISODate()` and `getNanoDate()` can optionally include the time zone.
+
+#### Nanoseconds
+
+Microtime will more reliably detect and adjust nanosecond
+values in date strings, reducing them to microseconds.
+The nanoseconds can still be accessed via `getNanoseconds()`.
+
+#### Deprecated methods
+
+- `Microtime::createFromMicrotime()`
 
 ### v2.4.1 - PHP8 compatibility release
 - ImageHelper: Removed some PHP8 deprecation notices.
