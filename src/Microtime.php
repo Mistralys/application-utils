@@ -12,7 +12,9 @@ declare(strict_types=1);
 namespace AppUtils;
 
 use AppUtils\Microtime\DateFormatChars;
-use AppUtils\Microtime\TimeZoneOffset;
+use AppUtils\Microtime\DateParseResult;
+use AppUtils\Microtime\TimeZones\NamedTimeZoneInfo;
+use AppUtils\Microtime\TimeZones\TimeZoneInfo;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -34,14 +36,14 @@ class Microtime extends DateTime implements Interface_Stringable
 
     public const DATETIME_NOW = 'now';
     public const FORMAT_ISO = 'Y-m-d H:i:s.u';
-    private Microtime_ParseResult $parseResult;
+    private DateParseResult $parseResult;
 
     /**
      * Attempts to determine the kind of date to create dynamically.
      * If you already know what type of date to create, use the `createXXX()`
      * methods instead, which perform slightly better.
      *
-     * @param string|DateTime|Microtime|Microtime_ParseResult|mixed $datetime
+     * @param string|DateTime|Microtime|DateParseResult|mixed $datetime
      * @param DateTimeZone|null $timeZone
      * @throws Microtime_Exception
      *
@@ -55,7 +57,7 @@ class Microtime extends DateTime implements Interface_Stringable
      */
     public function __construct($datetime=self::DATETIME_NOW, ?DateTimeZone $timeZone=null)
     {
-        if($datetime instanceof Microtime_ParseResult)
+        if($datetime instanceof DateParseResult)
         {
             $parsed = $datetime;
         }
@@ -84,22 +86,31 @@ class Microtime extends DateTime implements Interface_Stringable
         }
     }
 
-    public function getTimezoneOffset() : TimeZoneOffset
+    /**
+     * @return TimeZoneInfo|NamedTimeZoneInfo
+     */
+    public function getTimezoneInfo() : TimeZoneInfo
     {
-        return $this->parseResult->getTimeZoneOffset();
+        $parsed = $this->parseResult->getTimeZoneInfo();
+
+        if($parsed !== null) {
+            return $parsed;
+        }
+
+        return TimeZoneInfo::create($this->getTimezone());
     }
 
     /**
      * @param string|DateTime|Microtime|mixed $datetime
      * @param DateTimeZone|null $timeZone
-     * @return Microtime_ParseResult
+     * @return DateParseResult
      * @throws Microtime_Exception
      */
-    private function parseDate($datetime, ?DateTimeZone $timeZone=null) : Microtime_ParseResult
+    private function parseDate($datetime, ?DateTimeZone $timeZone=null) : DateParseResult
     {
         if($datetime instanceof self)
         {
-            return new Microtime_ParseResult(
+            return new DateParseResult(
                 $datetime->getISODate(),
                 $datetime->getTimezone()
             );
@@ -107,15 +118,10 @@ class Microtime extends DateTime implements Interface_Stringable
 
         if($datetime instanceof DateTime)
         {
-            return new Microtime_ParseResult(
+            return new DateParseResult(
                 $datetime->format(self::FORMAT_ISO),
                 $datetime->getTimezone()
             );
-        }
-
-        if($timeZone === null)
-        {
-            $timeZone = new DateTimeZone(date_default_timezone_get());
         }
 
         if(empty($datetime) || $datetime === self::DATETIME_NOW)
@@ -125,7 +131,7 @@ class Microtime extends DateTime implements Interface_Stringable
 
         if(is_string($datetime))
         {
-            return new Microtime_ParseResult(
+            return new DateParseResult(
                 $datetime,
                 $timeZone
             );
@@ -142,19 +148,23 @@ class Microtime extends DateTime implements Interface_Stringable
     }
 
     /**
-     * @param DateTimeZone $timeZone
-     * @return Microtime_ParseResult
+     * @param DateTimeZone|NULL $timeZone
+     * @return DateParseResult
      * @throws Microtime_Exception
      */
-    private static function parseNow(DateTimeZone $timeZone) : Microtime_ParseResult
+    private static function parseNow(?DateTimeZone $timeZone) : DateParseResult
     {
         $dateObj = DateTime::createFromFormat('0.u00 U', microtime(), new DateTimeZone('America/Denver'));
+
+        if($timeZone === null) {
+            $timeZone = new DateTimeZone(date_default_timezone_get());
+        }
 
         if($dateObj !== false)
         {
             $dateObj->setTimezone($timeZone);
 
-            return new Microtime_ParseResult(
+            return new DateParseResult(
                 $dateObj->format(self::FORMAT_ISO),
                 $timeZone
             );
@@ -176,11 +186,6 @@ class Microtime extends DateTime implements Interface_Stringable
      */
     public static function createNow(?DateTimeZone $timeZone=null) : Microtime
     {
-        if($timeZone === null)
-        {
-            $timeZone = new DateTimeZone(date_default_timezone_get());
-        }
-
         return new Microtime(self::parseNow($timeZone));
     }
 
@@ -195,12 +200,7 @@ class Microtime extends DateTime implements Interface_Stringable
      */
     public static function createFromString(string $date, ?DateTimeZone $timeZone=null) : Microtime
     {
-        if($timeZone === null)
-        {
-            $timeZone = new DateTimeZone(date_default_timezone_get());
-        }
-
-        return new Microtime(new Microtime_ParseResult($date, $timeZone));
+        return new Microtime(new DateParseResult($date, $timeZone));
     }
 
     /**
@@ -213,7 +213,7 @@ class Microtime extends DateTime implements Interface_Stringable
      */
     public static function createFromMicrotime(Microtime $date) : Microtime
     {
-        return new Microtime(new Microtime_ParseResult($date->getISODate(), $date->getTimezone()));
+        return new Microtime(new DateParseResult($date->getISODate(), $date->getTimezone()));
     }
 
     /**
@@ -226,16 +226,27 @@ class Microtime extends DateTime implements Interface_Stringable
      */
     public static function createFromDate(DateTime $date) : Microtime
     {
-        return new Microtime(new Microtime_ParseResult($date->format(self::FORMAT_ISO), $date->getTimezone()));
+        return new Microtime(new DateParseResult($date->format(self::FORMAT_ISO), $date->getTimezone()));
     }
 
     /**
-     * Gets the microseconds part of the date.
+     * Gets the Microseconds part of the date.
      * @return int Six-digit microseconds value.
      */
     public function getMicroseconds() : int
     {
         return (int)$this->format(DateFormatChars::TIME_MICROSECONDS);
+    }
+
+    /**
+     * Gets only the milliseconds, if any. Add this
+     * to the microseconds to get the full millisecond.
+     *
+     * @return int
+     */
+    public function getMilliseconds() : int
+    {
+        return $this->parseResult->getMilliseconds();
     }
 
     /**

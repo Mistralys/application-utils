@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppUtilsTests\TestSuites\Microtime;
 
 use AppUtils\Microtime;
+use AppUtils\Microtime\TimeZones\NamedTimeZoneInfo;
 use DateTime;
 use DateTimeZone;
 use PHPUnit\Framework\TestCase;
@@ -13,10 +14,10 @@ final class MicrotimeTests extends TestCase
 {
     public function test_getMicroseconds() : void
     {
-        $time = new Microtime('2021-06-30 14:05:11.5555');
+        $time = new Microtime('2021-06-30 14:05:11.4444');
 
-        $this->assertEquals('2021-06-30 14:05:11.555500', $time->getISODate());
-        $this->assertSame(555500, $time->getMicroseconds());
+        $this->assertEquals('2021-06-30 14:05:11.444400', $time->getISODate());
+        $this->assertSame(444400, $time->getMicroseconds());
 
         $time = new Microtime('2021-06-30 14:05:11');
 
@@ -26,20 +27,20 @@ final class MicrotimeTests extends TestCase
 
     public function test_emptyTimezoneMustUseUTC() : void
     {
-        $time = new Microtime('2023-10-01T11:45:00.001863219');
+        $time = new Microtime('2023-10-01T11:45:00.666666777');
 
-        $this->assertEquals('2023-10-01 11:45:00.001863', $time->getISODate());
-        $this->assertSame(1863, $time->getMicroseconds());
-        $this->assertSame('+00:00', $time->getTimezone()->getName());
-        $this->assertSame('+00:00', $time->getTimezoneOffset()->getAsString());
+        $this->assertEquals('2023-10-01 11:45:00.666666', $time->getISODate());
+        $this->assertSame(666666, $time->getMicroseconds());
+        $this->assertSame('UTC', $time->getTimezone()->getName());
+        $this->assertSame('+00:00', $time->getTimezoneInfo()->toOffsetString());
     }
 
     public function test_specificTimezone() : void
     {
-        $time = new Microtime('2022-02-16T18:36:14.509742500+05:30');
+        $time = new Microtime('2022-02-16T18:36:14.666666777+05:30');
 
-        $this->assertEquals('2022-02-16 18:36:14.509742', $time->getISODate());
-        $this->assertSame(509742, $time->getMicroseconds());
+        $this->assertEquals('2022-02-16 18:36:14.666666', $time->getISODate());
+        $this->assertSame(666666, $time->getMicroseconds());
     }
 
     /**
@@ -50,16 +51,15 @@ final class MicrotimeTests extends TestCase
     public function test_specificTimezoneOverwritesSpecifiedZone() : void
     {
         $customZone = new DateTimeZone('Europe/Paris');
-        $time = new Microtime('2022-02-16T18:36:14.509742500+05:30', $customZone);
+        $time = new Microtime('2022-02-16T18:36:14.666666777+05:30', $customZone);
 
         $this->assertSame('+05:30', $time->getTimezone()->getName());
-        $this->assertSame('Asia/Kolkata', $time->getTimezoneOffset()->getName());
+        $this->assertSame('Asia/Kolkata', $time->getTimezoneInfo()->getAnyName());
     }
 
     /**
-     * Ensure that importing the ISO date back into a
-     * new microtime instance correctly retains the
-     * microseconds information.
+     * Importing the date back into a fresh microtime
+     * instance must retain the microseconds.
      */
     public function test_importExport() : void
     {
@@ -81,11 +81,56 @@ final class MicrotimeTests extends TestCase
 
     public function test_ISO8601() : void
     {
-        $date = Microtime::createFromString('2022-12-22T09:06:21.366976535Z');
+        $date = Microtime::createFromString('2022-12-22T09:06:21.666666777Z');
 
         $this->assertSame('2022-12-22', $date->format('Y-m-d'));
         $this->assertSame('09:06:21', $date->format('H:i:s'));
-        $this->assertSame(366976, $date->getMicroseconds());
+        $this->assertSame(666666, $date->getMicroseconds());
+        $this->assertSame(777, $date->getMilliseconds());
+    }
+
+    public function test_dateTimeZone() : void
+    {
+        $date = Microtime::createFromString('2023-01-06T14:45:25.666666777 Europe/Paris');
+
+        $info = $date->getTimezoneInfo();
+        $this->assertInstanceOf(NamedTimeZoneInfo::class, $info);
+        $this->assertSame('Europe/Paris', $date->getTimezoneInfo()->getName());
+
+        $tz = $date->getTimezone();
+        $this->assertSame('Europe/Paris', $tz->getName());
+    }
+
+    public function test_customFormatWithTimeZoneName() : void
+    {
+        $microtime = new Microtime('2023-10-01 Europe/Paris');
+
+        $info = $microtime->getTimezoneInfo();
+        $this->assertSame('Europe/Paris', $info->getAnyName());
+    }
+
+    public function test_timeZoneCaseInsensitive() : void
+    {
+        $microtime = new Microtime('2023-10-01 europe/PARIS');
+
+        $info = $microtime->getTimezoneInfo();
+        $this->assertSame('Europe/Paris', $info->getAnyName());
+    }
+
+    public function test_UTCCaseInsensitive() : void
+    {
+        $microtime = new Microtime('2023-10-01 utc');
+
+        $info = $microtime->getTimezoneInfo();
+        $this->assertSame('UTC', $info->getAnyName());
+    }
+
+    public function test_GMTCaseInsensitive() : void
+    {
+        $microtime = new Microtime('2023-10-01 gmt');
+
+        $info = $microtime->getTimezoneInfo();
+        $this->assertSame('UTC', $info->getAnyName());
     }
 
     public function test_createNow() : void
@@ -118,7 +163,7 @@ final class MicrotimeTests extends TestCase
 
     public function test_timeMethods() : void
     {
-        $date = Microtime::createFromString('1975-02-07 14:45:12.5555');
+        $date = Microtime::createFromString('1975-02-07 14:45:12.666666777');
 
         $this->assertSame('pm', $date->getMeridiem());
         $this->assertTrue($date->isPM());
@@ -130,6 +175,7 @@ final class MicrotimeTests extends TestCase
         $this->assertSame(2, $date->getHour12());
         $this->assertSame(45, $date->getMinutes());
         $this->assertSame(12, $date->getSeconds());
-        $this->assertSame(555500, $date->getMicroseconds());
+        $this->assertSame(666666, $date->getMicroseconds());
+        $this->assertSame(777, $date->getMilliseconds());
     }
 }

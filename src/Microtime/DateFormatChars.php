@@ -237,12 +237,19 @@ class DateFormatChars
 
     /**
      * Timezone offset in seconds. The offset for timezones west of
-     * UTC is always negative, and for those east of UTC is always
-     * positive.
+     * UTC is always negative, and for those to the east of UTC is
+     * always positive.
      *
      * Range: -43200 through 50400.
      */
     public const ZONE_OFFSET = 'Z';
 
     // endregion
+
+    // region: Full dates (templates)
+
+    public const ISO8601 = 'c';
+    public const RFC2822 = 'r';
+    public const RFC5322 = 'r';
+    public const TIMESTAMP = 'U';
 }
