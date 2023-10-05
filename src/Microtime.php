@@ -36,6 +36,11 @@ class Microtime extends DateTime implements Interface_Stringable
 
     public const DATETIME_NOW = 'now';
     public const FORMAT_ISO = 'Y-m-d H:i:s.u';
+    public const FORMAT_ISO_TZ = 'Y-m-d\TH:i:s.u e';
+    public const FORMAT_MYSQL = 'Y-m-d H:i:s.u';
+    public const FORMAT_NANO = 'Y-m-d H:i:s.u'.DateFormatChars::TIME_NANOSECONDS;
+    public const FORMAT_NANO_TZ = 'Y-m-d\TH:i:s.u'.DateFormatChars::TIME_NANOSECONDS.' e';
+
     private DateParseResult $parseResult;
 
     /**
@@ -51,7 +56,6 @@ class Microtime extends DateTime implements Interface_Stringable
      * @see Microtime::ERROR_FAILED_CONVERTING_STRING
      *
      * @see Microtime::createFromDate()
-     * @see Microtime::createFromMicrotime()
      * @see Microtime::createFromString()
      * @see Microtime::createNow()
      */
@@ -88,16 +92,14 @@ class Microtime extends DateTime implements Interface_Stringable
 
     /**
      * @return TimeZoneInfo|NamedTimeZoneInfo
+     * @throws Microtime_Exception
      */
     public function getTimezoneInfo() : TimeZoneInfo
     {
-        $parsed = $this->parseResult->getTimeZoneInfo();
-
-        if($parsed !== null) {
-            return $parsed;
-        }
-
-        return TimeZoneInfo::create($this->getTimezone());
+        return
+            $this->parseResult->getTimeZoneInfo()
+            ??
+            TimeZoneInfo::create($this->getTimezone());
     }
 
     /**
@@ -210,22 +212,27 @@ class Microtime extends DateTime implements Interface_Stringable
      * @param Microtime $date
      * @return Microtime
      * @throws Microtime_Exception
+     * @deprecated Use {@see self::createFromDate()} instead.
      */
     public static function createFromMicrotime(Microtime $date) : Microtime
     {
-        return new Microtime(new DateParseResult($date->getISODate(), $date->getTimezone()));
+        return new Microtime($date->getParseResult());
     }
 
     /**
      * Creates a microtime instance from an existing DateTime instance.
      * The Microtime inherits the time zone.
      *
-     * @param DateTime $date
+     * @param DateTime|Microtime $date
      * @return Microtime
      * @throws Microtime_Exception
      */
     public static function createFromDate(DateTime $date) : Microtime
     {
+        if($date instanceof self) {
+            return new Microtime($date->getParseResult());
+        }
+
         return new Microtime(new DateParseResult($date->format(self::FORMAT_ISO), $date->getTimezone()));
     }
 
@@ -239,40 +246,80 @@ class Microtime extends DateTime implements Interface_Stringable
     }
 
     /**
-     * Gets only the milliseconds, if any. Add this
+     * Gets the Milliseconds part of the date.
+     * @return int Three-digit milliseconds value.
+     */
+    public function getMilliseconds() : int
+    {
+        return (int)$this->format(DateFormatChars::TIME_MILLISECONDS);
+    }
+
+    /**
+     * Gets only the nanoseconds, if any. Add this
      * to the microseconds to get the full millisecond.
      *
      * @return int
      */
-    public function getMilliseconds() : int
+    public function getNanoseconds() : int
     {
-        return $this->parseResult->getMilliseconds();
+        return $this->parseResult->getNanoseconds();
     }
 
     /**
      * ISO formatted date with microseconds, in the
      * format `Y-m-d H:i:s.u`.
      *
+     * NOTE: Doesn't preserve nanoseconds.
+     *
+     * @param bool $includeTimeZone
      * @return string
      */
-    public function getISODate() : string
+    public function getISODate(bool $includeTimeZone=false) : string
     {
-        return $this->format(self::FORMAT_ISO);
+        $format = self::FORMAT_ISO;
+        if($includeTimeZone) {
+            $format = self::FORMAT_ISO_TZ;
+        }
+
+        return $this->format($format);
+    }
+
+    /**
+     * Like {@see self::getISODate()}, but with nanoseconds,
+     * if the source date string had any.
+     *
+     * @param bool $includeTimeZone
+     * @return string
+     */
+    public function getNanoDate(bool $includeTimeZone=false) : string
+    {
+        $format = self::FORMAT_NANO;
+        if($includeTimeZone) {
+            $format = self::FORMAT_NANO_TZ;
+        }
+
+        return $this->format($format);
     }
 
     /**
      * Date formatted for storing in a MySQL database column.
      *
-     * NOTE: To store microseconds in MySQL, a DateTime column
+     * NOTE: Doesn't preserve nanoseconds.
+     *
+     * WARNING: Time Zone information isn't included. In a database,
+     * it is recommended to either store dates as UTC, or to store
+     * the time zone in a separate column.
+     *
+     * HINT: To store microseconds in MySQL, a DateTime column
      * needs to be used, with a length of 6 (3 for the milliseconds,
      * +3 for the microseconds). Without the length specified,
-     * the milliseconds information will be stripped out.
+     * the millisecond information will be stripped out.
      *
      * @return string
      */
     public function getMySQLDate() : string
     {
-        return $this->getISODate();
+        return $this->format(self::FORMAT_MYSQL);
     }
 
     public function __toString()
@@ -332,5 +379,23 @@ class Microtime extends DateTime implements Interface_Stringable
     public function getSeconds() : int
     {
         return (int)$this->format(DateFormatChars::TIME_SECONDS_LZ);
+    }
+
+    public function format($format) : string
+    {
+        if(strpos($format, DateFormatChars::TIME_NANOSECONDS)) {
+            $format = str_replace(
+                DateFormatChars::TIME_NANOSECONDS,
+                sprintf('%03d', $this->getNanoseconds()),
+                $format
+            );
+        }
+
+        return parent::format($format);
+    }
+
+    public function getParseResult() : DateParseResult
+    {
+        return $this->parseResult;
     }
 }
