@@ -195,6 +195,8 @@ class DateFormatChars
      */
     public const TIME_MILLISECONDS = 'v';
 
+    public const TIME_NANOSECONDS = '_ns';
+
     // endregion
 
     // region: Timezone
