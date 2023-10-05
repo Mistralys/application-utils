@@ -1,5 +1,5 @@
 ### v2.5.0 - Microtime Time Zones support
-- Microtime: Now detecting milliseconds independently of formatting.
+- Microtime: Now detecting nanoseconds independently of formatting.
 - Microtime: Added time zone recognition.
 - Microtime: Added the `TimeZoneInfo` utility class.
 - Microtime: Added `getTimezoneInfo()`.
