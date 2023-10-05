@@ -58,7 +58,7 @@ class DateParseResult implements Interface_Stringable
         }
     }
 
-    public function getMilliseconds(): int
+    public function getNanoseconds(): int
     {
         return $this->milliseconds;
     }
