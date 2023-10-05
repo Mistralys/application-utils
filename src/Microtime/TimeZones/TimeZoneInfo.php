@@ -323,7 +323,8 @@ class TimeZoneInfo implements Interface_Stringable
             'minutes' => $this->getMinutes(),
             'seconds' => $this->getTotalSeconds(),
             'sign' => $this->getOffsetSign(),
-            'negative' => $this->isNegative()
+            'negative' => $this->isNegative(),
+            'offset' => $this->toOffsetString()
         );
     }
 }
