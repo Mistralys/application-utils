@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AppUtilsTests\TestSuites\Microtime;
 
 use AppUtils\Microtime;
+use AppUtils\Microtime\DateFormatChars;
 use AppUtils\Microtime\TimeZones\NamedTimeZoneInfo;
 use DateTime;
 use DateTimeZone;
@@ -86,7 +87,8 @@ final class MicrotimeTests extends TestCase
         $this->assertSame('2022-12-22', $date->format('Y-m-d'));
         $this->assertSame('09:06:21', $date->format('H:i:s'));
         $this->assertSame(666666, $date->getMicroseconds());
-        $this->assertSame(777, $date->getMilliseconds());
+        $this->assertSame(666, $date->getMilliseconds());
+        $this->assertSame(777, $date->getNanoseconds());
     }
 
     public function test_dateTimeZone() : void
@@ -144,7 +146,7 @@ final class MicrotimeTests extends TestCase
     {
         $micro = Microtime::createFromString('1975-02-07 14:45:12.5555');
 
-        $new = Microtime::createFromMicrotime($micro);
+        $new = Microtime::createFromDate($micro);
 
         $this->assertNotSame($micro, $new);
         $this->assertEquals(1975, $new->getYear());
@@ -176,6 +178,54 @@ final class MicrotimeTests extends TestCase
         $this->assertSame(45, $date->getMinutes());
         $this->assertSame(12, $date->getSeconds());
         $this->assertSame(666666, $date->getMicroseconds());
-        $this->assertSame(777, $date->getMilliseconds());
+        $this->assertSame(666, $date->getMilliseconds());
+        $this->assertSame(777, $date->getNanoseconds());
+    }
+
+    public function test_formatWithNanoseconds() : void
+    {
+        $date = Microtime::createFromString('1975-02-07 14:45:12.666666777');
+
+        $this->assertSame('666666777', $date->format(DateFormatChars::TIME_MICROSECONDS.DateFormatChars::TIME_NANOSECONDS));
+    }
+
+    public function test_copy() : void
+    {
+        $date = Microtime::createFromString('1975-02-07 14:45:12.333666999');
+        $copy = Microtime::createFromDate($date);
+
+        $this->assertNotSame($date, $copy);
+        $this->assertSame($date->getNanoDate(), $copy->getNanoDate());
+    }
+
+    public function test_clone() : void
+    {
+        $date = Microtime::createFromString('1975-02-07 14:45:12.333666999');
+        $copy = clone $date;
+
+        $this->assertSame($date->getNanoDate(), $copy->getNanoDate());
+    }
+
+    public function test_getISODateWithTimeZone() : void
+    {
+        $date = Microtime::createFromString('1975-02-07 14:45:12.333666999', new DateTimeZone('Europe/Paris'));
+
+        $formatted = $date->getISODate(true);
+        $this->assertSame('1975-02-07T14:45:12.333666 Europe/Paris', $formatted);
+
+        $restored = Microtime::createFromString($formatted);
+        $this->assertSame('Europe/Paris', $restored->getTimezone()->getName());
+    }
+
+    public function test_getNanoDateWithTimeZone() : void
+    {
+        $date = Microtime::createFromString('1975-02-07 14:45:12.333666999', new DateTimeZone('Europe/Paris'));
+
+        $formatted = $date->getNanoDate(true);
+        $this->assertSame('1975-02-07T14:45:12.333666999 Europe/Paris', $formatted);
+
+        $restored = Microtime::createFromString($formatted);
+        $this->assertSame('Europe/Paris', $restored->getTimezone()->getName());
+        $this->assertSame(999, $restored->getNanoseconds());
     }
 }
