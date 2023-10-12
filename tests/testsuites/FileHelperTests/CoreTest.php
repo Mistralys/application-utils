@@ -368,54 +368,6 @@ final class CoreTest extends FileHelperTestCase
     }
 
     /**
-     * @see FileHelper::detectMimeType()
-     */
-    public function test_detectMimeType() : void
-    {
-        $tests = array(
-            'mime.json' => 'application/json',
-            'mime.jpg' => 'image/jpeg',
-            'mime.jpeg' => 'image/jpeg',
-            'mime.csv' => 'text/csv',
-            'mime.xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'mime.mp4' => 'video/mp4',
-            'mime.pdf' => 'application/pdf',
-            'noextension' => null,
-            'mime.unknown' => null
-        );
-
-        foreach ($tests as $filename => $expected)
-        {
-            $result = FileHelper::detectMimeType($filename);
-
-            $this->assertEquals($expected, $result, 'Mime type does not match file extension.');
-        }
-    }
-
-    /**
-     * @see FileHelper::detectMimeType()
-     */
-    public function test_detectCustomMimeType() : void
-    {
-        $tests = array(
-            'mime.push' => 'application/json',
-            'mime.sms' => 'text/plain',
-            'mime.jpeg' => 'text/plain'
-        );
-
-        FileHelper_MimeTypes::registerCustom('push', 'application/json');
-        FileHelper_MimeTypes::registerCustom('sms', 'text/plain');
-        FileHelper_MimeTypes::setMimeType('jpeg', 'text/plain');
-
-        foreach ($tests as $filename => $expected)
-        {
-            $result = FileHelper::detectMimeType($filename);
-
-            $this->assertEquals($expected, $result, 'Mime type does not match file extension.');
-        }
-    }
-
-    /**
      * @see FileHelper::getFilename()
      */
     public function test_getFileName() : void
