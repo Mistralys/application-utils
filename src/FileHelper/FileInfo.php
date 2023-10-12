@@ -11,12 +11,14 @@ declare(strict_types=1);
 
 namespace AppUtils\FileHelper;
 
+use AppUtils\BaseException;
 use AppUtils\ConvertHelper;
 use AppUtils\ConvertHelper_EOL;
 use AppUtils\FileHelper;
 use AppUtils\FileHelper\FileInfo\FileSender;
 use AppUtils\FileHelper\FileInfo\LineReader;
 use AppUtils\FileHelper_Exception;
+use AppUtils\FileHelper_MimeTypes;
 use SplFileInfo;
 use function AppUtils\parseVariable;
 
@@ -44,7 +46,7 @@ class FileInfo extends AbstractPathInfo
     /**
      * @var array<string,FileInfo>
      */
-    protected static $infoCache = array();
+    protected static array $infoCache = array();
 
     /**
      * @param string|PathInfoInterface|SplFileInfo $path
@@ -59,7 +61,9 @@ class FileInfo extends AbstractPathInfo
     /**
      * @param string|PathInfoInterface|SplFileInfo $path
      * @return FileInfo
+     *
      * @throws FileHelper_Exception
+     * @throws BaseException
      */
     protected static function createInstance($path) : FileInfo
     {
@@ -435,5 +439,14 @@ class FileInfo extends AbstractPathInfo
     public function getLine(int $lineNumber) : ?string
     {
         return $this->getLineReader()->getLine($lineNumber);
+    }
+
+    /**
+     * Attempts to detect the file's mime type by its extension.
+     * @return string
+     */
+    public function getMimeType() : string
+    {
+        return FileHelper_MimeTypes::getMime($this->getExtension());
     }
 }
