@@ -3,8 +3,8 @@
 MemoryLimit=900M
 AnalysisLevel=6
 OutputFile=result.txt
-ConfigFile=./config/phpstan.neon
-BinFolder=../vendor/bin
+ConfigFile=./phpstan.neon
+BinFolder=../../vendor/bin
 
 echo "-------------------------------------------------------"
 echo "RUNNING PHPSTAN AT LEVEL $AnalysisLevel"

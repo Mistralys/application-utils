@@ -1,6 +1,6 @@
 parameters:
     bootstrapFiles:
-        - ../phpstan/constants.php
+        - ./constants.php
     excludePaths:
         - ../../css/*
         - ../../src/SVNHelper/*

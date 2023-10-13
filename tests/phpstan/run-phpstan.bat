@@ -3,8 +3,9 @@
 cls 
 
 set AnalysisLevel=6
-set OutputFile=phpstan/output.txt
-set ConfigFile=./config/phpstan.neon
+set OutputFile=./result.txt
+set ConfigFile=./phpstan.neon
+set BinFolder=../../vendor/bin
 
 echo -------------------------------------------------------
 echo RUNNING PHPSTAN @ LEVEL %AnalysisLevel%
@@ -12,6 +13,6 @@ echo -------------------------------------------------------
 
 echo.
 
-call ../vendor/bin/phpstan analyse -c %ConfigFile% -l %AnalysisLevel% > %OutputFile%
+call %BinFolder%/phpstan analyse -c %ConfigFile% -l %AnalysisLevel% > %OutputFile%
 
 start "" "%OutputFile%"
