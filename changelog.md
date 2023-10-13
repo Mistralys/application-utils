@@ -1,3 +1,7 @@
+### v3.0.0 - Split core
+- Project: Split core classes into a separate GIT repository.
+- Dependencies: Added `mistralys/application-utils-core`.
+
 ### v2.5.0 - Microtime Time Zones support
 - Microtime: Now detecting nanoseconds independently of formatting.
 - Microtime: Added time zone recognition.

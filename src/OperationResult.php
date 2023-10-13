@@ -276,7 +276,7 @@ class OperationResult
      * @param bool $withDeveloperInfo Whether to add exception developer information to the error message.
      * @return $this
      *
-     * @see ConvertHelper_ThrowableInfo::renderErrorMessage()
+     * @see ThrowableInfo::renderErrorMessage()
      *
      * @throws ConvertHelper_Exception
      */

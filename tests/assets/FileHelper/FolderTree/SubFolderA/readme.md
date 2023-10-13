@@ -1,1 +1,0 @@
-Folder used for testing purposes.

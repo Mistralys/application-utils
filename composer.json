@@ -33,6 +33,7 @@
     "prefer-stable" : true,
     "require" : 
     {
+        "mistralys/application-utils-core": "dev-main",
         "geshi/geshi" : ">=1.0",
         "neitanod/forceutf8" : ">=2.0.4",
         "parsecsv/php-parsecsv" : ">=1.2",

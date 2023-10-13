@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "762c3c5a6e9b14aebb894069db2d9cef",
+    "content-hash": "58b7d1dc620637b789903e0aa717e732",
     "packages": [
         {
             "name": "geshi/geshi",
@@ -51,6 +51,61 @@
                 "source": "https://github.com/GeSHi/geshi-1.0/tree/v1.0.9.1"
             },
             "time": "2019-10-20T20:54:46+00:00"
+        },
+        {
+            "name": "mistralys/application-utils-core",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Mistralys/application-utils-core.git",
+                "reference": "e94c902745b9e87641e18f5cb33e0706917af9bc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Mistralys/application-utils-core/zipball/e94c902745b9e87641e18f5cb33e0706917af9bc",
+                "reference": "e94c902745b9e87641e18f5cb33e0706917af9bc",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=7.4",
+                "symfony/polyfill-php80": ">=v1.27"
+            },
+            "require-dev": {
+                "phpstan/phpstan": ">=1.10",
+                "phpunit/phpunit": ">=9.6"
+            },
+            "suggest": {
+                "mistralys/application-localization": "Required to translate available texts, from date related methods or file size labels for example."
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastian Mordziol",
+                    "email": "s.mordziol@mistralys.eu",
+                    "role": "Lead"
+                }
+            ],
+            "description": "Drop-in utilities for PHP applications.",
+            "support": {
+                "issues": "https://github.com/Mistralys/application-utils-core/issues",
+                "source": "https://github.com/Mistralys/application-utils-core/tree/main"
+            },
+            "time": "2023-10-13T12:30:30+00:00"
         },
         {
             "name": "neitanod/forceutf8",
@@ -2038,7 +2093,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "mistralys/application-utils-core": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
