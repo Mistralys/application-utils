@@ -35,19 +35,6 @@ function parseNumberImmutable($value) : NumberInfo_Immutable
 }
 
 /**
- * Like the native PHP function <code>parse_url</code>,
- * but with a friendly API and some enhancements and fixes 
- * for a few things that the native function handles poorly.
- * 
- * @param string $url The URL to parse.
- * @return URLInfo
- */
-function parseURL(string $url) : URLInfo
-{
-    return new URLInfo($url);
-}
-
-/**
  * Creates a boolean value.
  * 
  * @param bool $initial The initial boolean value to use.
