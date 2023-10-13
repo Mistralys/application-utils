@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "58b7d1dc620637b789903e0aa717e732",
+    "content-hash": "9549424647437721dad89cdd0f27658f",
     "packages": [
         {
             "name": "geshi/geshi",
@@ -58,21 +58,25 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Mistralys/application-utils-core.git",
-                "reference": "e94c902745b9e87641e18f5cb33e0706917af9bc"
+                "reference": "f4f2e4b62a116756f4c490158799440c2d6465d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Mistralys/application-utils-core/zipball/e94c902745b9e87641e18f5cb33e0706917af9bc",
-                "reference": "e94c902745b9e87641e18f5cb33e0706917af9bc",
+                "url": "https://api.github.com/repos/Mistralys/application-utils-core/zipball/f4f2e4b62a116756f4c490158799440c2d6465d4",
+                "reference": "f4f2e4b62a116756f4c490158799440c2d6465d4",
                 "shasum": ""
             },
             "require": {
+                "ext-curl": "*",
                 "ext-json": "*",
                 "ext-mbstring": "*",
+                "geshi/geshi": ">=1.0",
+                "neitanod/forceutf8": ">=2.0.4",
                 "php": ">=7.4",
                 "symfony/polyfill-php80": ">=v1.27"
             },
             "require-dev": {
+                "ext-gd": "*",
                 "phpstan/phpstan": ">=1.10",
                 "phpunit/phpunit": ">=9.6"
             },
@@ -105,7 +109,7 @@
                 "issues": "https://github.com/Mistralys/application-utils-core/issues",
                 "source": "https://github.com/Mistralys/application-utils-core/tree/main"
             },
-            "time": "2023-10-13T12:30:30+00:00"
+            "time": "2023-10-13T15:51:58+00:00"
         },
         {
             "name": "neitanod/forceutf8",
