@@ -7,6 +7,7 @@
 This release is the first in a larger project to make the package
 more modular. The core classes have been split into a separate
 repository, which is now a dependency of this package. 
+**This is entirely backwards compatible.**
 
 The aim is to make it possible to choose which AppUtil utilities 
 to use, without unnecessarily splitting the code base. This package
