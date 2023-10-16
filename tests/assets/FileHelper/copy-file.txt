@@ -1,2 +1,0 @@
-File used to test copying
-files using FileInfo.

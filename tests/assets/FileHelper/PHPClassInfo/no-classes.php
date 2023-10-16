@@ -1,6 +1,0 @@
-<?php
-
-function NoClassesFunction() : void
-{
-    
-}
