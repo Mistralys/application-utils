@@ -1,6 +1,32 @@
-### v3.0.0 - Split core
-- Project: Split core classes into a separate GIT repository.
+### v3.0.0 - Split core (deprecation)
+- Code Base: Split core classes into a separate GIT repository.
 - Dependencies: Added `mistralys/application-utils-core`.
+
+### Structural changes
+
+This release is the first in a larger project to make the package
+more modular. The core classes have been split into a separate
+repository, which is now a dependency of this package. 
+
+The aim is to make it possible to choose which AppUtil utilities 
+to use, without unnecessarily splitting the code base. This package
+will stay the main entry point with the current selection of 
+utilities for the foreseeable future.
+
+It is planned to split other utilities off (like the ImageHelper), 
+but they will then become dependencies of this package to keep them
+available. They will be installable separately, however.
+
+### Deprecation changes
+
+- The `Interface_Stringable` has been renamed to `StringableInterface`.
+- The `Interface_Optionable` has been renamed to `OptionableInterface`.
+- The `Interface_Classable` has been renamed to `ClassableInterface`.
+- The `ConvertHelper_ThrowableInfo` class has been renamed to `ThrowableInfo`.
+
+For all of these interfaces and traits, the old versions are still
+available to help with the migration. They will be removed in a future
+release.
 
 ### v2.5.0 - Microtime Time Zones support
 - Microtime: Now detecting nanoseconds independently of formatting.
