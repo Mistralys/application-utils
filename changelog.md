@@ -1,3 +1,6 @@
+### v3.0.2 - ImageHelper fix
+- ImageHelper: Allow passing 0 to a `resample()` argument instead of `NULL`.
+
 ### v3.0.1 - ImageHelper SVG fix
 - ImageHelper: Fixed SVG image size detection when no document size is present.
 
