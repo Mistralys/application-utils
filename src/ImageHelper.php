@@ -1493,10 +1493,7 @@ class ImageHelper
 	            self::ERROR_SVG_SOURCE_VIEWBOX_MISSING
             );
 	    }
-	    
-	    $svgWidth = parseNumber($data['@attributes']['width'])->getNumber();
-	    $svgHeight = parseNumber($data['@attributes']['height'])->getNumber();
-	    
+
 	    $viewBox = str_replace(' ', ',', $data['@attributes']['viewBox']);
 	    $size = explode(',', $viewBox);
 	    
@@ -1515,8 +1512,18 @@ class ImageHelper
 	    
 	    $boxWidth = (float)$size[2];
 	    $boxHeight = (float)$size[3];
-	    
-	    // calculate the x and y units of the document: 
+
+        // Use the box width and height as default for the SVG size
+        $svgHeight = $boxHeight;
+        $svgWidth = $boxWidth;
+
+        // Use the SVg size if available (it is not mandatory)
+        if(!empty($data['@attributes']['width']) && !empty($data['@attributes']['height'])) {
+            $svgWidth = parseNumber($data['@attributes']['width'])->getNumber();
+            $svgHeight = parseNumber($data['@attributes']['height'])->getNumber();
+        }
+
+        // calculate the x and y units of the document:
 	    // @see http://tutorials.jenkov.com/svg/svg-viewport-view-box.html#viewbox
 	    //
 	    // The viewbox combined with the width and height of the svg

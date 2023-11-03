@@ -78,6 +78,14 @@ final class ImageHelperTest extends TestCase
             'transparency' => false,
             'bits' => 8
         ),
+        array(
+            'file' => 'test-image-no-width.svg',
+            'type' => 'svg',
+            'size' => array(210, 297),
+            'isVector' => true,
+            'transparency' => false,
+            'bits' => 8
+        )
     );
 
     /**
