@@ -1,3 +1,6 @@
+### v3.0.1 - ImageHelper SVG fix
+- ImageHelper: Fixed SVG image size detection when no document size is present.
+
 ### v3.0.0 - Split core (deprecation)
 - Code Base: Split core classes into a separate GIT repository.
 - Dependencies: Added `mistralys/application-utils-core`.
