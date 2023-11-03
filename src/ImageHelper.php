@@ -555,6 +555,9 @@ class ImageHelper
         if($this->isVector()) {
             return $this;
         }
+
+        if($width <= 0) { $width = null; }
+        if($height <= 0) { $height = null; }
         
         if ($width === null && $height === null) {
             return $this->resampleByWidth($this->width);

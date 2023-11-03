@@ -23,13 +23,20 @@ use const TESTS_ROOT;
 final class ImageHelperTest extends TestCase
 {
     // region: _Tests
+    public const TEST_IMAGE_JPG = 'test-image.jpg';
+    public const TEST_IMAGE_8_BIT_PNG = 'test-image-8-bit.png';
+    public const TEST_IMAGE_8_BIT_TRANSPARENT_PNG = 'test-image-8-bit-transparent.png';
+    public const TEST_IMAGE_24_BIT_PNG = 'test-image-24-bit.png';
+    public const TEST_IMAGE_24_BIT_TRANSPARENT_PNG = 'test-image-24-bit-transparent.png';
+    public const TEST_IMAGE_SVG = 'test-image.svg';
+    public const TEST_IMAGE_NO_WIDTH_SVG = 'test-image-no-width.svg';
 
     /**
      * @var array<int,array<string,mixed>>
      */
     protected $testImages = array(
         array(
-            'file' => 'test-image.jpg',
+            'file' => self::TEST_IMAGE_JPG,
             'type' => 'jpeg',
             'size' => array(272, 158),
             'isVector' => false,
@@ -38,7 +45,7 @@ final class ImageHelperTest extends TestCase
             'resample' => array(100, 58)
         ),
         array(
-            'file' => 'test-image-8-bit.png',
+            'file' => self::TEST_IMAGE_8_BIT_PNG,
             'type' => 'png',
             'size' => array(272, 158),
             'isVector' => false,
@@ -47,7 +54,7 @@ final class ImageHelperTest extends TestCase
             'resample' => array(100, 58)
         ),
         array(
-            'file' => 'test-image-8-bit-transparent.png',
+            'file' => self::TEST_IMAGE_8_BIT_TRANSPARENT_PNG,
             'type' => 'png',
             'size' => array(272, 158),
             'isVector' => false,
@@ -55,7 +62,7 @@ final class ImageHelperTest extends TestCase
             'bits' => 8
         ),
         array(
-            'file' => 'test-image-24-bit.png',
+            'file' => self::TEST_IMAGE_24_BIT_PNG,
             'type' => 'png',
             'size' => array(272, 158),
             'isVector' => false,
@@ -63,7 +70,7 @@ final class ImageHelperTest extends TestCase
             'bits' => 8
         ),
         array(
-            'file' => 'test-image-24-bit-transparent.png',
+            'file' => self::TEST_IMAGE_24_BIT_TRANSPARENT_PNG,
             'type' => 'png',
             'size' => array(272, 158),
             'isVector' => false,
@@ -71,7 +78,7 @@ final class ImageHelperTest extends TestCase
             'bits' => 8
         ),
         array(
-            'file' => 'test-image.svg',
+            'file' => self::TEST_IMAGE_SVG,
             'type' => 'svg',
             'size' => array(210, 297),
             'isVector' => true,
@@ -79,7 +86,7 @@ final class ImageHelperTest extends TestCase
             'bits' => 8
         ),
         array(
-            'file' => 'test-image-no-width.svg',
+            'file' => self::TEST_IMAGE_NO_WIDTH_SVG,
             'type' => 'svg',
             'size' => array(210, 297),
             'isVector' => true,
@@ -299,6 +306,19 @@ final class ImageHelperTest extends TestCase
         $this->assertSame(24, $result->getHeight());
     }
 
+    /**
+     * BUG: Setting the height to 0 should not cause a PHP error.
+     * It should be equivalent to setting it to NULL.
+     */
+    public function test_resizeByWidthZero() : void
+    {
+        $helper = $this->createTestImage(self::TEST_IMAGE_JPG);
+
+        $helper->resample(300, 0);
+
+        $this->addToAssertionCount(1);
+    }
+
     public function test_resizeByHeight() : void
     {
         $size = imgSize(40, 100);
@@ -395,6 +415,16 @@ final class ImageHelperTest extends TestCase
         {
             $this->testImages[$idx]['path'] = $this->dataPath . '/' . $entry['file'];
         }
+    }
+
+    protected function createTestImage(string $imageName) : ImageHelper
+    {
+        return ImageHelper::createFromFile($this->getTestImagePath($imageName));
+    }
+
+    protected function getTestImagePath(string $imageName) : string
+    {
+        return $this->dataPath.'/'.$imageName;
     }
 
     // endregion
