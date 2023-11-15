@@ -4,6 +4,7 @@
 - PaginationHelper: Added `getItemsPerPage()`.
 - PaginationHelper: Added `factory()` method to make chaining easier.
 - PaginationHelper: Added `setCurrentPage()`, so it is not mandatory to instantiate the class.
+- Tests: Renamed the `testsuites` folder for correct namespacing.
 
 ### v3.0.2 - ImageHelper fix
 - ImageHelper: Allow passing 0 to a `resample()` argument instead of `NULL`.
