@@ -15,7 +15,7 @@ namespace AppUtils;
 /**
  * Simple pagination calculator that can be used to
  * determine previous / next pages depending on the
- * amount of items.
+ * number of items.
  * 
  * @access public
  * @package Application Utils
@@ -24,57 +24,23 @@ namespace AppUtils;
  */
 class PaginationHelper
 {
-   /**
-    * @var int
-    */
-    protected $total;
-    
-   /**
-    * @var int
-    */
-    protected $perPage;
-    
-   /**
-    * @var int
-    */
-    protected $current;
-    
-   /**
-    * @var int
-    */
-    protected $next = 0;
-    
-   /**
-    * @var int
-    */
-    protected $prev = 0;
-    
-   /**
-    * @var int
-    */
-    protected $last = 0; 
-    
-   /**
-    * @var int
-    */
-    protected $adjacentPages = 3;
-    
-   /**
-    * @var int
-    */
-    protected $offsetEnd = 0;
-    
-   /**
-    * @var int
-    */
-    protected $offsetStart = 0;
-    
-   /**
-    * @param int $totalItems The total amount of items available.
+    protected int $total;
+    protected int $perPage;
+    protected int $current;
+    protected int $next = 0;
+    protected int $prev = 0;
+    protected int $last = 0;
+    protected int $adjacentPages = 3;
+    protected int $offsetEnd = 0;
+    protected int $offsetStart = 0;
+    protected array $debug;
+
+    /**
+    * @param int $totalItems The total number of items available.
     * @param int $itemsPerPage How many items to display per page.
-    * @param int $currentPage The current page number (1-based)
+    * @param int $currentPage The current page number (1-based). Defaults to 1.
     */
-    public function __construct(int $totalItems, int $itemsPerPage, int $currentPage)
+    public function __construct(int $totalItems, int $itemsPerPage, int $currentPage=1)
     {
         $this->total = $totalItems;
         $this->perPage = $itemsPerPage;
@@ -82,10 +48,50 @@ class PaginationHelper
         
         $this->calculate();
     }
+
+    /**
+     * Creates an instance of the helper. Useful for chaining methods.
+     *
+     * @param int $totalItems
+     * @param int $itemsPerPage
+     * @param int $currentPage
+     * @return PaginationHelper
+     */
+    public static function factory(int $totalItems, int $itemsPerPage, int $currentPage=1) : PaginationHelper
+    {
+        return new PaginationHelper($totalItems, $itemsPerPage, $currentPage);
+    }
+
+    /**
+     * Sets/updates the current page number.
+     *
+     * NOTE: Causes all calculations to be run again.
+     *
+     * @param int $page
+     * @return $this
+     */
+    public function setCurrentPage(int $page) : self
+    {
+        $this->current = $page;
+
+        $this->calculate();
+
+        return $this;
+    }
+
+    public function getTotalItems() : int
+    {
+        return $this->total;
+    }
+
+    public function getItemsPerPage() : int
+    {
+        return $this->perPage;
+    }
     
    /**
-    * Sets the amount of adjacent pages to display next to the
-    * current one when using the pages list.
+    * Sets the number of adjacent pages to display next to the
+    * current one when using the page list.
     *
     * @param int $amount
     * @return PaginationHelper
@@ -152,9 +158,18 @@ class PaginationHelper
     {
         return $this->last;
     }
+
+    /**
+     * Alias for {@see self::getLastPage()}.
+     * @return int
+     */
+    public function getTotalPages() : int
+    {
+        return $this->getLastPage();
+    }
     
    /**
-    * Whether there is more than one page, i.e. whether
+    * Whether there is more than one page, i.e., whether
     * pagination is required at all.
     *  
     * @return bool
@@ -180,34 +195,23 @@ class PaginationHelper
         $adjacent = $this->adjacentPages;
 
         // adjust the adjacent value if it exceeds the
-        // total amount of pages
+        // total number of pages
         $adjacentTotal = ($adjacent * 2) + 1;
         if($adjacentTotal > $this->last) 
         {
             $adjacent = (int)floor($this->last / 2);
         }
         
-        // determine the maximum amount of 
+        // determine the maximum number of
         // pages that one can go forward or
         // back from the current position.
         $maxBack = $this->current - 1;
         $maxFwd = $this->last - $this->current;
-        $back = 0;
-        $fwd = 0;
+
+        $back = min($maxBack, $adjacent);
+        $fwd = min($maxFwd, $adjacent);
         
-        if($maxBack >= $adjacent) {
-            $back = $adjacent; 
-        } else {
-            $back = $maxBack;
-        }
-        
-        if($maxFwd >= $adjacent)  {
-            $fwd = $adjacent;
-        } else {
-            $fwd = $maxFwd;
-        }
-        
-        // now calculate the amount of pages to add
+        // now calculate the number of pages to add
         // left or right, depending on whether we
         // are at the beginning of the list, or at
         // the end.
@@ -227,12 +231,11 @@ class PaginationHelper
         // failsafe so we stay within the bounds
         if($prev < 1) { $prev = 1; }
         if($next > $this->last) { $next = $this->last; }
-        
+
         // create and return the page numbers list
         $numbers = range($prev, $next);
 
-        /*
-        print_r(array(
+        $this->debug = array(
             'current' => $this->current,
             'totalPages' => $this->last,
             'adjacent' => $adjacent,
@@ -245,9 +248,36 @@ class PaginationHelper
             'prev' => $prev,
             'next' => $next,
             'numbers' => $numbers
-        ));*/
+        );
         
         return $numbers;
+    }
+
+    /**
+     * Echos debugging information with details on the
+     * calculations performed internally.
+     *
+     * NOTE: Automatically switches to HTML output if
+     * the script is not running in CLI mode.
+     *
+     * @return void
+     */
+    public function dump() : void
+    {
+        if(!isCLI()) {
+            echo
+                '<pre>'.
+                'PaginationHelper Debug:<br>'.
+                print_r($this->debug, true).
+                '</pre>';
+            return;
+        }
+
+        echo
+            PHP_EOL.
+            'PaginationHelper Debug:'.PHP_EOL.
+            print_r($this->debug, true).
+            PHP_EOL;
     }
     
    /**
