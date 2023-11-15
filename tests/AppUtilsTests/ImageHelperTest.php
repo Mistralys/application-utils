@@ -6,12 +6,10 @@
 
 declare(strict_types=1);
 
-namespace testsuites;
+namespace AppUtilsTests;
 
-use AppUtils\ImageHelper_Size;
 use AppUtils\RGBAColor\ColorFactory;
 use PHPUnit\Framework\TestCase;
-
 use AppUtils\ImageHelper;
 use function AppUtils\RGBAColor\imgSize;
 use const TESTS_ROOT;

@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace testsuites;
+namespace AppUtilsTests;
 
 use AppUtils\CSVHelper;
-use AppUtils\FileHelper;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 

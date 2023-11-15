@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace testsuites;
+namespace AppUtilsTests;
 
 use AppUtils\LipsumHelper;
 use TestClasses\BaseTestCase;

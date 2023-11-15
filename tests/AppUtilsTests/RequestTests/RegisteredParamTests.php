@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace AppUtilsTests\TestSuites\RequestTests;
+namespace AppUtilsTests\RequestTests;
 
 use AppUtils\Request;
-use AppUtils\Request\RequestParam;
 use AppUtilsTests\TestClasses\RequestTestCase;
 use stdClass;
 
@@ -424,7 +423,7 @@ final class RegisteredParamTests extends RequestTestCase
         $this->assertEquals(array(89), $value, 'Combination failed');
     }
 
-    public function test_combination_commaseparated_valuesList() : void
+    public function test_combination_comma_separated_valuesList() : void
     {
         $request = new Request();
 
@@ -694,7 +693,7 @@ final class RegisteredParamTests extends RequestTestCase
         }
     }
 
-    public function test_combination_commaseparated_callback() : void
+    public function test_combination_comma_separated_callback() : void
     {
         $request = new Request();
 

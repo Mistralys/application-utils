@@ -1,13 +1,15 @@
 <?php
 
-namespace RequestTests;
+declare(strict_types=1);
+
+namespace AppUtilsTests\RequestTests;
 
 use AppUtils\Request;
 use PHPUnit\Framework\TestCase;
 
 final class RefreshParamsTest extends TestCase
 {
-    private $request;
+    private Request $request;
     
     protected function setUp() : void
     {

@@ -1,6 +1,8 @@
 <?php
 
-namespace RequestTests;
+declare(strict_types=1);
+
+namespace AppUtilsTests\RequestTests;
 
 use AppUtils\Request;
 use AppUtils\Request_AcceptHeaders;
@@ -172,7 +174,7 @@ final class RequestTest extends RequestTestCase
     
    /**
     * Checking if a parameter exists depending on the
-    * kind of value it is set to.
+    * kind of value.
     * 
     * @see Request::getParam()
     */

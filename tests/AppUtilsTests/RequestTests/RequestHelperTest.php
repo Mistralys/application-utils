@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace RequestTests;
+namespace AppUtilsTests\RequestTests;
 
 use AppUtils\ConvertHelper\JSONConverter;
 use AppUtils\RequestHelper;
