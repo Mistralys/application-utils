@@ -1,3 +1,48 @@
+### v3.0.3 - Pagination helper update
+- PaginationHelper: Added `getTotalItems()`.
+- PaginationHelper: Added `getTotalPages()`.
+- PaginationHelper: Added `getItemsPerPage()`.
+- PaginationHelper: Added `factory()` method to make chaining easier.
+- PaginationHelper: Added `setCurrentPage()`, so it is not mandatory to instantiate the class.
+- Tests: Renamed the `testsuites` folder for correct namespacing.
+
+### v3.0.2 - ImageHelper fix
+- ImageHelper: Allow passing 0 to a `resample()` argument instead of `NULL`.
+
+### v3.0.1 - ImageHelper SVG fix
+- ImageHelper: Fixed SVG image size detection when no document size is present.
+
+### v3.0.0 - Split core (deprecation)
+- Code Base: Split core classes into a separate GIT repository.
+- Dependencies: Added `mistralys/application-utils-core`.
+
+### Structural changes
+
+This release is the first in a larger project to make the package
+more modular. The core classes have been split into a separate
+repository, which is now a dependency of this package. 
+**This is entirely backwards compatible.**
+
+The aim is to make it possible to choose which AppUtil utilities 
+to use, without unnecessarily splitting the code base. This package
+will stay the main entry point with the current selection of 
+utilities for the foreseeable future.
+
+It is planned to split other utilities off (like the ImageHelper), 
+but they will then become dependencies of this package to keep them
+available. They will be installable separately, however.
+
+### Deprecation changes
+
+- The `Interface_Stringable` has been renamed to `StringableInterface`.
+- The `Interface_Optionable` has been renamed to `OptionableInterface`.
+- The `Interface_Classable` has been renamed to `ClassableInterface`.
+- The `ConvertHelper_ThrowableInfo` class has been renamed to `ThrowableInfo`.
+
+For all of these interfaces and traits, the old versions are still
+available to help with the migration. They will be removed in a future
+release.
+
 ### v2.5.0 - Microtime Time Zones support
 - Microtime: Now detecting nanoseconds independently of formatting.
 - Microtime: Added time zone recognition.

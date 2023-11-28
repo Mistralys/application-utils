@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="StyleCollectionTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
     <CommandLine workingDirectory="$PROJECT_DIR$" />
-    <TestRunner bootstrap_file="$PROJECT_DIR$/tests/bootstrap.php" class="StyleCollectionTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/testsuites/StyleCollectionTest.php" scope="Class" use_alternative_bootstrap_file="true" />
+    <TestRunner bootstrap_file="$PROJECT_DIR$/tests/bootstrap.php" class="StyleCollectionTest" configuration_file="$PROJECT_DIR$/phpunit.xml" file="$PROJECT_DIR$/tests/AppUtilsTests/StyleCollectionTest.php" scope="Class" use_alternative_bootstrap_file="true" />
     <method v="2" />
   </configuration>
 </component>

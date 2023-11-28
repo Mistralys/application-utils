@@ -10,7 +10,7 @@
          bootstrap="tests/bootstrap.php">
     <testsuites>
         <testsuite name="Application Utils Tests">
-            <directory suffix=".php">./tests/testsuites</directory>
+            <directory suffix=".php">./tests/AppUtilsTests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

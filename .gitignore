@@ -9,3 +9,4 @@ docs/libxml/LibXML.php
 .idea
 composer.phar
 docs/result.txt
+/tests/phpstan/result.txt
