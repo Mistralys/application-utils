@@ -33,6 +33,10 @@ class PaginationHelper
     protected int $adjacentPages = 3;
     protected int $offsetEnd = 0;
     protected int $offsetStart = 0;
+
+    /**
+     * @var array<string,int|int[]>
+     */
     protected array $debug;
 
     /**
@@ -208,8 +212,8 @@ class PaginationHelper
         $maxBack = $this->current - 1;
         $maxFwd = $this->last - $this->current;
 
-        $back = min($maxBack, $adjacent);
-        $fwd = min($maxFwd, $adjacent);
+        $back = (int)min($maxBack, $adjacent);
+        $fwd = (int)min($maxFwd, $adjacent);
         
         // now calculate the number of pages to add
         // left or right, depending on whether we

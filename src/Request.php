@@ -86,7 +86,7 @@ class Request
      * the specified default value is returned.
      *
      * @param string $name
-     * @param string|array|int|float|NULL $default
+     * @param string|array<mixed>|int|float|bool|NULL $default
      * @return mixed|NULL
      */
     public function getParam(string $name, $default = null)
@@ -101,7 +101,7 @@ class Request
     }
 
     /**
-     * @return array<string,string|array>
+     * @return array<string,string|array<mixed>>
      */
     public function getParams() : array
     {

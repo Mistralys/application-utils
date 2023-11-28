@@ -12,6 +12,7 @@ namespace AppUtils\ImageHelper;
 use AppUtils\ImageHelper;
 use AppUtils\ImageHelper_Exception;
 use AppUtils\RGBAColor;
+use AppUtils\RGBAColor\ColorException;
 use AppUtils\RGBAColor\ColorFactory;
 use GdImage;
 
@@ -86,6 +87,11 @@ class ImageTrimmer
         return null;
     }
 
+    /**
+     * @return resource|GdImage
+     * @throws ImageHelper_Exception
+     * @throws ColorException
+     */
     public function trim()
     {
         // Get the image width and height.

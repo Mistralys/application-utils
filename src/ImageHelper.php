@@ -1077,10 +1077,6 @@ class ImageHelper
         $trimmer = new ImageTrimmer($this, $img, $trimColor);
         $new = $trimmer->trim();
 
-        if($new === null) {
-            return $this;
-        }
-        
         // To finish up, we replace the old image which is referenced.
         imagedestroy($img);
         
@@ -1143,7 +1139,7 @@ class ImageHelper
     * @param int $width
     * @param int $height
     * @throws ImageHelper_Exception
-    * @return resource
+    * @return resource|GdImage
     */
     public function createNewImage(int $width, int $height)
     {
