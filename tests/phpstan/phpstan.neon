@@ -3,7 +3,6 @@ parameters:
         - ./constants.php
     excludePaths:
         - ../../css/*
-        - ../../src/SVNHelper/*
     paths:
         - ../../src
         - ../../tests
