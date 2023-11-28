@@ -15,4 +15,4 @@ declare(strict_types=1);
 * webserver: required to enable request helper tests
 * for sending files and the like.
 */
-const TESTS_WEBSERVER_URL = 'http://127.0.0.1/svn/tools/application-utils/tests/';
+const TESTS_WEBSERVER_URL = 'http://127.0.0.1/application-utils/tests/';
