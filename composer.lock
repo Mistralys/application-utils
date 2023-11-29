@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ca5f1dda5404457369fe72ab18607a1b",
+    "content-hash": "3f3f6947a1f82d8af0bb05fc48329f71",
     "packages": [
         {
             "name": "geshi/geshi",
@@ -54,16 +54,16 @@
         },
         {
             "name": "mistralys/application-utils-core",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Mistralys/application-utils-core.git",
-                "reference": "d9898db3253f7a0d205cb6390abcb11b3bd2ba10"
+                "reference": "0f12782901c75137d4cb9bc262ab804715fa45fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Mistralys/application-utils-core/zipball/d9898db3253f7a0d205cb6390abcb11b3bd2ba10",
-                "reference": "d9898db3253f7a0d205cb6390abcb11b3bd2ba10",
+                "url": "https://api.github.com/repos/Mistralys/application-utils-core/zipball/0f12782901c75137d4cb9bc262ab804715fa45fb",
+                "reference": "0f12782901c75137d4cb9bc262ab804715fa45fb",
                 "shasum": ""
             },
             "require": {
@@ -106,9 +106,9 @@
             "description": "Drop-in utilities for PHP applications.",
             "support": {
                 "issues": "https://github.com/Mistralys/application-utils-core/issues",
-                "source": "https://github.com/Mistralys/application-utils-core/tree/1.0.2"
+                "source": "https://github.com/Mistralys/application-utils-core/tree/1.0.3"
             },
-            "time": "2023-11-28T15:38:00+00:00"
+            "time": "2023-11-28T20:25:05+00:00"
         },
         {
             "name": "neitanod/forceutf8",
