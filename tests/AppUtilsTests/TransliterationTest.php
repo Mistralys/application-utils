@@ -1,10 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
+namespace AppUtilsTests;
+
+use AppUtils\ConvertHelper;
 use PHPUnit\Framework\TestCase;
 
 final class TransliterationTest extends TestCase
 {
-    public function testFrench()
+    public function testFrench() : void
     {
         $tests = array(
             array(
@@ -43,10 +48,9 @@ final class TransliterationTest extends TestCase
                 'expected' => ''
             )
         );
-        
-        foreach($tests as $test)
-        {
-            $result = \AppUtils\ConvertHelper::transliterate($test['text']);
+
+        foreach ($tests as $test) {
+            $result = ConvertHelper::transliterate($test['text']);
             $this->assertEquals($test['expected'], $result, $test['label']);
         }
     }
