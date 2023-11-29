@@ -1,3 +1,6 @@
+### v3.0.5 - Maintenance release
+- Code: PHPStan analysis now clean up to level 6, including tests.
+
 ### v3.0.4 - Core update
 - Core: Updated core to [v1.0.3](https://github.com/Mistralys/application-utils-core/releases/tag/1.0.3).
 
