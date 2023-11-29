@@ -10,6 +10,9 @@ use AppUtils\PaginationHelper;
 
 final class PaginationHelperTests extends TestCase
 {
+    /**
+     * @var array<int,array<string,string|int|bool>>
+     */
     protected array $tests = array(
         array(
             'label' => 'No pagination required',
@@ -156,7 +159,7 @@ final class PaginationHelperTests extends TestCase
         )
     );
 
-    public function test_calculation()
+    public function test_calculation() : void
     {
         foreach ($this->tests as $def) {
             $pager = new PaginationHelper(

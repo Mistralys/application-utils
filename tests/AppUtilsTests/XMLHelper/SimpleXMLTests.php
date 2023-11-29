@@ -12,14 +12,14 @@ use AppUtils\XMLHelper_Exception;
 
 final class SimpleXMLTests extends TestCase
 {
-    public function test_create()
+    public function test_create() : void
     {
         $simple = XMLHelper::createSimplexml();
 
         $this->assertInstanceOf(XMLHelper_SimpleXML::class, $simple);
     }
 
-    public function test_loadString()
+    public function test_loadString() : void
     {
         $xmlString =
             '<?xml version="1.0" encoding="UTF-8"?>
@@ -37,7 +37,7 @@ final class SimpleXMLTests extends TestCase
 
     }
 
-    public function test_loadError()
+    public function test_loadError() : void
     {
         $xmlString =
             '<?xml version="1.0" encoding="UTF-8"?>
@@ -56,7 +56,7 @@ final class SimpleXMLTests extends TestCase
      * internal errors setting: it should not be
      * true after loading the XML source.
      */
-    public function test_restoreLibxmlErrorSettings()
+    public function test_restoreLibxmlErrorSettings() : void
     {
         libxml_use_internal_errors(false);
 
@@ -74,7 +74,7 @@ final class SimpleXMLTests extends TestCase
         $this->assertFalse($setting);
     }
 
-    public function test_getErrorsBeforeLoad()
+    public function test_getErrorsBeforeLoad() : void
     {
         $simple = XMLHelper::createSimplexml();
 

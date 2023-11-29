@@ -18,6 +18,10 @@ abstract class RequestTestCase extends BaseTestCase
         $_REQUEST = array();
     }
 
+    /**
+     * @param mixed $value
+     * @return string
+     */
     protected function setUniqueParam($value) : string
     {
         $name = $this->generateUniqueParamName();
