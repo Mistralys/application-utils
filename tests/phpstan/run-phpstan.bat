@@ -2,7 +2,7 @@
 
 cls 
 
-set AnalysisLevel=6
+set AnalysisLevel=7
 set OutputFile=./result.txt
 set ConfigFile=./phpstan.neon
 set BinFolder=../../vendor/bin
