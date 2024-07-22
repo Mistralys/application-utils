@@ -15,8 +15,7 @@
     {
         "files" :
         [
-            "src/functions.php",
-            "src/ImageHelper/ImageFunctions.php"
+            "src/functions.php"
         ],
         "classmap" : 
         [
@@ -34,12 +33,12 @@
     "require" : 
     {
         "mistralys/application-utils-core": ">=1.0.3",
+        "mistralys/application-utils-image": ">=1.0.0",
         "parsecsv/php-parsecsv" : ">=1.3",
         "php": ">=7.4",
         "ext-mbstring": "*",
         "ext-curl": "*",
         "ext-json": "*",
-        "ext-gd": "*",
         "ext-simplexml": "*",
         "ext-dom": "*",
         "ext-zip": "*",
