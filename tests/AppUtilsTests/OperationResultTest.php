@@ -10,6 +10,8 @@ use PHPUnit\Framework\TestCase;
 use AppUtils\OperationResult;
 use AppUtils\OperationResult_Collection;
 use stdClass;
+use function AppUtils\operationCollection;
+use function AppUtils\operationResult;
 
 final class OperationResultTest extends TestCase
 {
@@ -249,5 +251,79 @@ final class OperationResultTest extends TestCase
         $notice = array_pop($notices);
 
         $this->assertEquals('Notice', $notice->getNoticeMessage());
+    }
+
+    public function test_multipleIdenticalMessagesIncreaseCount() : void
+    {
+        $result = new OperationResult_Collection(new stdClass());
+
+        $result->makeNotice('Notice', 42);
+        $result->makeNotice('Notice', 42);
+        $result->makeNotice('Notice', 42);
+        $result->makeNotice('Notice', 42);
+        $result->makeNotice('Notice', 42);
+
+        $notices = $result->getNotices();
+
+        $this->assertCount(1, $notices);
+        $this->assertSame(1, $result->countNotices());
+        $this->assertSame(5, $notices[0]->getCount());
+    }
+
+    public function test_operationLabel() : void
+    {
+        $result = operationResult(new stdClass(), 'Label');
+
+        $this->assertSame('Label', $result->getLabel());
+
+        $result->setLabel('New label');
+
+        $this->assertSame('New label', $result->getLabel());
+    }
+
+    public function test_summary() : void
+    {
+        $result = operationCollection(new stdClass(), 'Some label');
+        $result->makeNotice('Notice', 42001);
+        $result->makeError('Error', 42002);
+        $result->makeSuccess('Success', 42003);
+        $result->makeWarning('Warning', 42004);
+
+        $summary = $result->getSummary();
+
+        $this->assertStringContainsString('Some label', $summary);
+        $this->assertStringContainsString('Notice', $summary);
+        $this->assertStringContainsString('Error', $summary);
+        $this->assertStringContainsString('Success', $summary);
+        $this->assertStringContainsString('Warning', $summary);
+        $this->assertStringContainsString('stdClass', $summary);
+        $this->assertStringContainsString((string)$result->getID(), $summary);
+        $this->assertStringContainsString('42001', $summary);
+        $this->assertStringContainsString('42002', $summary);
+        $this->assertStringContainsString('42003', $summary);
+        $this->assertStringContainsString('42004', $summary);
+    }
+
+    public function test_summaryHTML() : void
+    {
+        $result = operationCollection(new stdClass(), 'Some label');
+        $result->makeNotice('Notice', 42001);
+        $result->makeError('Error', 42002);
+        $result->makeSuccess('Success', 42003);
+        $result->makeWarning('Warning', 42004);
+
+        $summary = $result->getSummaryHTML();
+
+        $this->assertStringContainsString('Some label', $summary);
+        $this->assertStringContainsString('Notice', $summary);
+        $this->assertStringContainsString('Error', $summary);
+        $this->assertStringContainsString('Success', $summary);
+        $this->assertStringContainsString('Warning', $summary);
+        $this->assertStringContainsString('stdClass', $summary);
+        $this->assertStringContainsString((string)$result->getID(), $summary);
+        $this->assertStringContainsString('42001', $summary);
+        $this->assertStringContainsString('42002', $summary);
+        $this->assertStringContainsString('42003', $summary);
+        $this->assertStringContainsString('42004', $summary);
     }
 }
