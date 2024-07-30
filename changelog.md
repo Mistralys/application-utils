@@ -4,6 +4,7 @@
 - OperationResult: Added `getCodes()` to the collection.
 - OperationResult: Added `getTypeLabel()`.
 - OperationResult: Added the possibility to add an operation label. 
+- OperationResult: Added global functions `operationResult()` and `operationCollection()`.
 
 ## v3.0.5 - Maintenance release
 - Code: PHPStan analysis now clean up to level 6, including tests.
