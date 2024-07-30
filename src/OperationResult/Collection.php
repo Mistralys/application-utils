@@ -1,10 +1,7 @@
 <?php
 /**
- * File containing the {@link OperationResult_Collection} class.
- *
  * @package Application Utils
  * @subpackage OperationResult
- * @see OperationResult_Collection
  */
 
 declare(strict_types=1);
@@ -12,79 +9,102 @@ declare(strict_types=1);
 namespace AppUtils;
 
 /**
- * Storage for several operation result instances, that acts
+ * Storage for several operation result instances which acts
  * as a regular operation result. 
  * 
- * Can be used as replacement result object, which will catch 
- * all makeError() and makeSuccess() calls as separate error
- * or success instances. Adding a collection to a collection
- * will make it inherit all results the target collection contains.
+ * Can be used as a replacement result object, which will catch
+ * all {@see self::makeError()} and {@see self::makeSuccess()}
+ * calls as separate error or success instances. Adding a collection
+ * to a collection will make it inherit all results the target
+ * collection contains.
  *
  * @package Application Utils
  * @subpackage OperationResult
- * @author Sebastian Mordziol <s.mordziol@mistralys.eu>
  */
 class OperationResult_Collection extends OperationResult
 {
    /**
-    * @var OperationResult[]
+    * @var array<string,OperationResult>
     */
-    protected $results = array();
+    protected array $results = array();
 
     /**
+     * @var int[]
+     */
+    protected array $codes = array();
+
+    /**
+     * Adds an error message to the collection and returns it.
+     *
      * @param string $message
      * @param int $code
-     * @return $this
+     * @return OperationResult Note: This is not the collection instance.
      */
     public function makeError(string $message, int $code=0) : OperationResult
     {
-        return $this->add('makeError', $message, $code);
+        return $this->add(OperationResult::TYPE_ERROR, $message, $code);
     }
 
     /**
      * @param string $message
      * @param int $code
-     * @return $this
+     * @return OperationResult Note: This is not the collection instance.
      */
     public function makeSuccess(string $message, int $code=0) : OperationResult
     {
-        return $this->add('makeSuccess', $message, $code);
+        return $this->add(OperationResult::TYPE_SUCCESS, $message, $code);
     }
 
     /**
      * @param string $message
      * @param int $code
-     * @return $this
+     * @return OperationResult Note: This is not the collection instance.
      */
     public function makeWarning(string $message, int $code=0) : OperationResult
     {
-        return $this->add('makeWarning', $message, $code);
+        return $this->add(OperationResult::TYPE_WARNING, $message, $code);
     }
 
     /**
      * @param string $message
      * @param int $code
-     * @return $this
+     * @return OperationResult Note: This is not the collection instance.
      */
     public function makeNotice(string $message, int $code=0) : OperationResult
     {
-        return $this->add('makeNotice', $message, $code);
+        return $this->add(OperationResult::TYPE_NOTICE, $message, $code);
     }
 
     /**
-     * @param string $method
+     * @param string $type
      * @param string $message
      * @param int $code
-     * @return $this
+     * @param object|null $subject
+     * @return OperationResult Note: This is not the collection instance.
      */
-    protected function add(string $method, string $message, int $code=0) : OperationResult
+    protected function add(string $type, string $message, int $code=0, ?object $subject=null) : OperationResult
     {
-        $result = new OperationResult($this->subject);
-        $result->$method($message, $code);
-        
-        $this->results[] = $result;
-        
-        return $this;
+        if($subject === null) {
+            $subject = $this->subject;
+        }
+
+        $result = new OperationResult($subject);
+        $result->setMessage($type, $message, $code);
+
+        $hash = $result->getHash();
+
+        if(!isset($this->results[$hash])) {
+            $this->results[$hash] = $result;
+        } else {
+            $this->results[$hash]->increaseCount();
+        }
+
+        $code = $result->getCode();
+        if($code !== 0 && !in_array($code, $this->codes, true)) {
+            $this->codes[] = $code;
+        }
+
+        return $result;
     }
 
     /**
@@ -95,13 +115,17 @@ class OperationResult_Collection extends OperationResult
      */
     public function addResult(OperationResult $result) : OperationResult_Collection
     {
-        if($result instanceof OperationResult_Collection)
-        {
+        if($result instanceof OperationResult_Collection) {
             return $this->importCollection($result);
         }
 
-        $this->results[] = $result;
-        
+        $this->add(
+            $result->getType(),
+            $result->getMessage($result->getType()),
+            $result->getCode(),
+            $result->getSubject()
+        );
+
         return $this;
     }
 
@@ -113,10 +137,7 @@ class OperationResult_Collection extends OperationResult
      */
     private function importCollection(OperationResult_Collection $collection) : OperationResult_Collection
     {
-        $results = $collection->getResults();
-        
-        foreach($results as $result)
-        {
+        foreach($collection->getResults() as $result) {
             $this->addResult($result);
         }
         
@@ -128,15 +149,13 @@ class OperationResult_Collection extends OperationResult
     */
     public function getResults() : array
     {
-        return $this->results;
+        return array_values($this->results);
     }
     
     public function isValid() : bool
     {
-        foreach($this->results as $result)
-        {
-            if(!$result->isValid())
-            {
+        foreach($this->results as $result) {
+            if(!$result->isValid()) {
                 return false;
             }
         }
@@ -146,56 +165,68 @@ class OperationResult_Collection extends OperationResult
     
     public function hasCode() : bool
     {
-        foreach($this->results as $result)
-        {
-            if($result->hasCode())
-            {
-                return true;
-            }
-        }
-        
-        return false;
+        return !empty($this->codes);
     }
-    
+
+    /**
+     * Fetches the first code in the collection.
+     *
+     * NOTE: This is only so the collection can act as
+     * replacement of a single {@see OperationResult}.
+     * For the collection, more useful is {@see self::containsCode()}
+     * and {@see self::getCodes()}.
+     *
+     * @return int
+     *
+     * @see self::containsCode()
+     * @see self::getCodes()
+     */
     public function getCode() : int
     {
-        foreach($this->results as $result)
-        {
-            if($result->hasCode())
-            {
-                return $result->getCode();
-            }
+        if(!empty($this->codes)) {
+            return $this->codes[0];
         }
         
         return 0;
     }
+
+    /**
+     * Gets all message codes that have been added
+     * to the collection.
+     *
+     * @return int[]
+     *
+     * @see self::containsCode()
+     */
+    public function getCodes() : array
+    {
+        sort($this->codes);
+
+        return $this->codes;
+    }
     
     public function getMessage(string $type='') : string
     {
-        foreach($this->results as $result)
-        {
+        foreach($this->results as $result) {
             $msg = $result->getMessage($type);
-            
-            if(!empty($msg))
-            {
+            if(!empty($msg)) {
                 return $msg;
             }
         }
         
         return '';
     }
-    
+
+    /**
+     * Checks whether the collection contains a message with
+     * the target code.
+     *
+     * @param int $code
+     * @return bool
+     */
     public function containsCode(int $code) : bool
     {
-        foreach($this->results as $result)
-        {
-            if($result->getCode() === $code)
-            {
-                return true;
-            }
-        }
-        
-        return false;
+        return in_array($code, $this->codes, true);
     }
     
     public function countErrors() : int
@@ -207,7 +238,7 @@ class OperationResult_Collection extends OperationResult
     {
         return $this->countByType(self::TYPE_WARNING);
     }
-    
+
     public function countSuccesses() : int
     {
         return $this->countByType(self::TYPE_SUCCESS);
@@ -222,10 +253,8 @@ class OperationResult_Collection extends OperationResult
     {
         $amount = 0;
         
-        foreach($this->results as $result)
-        {
-            if($result->isType($type))
-            {
+        foreach($this->results as $result) {
+            if ($result->isType($type)) {
                 $amount++;
             }
         }
@@ -278,11 +307,10 @@ class OperationResult_Collection extends OperationResult
     {
         $results = array();
         
-        foreach($this->results as $result)
-        {
-            if($result->isType($type))
-            {
+        foreach($this->results as $result) {
+            if($result->isType($type)) {
                 $results[] = $result;
+                break;
             }
         }
         
@@ -291,22 +319,27 @@ class OperationResult_Collection extends OperationResult
     
     public function isType(string $type) : bool
     {
-        foreach($this->results as $result)
-        {
-            if($result->isType($type))
-            {
+        foreach($this->results as $result) {
+            if($result->isType($type)) {
                 return true;
             }
         }
         
         return false;
     }
-    
+
+    /**
+     * Renders a plain text summary of all messages that were
+     * added to the collection.
+     *
+     * @return string
+     */
     public function getSummary() : string
     {
         $lines = array();
         
         $lines[] = 'Collection #'.$this->getID();
+        $lines[] = 'Label: "'.$this->getLabel().'"';
         $lines[] = 'Subject: '.get_class($this->subject);
         
         foreach($this->results as $result)
@@ -315,5 +348,59 @@ class OperationResult_Collection extends OperationResult
         }
         
         return implode(PHP_EOL, $lines);    
+    }
+
+    /**
+     * Renders an HTML summary of all messages that were
+     * added in the collection.
+     *
+     * @return string
+     * @throws OutputBuffering_Exception
+     */
+    public function getSummaryHTML() : string
+    {
+        $summary = sb()
+            ->html('<div class="operation-results">')
+            ->para(sb()
+                ->bold(t('Operation results'))->code('#'.$this->getID())
+                ->quote($this->getLabel())
+                ->nl()
+                ->add(sb()->bold('Subject:')->code(get_class($this->subject)))
+            );
+
+        if(empty($this->results))
+        {
+            $summary->para(sb()->bold(sb()->italic('('.t('No results added.'.')'))));
+        }
+        else
+        {
+            OutputBuffering::start();
+            ?>
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th><?php echo t('Type') ?></th>
+                        <th><?php echo t('Code') ?></th>
+                        <th><?php echo t('Count') ?></th>
+                        <th><?php echo t('Message') ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach($this->results as $result) { ?>
+                        <tr>
+                            <td><?php echo $result->getTypeLabel() ?></td>
+                            <td><?php echo $result->getCode() ?></td>
+                            <td><?php echo $result->getCount() ?></td>
+                            <td><?php echo $result->getMessage($result->getType()) ?></td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+            <?php
+            $summary->html(OutputBuffering::get());
+        }
+
+        return (string)$summary
+            ->html('</div>');
     }
 }
