@@ -391,7 +391,7 @@ class OperationResult_Collection extends OperationResult
                             <td><?php echo $result->getTypeLabel() ?></td>
                             <td><?php echo $result->getCode() ?></td>
                             <td><?php echo $result->getCount() ?></td>
-                            <td><?php echo $result->getMessage($result->getType()) ?></td>
+                            <td><?php echo nl2br($result->getMessage($result->getType())) ?></td>
                         </tr>
                     <?php } ?>
                 </tbody>
