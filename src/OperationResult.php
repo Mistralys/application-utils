@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace AppUtils;
 
+use AppUtils\Interfaces\StringableInterface;
 use Throwable;
 
 /**
@@ -34,53 +35,48 @@ class OperationResult
     public const TYPE_ERROR = 'error';
     public const TYPE_SUCCESS = 'success';
     
-   /**
-    * @var string
-    */
-    protected $message = '';
-    
-   /**
-    * @var bool
-    */
-    protected $valid = true;
-  
-   /**
-    * @var object
-    */
-    protected $subject;
-    
-   /**
-    * @var integer
-    */
-    protected $code = 0;
-    
-   /**
-    * @var string
-    */
-    protected $type = '';
-    
-   /**
-    * @var integer
-    */
-    private static $counter = 0;
-    
-   /**
-    * @var int
-    */
-    private $id;
-    
-   /**
+    protected string $message = '';
+    protected object $subject;
+    protected int $code = 0;
+    protected string $type = '';
+    private static int $counter = 0;
+    private int $id;
+    private int $count = 1;
+    private string $label;
+
+    /**
     * The subject being validated.
     * 
     * @param object $subject
+    * @param string|StringableInterface|NULL $label An optional human-readable label of the operation.
     */
-    public function __construct(object $subject)
+    public function __construct(object $subject, $label=null)
     {
-        $this->subject = $subject;
-        
         self::$counter++;
         
         $this->id = self::$counter;
+        $this->subject = $subject;
+
+        $this->setLabel($label);
+    }
+
+    /**
+     * The operation's human-readable label, if specified.
+     * @return string
+     */
+    public function getLabel() : string
+    {
+        return $this->label;
+    }
+
+    /**
+     * @param string|StringableInterface|NULL $label
+     * @return $this
+     */
+    public function setLabel($label) : self
+    {
+        $this->label = (string)$label;
+        return $this;
     }
     
    /**
@@ -92,6 +88,19 @@ class OperationResult
     {
         return $this->id;
     }
+
+    /**
+     * A hash of the message, used to identify duplicate messages.
+     * @return string
+     */
+    public function getHash() : string
+    {
+        return md5(serialize(array(
+            $this->code,
+            $this->type,
+            $this->message
+        )));
+    }
     
    /**
     * Whether the validation was successful.
@@ -100,7 +109,7 @@ class OperationResult
     */
     public function isValid() : bool
     {
-        return $this->valid;
+        return $this->type !== self::TYPE_ERROR;
     }
     
     public function isError() : bool
@@ -141,12 +150,12 @@ class OperationResult
    /**
     * Makes the result a success, with the specified message.
     * 
-    * @param string $message Should not contain a date, just the system specific info.
+    * @param string $message Should not contain a date, just the system-specific info.
     * @return $this
     */
     public function makeSuccess(string $message, int $code=0) : OperationResult
     {
-        return $this->setMessage(self::TYPE_SUCCESS, $message, $code, true);
+        return $this->setMessage(self::TYPE_SUCCESS, $message, $code);
     }
     
    /**
@@ -157,7 +166,7 @@ class OperationResult
     */
     public function makeError(string $message, int $code=0) : OperationResult
     {
-        return $this->setMessage(self::TYPE_ERROR, $message, $code, false);
+        return $this->setMessage(self::TYPE_ERROR, $message, $code);
     }
 
     /**
@@ -165,9 +174,9 @@ class OperationResult
      * @param int $code
      * @return $this
      */
-    public function makeNotice(string $message, int $code) : OperationResult
+    public function makeNotice(string $message, int $code=0) : OperationResult
     {
-        return $this->setMessage(self::TYPE_NOTICE, $message, $code, true);
+        return $this->setMessage(self::TYPE_NOTICE, $message, $code);
     }
 
     /**
@@ -177,29 +186,68 @@ class OperationResult
      */
     public function makeWarning(string $message, int $code) : OperationResult
     {
-        return $this->setMessage(self::TYPE_WARNING, $message, $code, true);
+        return $this->setMessage(self::TYPE_WARNING, $message, $code);
     }
 
     /**
      * @param string $type
      * @param string $message
      * @param int $code
-     * @param bool $valid
      * @return $this
      */
-    protected function setMessage(string $type, string $message, int $code, bool $valid) : OperationResult
+    public function setMessage(string $type, string $message, int $code) : OperationResult
     {
         $this->type = $type;
-        $this->valid = $valid;
         $this->message = $message;
         $this->code = $code;
         
         return $this;
     }
-    
+
+    /**
+     * The message type.
+     *
+     * @return string Can be empty if no message has been added.
+     *
+     * @see self::TYPE_NOTICE
+     * @see self::TYPE_WARNING
+     * @see self::TYPE_SUCCESS
+     * @see self::TYPE_ERROR
+     */
     public function getType() : string
     {
         return $this->type;
+    }
+
+    /**
+     * Human-readable label of the message type.
+     * @return string
+     */
+    public function getTypeLabel() : string
+    {
+        return self::getTypeLabels()[$this->type] ?? t('Message');
+    }
+
+    /**
+     * @var array<string,string>|null
+     */
+    private static ?array $typeLabels = null;
+
+    /**
+     * @return array<string,string>
+     */
+    public static function getTypeLabels() : array
+    {
+        if(!isset(self::$typeLabels)) {
+            self::$typeLabels = array(
+                self::TYPE_NOTICE => t('Notice'),
+                self::TYPE_WARNING => t('Warning'),
+                self::TYPE_ERROR => t('Error'),
+                self::TYPE_SUCCESS => t('Success')
+            );
+        }
+
+        return self::$typeLabels;
     }
     
    /**
@@ -213,7 +261,7 @@ class OperationResult
     }
     
    /**
-    * Retrieves the success message, if one has been provided.
+    * Retrieves the success message if one has been provided.
     * 
     * @return string
     */
@@ -251,13 +299,44 @@ class OperationResult
     {
         return $this->code;
     }
-    
+
+    /**
+     * The amount of times this message was triggered,
+     * in case it was triggered multiple times.
+     *
+     * @return int
+     */
+    public function getCount() : int
+    {
+        return $this->count;
+    }
+
+    /**
+     * Increases the internal counter of the number of times
+     * this message has been triggered.
+     *
+     * NOTE: This is used by the {@see OperationResult_Collection}
+     * to keep track of the number of times a message was triggered.
+     * Use {@see self::getCount()} to retrieve the count.
+     *
+     * @return $this
+     */
+    public function increaseCount() : self
+    {
+        $this->count++;
+        return $this;
+    }
+
+    /**
+     * Gets the result message if any was set.
+     *
+     * @param string $type Optional type to filter the message by.
+     * @return string An empty string if no message was set.
+     */
     public function getMessage(string $type='') : string
     {
-        if(!empty($type))
-        {
-            if($this->type === $type)
-            {
+        if(!empty($type)) {
+            if($this->type === $type) {
                 return $this->message;
             }
             
@@ -284,8 +363,7 @@ class OperationResult
     {
         $info = parseThrowable($e);
 
-        if($code === 0)
-        {
+        if($code === 0) {
             $code = $info->getCode();
         }
 
