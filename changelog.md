@@ -1,4 +1,11 @@
-### v3.0.5 - Maintenance release
+## v3.0.6 - Operation result improvements
+- OperationResult: Duplicate messages are now compressed into a single entry.
+- OperationResult: Added `getCount()` to count how many times a message has been added.
+- OperationResult: Added `getCodes()` to the collection.
+- OperationResult: Added `getTypeLabel()`.
+- OperationResult: Added the possibility to add an operation label. 
+
+## v3.0.5 - Maintenance release
 - Code: PHPStan analysis now clean up to level 6, including tests.
 
 ### v3.0.4 - Core update
