@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a693c0ba9b23f0dca8f46b332203aaa2",
+    "content-hash": "3beef2241100470b10ce53e1b0c37343",
     "packages": [
         {
             "name": "geshi/geshi",
@@ -216,16 +216,16 @@
         },
         {
             "name": "mistralys/application-utils-result-handling",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Mistralys/application-utils-result-handling.git",
-                "reference": "9242903d19754a108df5404e6627104eb6e50b4d"
+                "reference": "e63464515c75b1deda3afaf5a30070a1e69eb501"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Mistralys/application-utils-result-handling/zipball/9242903d19754a108df5404e6627104eb6e50b4d",
-                "reference": "9242903d19754a108df5404e6627104eb6e50b4d",
+                "url": "https://api.github.com/repos/Mistralys/application-utils-result-handling/zipball/e63464515c75b1deda3afaf5a30070a1e69eb501",
+                "reference": "e63464515c75b1deda3afaf5a30070a1e69eb501",
                 "shasum": ""
             },
             "require": {
@@ -239,6 +239,9 @@
             },
             "type": "library",
             "autoload": {
+                "files": [
+                    "src/global-functions.php"
+                ],
                 "classmap": [
                     "src/"
                 ]
@@ -257,9 +260,9 @@
             "description": "Classes used to store information on the results of application operations.",
             "support": {
                 "issues": "https://github.com/Mistralys/application-utils-result-handling/issues",
-                "source": "https://github.com/Mistralys/application-utils-result-handling/tree/1.0.0"
+                "source": "https://github.com/Mistralys/application-utils-result-handling/tree/1.0.1"
             },
-            "time": "2025-01-13T16:51:46+00:00"
+            "time": "2025-01-13T18:13:56+00:00"
         },
         {
             "name": "neitanod/forceutf8",

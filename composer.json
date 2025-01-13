@@ -34,7 +34,7 @@
     {
         "mistralys/application-utils-core": ">=2.2.3",
         "mistralys/application-utils-image": ">=1.1",
-        "mistralys/application-utils-result-handling": ">=1.0",
+        "mistralys/application-utils-result-handling": ">=1.0.1",
         "parsecsv/php-parsecsv" : ">=1.3",
         "php": ">=7.4",
         "ext-mbstring": "*",
