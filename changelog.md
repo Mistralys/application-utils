@@ -1,4 +1,15 @@
-### v3.0.5 - Maintenance release
+## v3.1.0 - Split off the ImageHelper
+- ImageHelper: Split it off into a separate package, `mistralys/application-utils-image`.
+- ImageHelper: Fully backwards compatible; the class is still available in this package.
+- Dependencies: Added AppUtils Image [v1.1.0](https://github.com/Mistralys/application-utils-image/releases/tag/1.1.0).
+
+## v3.0.6 - Operation result improvements
+- OperationResult: Duplicate messages are now compressed into a single entry.
+- OperationResult: Added `getCount()` to count how many times a message has been added.
+- OperationResult: Added `getCodes()` to the collection.
+- OperationResult: Added `getTypeLabel()`.
+- OperationResult: Added the possibility to add an operation label. 
+- OperationResult: Added global functions `operationResult()` and `operationCollection()`.
 - Code: PHPStan analysis now clean up to level 6, including tests.
 
 ### v3.0.4 - Core update

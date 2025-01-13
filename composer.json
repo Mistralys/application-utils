@@ -15,8 +15,7 @@
     {
         "files" :
         [
-            "src/functions.php",
-            "src/ImageHelper/ImageFunctions.php"
+            "src/functions.php"
         ],
         "classmap" : 
         [
@@ -33,8 +32,8 @@
     "prefer-stable" : true,
     "require" : 
     {
-        "mistralys/application-utils-core": ">=1.0.3",
-        "mistralys/application-utils-result-handling": ">=1.0",
+        "mistralys/application-utils-core": ">=2.2.3",
+        "mistralys/application-utils-image": ">=1.1",
         "parsecsv/php-parsecsv" : ">=1.3",
         "php": ">=7.4",
         "ext-mbstring": "*",
