@@ -1,9 +1,16 @@
+### v3.1.1 - Split off OperationResult
+- Core: The `OperationResult`-related classes have been moved to a separate repository.
+- Dependencies: Added [AppUtils Result Handling](https://github.com/Mistralys/application-utils-result-handling).
+
+> NOTE: Minor version bump, since the split has no
+> functional impact on this package.
+
 ## v3.1.0 - Split off the ImageHelper
 - ImageHelper: Split it off into a separate package, `mistralys/application-utils-image`.
 - ImageHelper: Fully backwards compatible; the class is still available in this package.
-- Dependencies: Added AppUtils Image [v1.1.0](https://github.com/Mistralys/application-utils-image/releases/tag/1.1.0).
+- Dependencies: Added [AppUtils Image](https://github.com/Mistralys/application-utils-image).
 
-## v3.0.6 - Operation result improvements
+## v3.0.5 - Operation result improvements
 - OperationResult: Duplicate messages are now compressed into a single entry.
 - OperationResult: Added `getCount()` to count how many times a message has been added.
 - OperationResult: Added `getCodes()` to the collection.
