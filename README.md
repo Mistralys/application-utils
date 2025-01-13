@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.com/Mistralys/application-utils.svg?branch=master)](https://travis-ci.com/Mistralys/application-utils) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Mistralys/application-utils/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/Mistralys/application-utils/?branch=master)
-
 # Application Utilities
 
 Drop-in static PHP utility classes for common tasks, from file system related
