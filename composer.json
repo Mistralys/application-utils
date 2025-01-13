@@ -34,6 +34,7 @@
     "require" : 
     {
         "mistralys/application-utils-core": ">=1.0.3",
+        "mistralys/application-utils-result-handling": ">=1.0",
         "parsecsv/php-parsecsv" : ">=1.3",
         "php": ">=7.4",
         "ext-mbstring": "*",
