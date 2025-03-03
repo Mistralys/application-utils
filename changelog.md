@@ -1,5 +1,5 @@
 ### v3.1.2 - Pagination helper fix
-- PaginationHelper: Fixed the current page returning 0 in some cases.
+- PaginationHelper: Fixed the current page returning `0` in some cases.
 
 ### v3.1.1 - Split off OperationResult
 - Core: The `OperationResult`-related classes have been moved to a separate repository.
