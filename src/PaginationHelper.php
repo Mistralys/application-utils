@@ -352,6 +352,9 @@ class PaginationHelper
     protected function calculate() : void
     {
         $pages = (int)ceil($this->total / $this->perPage);
+        if($pages < 1) {
+            $pages = 1;
+        }
         
         if($this->current < 1)
         {
@@ -361,7 +364,7 @@ class PaginationHelper
         {
             $this->current = $pages;
         }
-        
+
         $this->last = $pages;
         
         $nextPage = $this->current + 1;
