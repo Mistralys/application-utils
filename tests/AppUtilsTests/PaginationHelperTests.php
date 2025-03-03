@@ -156,6 +156,21 @@ final class PaginationHelperTests extends TestCase
             'hasNext' => true,
             'actualCurrent' => 2,
             'pageNumbers' => array(1, 2, 3)
+        ),
+        array(
+            'label' => 'No pages at all',
+            'total' => 0,
+            'perPage' => 30,
+            'current' => 1,
+
+            'prev' => 1,
+            'next' => 1,
+            'last' => 1,
+            'hasPages' => false,
+            'hasPrevious' => false,
+            'hasNext' => false,
+            'actualCurrent' => 1,
+            'pageNumbers' => array(1)
         )
     );
 
