@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 MemoryLimit=900M
-AnalysisLevel=6
+AnalysisLevel=$(cat ./level.txt)
 OutputFile=result.txt
 ConfigFile=./phpstan.neon
 BinFolder=../../vendor/bin
@@ -11,7 +11,7 @@ echo "RUNNING PHPSTAN AT LEVEL $AnalysisLevel"
 echo "-------------------------------------------------------"
 echo ""
 
-$BinFolder/phpstan analyse -l $AnalysisLevel -c $ConfigFile --memory-limit=$MemoryLimit > $OutputFile
+$BinFolder/phpstan analyse -l "$AnalysisLevel" -c $ConfigFile --memory-limit=$MemoryLimit > $OutputFile
 
 echo ""
 echo "Output saved to file:"
