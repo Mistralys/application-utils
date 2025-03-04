@@ -142,8 +142,11 @@ final class URLBuilderTests extends BaseTestCase
 
     public function test_customBuilder() : void
     {
-        $builder = StubCustomURLBuilder::create()
-            ->customParam('value');
+        $builder = StubCustomURLBuilder::create();
+
+        $this->assertInstanceOf(StubCustomURLBuilder::class, $builder);
+
+        $builder->customParam('value');
 
         $this->assertStringContainsString('custom=value', (string)$builder);
     }
