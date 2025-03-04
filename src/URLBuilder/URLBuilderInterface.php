@@ -10,6 +10,7 @@ namespace AppUtils\URLBuilder;
 
 use AppUtils\ConvertHelper\JSONConverter\JSONConverterException;
 use AppUtils\Interfaces\RenderableInterface;
+use AppUtils\URLInfo;
 
 /**
  * Interface for URL builder instances.
@@ -53,6 +54,15 @@ interface URLBuilderInterface extends RenderableInterface
      * @return $this
      */
     public function importURL(string $url) : self;
+
+    /**
+     * Imports an existing {@see URLInfo} instance to
+     * populate the URL components with.
+     *
+     * @param URLInfo $info
+     * @return self
+     */
+    public function importURLInfo(URLInfo $info) : self;
 
     /**
      * Adds a parameter, automatically determining its type.
@@ -125,4 +135,17 @@ interface URLBuilderInterface extends RenderableInterface
      * @return string|int|float|bool|NULL|array
      */
     public function getParam(string $name);
+
+    /**
+     * Checks if a parameter exists in the URL,
+     * and has a non-empty value.
+     *
+     * This means that it must not be `null` or
+     * an empty string (since it will not be added
+     * to the resulting URL string anyway).
+     *
+     * @param string $name
+     * @return bool
+     */
+    public function hasParam(string $name) : bool;
 }
