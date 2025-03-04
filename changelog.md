@@ -1,6 +1,7 @@
 ### v3.1.4 - URLBuilder enhancements
 - URLBuilder: Better support for extending the class.
 - URLBuilder: Made the `createXXX()` methods work with extended classes.
+- PHPStan: Moved the level to a config file for easier maintenance and better visibility.
 
 ### v3.1.3 - Added URLBuilder
 - URLBuilder: Added the new helper class migrated from `mistralys/application_framework`.
