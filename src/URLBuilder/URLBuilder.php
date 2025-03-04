@@ -24,14 +24,33 @@ use function AppUtils\parseURL;
  *
  * ## Usage
  *
- * To create an instance, use the {@see self::create()} method.
+ * To create an instance, use any of the create methods, e.g.,
+ * {@see self::create()}, then add or modify parameters as needed:
+ *
+ * ```php
+ * $url = URLBuilder::create()
+ *   ->string('foo', 'bar')
+ *   ->int('number', 123);
+ * ```
+ *
+ * The class implements the {@see RenderableInterface} interface,
+ * so you can echo the URL, or use it in string concatenation.
+ *
+ * ```php
+ * $url = URLBuilder::create()
+ *    ->string('foo', 'bar');
+ *
+ * echo '<a href="'.$url.'">Click here</a>';
+ * ```
  *
  * ## Extending the URL builder
  *
  * The URLBuilder class is designed to be extended, so you can
  * add methods to handle parameters specific to your application.
+ *
  * Typically, you would create a new class that extends {@see URLBuilder},
  * as well as a matching interface that extends {@see URLBuilderInterface}.
+ * An example can be found in {@see \AppUtilsTestClasses\Stubs\StubCustomURLBuilder}.
  *
  * @package Application Utils
  * @subpackage URL Builder
@@ -61,9 +80,43 @@ class URLBuilder implements URLBuilderInterface
         return $this->dispatcher;
     }
 
+    /**
+     * Creates a new instance of the URLBuilder, optionally
+     * with a set of URL parameters to start with.
+     *
+     * @param array<string,string|int|float|bool|null> $params
+     * @return self
+     */
     public static function create(array $params=array()) : self
     {
         return new self($params);
+    }
+
+    /**
+     * Creates a new instance of the builder using a URL string
+     * to populate the URL components with.
+     *
+     * @param string $url
+     * @return self
+     * @throws URLBuilderException {@see URLBuilderException::ERROR_INVALID_HOST}
+     */
+    public static function createFromURL(string $url) : self
+    {
+        return (new self())->importURL($url);
+    }
+
+    /**
+     * Creates a new instance of the builder using an
+     * existing {@see URLInfo} instance to populate the
+     * URL components with.
+     *
+     * @param URLInfo $info
+     * @return self
+     * @throws URLBuilderException {@see URLBuilderException::ERROR_INVALID_HOST}
+     */
+    public static function createFromURLInfo(URLInfo $info) : self
+    {
+        return (new self())->importURLInfo($info);
     }
 
     /**
@@ -85,13 +138,7 @@ class URLBuilder implements URLBuilderInterface
      */
     public function inheritParam(string $name): self
     {
-        $value = Request::getInstance()->getParam($name);
-
-        if($value !== null && $value !== '') {
-            return $this->auto($name, $value);
-        }
-
-        return $this;
+        return $this->auto($name, Request::getInstance()->getParam($name));
     }
 
     /**
@@ -114,13 +161,21 @@ class URLBuilder implements URLBuilderInterface
      */
     public function importURL(string $url) : self
     {
-        $parsed = parseURL($url);
+        return $this->importURLInfo(parseURL($url));
+    }
 
-        $this->checkHost($parsed);
+    /**
+     * @inheritDoc
+     * @return $this
+     * @throws URLBuilderException {@see URLBuilderException::ERROR_INVALID_HOST}
+     */
+    public function importURLInfo(URLInfo $info) : self
+    {
+        $this->checkHost($info);
 
         return $this
-            ->dispatcher(ltrim($parsed->getPath(), '/'))
-            ->import($parsed->getParams());
+            ->dispatcher(ltrim($info->getPath(), '/'))
+            ->import($info->getParams());
     }
 
     private ?URLInfo $appURL = null;
@@ -212,7 +267,7 @@ class URLBuilder implements URLBuilderInterface
      */
     public function string(string $name, ?string $value) : self
     {
-        if(!empty($value)) {
+        if($value !== null && $value !== '') {
             $this->params[$name] = $value;
         }
 
@@ -289,5 +344,10 @@ class URLBuilder implements URLBuilderInterface
     public function getParam(string $name)
     {
         return $this->params[$name] ?? null;
+    }
+
+    public function hasParam(string $name) : bool
+    {
+        return $this->getParam($name) !== null;
     }
 }
