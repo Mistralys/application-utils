@@ -288,7 +288,7 @@ class URLBuilder implements URLBuilderInterface
     /**
      * Adds an array as a JSON string URL parameter.
      * @param string $name
-     * @param array<int|string,string|int|float|bool|NULL|array> $data
+     * @param array<int|string,string|int|float|bool|NULL|array<mixed>> $data
      * @return $this
      * @throws JSONConverterException
      */

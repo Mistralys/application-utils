@@ -48,7 +48,7 @@ interface URLBuilderInterface extends RenderableInterface
     /**
      * Imports the dispatcher and parameters from an application-internal URL string.
      *
-     * NOTE: The host must match the current application host.
+     * > NOTE: The host must match the current application host.
      *
      * @param string $url
      * @return $this
@@ -105,7 +105,7 @@ interface URLBuilderInterface extends RenderableInterface
     /**
      * Adds an array as a JSON string.
      * @param string $name
-     * @param array<int|string,string|int|float|bool|NULL|array> $data
+     * @param array<int|string,string|int|float|bool|NULL|array<mixed>> $data
      * @return $this
      * @throws JSONConverterException
      */
@@ -132,7 +132,7 @@ interface URLBuilderInterface extends RenderableInterface
      * Gets a parameter value if it exists in the URL.
      *
      * @param string $name
-     * @return string|int|float|bool|NULL|array
+     * @return string|int|float|bool|NULL|array<mixed>
      */
     public function getParam(string $name);
 
