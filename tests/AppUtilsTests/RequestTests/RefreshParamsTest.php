@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace AppUtilsTests\RequestTests;
 
 use AppUtils\Request;
-use PHPUnit\Framework\TestCase;
+use TestClasses\BaseTestCase;
 
-final class RefreshParamsTest extends TestCase
+final class RefreshParamsTest extends BaseTestCase
 {
     private Request $request;
     
     protected function setUp() : void
     {
-        $_REQUEST = array();
-        
+        parent::setUp();
+
         $this->request = new Request();
     }
     
     protected function tearDown() : void
     {
-        $_REQUEST = array();
-        
+        parent::tearDown();
+
         unset($this->request);
     }
     
@@ -42,7 +42,7 @@ final class RefreshParamsTest extends TestCase
     public function test_disable_autoExcludes() : void
     {
         $sessionName = session_name();
-        
+
         $_REQUEST[$sessionName] = 'foo';
         $_REQUEST['_qf__1234'] = 'quickformvar';
         

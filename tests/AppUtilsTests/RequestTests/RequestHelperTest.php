@@ -15,6 +15,8 @@ final class RequestHelperTest extends BaseTestCase
     
     protected function setUp() : void
     {
+        parent::setUp();
+
         if(empty($this->assetsFolder))
         {
             $this->assetsFolder = TESTS_ROOT.'/assets/RequestHelper';
