@@ -1,4 +1,8 @@
 <?php
+/**
+ * @package Application Utils Tests
+ * @subpackage PaginationHelper
+ */
 
 declare(strict_types=1);
 
@@ -7,11 +11,29 @@ namespace AppUtilsTests;
 use PHPUnit\Framework\TestCase;
 
 use AppUtils\PaginationHelper;
+use TestClasses\BaseTestCase;
 
-final class PaginationHelperTests extends TestCase
+/**
+ * @package Application Utils Tests
+ * @subpackage PaginationHelper
+ */
+final class PaginationHelperTests extends BaseTestCase
 {
     /**
-     * @var array<int,array<string,string|int|bool>>
+     * @var array<int,array{
+     *     label:string,
+     *     total:int,
+     *     perPage:int,
+     *     current:int,
+     *     prev:int,
+     *     next:int,
+     *     last:int,
+     *     hasPages:bool,
+     *     hasPrevious:bool,
+     *     hasNext:bool,
+     *     actualCurrent:int,
+     *     pageNumbers?:int[]
+     * }>
      */
     protected array $tests = array(
         array(
