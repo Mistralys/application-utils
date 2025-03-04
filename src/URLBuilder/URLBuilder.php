@@ -70,7 +70,7 @@ class URLBuilder implements URLBuilderInterface
     /**
      * @param array<string,string|int|float|bool|null> $params
      */
-    public function __construct(array $params=array())
+    final public function __construct(array $params=array())
     {
         $this->import($params);
     }
@@ -89,7 +89,7 @@ class URLBuilder implements URLBuilderInterface
      */
     public static function create(array $params=array()) : self
     {
-        return new self($params);
+        return new static($params);
     }
 
     /**
@@ -102,7 +102,7 @@ class URLBuilder implements URLBuilderInterface
      */
     public static function createFromURL(string $url) : self
     {
-        return (new self())->importURL($url);
+        return (new static())->importURL($url);
     }
 
     /**
@@ -116,7 +116,7 @@ class URLBuilder implements URLBuilderInterface
      */
     public static function createFromURLInfo(URLInfo $info) : self
     {
-        return (new self())->importURLInfo($info);
+        return (new static())->importURLInfo($info);
     }
 
     /**
