@@ -15,6 +15,22 @@ class BaseTestCase extends TestCase
         parent::setUp();
 
         $this->assetsRootFolder = __DIR__.'/../assets';
+
+        // Clear all request variables for tests that
+        // work with these.
+        $_REQUEST = array();
+        $_POST = array();
+        $_GET = array();
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        // Leave the variables in a clean state
+        $_REQUEST = array();
+        $_POST = array();
+        $_GET = array();
     }
 
     protected function skipWebserverURL() : void
