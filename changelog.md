@@ -1,3 +1,6 @@
+### v3.1.3 - Added URLBuilder
+- URLBuilder: Added the new helper class migrated from `mistralys/application_framework`.
+
 ### v3.1.2 - Pagination helper fix
 - PaginationHelper: Fixed the current page returning `0` in some cases.
 
