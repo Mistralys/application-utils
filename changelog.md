@@ -1,3 +1,8 @@
+### v3.1.6 - Request enhancements
+- Request: Now sorting parameters in `buildURL()` to ensure consistent URLs.
+- Request: Handling some edge cases of double slashes in URLs.
+- URLBuilder: Added `keepOnly()` to remove all parameters except the ones specified.
+
 ### v3.1.5 - URLBuilder enhancements
 - URLBuilder: Added overridable `init()` for any custom initializations.
 
