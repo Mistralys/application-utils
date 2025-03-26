@@ -1,3 +1,6 @@
+### v3.1.5 - URLBuilder enhancements
+- URLBuilder: Added overridable `init()` for any custom initializations.
+
 ### v3.1.4 - URLBuilder enhancements
 - URLBuilder: Better support for extending the class.
 - URLBuilder: Made the `createXXX()` methods work with extended classes.
