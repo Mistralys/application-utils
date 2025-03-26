@@ -149,6 +149,41 @@ class URLBuilder implements URLBuilderInterface
     }
 
     /**
+     * Removes all parameters except the specified ones.
+     *
+     * @param string|string[] ...$paramNames
+     * @return $this
+     */
+    public function keepOnly(...$paramNames) : self
+    {
+        $keep = $this->flattenNames(...$paramNames);
+
+        foreach(array_keys($this->params) as $remove)
+        {
+            if(!in_array($remove, $keep)) {
+                unset($this->params[$remove]);
+            }
+        }
+
+        return $this;
+    }
+
+    private function flattenNames(...$paramNames) : array
+    {
+        $flattened = array();
+
+        foreach($paramNames as $paramName) {
+            if(is_array($paramName)) {
+                $flattened = array_merge($flattened, $this->flattenNames(...$paramName));
+            } else {
+                $flattened[] = $paramName;
+            }
+        }
+
+        return $flattened;
+    }
+
+    /**
      * @inheritDoc
      * @return $this
      */
