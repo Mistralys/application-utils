@@ -182,23 +182,32 @@ class Request
     
     /**
      * Builds an application URL using the specified parameters: returns
-     * an absolute URL to the main dispatcher with the specified parameters.
+     * an absolute URL to the main dispatcher with the specified parameters,
+     * provided the base URL has been set with {@see self::setBaseURL()}.
+     *
      * Not specifying any parameters returns the absolute URL to the
      * application, without ending slash.
      *
      * @param array<string,mixed> $params
      * @param string $dispatcher Relative path to script to use for the URL. Append trailing slash if needed.
      * @return string
+     *
+     * @see self::setBaseURL()
      */
     public function buildURL(array $params = array(), string $dispatcher='') : string
     {
+        if(!empty($dispatcher)) {
+            $dispatcher = ltrim($dispatcher, '/');
+        }
+
         $url = rtrim($this->getBaseURL(), '/') . '/' . $dispatcher;
         
         // append any leftover parameters to the end of the URL
         if (!empty($params)) {
+            ksort($params);
             $url .= '?' . http_build_query($params, '', '&amp;');
         }
-        
+
         return $url;
     }
     
