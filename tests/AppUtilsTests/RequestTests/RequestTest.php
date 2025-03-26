@@ -874,8 +874,6 @@ final class RequestTest extends RequestTestCase
             $this->assertEquals($def['expected'], $value, $def['label']);
         }
     }
-    
-
 
     public function test_buildRefreshURL() : void
     {
@@ -896,6 +894,69 @@ final class RequestTest extends RequestTestCase
             '/?foo=no-bar&amp;option=here&amp;other=value',
             $result
         );
+    }
+
+    public function test_buildURLSortsParameters() : void
+    {
+        $this->assertSame(
+            '/?a=1&amp;b=2&amp;c=3',
+            Request::getInstance()->buildURL(array(
+                'c' => 3,
+                'a' => 1,
+                'b' => 2
+            ))
+        );
+    }
+
+    public function test_setDispatcher() : void
+    {
+        $this->assertSame(
+            '/index.php?foo=bar',
+            Request::getInstance()->buildURL(array('foo' => 'bar'), 'index.php')
+        );
+    }
+
+    public function test_setDispatcherWithBaseURLAndNoDispatcher() : void
+    {
+        $request = Request::getInstance();
+
+        $request->setBaseURL('https://domain.com/');
+
+        $this->assertSame(
+            'https://domain.com/?foo=bar',
+            $request->buildURL(array('foo' => 'bar'))
+        );
+    }
+
+    public function test_setDispatcherWithBaseURLAndDispatcher() : void
+    {
+        $request = Request::getInstance();
+
+        $request->setBaseURL('https://domain.com/');
+
+        $this->assertSame(
+            'https://domain.com/index.php?foo=bar',
+            $request->buildURL(array('foo' => 'bar'), 'index.php')
+        );
+    }
+
+    public function test_setDispatcherNormalizeSlashes() : void
+    {
+        $request = Request::getInstance();
+
+        $request->setBaseURL('https://domain.com//');
+
+        $this->assertSame(
+            'https://domain.com/index.php?foo=bar',
+            $request->buildURL(array('foo' => 'bar'), '/index.php')
+        );
+    }
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        Request::getInstance()->setBaseURL('');
     }
 
     // endregion

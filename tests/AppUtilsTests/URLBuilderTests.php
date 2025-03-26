@@ -161,6 +161,29 @@ final class URLBuilderTests extends BaseTestCase
         $this->assertSame('foorgh', $builder->getParam('inherited'));
     }
 
+    public function test_keepOnlyParams() : void
+    {
+        $builder = URLBuilder::create(array(
+            'foo' => 'bar',
+            'argh' => 'lopos',
+            'lorem' => 'ipsum',
+            'dolor' => 'sit',
+            'amet' => 'consectetur'
+        ))
+            ->keepOnly(
+                'foo',
+                array('argh')
+            );
+
+        $this->assertSame(
+            array(
+                'argh' => 'lopos',
+                'foo' => 'bar'
+            ),
+            $builder->getParams()
+        );
+    }
+
     // endregion
 
     // region: Support methods
