@@ -52,6 +52,9 @@ use function AppUtils\parseURL;
  * as well as a matching interface that extends {@see URLBuilderInterface}.
  * An example can be found in {@see \AppUtilsTestClasses\Stubs\StubCustomURLBuilder}.
  *
+ * Extend the {@see self::init()} method if you need to perform any
+ * initialization tasks when the URL builder is created.
+ *
  * @package Application Utils
  * @subpackage URL Builder
  * @see URLBuilderInterface
@@ -73,6 +76,19 @@ class URLBuilder implements URLBuilderInterface
     final public function __construct(array $params=array())
     {
         $this->import($params);
+
+        $this->init();
+    }
+
+    /**
+     * Overridable method to initialize the URL builder.
+     * Called directly after the constructor.
+     *
+     * @return void
+     */
+    protected function init() : void
+    {
+
     }
 
     public function getDispatcher() : string
