@@ -1,3 +1,9 @@
+### v3.1.7 - Pagination helper fixes
+- PaginationHelper: Fixed incorrect next page value after using `setCurrentPage()`.
+- PaginationHelper: Fixed uninitialized variable when calling `dump()` without calling `getPageNumbers()`.
+- PaginationHelper: Added more information to the `dump()` method.
+- PaginationHelper: Added the `getDump()` method to get the dump as an array.
+
 ### v3.1.6 - Request enhancements
 - Request: Now sorting parameters in `buildURL()` to ensure consistent URLs.
 - Request: Handling some edge cases of double slashes in URLs.
