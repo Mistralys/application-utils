@@ -35,9 +35,9 @@ class PaginationHelper
     protected int $offsetStart = 0;
 
     /**
-     * @var array<string,int|int[]>
+     * @var array<string,int|int[]>|NULL
      */
-    protected array $debug;
+    protected ?array $pagesDebug = null;
 
     /**
     * @param int $totalItems The total number of items available.
@@ -239,9 +239,7 @@ class PaginationHelper
         // create and return the page numbers list
         $numbers = range($prev, $next);
 
-        $this->debug = array(
-            'current' => $this->current,
-            'totalPages' => $this->last,
+        $this->pagesDebug = array(
             'adjacent' => $adjacent,
             'maxBack' => $maxBack,
             'maxFwd' => $maxFwd,
@@ -250,19 +248,38 @@ class PaginationHelper
             'backDiff' => $backDiff,
             'fwdDiff' => $fwdDiff,
             'prev' => $prev,
-            'next' => $next,
-            'numbers' => $numbers
+            'next' => $next
         );
         
         return $numbers;
     }
 
     /**
+     * @return array{current:int, total:int, perPage:int, next:int, prev:int, last:int, hasPages:bool, hasPrevious:bool, hasNext:bool, pageNumbers:int[], pagesDebug:array<string,int|int[]>}
+     */
+    public function getDump() : array
+    {
+        return array(
+            'current' => $this->getCurrentPage(),
+            'total' => $this->getTotalPages(),
+            'perPage' => $this->getItemsPerPage(),
+            'next' => $this->getNextPage(),
+            'prev' => $this->getPreviousPage(),
+            'last' => $this->getLastPage(),
+            'hasPages' => $this->hasPages(),
+            'hasPrevious' => $this->hasPreviousPage(),
+            'hasNext' => $this->hasNextPage(),
+            'pageNumbers' => $this->getPageNumbers(),
+            'pagesDebug' => $this->pagesDebug ?? array(),
+        );
+    }
+
+    /**
      * Echos debugging information with details on the
      * calculations performed internally.
      *
-     * NOTE: Automatically switches to HTML output if
-     * the script is not running in CLI mode.
+     * > NOTE: Automatically switches to HTML output if
+     * > the script is not running in CLI mode.
      *
      * @return void
      */
@@ -272,7 +289,7 @@ class PaginationHelper
             echo
                 '<pre>'.
                 'PaginationHelper Debug:<br>'.
-                print_r($this->debug, true).
+                print_r($this->getDump(), true).
                 '</pre>';
             return;
         }
@@ -280,7 +297,7 @@ class PaginationHelper
         echo
             PHP_EOL.
             'PaginationHelper Debug:'.PHP_EOL.
-            print_r($this->debug, true).
+            print_r($this->getDump(), true).
             PHP_EOL;
     }
     
@@ -348,9 +365,18 @@ class PaginationHelper
     {
         return $this->offsetEnd;
     }
+
+    private function reset() : void
+    {
+        $this->next = 0;
+        $this->prev = 0;
+        $this->last = 0;
+    }
     
     protected function calculate() : void
     {
+        $this->reset();
+
         $pages = (int)ceil($this->total / $this->perPage);
         if($pages < 1) {
             $pages = 1;
