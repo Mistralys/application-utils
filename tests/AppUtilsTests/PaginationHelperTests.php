@@ -244,4 +244,25 @@ final class PaginationHelperTests extends BaseTestCase
             }
         }
     }
+
+    /**
+     * Bug that occurred when the next page was
+     * set using the {@see PaginationHelper::setCurrentPage()}
+     * method, which dit not reset the previously
+     * calculated internal values. The method
+     * {@see PaginationHelper::reset()} was added
+     * to solve this issue.
+     */
+    public function test_bugWrongNextPage() : void
+    {
+        $pagination = new PaginationHelper(
+            190,
+            20,
+            1
+        );
+
+        $pagination->setCurrentPage(10);
+
+        $this->assertSame(10, $pagination->getNextPage());
+    }
 }
