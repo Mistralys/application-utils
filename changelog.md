@@ -1,3 +1,6 @@
+### v3.1.9 - Request fix
+- Request: Removed a stray echo statement that caused output before headers were sent.
+
 ### v3.1.8 - Request fix
 - Request: Fixed the deprecated message when using the `htmlspecialchars` filter.
 - Request: Fixed double-encoding of HTML entities in the `htmlspecialchars` filter.
