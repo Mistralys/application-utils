@@ -1,4 +1,4 @@
-### v3.2.8 - Request fix
+### v3.1.8 - Request fix
 - Request: Fixed the deprecated message when using the `htmlspecialchars` filter.
 - Request: Fixed double-encoding of HTML entities in the `htmlspecialchars` filter.
 
