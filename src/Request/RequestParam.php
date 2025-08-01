@@ -776,7 +776,7 @@ class RequestParam
             )
         );
     }
-    
+
    /**
     * Adds a filter that encodes all HTML special characters
     * using the PHP <code>htmlspecialchars</code> function.
@@ -785,7 +785,16 @@ class RequestParam
     */
     public function addHTMLSpecialcharsFilter() : self
     {
-        return $this->addCallbackFilter('htmlspecialchars', array(ENT_QUOTES, 'UTF-8'));
+        return $this->addCallbackFilter(
+            function($value) : string {
+                if(is_numeric($value) || is_string($value)) {
+                    echo $value.PHP_EOL;
+                    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8', false);
+                }
+
+                return '';
+            }
+        );
     }
 
     // endregion
