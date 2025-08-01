@@ -253,8 +253,69 @@ final class RegisteredParamTests extends RequestTestCase
         }
     }
 
+    public function test_filterHTMLSpecialChars() : void
+    {
+        $request = new Request();
+
+        $tests = array(
+            array(
+                'label' => 'NULL value',
+                'value' => null,
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Empty string',
+                'value' => '',
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Array value',
+                'value' => array('foo'),
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Object value',
+                'value' => new stdClass(),
+                'expected' => ''
+            ),
+            array(
+                'label' => 'Single space',
+                'value' => ' ',
+                'expected' => ' '
+            ),
+            array(
+                'label' => 'Texts without HTML characters',
+                'value' => 'foo bar',
+                'expected' => 'foo bar'
+            ),
+            array(
+                'label' => 'Text with HTML characters',
+                'value' => '<tagname>',
+                'expected' => '&lt;tagname&gt;'
+            ),
+            array(
+                'label' => 'Text with special characters',
+                'value' => "&",
+                'expected' => '&amp;'
+            )
+        );
+
+        foreach($tests as $def)
+        {
+            $name = $this->setUniqueParam($def['value']);
+
+            $value = $request->registerParam($name)
+                ->addHTMLSpecialcharsFilter()
+                ->get('');
+
+            $this->assertEquals($def['expected'], $value, $def['label']);
+        }
+    }
+
     public function test_filter_stripWhitespace() : void
     {
+        $request = new Request();
+
         $tests = array(
             array(
                 'label' => 'NULL value',
@@ -297,8 +358,6 @@ final class RegisteredParamTests extends RequestTestCase
                 'expected' => 'foo'
             )
         );
-
-        $request = new Request();
 
         foreach($tests as $def)
         {
