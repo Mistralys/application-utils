@@ -1,3 +1,7 @@
+### v3.2.8 - Request fix
+- Request: Fixed the deprecated message when using the `htmlspecialchars` filter.
+- Request: Fixed double-encoding of HTML entities in the `htmlspecialchars` filter.
+
 ### v3.1.7 - Pagination helper fixes
 - PaginationHelper: Fixed incorrect next page value after using `setCurrentPage()`.
 - PaginationHelper: Fixed uninitialized variable when calling `dump()` without calling `getPageNumbers()`.
