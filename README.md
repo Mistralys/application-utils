@@ -3,6 +3,20 @@
 Drop-in static PHP utility classes for common tasks, from file system related
 operations and variable conversions to image manipulation.
 
+## Composition
+
+This package is an aggregation of several separate libraries upon which the 
+application utilities are built. Depending on the features you need, you may
+not need to install this package in its entirety. 
+
+The following libraries are included in this package:
+
+- [AppUtils Core][]: The minimum core classes used by all libraries.
+- [AppUtils Image][]: Image manipulation classes using the GD library.
+- [AppUtils Collections][]: Enum and item collection classes.
+- [AppUtils Result Handling][]: Classes for collecting operation results.
+- [AppLocalize][]: (Optional) Localization library and translation UI.
+
 ## Requirements
 
 - PHP v7.4+
@@ -179,3 +193,9 @@ and being modernized.
 [HTMLTag]: https://github.com/Mistralys/application-utils/wiki/HTMLTag
 [RGBAColor]: https://github.com/Mistralys/application-utils/wiki/RGBAColor
 [ClassHelper]: https://github.com/Mistralys/application-utils/wiki/ClassHelper
+
+[AppUtils Core]: https://github.com/Mistralys/application-utils-core
+[AppUtils Image]: https://github.com/Mistralys/application-utils-image
+[AppUtils Collections]: https://github.com/Mistralys/application-utils-collections
+[AppUtils Result Handling]: https://github.com/Mistralys/application-utils-result-handling
+[AppLocalize]: https://github.com/Mistralys/application-localization
