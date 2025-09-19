@@ -66,7 +66,7 @@ class URLBuilder implements URLBuilderInterface
     /**
      * @var array<string,string>
      */
-    private array $params;
+    private array $params = array();
 
     private string $dispatcher = '';
 
