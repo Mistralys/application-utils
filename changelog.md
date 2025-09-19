@@ -1,3 +1,6 @@
+### v3.1.10 - URLBuilder fix
+- URLBuilder: Fixed an internal error when rendering without setting any parameters.
+
 ### v3.1.9 - Request fix
 - Request: Removed a stray echo statement that caused output before headers were sent.
 
