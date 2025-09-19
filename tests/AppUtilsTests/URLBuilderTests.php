@@ -184,6 +184,18 @@ final class URLBuilderTests extends BaseTestCase
         );
     }
 
+    public function test_noExceptionCastingToString() : void
+    {
+        $this->assertStringNotContainsString('Exception', (string)URLBuilder::create());
+    }
+
+    public function test_noExceptionWithoutAnyParams() : void
+    {
+        URLBuilder::create()->render();
+
+        $this->addToAssertionCount(1);
+    }
+
     // endregion
 
     // region: Support methods
