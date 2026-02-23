@@ -1,8 +1,0 @@
-parameters:
-    bootstrapFiles:
-        - ./constants.php
-    excludePaths:
-        - ../../css/*
-    paths:
-        - ../../src
-        - ../../tests
