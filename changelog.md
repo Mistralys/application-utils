@@ -2,6 +2,7 @@
 
 ## v3.2.0 - GeShi Removal & MIT License
 - Switched license to MIT ([#11](https://github.com/Mistralys/application-utils/issues/11)).
+- Docs: Added agentic coding support with manifest and `AGENTS.md`.
 - Dependencies: Bumped up AppUtils Core to [v2.5.0](https://github.com/Mistralys/application-utils-core/releases/tag/2.5.0).
 
 ## v3.1.10 - URLBuilder fix
